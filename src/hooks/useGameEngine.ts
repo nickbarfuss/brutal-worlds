@@ -1,0 +1,390 @@
+
+
+import { useCallback, useRef, useEffect, useReducer } from 'react';
+import * as THREE from 'three';
+import {
+    Enclave, Domain, Rift, Expanse, Route, MapCell, PendingOrders, InspectedEntity, GamePhase, ActiveDisasterMarker, ActiveGambit, GameState, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, EffectQueueItem, PlayerIdentifier, InspectedMapEntity
+} from '@/types/game';
+import { VfxManager } from '@/logic/VfxManager';
+import { SfxManager } from '@/logic/SfxManager';
+import { useGameInitializer } from '@/hooks/useGameInitializer';
+import { useGameLoop } from '@/hooks/useGameLoop';
+import { reducer as gameReducer, initialState, Action } from '@/logic/reducers';
+import { deserializeResolvedTurn, serializeGameStateForWorker } from '@/utils/threeUtils';
+import { calculateAIOrderChanges } from '@/logic/ai';
+import { getAssistMultiplierForEnclave } from '@/data/birthrightManager.ts';
+import { triggerNewDisaster } from '@/logic/disasterManager';
+
+
+// DEV NOTE: Remember to update metadata.json version for new features/fixes.
+
+// Logic from missing file `orderValidator.ts` is inlined here.
+const getInvalidPlayerAssistOrders = (
+    playerPendingOrders: PendingOrders,
+    enclaveData: { [id: number]: Enclave }
+): number[] => {
+    const ordersToCancel: number[] = [];
+
+    for (const fromIdStr in playerPendingOrders) {
+        const fromId = parseInt(fromIdStr, 10);
+        const order = playerPendingOrders[fromId];
+        const fromEnclave = enclaveData[fromId];
+
+        if (order.type === 'assist' && fromEnclave && fromEnclave.owner === 'player-1') {
+            const assistMultiplier = getAssistMultiplierForEnclave(fromEnclave);
+            const safeForces = Number.isFinite(fromEnclave.forces) ? fromEnclave.forces : 0;
+            const forceToSend = Math.ceil(safeForces * assistMultiplier);
+            if (safeForces - forceToSend <= 0) {
+                ordersToCancel.push(fromId);
+            }
+        }
+    }
+    return ordersToCancel;
+};
+
+export const useGameEngine = () => {
+    const vfxManager = useRef(new VfxManager());
+    const sfxManager = useRef(new SfxManager());
+    const [state, dispatch] = useReducer(gameReducer, initialState);
+    const workerRef = useRef<Worker | null>(null);
+    const aiActionTimeoutsRef = useRef<number[]>([]);
+    
+    // Use a ref to track the current session ID. This allows the worker's message handler,
+    // which is only created once, to access the latest session ID without needing to be re-created.
+    const gameSessionIdRef = useRef<number>(state.gameSessionId);
+    gameSessionIdRef.current = state.gameSessionId;
+
+    // Create a ref to track the current game phase. This is crucial for the worker
+    // message handler, which is only created once but needs access to the latest phase.
+    const gamePhaseRef = useRef<GamePhase>(state.gamePhase);
+    gamePhaseRef.current = state.gamePhase;
+
+
+    // --- State-dispatching callbacks ---
+    const setInitializationState = useCallback((isInitialized, message, error) => {
+        dispatch({ type: 'SET_INITIALIZATION_STATE', payload: { isInitialized, message, error } });
+    }, []);
+
+    const setGamePhase = useCallback((phase: GamePhase) => dispatch({ type: 'SET_GAME_PHASE', payload: phase }), []);
+    const startGame = useCallback((playerArchetypeKey: string, worldKey: string, playerLegacyIndex: number, opponentArchetypeKey?: string) => {
+        vfxManager.current.reset();
+        // FIX: Corrected payload property from 'playerArchetypeSkinIndex' to 'playerLegacyIndex' to match action type.
+        dispatch({ type: 'START_GAME', payload: { playerArchetypeKey, worldKey, playerLegacyIndex, opponentArchetypeKey } });
+    }, []);
+
+    const completeIntro = useCallback(() => dispatch({ type: 'COMPLETE_INTRO' }), []);
+
+    const resetGame = useCallback(() => {
+        sfxManager.current.reset();
+        dispatch({ type: 'RESET_GAME' });
+    }, []);
+    const togglePause = useCallback(() => dispatch({ type: 'TOGGLE_PAUSE' }), []);
+    const goToMainMenu = useCallback(() => {
+        sfxManager.current.reset();
+        dispatch({ type: 'GO_TO_MAIN_MENU' });
+    }, []);
+
+    // Effect to schedule AI actions for the current turn with human-like delays.
+    useEffect(() => {
+        const cleanup = () => {
+            aiActionTimeoutsRef.current.forEach(clearTimeout);
+            aiActionTimeoutsRef.current = [];
+        };
+
+        if (state.gamePhase !== 'playing' || state.isPaused || state.currentTurn === 0 || state.isResolvingTurn) {
+            cleanup();
+            return;
+        }
+
+        const { newOrders, ordersToCancel } = calculateAIOrderChanges(state.enclaveData, state.routes, state.aiPendingOrders);
+        const timeouts: number[] = [];
+
+        ordersToCancel.forEach(fromId => {
+            const delay = Math.random() * (state.gameConfig.TURN_DURATION - 2) * 1000 + 1000;
+            const timeoutId = window.setTimeout(() => {
+                dispatch({ type: 'AI_CANCEL_ORDER', payload: { fromId } });
+            }, delay);
+            timeouts.push(timeoutId);
+        });
+
+        Object.entries(newOrders).forEach(([fromIdStr, order]) => {
+            const fromId = parseInt(fromIdStr, 10);
+            const delay = Math.random() * (state.gameConfig.TURN_DURATION - 2) * 1000 + 1000;
+
+            const timeoutId = window.setTimeout(() => {
+                dispatch({ type: 'AI_ISSUE_ORDER', payload: { fromId, order: order as Order } });
+            }, delay);
+            timeouts.push(timeoutId);
+        });
+
+        aiActionTimeoutsRef.current = timeouts;
+
+        return cleanup;
+    }, [state.currentTurn, state.isPaused, state.gamePhase, state.isResolvingTurn, state.enclaveData, state.routes, state.aiPendingOrders, state.gameConfig.TURN_DURATION]);
+
+    // This effect runs whenever the game state changes, ensuring player assist orders
+    // are automatically canceled if they become invalid (e.g., due to force changes).
+    useEffect(() => {
+        if (state.gamePhase !== 'playing' || state.isPaused || state.isResolvingTurn) {
+            return;
+        }
+    
+        const invalidOrderIds = getInvalidPlayerAssistOrders(state.playerPendingOrders, state.enclaveData);
+    
+        if (invalidOrderIds.length > 0) {
+            dispatch({ type: 'PLAYER_CANCEL_ORDERS', payload: invalidOrderIds });
+        }
+    }, [state.enclaveData, state.playerPendingOrders, state.gamePhase, state.isPaused, state.isResolvingTurn]);
+    
+    useEffect(() => {
+        // Use modern syntax for worker creation, assuming a build tool like Vite.
+        // This is the "real-world" solution that avoids the previous Blob workaround.
+        const worker = new Worker(new URL('../logic/turnResolver.ts', import.meta.url), {
+            type: 'module'
+        });
+        workerRef.current = worker;
+
+        const handleMessage = (e: MessageEvent) => {
+            try {
+                const result = JSON.parse(e.data);
+
+                if (result.error) {
+                    console.error("Worker Error:", result.error);
+                    dispatch({ type: 'SET_INITIALIZATION_STATE', payload: { isInitialized: true, message: '', error: result.error } });
+                    return;
+                }
+                
+                if (result.gameSessionId !== gameSessionIdRef.current || gamePhaseRef.current !== 'playing') {
+                    console.log(`Ignoring stale/irrelevant turn result from session ${result.gameSessionId} (current is ${gameSessionIdRef.current}, phase is ${gamePhaseRef.current})`);
+                    return;
+                }
+
+                const deserializedResult = deserializeResolvedTurn(result);
+                dispatch({ type: 'APPLY_RESOLVED_TURN', payload: deserializedResult });
+            } catch (error) {
+                console.error("Error processing message from worker:", error, "Data:", e.data);
+                const errorMessage = error instanceof Error ? error.message : "An unknown error occurred while processing the turn.";
+                dispatch({ type: 'SET_INITIALIZATION_STATE', payload: { isInitialized: true, message: '', error: `Could not process turn result: ${errorMessage}` } });
+            }
+        };
+
+        worker.addEventListener('message', handleMessage);
+        
+        // FIX: Replaced the `onerror` handler with a more robust version that correctly
+        // inspects the ErrorEvent object for a meaningful string message.
+        worker.onerror = (e: ErrorEvent) => {
+            console.error("A fatal worker error occurred:", e);
+            let errorMessage = 'A fatal error occurred in the background process.';
+            if (e && e.message) {
+                errorMessage = `${e.message} (at ${e.filename}:${e.lineno})`;
+            } else if (e && e.error && e.error.message) {
+                errorMessage = e.error.message;
+            }
+            dispatch({
+                type: 'SET_INITIALIZATION_STATE',
+                payload: { isInitialized: true, message: '', error: errorMessage },
+            });
+        };
+    
+        // Cleanup: Terminate worker
+        return () => {
+          workerRef.current?.terminate();
+          workerRef.current = null;
+        };
+      }, []); // This should run only once.
+
+    // This effect manages the lifecycle of the disaster snackbar timeout.
+    // It is now tied directly to the lifecycle of the `latestDisaster` state.
+    useEffect(() => {
+        if (state.latestDisaster) {
+            const timerId = setTimeout(() => {
+                dispatch({ type: 'CLEAR_LATEST_DISASTER' });
+            }, 5100);
+
+            // This cleanup function will automatically run if the component unmounts
+            // or if `state.latestDisaster` changes, preventing memory leaks and
+            // state updates on unmounted components.
+            return () => clearTimeout(timerId);
+        }
+    }, [state.latestDisaster, dispatch]);
+
+
+    const resolveTurn = useCallback(() => {
+        if (state.isResolvingTurn || !workerRef.current) return;
+    
+        // All disaster creation logic has been moved to the reducer to fix a timing issue.
+        // The resolver is now only responsible for processing the current state.
+        dispatch({ type: 'START_RESOLVING_TURN' });
+        
+        // Prepare the state for the worker.
+        const serializableState = serializeGameStateForWorker({
+            enclaveData: state.enclaveData,
+            playerPendingOrders: state.playerPendingOrders,
+            aiPendingOrders: state.aiPendingOrders,
+            routes: state.routes,
+            mapData: state.mapData, // Pass map data for disaster processing
+            currentTurn: state.currentTurn,
+            gameSessionId: state.gameSessionId,
+            activeDisasterMarkers: state.activeDisasterMarkers,
+            gameConfig: state.gameConfig,
+        });
+        
+        workerRef.current.postMessage(JSON.stringify(serializableState));
+    }, [
+        state.isResolvingTurn, 
+        state.enclaveData, 
+        state.mapData,
+        state.activeDisasterMarkers,
+        state.playerPendingOrders,
+        state.aiPendingOrders,
+        state.routes,
+        state.currentTurn,
+        state.gameSessionId,
+        state.gameConfig,
+    ]);
+    
+    const clearLatestDisaster = useCallback(() => dispatch({ type: 'CLEAR_LATEST_DISASTER' }), []);
+    
+    // This function is now only for manual disaster triggering (e.g., from the Inspector UI).
+    const triggerDisaster = useCallback((key: string) => {
+        dispatch({ type: 'TRIGGER_DISASTER', payload: key });
+    }, []);
+    
+    const setHoveredCellId = useCallback((id: number) => dispatch({ type: 'SET_HOVERED_CELL', payload: id }), []);
+    const handleMapClick = useCallback((cellId: number | null, isCtrlPressed: boolean) => {
+        dispatch({ type: 'HANDLE_MAP_CLICK', payload: { cellId, isCtrlPressed } });
+    }, []);
+    const handleEnclaveDblClick = useCallback((enclaveId: number | null) => dispatch({ type: 'HANDLE_DBL_CLICK', payload: enclaveId }), []);
+    const focusOnEnclave = useCallback((id: number) => dispatch({ type: 'FOCUS_ON_ENCLAVE', payload: id }), []);
+    const focusOnVector = useCallback((vector: Vector3) => dispatch({ type: 'FOCUS_ON_VECTOR', payload: vector }), []);
+    const setInspectedArchetypeOwner = useCallback((owner: PlayerIdentifier | null) => dispatch({ type: 'SET_INSPECTED_ARCHETYPE_OWNER', payload: owner }), []);
+    const setInspectedMapEntity = useCallback((entity: InspectedMapEntity | { type: 'world' } | null) => dispatch({ type: 'SET_INSPECTED_MAP_ENTITY', payload: entity }), []);
+    const setWorldInspectorManuallyClosed = useCallback((isClosed: boolean) => dispatch({ type: 'SET_WORLD_INSPECTOR_MANUALLY_CLOSED', payload: isClosed }), []);
+    const setActiveHighlight = useCallback((highlight: ActiveHighlight | null) => dispatch({ type: 'SET_ACTIVE_HIGHLIGHT', payload: highlight }), []);
+    const toggleSettingsDrawer = useCallback(() => dispatch({ type: 'TOGGLE_SETTINGS_DRAWER' }), []);
+    
+    const toggleGlobalMute = useCallback(() => dispatch({ type: 'TOGGLE_GLOBAL_MUTE' }), []);
+    const setVolume = useCallback((channel: AudioChannel, volume: number) => {
+        sfxManager.current.setVolume(channel, volume);
+        dispatch({ type: 'SET_VOLUME', payload: { channel, volume } });
+    }, []);
+    const toggleMuteChannel = useCallback((channel: AudioChannel) => {
+        const isMuted = !state.mutedChannels[channel];
+        sfxManager.current.setMuted(channel, isMuted);
+        dispatch({ type: 'TOGGLE_MUTE_CHANNEL', payload: channel });
+    }, [state.mutedChannels]);
+    const setBloomEnabled = useCallback((enabled: boolean) => dispatch({ type: 'SET_BLOOM_ENABLED', payload: enabled }), []);
+    const setBloomValue = useCallback((key: 'threshold' | 'strength' | 'radius', value: number) => {
+        dispatch({ type: 'SET_BLOOM_VALUE', payload: { key, value } });
+    }, []);
+    const setMaterialValue = useCallback((type: keyof GameState['materialSettings'], key: keyof MaterialProperties, value: number) => {
+        dispatch({ type: 'SET_MATERIAL_VALUE', payload: { type, key, value } });
+    }, []);
+    const setAmbientLightIntensity = useCallback((value: number) => {
+        dispatch({ type: 'SET_AMBIENT_LIGHT_INTENSITY', payload: value });
+    }, []);
+    const setTonemappingStrength = useCallback((value: number) => {
+        dispatch({ type: 'SET_TONEMAPPING_STRENGTH', payload: value });
+    }, []);
+    const setPlayVfxFromPreviousTurns = useCallback((enabled: boolean) => dispatch({ type: 'SET_PLAY_VFX_FROM_PREVIOUS_TURNS', payload: enabled }), []);
+    const setStackVfx = useCallback((enabled: boolean) => dispatch({ type: 'SET_STACK_VFX', payload: enabled }), []);
+    
+    const { turnStartTimeRef } = useGameLoop(state.isPaused, state.gamePhase, state.isResolvingTurn, state.currentWorld, state.currentTurn, resolveTurn, state.isIntroComplete);
+    useGameInitializer(vfxManager, sfxManager, startGame, setGamePhase, setInitializationState);
+    
+    useEffect(() => {
+        sfxManager.current.setGlobalMute(state.isGloballyMuted);
+    }, [state.isGloballyMuted]);
+
+    useEffect(() => {
+        if (state.vfxToPlay) {
+            vfxManager.current.playEffect(state.vfxToPlay.key, state.vfxToPlay.center);
+            // By wrapping the dispatch in a timeout, we push the state clearing to the
+            // next event loop tick. This resolves a race condition where the effect
+            // was being cleared before the rendering engine or audio context had a
+            // chance to process it.
+            setTimeout(() => dispatch({ type: 'CLEAR_VFX' }), 0);
+        }
+    }, [state.vfxToPlay, dispatch]);
+    
+    useEffect(() => {
+        if (state.sfxToPlay) {
+            sfxManager.current.playSound(state.sfxToPlay.key, state.sfxToPlay.channel, state.sfxToPlay.position);
+            // By wrapping the dispatch in a timeout, we push the state clearing to the
+            // next event loop tick. This resolves a race condition where the sound
+            // was being cleared from state before the audio context could start playback.
+            setTimeout(() => dispatch({ type: 'CLEAR_SFX' }), 0);
+        }
+    }, [state.sfxToPlay, dispatch]);
+
+    useEffect(() => {
+        if (state.isIntroComplete && state.gamePhase === 'playing' && state.currentTurn === 0) {
+            const timer = setTimeout(() => {
+                dispatch({ type: 'START_FIRST_TURN' });
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [state.isIntroComplete, state.gamePhase, state.currentTurn]);
+
+    useEffect(() => {
+        if (state.gamePhase === 'playing' && state.currentTurn === 1 && !state.isPaused) {
+            sfxManager.current.playLoopIfNotPlaying('ambient');
+        }
+    }, [state.gamePhase, state.currentTurn, state.isPaused]);
+    
+    useEffect(() => {
+        const musicManager = sfxManager.current;
+        const phase = state.gamePhase;
+    
+        const shouldPlayMusic = (
+            phase === 'mainMenu' || 
+            phase === 'archetypeSelection' || 
+            phase === 'playing' || 
+            phase === 'gameOver'
+        );
+    
+        if (shouldPlayMusic) {
+            musicManager.playLoopIfNotPlaying('music');
+        } else {
+            musicManager.stopLoop('music');
+        }
+    }, [state.gamePhase]);
+    
+    return {
+        ...state,
+        dispatch, // Pass dispatch down for the renderer to use
+        vfxManager: vfxManager.current,
+        sfxManager: sfxManager.current,
+        setGamePhase,
+        startGame,
+        completeIntro,
+        resetGame,
+        openArchetypeSelection: () => setGamePhase('archetypeSelection'),
+        // FIX: Correct typo from 'closeArchechetypeSelection' to 'closeArchetypeSelection'.
+        closeArchetypeSelection: () => setGamePhase('mainMenu'),
+        goToMainMenu,
+        togglePause,
+        clearLatestDisaster,
+        triggerDisaster,
+        setHoveredCellId,
+        handleMapClick,
+        handleEnclaveDblClick,
+        focusOnEnclave,
+        focusOnVector,
+        setInspectedArchetypeOwner,
+        setInspectedMapEntity,
+        setWorldInspectorManuallyClosed,
+        setActiveHighlight,
+        toggleSettingsDrawer,
+        toggleGlobalMute,
+        setVolume,
+        toggleMuteChannel,
+        setBloomEnabled,
+        setBloomValue,
+        setMaterialValue,
+        setAmbientLightIntensity,
+        setTonemappingStrength,
+        setPlayVfxFromPreviousTurns,
+        setStackVfx,
+    };
+};

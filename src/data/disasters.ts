@@ -1,0 +1,294 @@
+import { DisasterProfile } from '@/types/game.ts';
+
+export const DISASTER_PROFILES: { [key: string]: DisasterProfile } = {
+    'entropy-wind': {
+        ui: { 
+            name: "Entropy Wind", 
+            icon: 'tornado', 
+            description: "A howling gale of pure chaos moves across the land, unmaking everything in its path.",
+            assets: {
+                key: 'entropy-wind',
+                image: 'https://storage.googleapis.com/brutal-worlds/disaster/entropy-wind.jpg',
+                sfxAlert: 'entropy-wind-alert',
+                sfxImpact: 'entropy-wind-impact',
+                sfxAftermath: 'entropy-wind-aftermath',
+                vfxAlert: 'disaster-entropy-wind-alert',
+                vfxImpact: 'disaster-entropy-wind-impact',
+                vfxAftermath: 'disaster-entropy-wind-aftermath',
+            }
+        },
+        logic: {
+            originCellType: 'Area',
+            siteCount: 1,
+            alert: { 
+                name: "Chaotic Drafts",
+                description: "Unstable air currents signal a tear in reality is forming.",
+                duration: 1, 
+                radius: 1,
+                movement: 0,
+                rules: [],
+            },
+            impact: { 
+                name: "Entropy Lash",
+                description: "The chaotic storm lashes out, unmaking matter at its epicenter.",
+                duration: 1, 
+                radius: 1,
+                movement: [1, 5],
+                rules: [{ type: 'forceDamage', target: 'occupyingEnclave', damageType: 'percentage', value: 0.5 }],
+            },
+            aftermath: { 
+                name: "Lingering Chaos",
+                description: "The storm continues its path of destruction, weakening everything it touches.",
+                duration: [2, 4], 
+                radius: 1,
+                movement: [1, 5],
+                rules: [
+                    { type: 'forceDamage', target: 'affectedEnclaves', damageType: 'percentage', value: 0.25 },
+                    { type: 'dissipateOnNoMoveTarget' }
+                ],
+            }
+        }
+    },
+    'ion-tempest': {
+        ui: { 
+            name: "Ion Tempest", 
+            icon: 'cyclone', 
+            description: "A storm of charged particles sweeps across the world, disrupting supply lines.",
+            assets: {
+                key: 'ion-tempest',
+                image: 'https://storage.googleapis.com/brutal-worlds/disaster/ion-tempest.jpg',
+                sfxAlert: 'ion-tempest-alert',
+                sfxImpact: 'ion-tempest-impact',
+                sfxAftermath: 'ion-tempest-aftermath',
+                vfxAlert: 'disaster-ion-tempest-alert',
+                vfxImpact: 'disaster-ion-tempest-impact',
+                vfxAftermath: 'disaster-ion-tempest-aftermath',
+            }
+        },
+        logic: {
+            originCellType: 'Area',
+            siteCount: 1,
+            alert: { 
+                name: "Static Buildup",
+                description: "The atmosphere crackles with energy, signaling a massive electromagnetic storm is forming.",
+                duration: 1,
+                radius: [2, 10],
+                movement: 0,
+                rules: [],
+            },
+            impact: { 
+                name: "EMP Burst",
+                description: "An electromagnetic pulse disables critical infrastructure in the area.",
+                duration: 1,
+                radius: [2, 10],
+                movement: 0,
+                rules: [{ type: 'routeDisable', target: 'affectedEnclaves', duration: 2 }],
+            },
+            aftermath: { 
+                name: "System Malfunctions",
+                description: "The lingering storm causes widespread system failures and disrupts offensive capabilities.",
+                duration: [2, 3],
+                radius: [2, 10],
+                movement: 0,
+                rules: [
+                    { type: 'statModifier', target: 'affectedEnclaves', stat: 'combat', reduction: 0.25 },
+                    { type: 'routeDisable', target: 'affectedEnclaves', duration: 1, chance: 0.25 }
+                ],
+            }
+        }
+    },
+    'pyroclasm': {
+        ui: { 
+            name: "Pyroclasm", 
+            icon: 'volcano', 
+            description: "A superheated cloud of ash and rock erupts, incinerating everything in its path.",
+            assets: {
+                key: 'pyroclasm',
+                image: 'https://storage.googleapis.com/brutal-worlds/disaster/pyroclasm.jpg',
+                sfxAlert: 'pyroclasm-alert',
+                sfxImpact: 'pyroclasm-impact',
+                sfxAftermath: 'pyroclasm-aftermath',
+                vfxAlert: 'disaster-pyroclasm-alert',
+                vfxImpact: 'disaster-pyroclasm-impact',
+                vfxAftermath: 'disaster-pyroclasm-aftermath',
+            }
+        },
+        logic: {
+            originCellType: 'Area',
+            siteCount: 1,
+            alert: { 
+                name: "Volcanic Activity",
+                description: "The ground trembles, signaling a cataclysmic eruption is imminent.",
+                duration: 1,
+                radius: [6, 10],
+                movement: 0,
+                rules: [],
+            },
+            impact: { 
+                name: "Incineration Wave",
+                description: "A superheated wave of ash and rock incinerates the immediate blast radius.",
+                duration: 1,
+                radius: [3, 5],
+                movement: 0,
+                rules: [
+                    { type: 'forceDamage', target: 'affectedEnclaves', damageType: 'percentage', value: 0.33 },
+                    { type: 'routeDestroy', target: 'affectedEnclaves', chance: 0.50 }
+                ],
+            },
+            aftermath: { 
+                name: "Ashfall",
+                description: "A thick shroud of ash settles over a wide area, choking all production.",
+                duration: [3, 4],
+                radius: [6, 10],
+                movement: 0,
+                rules: [{ type: 'statModifier', target: 'affectedEnclaves', stat: 'production', reduction: 0.75 }],
+            }
+        }
+    },
+    'resonance-cascade': {
+        ui: { 
+            name: "Resonance Cascade", 
+            icon: 'earthquake', 
+            description: "The planetary core resonates violently, causing the ground to liquefy and shatter.",
+            assets: {
+                key: 'resonance-cascade',
+                image: 'https://storage.googleapis.com/brutal-worlds/disaster/resonance-cascade.jpg',
+                sfxAlert: 'resonance-cascade-alert',
+                sfxImpact: 'resonance-cascade-impact',
+                sfxAftermath: 'resonance-cascade-aftermath',
+                vfxAlert: 'disaster-resonance-cascade-alert',
+                vfxImpact: 'disaster-resonance-cascade-impact',
+                vfxAftermath: 'disaster-resonance-cascade-aftermath',
+            }
+        },
+        logic: {
+            originCellType: 'Area',
+            siteCount: 1,
+            alert: { 
+                name: "Seismic Tremors",
+                description: "The ground begins to shake as the planetary core resonates with violent energy.",
+                duration: 1,
+                radius: 1,
+                movement: 0,
+                rules: [],
+            },
+            impact: { 
+                name: "Initial Shock",
+                description: "The ground violently shatters, releasing a devastating shockwave.",
+                duration: 1,
+                radius: () => {
+                    const r = Math.random();
+                    if (r < 0.6) return 3;
+                    if (r < 0.9) return 6;
+                    return 9;
+                },
+                movement: 0,
+                rules: [{ type: 'forceDamage', target: 'affectedEnclaves', damageType: 'percentage', value: 0.25 }],
+            },
+            aftermath: { 
+                name: "Seismic Instability",
+                description: "The area is left unstable, crippling production and combat effectiveness.",
+                duration: [3, 4],
+                radius: 0, // This will be set to match the impact radius dynamically
+                movement: 0,
+                rules: [
+                    { type: 'statModifier', target: 'affectedEnclaves', stat: 'production', reduction: 0.5 },
+                    { type: 'statModifier', target: 'affectedEnclaves', stat: 'combat', reduction: 0.5 }
+                ],
+            }
+        }
+    },
+    'skyfall-shards': {
+        ui: { 
+            name: "Skyfall Shards", 
+            icon: 'motion_blur', 
+            description: "Crystalline fragments rain down from orbit, impacting multiple locations at once.",
+            assets: {
+                key: 'skyfall-shards',
+                image: 'https://storage.googleapis.com/brutal-worlds/disaster/skyfall-shards.jpg',
+                sfxAlert: 'skyfall-shards-alert',
+                sfxImpact: 'skyfall-shards-impact',
+                sfxAftermath: 'skyfall-shards-aftermath',
+                vfxAlert: 'disaster-skyfall-shards-alert',
+                vfxImpact: 'disaster-skyfall-shards-impact',
+                vfxAftermath: 'disaster-skyfall-shards-aftermath',
+            }
+        },
+        logic: {
+            originCellType: 'Area or Void',
+            siteCount: [2, 4],
+            alert: { 
+                name: "Orbital Debris Warning",
+                description: "Debris signatures are detected, signaling imminent kinetic strikes on multiple locations.",
+                duration: 1,
+                radius: 1, // per site
+                movement: 0,
+                rules: [],
+            },
+            impact: { 
+                name: "Shard Impact",
+                description: "Shards of orbital debris bombard the surface.",
+                duration: 1,
+                radius: 1, // per site
+                movement: 0,
+                rules: [{ type: 'forceDamage', target: 'occupyingEnclave', damageType: 'flat', value: [5, 20] }],
+            },
+            aftermath: { 
+                name: "Radiation Sickness",
+                description: "Lingering radiation causes forces to slowly deteriorate.",
+                duration: [2, 3],
+                radius: 1, // per site
+                movement: 0,
+                rules: [
+                    { type: 'applyAftermathOnChance', target: 'affectedEnclaves', chance: 0.50 },
+                    { type: 'forceDamage', target: 'affectedEnclaves', damageType: 'flat', value: 1 }
+                ],
+            }
+        }
+    },
+    'void-surge': {
+        ui: { 
+            name: "Void Surge", 
+            icon: 'tsunami', 
+            description: "A tear in reality unleashes a scouring wave of void energy.",
+            assets: {
+                key: 'void-surge',
+                image: 'https://storage.googleapis.com/brutal-worlds/disaster/void-surge.jpg',
+                sfxAlert: 'void-surge-alert',
+                sfxImpact: 'void-surge-impact',
+                sfxAftermath: 'void-surge-aftermath',
+                vfxAlert: 'disaster-void-surge-alert',
+                vfxImpact: 'disaster-void-surge-impact',
+                vfxAftermath: 'disaster-void-surge-aftermath',
+            }
+        },
+        logic: {
+            originCellType: 'Void',
+            siteCount: 1,
+            alert: { 
+                name: "Rift Instability",
+                description: "The fabric of the void begins to thin, heralding an imminent tear in reality.",
+                duration: 1,
+                radius: 3,
+                movement: 0,
+                rules: [],
+            },
+            impact: { 
+                name: "Void Lash",
+                description: "A wave of raw void energy scours the area, eroding all it touches.",
+                duration: 1,
+                radius: 3,
+                movement: 0,
+                rules: [{ type: 'forceDamage', target: 'affectedEnclaves', damageType: 'percentage', value: 0.5 }],
+            },
+            aftermath: { 
+                name: "Void Contamination",
+                description: "The area is left dangerously contaminated, cutting it off from the outside world.",
+                duration: [2, 3],
+                radius: 3,
+                movement: 0,
+                rules: [{ type: 'routeDisable', target: 'affectedEnclaves', duration: 99 }], // Duration is handled by effect lifetime
+            }
+        }
+    }
+};
