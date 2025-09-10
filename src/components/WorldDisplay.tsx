@@ -13,11 +13,12 @@ interface WorldDisplayProps {
   } | null;
   onSurrender: () => void;
   onToggleSettings: () => void;
+  isIntroComplete: boolean;
 }
 
 const WorldDisplay: React.FC<WorldDisplayProps> = ({
   planetName, hoveredEntity,
-  onSurrender, onToggleSettings
+  onSurrender, onToggleSettings, isIntroComplete
 }) => {
   
   const getHoverStyles = (owner: Owner) => {
@@ -64,7 +65,7 @@ const WorldDisplay: React.FC<WorldDisplayProps> = ({
   };
   
   return (
-    <div className="text-left w-auto max-w-md">
+    <div className={`text-left w-auto max-w-md ${isIntroComplete ? '' : 'pointer-events-none'}`}>
       <h1 className="text-6xl font-bold text-white font-title">
           {planetName}
       </h1>

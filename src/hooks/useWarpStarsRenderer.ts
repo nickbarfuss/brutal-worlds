@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { createWarpStars } from '@/canvas/warpStars';
@@ -10,19 +9,27 @@ interface UseWarpStarsRendererProps {
 
 export const useWarpStarsRenderer = ({ mountRef, phase }: UseWarpStarsRendererProps) => {
   const warpStarsRef = useRef<ReturnType<typeof createWarpStars> | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const animationFrameIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!mountRef.current) return;
 
     // --- Scene Setup ---
     const scene = new THREE.Scene();
+    sceneRef.current = scene;
+
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 3000);
     camera.position.z = 1;
+    cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ alpha: true }); // Transparent background
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     mountRef.current.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
 
     // --- Warp Stars ---
     const warpStars = createWarpStars();
@@ -30,37 +37,45 @@ export const useWarpStarsRenderer = ({ mountRef, phase }: UseWarpStarsRendererPr
     warpStarsRef.current = warpStars;
 
     // --- Animation Loop ---
-    let animationFrameId: number;
     const animate = () => {
-      warpStars.update();
-      renderer.render(scene, camera);
-      animationFrameId = requestAnimationFrame(animate);
+      if (warpStarsRef.current && rendererRef.current && sceneRef.current && cameraRef.current) {
+        warpStarsRef.current.update();
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      }
+      animationFrameIdRef.current = requestAnimationFrame(animate);
     };
     animate();
 
     // --- Event Listeners ---
     const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      if (cameraRef.current && rendererRef.current) {
+        cameraRef.current.aspect = window.innerWidth / window.innerHeight;
+        cameraRef.current.updateProjectionMatrix();
+        rendererRef.current.setSize(window.innerWidth, window.innerHeight);
+      }
     };
     window.addEventListener('resize', handleResize);
 
     // --- Cleanup ---
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+      }
       window.removeEventListener('resize', handleResize);
-      if (mountRef.current) {
-        // Check if renderer.domElement is a child before removing
-        if (mountRef.current.contains(renderer.domElement)) {
-            mountRef.current.removeChild(renderer.domElement);
+      if (mountRef.current && rendererRef.current) {
+        if (mountRef.current.contains(rendererRef.current.domElement)) {
+            mountRef.current.removeChild(rendererRef.current.domElement);
         }
       }
-      renderer.dispose();
-      warpStars.lines.geometry.dispose();
-      (warpStars.lines.material as THREE.Material).dispose();
+      if (rendererRef.current) {
+        rendererRef.current.dispose();
+      }
+      if (warpStarsRef.current) {
+        warpStarsRef.current.lines.geometry.dispose();
+        (warpStarsRef.current.lines.material as THREE.Material).dispose();
+      }
     };
-  }, [mountRef]);
+  }, []); // Empty dependency array: runs only once on mount
 
   // --- Phase Control ---
   useEffect(() => {
@@ -74,5 +89,5 @@ export const useWarpStarsRenderer = ({ mountRef, phase }: UseWarpStarsRendererPr
     } else if (phase === 'idle') {
       stars.reset();
     }
-  }, [phase]);
+  }, [phase]); // Depends on phase: runs when phase changes
 };

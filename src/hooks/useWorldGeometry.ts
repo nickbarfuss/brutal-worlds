@@ -131,6 +131,10 @@ export const useWorldGeometry = ({ mapData, ownershipSignature, currentWorld, la
             geometry.addGroup(landIndices.length, voidIndices.length, 1); // voidMaterial
             geometry.computeVertexNormals();
 
+            console.log("allVertices.length:", allVertices.length);
+            console.log("landIndices.length:", landIndices.length);
+            console.log("voidIndices.length:", voidIndices.length);
+
             const mesh = new THREE.Mesh(geometry, [landMaterial, voidMaterial]);
             meshRef.current = mesh;
             geometryRef.current = geometry;

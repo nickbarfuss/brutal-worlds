@@ -13,7 +13,11 @@ export default defineConfig(({ mode }) => {
           '@': path.resolve(__dirname, './src'),
         }
       },
+      build: {
+        outDir: 'dist', // Set the output directory for build
+      },
       server: {
+        port: 4000, // Set the development server port
         hmr: {
           overlay: true, // set to true to view the overlay debug in the browser
         },

@@ -588,11 +588,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 title: profile.ui.name,
                 disasterDescription: profile.ui.description,
                 imageUrl: profile.ui.assets.image ? getAssetUrl(profile.ui.assets.image) : undefined,
-                baseValue: totalDurationString,
-                valueType: 'duration',
-                alertPhase: profile.logic.alert ? { name: profile.logic.alert.name, effect: profile.logic.alert.description, duration: getPhaseDuration(profile.logic.alert.duration) } : undefined,
-                impactPhase: profile.logic.impact ? { name: profile.logic.impact.name, effect: profile.logic.impact.description, duration: getPhaseDuration(profile.logic.impact.duration) } : undefined,
-                aftermathPhase: profile.logic.aftermath ? { name: profile.logic.aftermath.name, effect: profile.logic.aftermath.description, duration: getPhaseDuration(profile.logic.aftermath.duration) } : undefined
             };
         }
         if (type === 'birthright') {
@@ -664,7 +659,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 enclavesByOwner[ownerKey].push({ id: e.id, name: e.name, forces: Number.isFinite(e.forces) ? e.forces : 0, owner: e.owner });
             });
     
-            const ownerForces: BriefingContent['ownerForces'] = Object.entries(enclavesByOwner).map(([ownerKey, enclaves]) => ({
+            const ownerForces: BriefingContent['ownerForces'] = Object.entries(enclavesByDomain).map(([ownerKey, enclaves]) => ({
                 owner: ownerKey === 'null' ? null : ownerKey as Owner,
                 forces: enclaves.reduce((acc, e: { forces: number }) => acc + e.forces, 0)
             }));
@@ -983,9 +978,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                             className="w-16 h-16 rounded-full grid place-items-center flex-shrink-0 bg-neutral-800 hover:bg-neutral-700 transition-colors"
                             aria-label="Toggle World Inspector"
                         >
-                            <span className="material-symbols-outlined text-neutral-400 text-4xl">
-                                public
-                            </span>
+                            <span className="material-symbols-outlined">{disasterTestProfile.ui.icon}</span>
+                            public
                         </button>
                     )}
                 </div>
@@ -1010,7 +1004,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                             togglePause={engine.togglePause}
                         />
                     )}
-                     {engine.currentWorld && <WorldDisplay planetName={engine.currentWorld.name} hoveredEntity={engine.hoveredEntity} onSurrender={handleSurrender} onToggleSettings={handleToggleSettings} />}
+                     {engine.currentWorld && <WorldDisplay planetName={engine.currentWorld.name} hoveredEntity={engine.hoveredEntity} onSurrender={handleSurrender} onToggleSettings={handleToggleSettings} isIntroComplete={isIntroComplete} />}
                 </div>
             </div>
             
@@ -1109,8 +1103,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     materialSettings={engine.materialSettings}
                     onMaterialSettingChange={engine.setMaterialValue}
                     ambientLightIntensity={engine.ambientLightIntensity}
-                    onAmbientLightIntensityChange={engine.setAmbientLightIntensity}
-                    tonemappingStrength={engine.tonemappingStrength}
                     onTonemappingStrengthChange={engine.setTonemappingStrength}
                     playVfxFromPreviousTurns={engine.playVfxFromPreviousTurns}
                     onSetPlayVfxFromPreviousTurns={engine.setPlayVfxFromPreviousTurns}
