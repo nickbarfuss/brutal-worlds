@@ -177,7 +177,7 @@ const InspectorCard = React.memo(React.forwardRef<HTMLDivElement, InspectorCardP
       {content && (
         <Card 
           ref={ref}
-          className={`bg-neutral-900 border border-neutral-700/50 rounded-xl w-full flex flex-col shadow-lg pointer-events-auto overflow-hidden ${maxHeightClass}`}
+          className={`bg-neutral-900 border border-neutral-700/50 rounded-xl w-full flex flex-col shadow-lg overflow-hidden ${maxHeightClass} ${!isVisible && !isClosing ? 'pointer-events-none' : 'pointer-events-auto'}`}
         >
           {content}
         </Card>
