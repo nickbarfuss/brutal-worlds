@@ -75,8 +75,8 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
         lastTimeRef.current = time;
       }
       
-      setFov(camera.fov);
-      setDistance(camera.position.length());
+      setFov(camera?.fov || 0);
+      setDistance(camera?.position.length() || 0);
 
       animationFrameIdRef.current = requestAnimationFrame(loop);
     };

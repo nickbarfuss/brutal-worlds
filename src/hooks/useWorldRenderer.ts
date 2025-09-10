@@ -177,6 +177,7 @@ export const useWorldRenderer = (props: MapRendererProps) => {
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setClearColor(0x000000, 0); // Transparent background for world
+        mountRef.current.innerHTML = ''; // Clear any existing children
         mountRef.current.appendChild(renderer.domElement);
         
         const renderScene = new RenderPass(scene, camera);

@@ -1103,6 +1103,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     materialSettings={engine.materialSettings}
                     onMaterialSettingChange={engine.setMaterialValue}
                     ambientLightIntensity={engine.ambientLightIntensity}
+                    onAmbientLightIntensityChange={engine.setAmbientLightIntensity}
                     onTonemappingStrengthChange={engine.setTonemappingStrength}
                     playVfxFromPreviousTurns={engine.playVfxFromPreviousTurns}
                     onSetPlayVfxFromPreviousTurns={engine.setPlayVfxFromPreviousTurns}

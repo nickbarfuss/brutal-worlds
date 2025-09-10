@@ -9,7 +9,7 @@ interface WarpStarsCanvasProps {
 const WarpStarsCanvas: React.FC<WarpStarsCanvasProps> = ({ phase, className }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   useWarpStarsRenderer({ mountRef, phase });
-  return <div ref={mountRef} className={`w-full h-full pointer-events-none ${className || ''}`} />;
+  return <div ref={mountRef} data-testid="warp-stars-canvas" className={`w-full h-full pointer-events-none ${className || ''}`} />;
 };
 
 export default WarpStarsCanvas;

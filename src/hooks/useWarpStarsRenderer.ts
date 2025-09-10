@@ -28,6 +28,7 @@ export const useWarpStarsRenderer = ({ mountRef, phase }: UseWarpStarsRendererPr
     const renderer = new THREE.WebGLRenderer({ alpha: true }); // Transparent background
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
+    mountRef.current.innerHTML = ''; // Clear any existing children
     mountRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 

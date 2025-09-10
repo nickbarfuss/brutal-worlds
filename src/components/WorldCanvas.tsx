@@ -321,7 +321,7 @@ const WorldCanvas = React.memo(forwardRef<WorldCanvasHandle, WorldCanvasProps>((
         colorPalette,
     });
 
-    return <div ref={mountRef} className="w-full h-full" />;
+    return <div ref={mountRef} data-testid="world-canvas" className="w-full h-full" />;
 }));
 
 WorldCanvas.displayName = 'WorldCanvas';
