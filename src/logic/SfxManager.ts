@@ -106,6 +106,7 @@ export class SfxManager {
             this.decodedBuffers.set(key, audioBuffer);
         } catch (error) {
             console.error(`Failed to load and decode sound "${key}":`, error);
+            throw error; // Re-throw the error to propagate the failure
         }
     }
 
