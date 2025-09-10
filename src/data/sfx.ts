@@ -155,9 +155,6 @@ export const SFX_SOURCES: {
     'track-7': { url: 'https://storage.googleapis.com/brutal-worlds/music/desert-moon-outpost.mp3' },
     'track-8': { url: 'https://storage.googleapis.com/brutal-worlds/music/distant-planet-ambience.mp3' },
     'track-9': { url: 'https://storage.googleapis.com/brutal-worlds/music/ambient-meditation-soundscape.mp3' },
-    'track-10': { url: 'https://storage.googleapis.com/brutal-worlds/music/documentary-science.mp3' },
-    'track-11': { url: 'https://storage.googleapis.com/brutal-worlds/music/mbh-chlorine-fog.mp3' },
-    'track-12': { url: 'https://storage.googleapis.com/brutal-worlds/music/mbh-no-vctors-in-war.mp3' },
-    'track-13': { url: 'https://storage.googleapis.com/brutal-worlds/music/mbh-the-blistered-wastes.mp3' },
+    'track-10': { url: 'https://storage.googleapis.com/brutal-worlds/music/documentary-science.mp3' }
   },
 };
