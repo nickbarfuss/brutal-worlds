@@ -40,50 +40,58 @@ export const handleContinuous = (
             return { enclave: modifiedEnclave, newRoutes: modifiedRoutes, removeEffect, sideEffects };
         }
 
-        const connectedAreaCellIds = currentCell.neighbors.filter(id => {
-            const cell = mapData[id];
-            return cell && cell.type === 'area';
-        });
+        // Initialize movesRemaining if not already set
+        if (effect.metadata.movesRemaining === undefined) {
+            effect.metadata.movesRemaining = resolveNumericRange(profile.logic.aftermath.movement);
+        }
 
-        if (connectedAreaCellIds.length > 0) {
-            const targetCellId = connectedAreaCellIds[Math.floor(Math.random() * connectedAreaCellIds.length)];
-            const targetCell = mapData[targetCellId];
-            
-            if (targetCell.enclaveId !== null) {
-                const targetEnclave = workingEnclaves.get(targetCell.enclaveId);
-                if (targetEnclave) {
-                    const aftermathDuration = resolveNumericRange((profile.logic.aftermath && profile.logic.aftermath.duration) || 0);
-                    sideEffects.push({
-                        type: 'APPLY_IMPACT_AND_EFFECT',
-                        targetEnclaveId: targetCell.enclaveId,
-                        impactRules: profile.logic.impact.rules,
-                        impactDuration: resolveNumericRange(profile.logic.impact.duration),
-                        newEffect: {
-                            ...effect,
-                            id: `eff-${effect.profileKey}-${targetCell.enclaveId}-aftermath-${Date.now()}`,
-                            duration: aftermathDuration,
-                            maxDuration: aftermathDuration,
-                            metadata: { ...effect.metadata, cellId: targetCellId },
-                        },
-                        effectToPlay: {
-                            id: `eff-impact-${effect.profileKey}-${targetCell.enclaveId}-${Date.now()}`,
-                            vfxKey: profile.ui.assets.vfxImpact,
-                            sfx: { key: profile.ui.assets.sfxImpact, channel: 'fx' as const, position: targetCell.center },
-                            position: targetCell.center,
-                        }
-                    });
+        // Apply impact at current location if not already impacted this turn
+        // The `hasImpactedThisTurn` flag should be reset by the game engine at the start of each turn.
+        if (!effect.metadata.hasImpactedThisTurn) {
+            sideEffects.push({
+                type: 'PLAY_VFX_SFX', // New type for playing VFX/SFX
+                vfxKey: profile.ui.assets.vfxImpact,
+                sfx: { key: profile.ui.assets.sfxImpact, channel: 'fx' as const, position: currentCell.center },
+                position: currentCell.center,
+            });
+
+            // Apply impact rules to the current enclave if it exists
+            if (currentCell.enclaveId !== null) {
+                const currentEnclave = workingEnclaves.get(currentCell.enclaveId);
+                if (currentEnclave) {
+                    const impactRules = profile.logic.impact.rules;
+                    const impactResult = applyInstantaneousRules(impactRules, currentEnclave, modifiedRoutes);
+                    modifiedEnclave = impactResult.enclave;
+                    modifiedRoutes = impactResult.routes;
                 }
             }
-            
-            removeEffect = true;
-        } else {
-            if (dissipateRule) {
-                removeEffect = true;
-            } else if (damageRule) {
-                const damageResult = applyInstantaneousRules([damageRule], enclave, modifiedRoutes);
-                modifiedEnclave = damageResult.enclave;
-                modifiedRoutes = damageResult.routes;
+            effect.metadata.hasImpactedThisTurn = true; // Mark as impacted for this turn
+        }
+
+        // Movement logic
+        if (effect.metadata.movesRemaining > 0) {
+            const connectedAreaCellIds = currentCell.neighbors.filter(id => {
+                const cell = mapData[id];
+                return cell && cell.type === 'area';
+            });
+
+            if (connectedAreaCellIds.length > 0) {
+                const targetCellId = connectedAreaCellIds[Math.floor(Math.random() * connectedAreaCellIds.length)];
+                effect.metadata.cellId = targetCellId; // Update cellId for next turn
+                effect.metadata.movesRemaining--;
+            } else {
+                // No valid move target, dissipate if rule exists
+                if (dissipateRule) {
+                    removeEffect = true;
+                } else if (damageRule) {
+                    const damageResult = applyInstantaneousRules([damageRule], enclave, modifiedRoutes);
+                    modifiedEnclave = damageResult.enclave;
+                    modifiedRoutes = damageResult.routes;
+                }
             }
+        } else {
+            // No moves remaining, remove effect
+            removeEffect = true;
         }
     } else {
         const continuousResult = applyContinuousRules(effect.rules, enclave, modifiedRoutes);

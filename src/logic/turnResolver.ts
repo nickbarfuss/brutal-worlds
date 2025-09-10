@@ -49,6 +49,10 @@ export const processDisasterEffects = (
             
             const handler = disasterHandlers[effect.profileKey] || disasterHandlers.default;
             if (handler && handler.handleContinuous) {
+                // Reset hasImpactedThisTurn flag for the new turn
+                if (effect.metadata && effect.metadata.hasImpactedThisTurn !== undefined) {
+                    effect.metadata.hasImpactedThisTurn = false;
+                }
                 const result = handler.handleContinuous(effect, profile, modifiedEnclave, workingEnclaves, modifiedRoutes, mapData);
                 modifiedEnclave = result.enclave;
                 modifiedRoutes = result.newRoutes;
@@ -75,22 +79,16 @@ export const processDisasterEffects = (
     
     // Now, safely apply all queued side effects from handlers like Entropy Wind
     allSideEffects.forEach(sideEffect => {
-        if (sideEffect.type === 'APPLY_IMPACT_AND_EFFECT') {
-            let targetEnclave = workingEnclaves.get(sideEffect.targetEnclaveId);
-            if (targetEnclave) {
-                const clonedTarget = cloneEnclave(targetEnclave);
-                const impactResult = applyInstantaneousRules(sideEffect.impactRules, clonedTarget, workingRoutes, sideEffect.impactDuration);
-                
-                const newEnclaveState = impactResult.enclave;
-                workingRoutes = impactResult.routes;
-
-                newEnclaveState.activeEffects.push(sideEffect.newEffect);
-                workingEnclaves.set(sideEffect.targetEnclaveId, newEnclaveState);
-                if (sideEffect.effectToPlay) {
-                    effectsToPlay.push(sideEffect.effectToPlay);
-                }
-            }
+        if (sideEffect.type === 'PLAY_VFX_SFX') {
+            // Push the side effect directly to effectsToPlay for the main thread to handle VFX/SFX
+            effectsToPlay.push({
+                id: `vfx-sfx-${Date.now()}-${Math.random()}`, // Generate a unique ID
+                vfxKey: sideEffect.vfxKey,
+                sfx: sideEffect.sfx,
+                position: sideEffect.position,
+            });
         }
+        // No longer need to handle APPLY_IMPACT_AND_EFFECT as impact rules are applied directly in entropyWind.ts
     });
     
     // --- STEP 2: PROCESS MARKERS AND PHASE TRANSITIONS ---
