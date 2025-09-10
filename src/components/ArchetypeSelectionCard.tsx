@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect, useState } from 'https://esm.sh/react@^19.1.1';
+import React, { useRef, useEffect, useState } from 'react';
 import { ArchetypeProfile, LegacyProfile } from '@/types/game';
 import Avatar from '@/components/ui/Avatar';
 import ChipCard from '@/components/ui/ChipCard';

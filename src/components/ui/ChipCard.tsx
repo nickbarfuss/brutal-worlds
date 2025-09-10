@@ -3,9 +3,9 @@ import { Owner, SemanticColorPalette } from '@/types/game';
 import { PLAYER_THREE_COLORS } from '@/data/theme';
 import ValueDisplay from '@/components/ui/ValueDisplay';
 
-interface ChipCardProps {
+// Common props for ChipCard
+interface CommonChipCardProps {
   icon: string;
-  title: string;
   subtitle?: string;
   baseValue?: string | number;
   bonusValue?: string | number;
@@ -18,10 +18,22 @@ interface ChipCardProps {
     type: 'order' | 'effect' | 'route' | 'domain' | 'disasterProfile' | 'birthright' | 'disasterMarker';
     key: string;
   };
-  onClick?: () => void;
   align?: 'center' | 'start';
   ownerForces?: { owner: Owner; forces: number }[];
 }
+
+// Props when ChipCard is interactive (a button)
+interface InteractiveChipCardProps extends CommonChipCardProps, React.ComponentPropsWithoutRef<'button'> {
+  onClick: () => void; // onClick is required for interactive
+}
+
+// Props when ChipCard is not interactive (a div)
+interface NonInteractiveChipCardProps extends CommonChipCardProps, React.ComponentPropsWithoutRef<'div'> {
+  onClick?: never; // onClick should not be present for non-interactive
+}
+
+// Union type for ChipCardProps
+type ChipCardProps = InteractiveChipCardProps | NonInteractiveChipCardProps;
 
 // FIX: Changed component definition from `React.FC` to a plain function with typed props.
 // This is a common fix for subtle type inference issues where props can be unintentionally widened.
@@ -41,7 +53,12 @@ const ChipCard = ({
   const effectiveAlign = !subtitle ? 'center' : align;
   const alignmentClass = effectiveAlign === 'center' ? 'items-center' : 'items-start';
   const iconMarginClass = effectiveAlign === 'start' ? 'mt-1' : '';
-  const isInteractive = briefingProps || onClick;
+  const isInteractive = briefingProps || onClick; // Determine interactivity
+
+  // Use React.ComponentPropsWithoutRef for the actual element props
+  const Component = isInteractive ? 'button' : 'div';
+  const componentProps = isInteractive ? { onClick } : {}; // Pass onClick only if interactive
+
   const interactiveClasses = isInteractive ? 'hover:bg-neutral-700/50 transition-colors duration-150' : '';
   
   const palette = useMemo(() => {
@@ -66,13 +83,12 @@ const ChipCard = ({
   const iconStyle = finalIconColorHex ? { color: finalIconColorHex } : {};
   const effectiveIconColorClass = finalIconColorHex ? '' : finalIconColorClass;
 
-  const Component = isInteractive ? 'button' : 'div';
-
   return (
     <Component
       className={`bg-neutral-800 rounded-lg p-3 flex w-full text-left ${alignmentClass} space-x-3 ${interactiveClasses}`}
-      onClick={onClick}
+      {...componentProps} // Spread component-specific props
       {...briefingDataAttributes}
+      title={title} // Pass title here
     >
       <span className={`material-symbols-outlined text-2xl ${effectiveIconColorClass} ${iconMarginClass}`} style={iconStyle}>{icon}</span>
       <div className="flex-grow min-w-0">

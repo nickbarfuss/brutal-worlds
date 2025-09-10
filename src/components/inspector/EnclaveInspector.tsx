@@ -106,7 +106,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
     }, [enclave.id, enclave.owner, routes, enclaveData, pendingOrders]);
     
     const allEffects = React.useMemo(() => {
-        const effects: { id: string; category: string; component: JSX.Element }[] = [];
+        const effects: { id: string; category: string; component: React.ReactElement }[] = [];
         
         alertMarkers.forEach(marker => {
             const profile = DISASTER_PROFILES[marker.profileKey];
@@ -144,7 +144,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
     const effectsByCategory = React.useMemo(() => allEffects.reduce((acc, effect) => {
         (acc[effect.category] = acc[effect.category] || []).push(effect.component);
         return acc;
-    }, {} as Record<string, JSX.Element[]>), [allEffects]);
+    }, {} as Record<string, React.ReactElement[]>), [allEffects]);
     
     const effectCategories = Object.keys(effectsByCategory);
 

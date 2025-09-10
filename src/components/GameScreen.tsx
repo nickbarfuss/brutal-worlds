@@ -660,9 +660,9 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 enclavesByOwner[ownerKey].push({ id: e.id, name: e.name, forces: Number.isFinite(e.forces) ? e.forces : 0, owner: e.owner });
             });
     
-            const ownerForces: BriefingContent['ownerForces'] = Object.entries(enclavesByDomain).map(([ownerKey, enclaves]) => ({
+            const ownerForces: BriefingContent['ownerForces'] = Object.entries(enclavesByOwner).map(([ownerKey, enclaves]) => ({
                 owner: ownerKey === 'null' ? null : ownerKey as Owner,
-                forces: enclaves.reduce((acc, e: { forces: number }) => acc + e.forces, 0)
+                forces: enclaves.reduce((acc, e) => acc + e.forces, 0)
             }));
     
             const domainOwner = getDomainOwner(parseInt(domainId, 10), engine.enclaveData);
@@ -810,11 +810,16 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
     
             if (event.key === 'Escape') {
                 if (isSurrenderConfirmOpen || engine.gameOverState !== 'none') return;
-                if (engine.isSettingsOpen) { handleToggleSettings(); return; }
-                if (engine.inspectedMapEntity) { handleCloseMapInspector(); return; }
-                if (engine.inspectedArchetypeOwner) { handleCloseArchetypeInspector(); return; }
-                if (engine.selectedEnclaveId !== null) { engine.handleMapClick(null, false); return; }
+
+                // 1. Exit command mode (highest priority)
+                if (engine.selectedEnclaveId !== null) {
+                    engine.handleMapClick(null, false);
+                    return;
+                }
+
+                // 2. Open/close settings drawer
                 handleToggleSettings();
+                return;
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -1107,6 +1112,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                         ambientLightIntensity={engine.ambientLightIntensity}
                         onAmbientLightIntensityChange={engine.setAmbientLightIntensity}
                         onTonemappingStrengthChange={engine.setTonemappingStrength}
+                        tonemappingStrength={engine.tonemappingStrength}
                         playVfxFromPreviousTurns={engine.playVfxFromPreviousTurns}
                         onSetPlayVfxFromPreviousTurns={engine.setPlayVfxFromPreviousTurns}
                         stackVfx={engine.stackVfx}

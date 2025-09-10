@@ -22,7 +22,7 @@ class ErrorBoundary extends Component<Props, State> {
     console.error("Uncaught error:", error, errorInfo);
   }
 
-  public render() {
+  public render(): React.ReactNode {
     if (this.state.hasError) {
       return (
         <div className="flex items-center justify-center h-screen w-screen bg-neutral-900 text-red-500 text-lg">

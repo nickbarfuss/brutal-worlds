@@ -13,6 +13,9 @@
     "types": [
       "node"
     ],
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "moduleDetection": "force",
@@ -21,7 +24,8 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ]
+      ],
+      "three/examples/jsm/*": ["./node_modules/three/examples/jsm/*"]
     },
     "allowImportingTsExtensions": true,
     "noEmit": true,

@@ -1,10 +1,5 @@
 import React, { useRef, useMemo, useImperativeHandle, forwardRef } from 'react';
 import * as THREE from 'three';
-import { VfxManager } from '../logic/VfxManager';
-import { PLAYER_THREE_COLORS } from '../data/theme';
-import { useWorldGeometry } from '../hooks/useWorldGeometry';
-import { useCommandZone } from '../hooks/useCommandZone';
-import { useWorldRenderer } from '../hooks/useWorldRenderer';
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { VfxManager } from '@/logic/VfxManager';
@@ -17,8 +12,6 @@ import { SfxManager } from '@/logic/SfxManager';
 import { Action } from '@/logic/reducers';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { SfxManager } from '../logic/SfxManager';
-import { Action } from '../logic/reducers';
 
 export interface WorldCanvasHandle {
   setAmbientLightIntensity: (value: number) => void;
