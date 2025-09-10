@@ -30,6 +30,7 @@ import SurrenderConfirmDialog from '@/components/SurrenderConfirmDialog';
 import { getAssetUrl } from '@/utils/assetUtils';
 import WarpStarsCanvas from '@/components/WarpStarsCanvas';
 import { getScreenPosition } from '@/canvas/draw/drawUtils';
+import ErrorBoundary from '@/components/ErrorBoundary'; // Added ErrorBoundary import
 
 declare const gsap: any;
 
@@ -1086,34 +1087,36 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             )}
             
             {(engine.isSettingsOpen || isClosingSettings) && debugCamera && (
-                <MemoizedSettingsDrawer
-                    isOpen={engine.isSettingsOpen}
-                    isClosing={isClosingSettings}
-                    onClose={handleToggleSettings}
-                    isGloballyMuted={engine.isGloballyMuted}
-                    onToggleGlobalMute={engine.toggleGlobalMute}
-                    volumes={engine.volumes}
-                    onVolumeChange={engine.setVolume}
-                    mutedChannels={engine.mutedChannels}
-                    onToggleMute={engine.toggleMuteChannel}
-                    isBloomEnabled={engine.isBloomEnabled}
-                    onToggleBloom={engine.setBloomEnabled}
-                    bloomSettings={engine.bloomSettings}
-                    onBloomSettingChange={engine.setBloomValue}
-                    materialSettings={engine.materialSettings}
-                    onMaterialSettingChange={engine.setMaterialValue}
-                    ambientLightIntensity={engine.ambientLightIntensity}
-                    onAmbientLightIntensityChange={engine.setAmbientLightIntensity}
-                    onTonemappingStrengthChange={engine.setTonemappingStrength}
-                    playVfxFromPreviousTurns={engine.playVfxFromPreviousTurns}
-                    onSetPlayVfxFromPreviousTurns={engine.setPlayVfxFromPreviousTurns}
-                    stackVfx={engine.stackVfx}
-                    onSetStackVfx={engine.setStackVfx}
-                    sfxManager={sfxManager}
-                    worldCanvasHandle={worldCanvasRef}
-                    // FIX: Pass the 'debugCamera' state variable instead of the undefined 'camera' variable.
-                    camera={debugCamera}
-                />
+                <ErrorBoundary>
+                    <MemoizedSettingsDrawer
+                        isOpen={engine.isSettingsOpen}
+                        isClosing={isClosingSettings}
+                        onClose={handleToggleSettings}
+                        isGloballyMuted={engine.isGloballyMuted}
+                        onToggleGlobalMute={engine.toggleGlobalMute}
+                        volumes={engine.volumes}
+                        onVolumeChange={engine.setVolume}
+                        mutedChannels={engine.mutedChannels}
+                        onToggleMute={engine.toggleMuteChannel}
+                        isBloomEnabled={engine.isBloomEnabled}
+                        onToggleBloom={engine.setBloomEnabled}
+                        bloomSettings={engine.bloomSettings}
+                        onBloomSettingChange={engine.setBloomValue}
+                        materialSettings={engine.materialSettings}
+                        onMaterialSettingChange={engine.setMaterialValue}
+                        ambientLightIntensity={engine.ambientLightIntensity}
+                        onAmbientLightIntensityChange={engine.setAmbientLightIntensity}
+                        onTonemappingStrengthChange={engine.setTonemappingStrength}
+                        playVfxFromPreviousTurns={engine.playVfxFromPreviousTurns}
+                        onSetPlayVfxFromPreviousTurns={engine.setPlayVfxFromPreviousTurns}
+                        stackVfx={engine.stackVfx}
+                        onSetStackVfx={engine.setStackVfx}
+                        sfxManager={sfxManager}
+                        worldCanvasHandle={worldCanvasRef}
+                        // FIX: Pass the 'debugCamera' state variable instead of the undefined 'camera' variable.
+                        camera={debugCamera}
+                    />
+                </ErrorBoundary>
             )}
             
             {showGameOverDialog && (

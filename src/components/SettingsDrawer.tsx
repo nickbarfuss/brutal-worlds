@@ -228,7 +228,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
             <SliderCard
                 icon="tonality"
                 label="Tonemapping"
-                valueDisplay={tonemappingStrength.toFixed(2)}
+                valueDisplay={(tonemappingStrength ?? 0).toFixed(2)}
                 sliderProps={{ min: 0, max: 1, step: 0.01, value: tonemappingStrength, onChange: (v) => worldCanvasHandle.current?.setTonemappingStrength(v), onCommit: onTonemappingStrengthChange, disabled: !isBloomEnabled }}
             />
           </div>
@@ -255,7 +255,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                 <SliderCard
                   icon="highlight"
                   label="Emissive"
-                  valueDisplay={materialSettings.player.emissiveIntensity?.toFixed(2)}
+                  valueDisplay={(materialSettings.player.emissiveIntensity ?? 0).toFixed(2)}
                   sliderProps={{ min: 0, max: 1, step: 0.01, value: materialSettings.player.emissiveIntensity ?? 0, onChange: (v) => worldCanvasHandle.current?.setMaterialValue('player', 'emissiveIntensity', v), onCommit: (v) => onMaterialSettingChange('player', 'emissiveIntensity', v) }}
                 />
               </div>
@@ -278,7 +278,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                 <SliderCard
                   icon="highlight"
                   label="Emissive"
-                  valueDisplay={materialSettings.neutral.emissiveIntensity?.toFixed(2)}
+                  valueDisplay={(materialSettings.neutral.emissiveIntensity ?? 0).toFixed(2)}
                   sliderProps={{ min: 0, max: 1, step: 0.01, value: materialSettings.neutral.emissiveIntensity ?? 0, onChange: (v) => worldCanvasHandle.current?.setMaterialValue('neutral', 'emissiveIntensity', v), onCommit: (v) => onMaterialSettingChange('neutral', 'emissiveIntensity', v) }}
                 />
               </div>
@@ -301,7 +301,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                  <SliderCard
                   icon="highlight"
                   label="Emissive"
-                  valueDisplay={materialSettings.void.emissiveIntensity?.toFixed(2)}
+                  valueDisplay={(materialSettings.void.emissiveIntensity ?? 0).toFixed(2)}
                   sliderProps={{ min: 0, max: 1, step: 0.01, value: materialSettings.void.emissiveIntensity ?? 0, onChange: (v) => worldCanvasHandle.current?.setMaterialValue('void', 'emissiveIntensity', v), onCommit: (v) => onMaterialSettingChange('void', 'emissiveIntensity', v) }}
                 />
               </div>
