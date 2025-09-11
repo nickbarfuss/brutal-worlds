@@ -60,7 +60,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
     const [warpPhase, setWarpPhase] = useState<'idle' | 'spawning' | 'running' | 'ending'>('idle');
     const [debugCamera, setDebugCamera] = useState<THREE.PerspectiveCamera | null>(null);
     const [titleAnimationClass, setTitleAnimationClass] = useState('');
-    const [pendingEffectQueue, setPendingEffectQueue] = useState<EffectQueueItem[]>([]);
     const wasPausedBeforeSurrender = useRef(false);
     const archetypeInspectorRef = useRef<HTMLDivElement>(null);
     const mapInspectorRef = useRef<HTMLDivElement>(null);
@@ -94,78 +93,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
     
     const { 
         gamePhase, isIntroComplete, completeIntro, sfxManager, currentWorld, 
-        gameSessionId, playerArchetypeKey, playerLegacyKey, effectQueue, vfxManager, dispatch 
+        gameSessionId, playerArchetypeKey, playerLegacyKey, vfxManager, dispatch 
     } = engine;
-
-    // When a new turn starts, clear any pending effects from the previous turn if the setting is off.
-    useEffect(() => {
-        if (!engine.playVfxFromPreviousTurns) {
-            setPendingEffectQueue([]);
-        }
-    }, [engine.currentTurn, engine.playVfxFromPreviousTurns]);
-
-     // --- Effect Queue Processor ---
-     useEffect(() => {
-        const playEffect = (effect: EffectQueueItem) => {
-            if (!worldCanvasRef.current?.camera || !worldCanvasRef.current?.mapContainer) return 'pending';
-
-            const screenPos = getScreenPosition(effect.position, worldCanvasRef.current.mapContainer, worldCanvasRef.current.camera, { width: window.innerWidth, height: window.innerHeight } as HTMLCanvasElement);
-            
-            if (!screenPos.visible) return 'pending';
-
-            if (effect.vfxKey) {
-                vfxManager.playEffect(effect.vfxKey, effect.position);
-            }
-
-            if (effect.sfx) {
-                sfxManager.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
-            }
-            return 'played';
-        };
-
-        // Stagger processing of the main queue
-        const mainQueueInterval = setInterval(() => {
-            if (engine.isPaused || effectQueue.length === 0) return;
-
-            const effectToProcess = effectQueue[0];
-            const result = playEffect(effectToProcess);
-
-            if (result === 'pending') {
-                setPendingEffectQueue(prev => [...prev, effectToProcess]);
-            }
-            dispatch({ type: 'PROCESS_EFFECT_QUEUE', payload: { playedIds: [effectToProcess.id] }});
-            
-        }, 400);
-
-        // Check pending queue every frame for responsiveness
-        let pendingQueueAnimFrame: number;
-        const checkPendingQueue = () => {
-            setPendingEffectQueue(currentPending => {
-                const stillPending: EffectQueueItem[] = [];
-                let playedOne = false;
-                for (const effect of currentPending) {
-                    if (playedOne) {
-                        stillPending.push(effect);
-                        continue;
-                    }
-                    const result = playEffect(effect);
-                    if (result === 'played') {
-                        playedOne = true; // Only play one pending effect per frame to avoid bursts
-                    } else {
-                        stillPending.push(effect);
-                    }
-                }
-                return stillPending;
-            });
-            pendingQueueAnimFrame = requestAnimationFrame(checkPendingQueue);
-        };
-        checkPendingQueue();
-
-        return () => {
-            clearInterval(mainQueueInterval);
-            cancelAnimationFrame(pendingQueueAnimFrame);
-        };
-    }, [effectQueue, engine.isPaused, sfxManager, vfxManager, dispatch]);
 
     useEffect(() => {
         if (gamePhase !== 'playing' || isIntroComplete || typeof gsap === 'undefined' || !currentWorld) {

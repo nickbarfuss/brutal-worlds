@@ -10,7 +10,7 @@ Any class or "manager" (e.g., `SfxManager`, `VfxManager`) that is instantiated a
 
 ### 2. The Reducer is the Single Source of Truth
 
-All application state must reside within the central `useReducer` hook (e.g., in `useGameEngine`). This includes UI state, game logic state, and settings like volumes or mute status. When a manager needs to know whether to perform an action (e.g., play a sound silently), that information must be passed down from the React state at the time the action is called.
+All application state must reside within the central `useReducer` hook (e.g., in `useGameEngine`'s state). This includes UI state, game logic state, and settings like volumes or mute status. When a manager needs to know whether to perform an action (e.g., play a sound silently), that information must be passed down from the React state at the time the action is called.
 
 ### 3. Avoiding Initialization Race Conditions
 
@@ -78,3 +78,5 @@ This ensures the worker has all the necessary information to generate the comple
 ## Debugging Notes
 
 When debugging, do not remove `console.log` statements prematurely. Wait for confirmation from the user before removing them.
+
+**On Conquest Audio:** The user has confirmed that on a conquest event, both a generic explosion sound (e.g., `sfx-conquest-player-1`) and an archetype-specific dialog (e.g., `first-sword-annihilation-doctrine-conquest-1`) are intended to play. Do not remove the generic conquest sound from the `attackResolver`.

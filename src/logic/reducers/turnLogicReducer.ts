@@ -26,7 +26,6 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 if (result) {
                     if (result.newMarkers) updates.activeDisasterMarkers = [...state.activeDisasterMarkers, ...result.newMarkers];
                     if (result.snackbarData) updates.latestDisaster = result.snackbarData;
-                    if (result.effectsToPlay) updates.effectQueue = [...state.effectQueue, ...result.effectsToPlay];
                 }
             }
             return { ...state, ...updates };
@@ -39,8 +38,6 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
         case 'APPLY_RESOLVED_TURN': {
             const { newEnclaveData, newPlayerPendingOrders, newAiPendingOrders, newRoutes, newCurrentTurn, newDisasterMarkers, gameOverState, effectsToPlay } = action.payload;
             
-            // Re-hydrate the 'rules' for active effects on the main thread.
-            // This is part of the compatibility layer for the old resolvers.
             Object.values(newEnclaveData).forEach((enclave: Enclave) => {
                 if (enclave.activeEffects) {
                     enclave.activeEffects.forEach(effect => {
@@ -56,8 +53,6 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 }
             });
 
-            // Reconstruct mapData from the authoritative new enclave data.
-            // This is a critical step to prevent state desynchronization.
             let mapDataChanged = false;
             const newMapData = state.mapData.map(cell => {
                 if (cell.enclaveId === null) return cell;
@@ -65,14 +60,11 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 const newEnclaveState = newEnclaveData[cell.enclaveId];
 
                 if (newEnclaveState) {
-                    // The enclave exists. Update the cell's owner if it has changed.
                     if (cell.owner !== newEnclaveState.owner) {
                         mapDataChanged = true;
                         return { ...cell, owner: newEnclaveState.owner };
                     }
                 } else {
-                    // The enclave ID points to nothing, meaning the enclave was destroyed/removed.
-                    // Neutralize the cell completely to prevent state inconsistencies.
                     if (cell.owner !== null || cell.enclaveId !== null) {
                          mapDataChanged = true;
                          return { ...cell, owner: null, enclaveId: null };
@@ -83,18 +75,15 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             });
             
             let finalEffectsToPlay = effectsToPlay;
-            // NEW LOGIC FOR STACKING VFX
             if (!state.stackVfx && effectsToPlay.length > 0) {
                 const seenPositions = new Set<string>();
                 const uniqueEffects: EffectQueueItem[] = [];
-                // Iterate backwards to keep the *last* effect for a given position
                 for (let i = effectsToPlay.length - 1; i >= 0; i--) {
                     const effect = effectsToPlay[i];
-                    // Vector3 needs to be stringified to be used as a key
                     const posKey = `${effect.position.x.toFixed(3)},${effect.position.y.toFixed(3)},${effect.position.z.toFixed(3)}`;
                     if (!seenPositions.has(posKey)) {
                         seenPositions.add(posKey);
-                        uniqueEffects.unshift(effect); // Add to the beginning to maintain original relative order
+                        uniqueEffects.unshift(effect);
                     }
                 }
                 finalEffectsToPlay = uniqueEffects;
@@ -113,15 +102,12 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 gameOverState: gameOverState,
                 isPaused: gameOverState !== 'none' ? true : state.isPaused,
                 isResolvingTurn: false,
-                effectQueue: [...state.effectQueue, ...finalEffectsToPlay],
             };
 
-            // --- Normal Disaster Triggering Logic (Post-Resolution) ---
             const turnThatJustEnded = state.currentTurn;
             const world = state.currentWorld;
             const disasterConfig = state.gameConfig.DISASTER_TESTING;
             
-            // Don't trigger a random disaster if the test disaster was just triggered this turn.
             const wasTestDisasterTurn = disasterConfig?.enabled && turnThatJustEnded === disasterConfig.triggerOnTurn;
 
             if (!wasTestDisasterTurn && world && turnThatJustEnded > 0 && world.disasterChance > 0 && Math.random() < world.disasterChance) {
@@ -138,7 +124,6 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                     if (disasterResult) {
                         if (disasterResult.newMarkers) intermediateState.activeDisasterMarkers.push(...disasterResult.newMarkers);
                         if (disasterResult.snackbarData) intermediateState.latestDisaster = disasterResult.snackbarData;
-                        if (disasterResult.effectsToPlay) intermediateState.effectQueue.push(...disasterResult.effectsToPlay);
                     }
                 }
             }
@@ -165,7 +150,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                     sfxToPlay: { key: sfxKey, channel: 'ui' },
                 };
             }
-            return state; // No change if the order was already gone
+            return state;
         }
 
         case 'AI_ISSUE_ORDER': {
@@ -177,15 +162,12 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             const newAiOrders = { ...state.aiPendingOrders, [fromId]: order };
             const sfxKey = `sfx-order-${order.type}-${Math.floor(Math.random() * 4) + 1}`;
             
-            // Get the VFX key from the order profile
             const vfxKey = ORDER_PROFILES[order.type].vfxKey;
             
             return {
                 ...state,
                 aiPendingOrders: newAiOrders,
-                // Sound plays from the origin enclave
                 sfxToPlay: { key: sfxKey, channel: 'fx', position: fromEnclave.center },
-                // VFX plays on the target enclave
                 vfxToPlay: vfxKey ? { key: vfxKey, center: toEnclave.center } : null,
             };
         }
@@ -200,13 +182,11 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
 
             const sfxKey = `sfx-order-hold-${Math.floor(Math.random() * 6) + 1}`;
 
-            // Get the VFX key for a "holding" order
             const vfxKey = ORDER_PROFILES.holding.vfxKey;
 
             return {
                 ...state,
                 aiPendingOrders: newAiOrders,
-                // Sound and VFX play from the origin enclave for "hold"
                 sfxToPlay: { key: sfxKey, channel: 'fx', position: fromEnclave.center },
                 vfxToPlay: vfxKey ? { key: vfxKey, center: fromEnclave.center } : null,
             };
