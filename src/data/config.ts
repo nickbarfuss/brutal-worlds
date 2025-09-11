@@ -4,12 +4,13 @@ export const GAME_CONFIG = {
     MULTIPLE_STARTING_TERRITORIES: true,
     FORCE_ADJACENT_START: true,
     FORCE_SUPPLY_CAP: 50,
+    CONQUEST_DIALOG_CHANCE: 0.5,
     QUICK_START: {
         enabled: true,
         player1Archetype: 'first-sword',
         player1Legacy: 'annihilation-doctrine',
-        player2Archetype: 'pact-whisperer',
-        player2Legacy: 'voidsworn-covenant',
+        player2Archetype: '',
+        player2Legacy: '',
         worldKey: 'skull-sands',
     },
     ENABLE_BLOOM_EFFECT: true,
@@ -19,4 +20,3 @@ export const GAME_CONFIG = {
         triggerOnTurn: 5,
     },
 };
-

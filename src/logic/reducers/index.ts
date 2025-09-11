@@ -59,8 +59,11 @@ export const initialState: GameState = {
     latestDisaster: null, activeDisasterMarkers: [],
     loadingMessage: 'Initializing', currentWorld: null, gameConfig: GAME_CONFIG, gamePhase: 'loading',
     gameSessionId: 0,
-    // FIX: Corrected property names and added missing properties to align with GameState type definition.
     playerArchetypeKey: null, playerLegacyKey: null, playerLegacyIndex: null, opponentArchetypeKey: null, opponentLegacyKey: null, opponentLegacyIndex: null, 
+    playerHasHadFirstConquestDialog: false,
+    opponentHasHadFirstConquestDialog: false,
+    playerConquestsThisTurn: 0,
+    opponentConquestsThisTurn: 0,
     playerGambits: [], opponentGambits: [],
     hoveredCellId: -1, selectedEnclaveId: null, 
     inspectedArchetypeOwner: null, inspectedMapEntity: null,

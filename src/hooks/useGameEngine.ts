@@ -224,6 +224,7 @@ export const useGameEngine = () => {
     
         dispatch({ type: 'START_RESOLVING_TURN' });
         
+        console.log('[useGameEngine] Sending state to worker:', state);
         const serializableState = serializeGameStateForWorker({
             enclaveData: state.enclaveData,
             playerPendingOrders: state.playerPendingOrders,
@@ -238,6 +239,8 @@ export const useGameEngine = () => {
             playerLegacyKey: state.playerLegacyKey,
             opponentArchetypeKey: state.opponentArchetypeKey,
             opponentLegacyKey: state.opponentLegacyKey,
+            playerHasHadFirstConquestDialog: state.playerHasHadFirstConquestDialog,
+            opponentHasHadFirstConquestDialog: state.opponentHasHadFirstConquestDialog,
         });
 
         workerRef.current.postMessage(JSON.stringify(serializableState));
@@ -256,6 +259,8 @@ export const useGameEngine = () => {
         state.playerLegacyKey,
         state.opponentArchetypeKey,
         state.opponentLegacyKey,
+        state.playerHasHadFirstConquestDialog,
+        state.opponentHasHadFirstConquestDialog,
     ]);
     
     const clearLatestDisaster = useCallback(() => dispatch({ type: 'CLEAR_LATEST_DISASTER' }), []);

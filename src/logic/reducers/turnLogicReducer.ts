@@ -32,11 +32,29 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
         }
 
         case 'START_RESOLVING_TURN': {
-            return { ...state, isResolvingTurn: true };
+            return {
+                ...state,
+                isResolvingTurn: true,
+                playerConquestsThisTurn: 0,
+                opponentConquestsThisTurn: 0,
+            };
         }
 
         case 'APPLY_RESOLVED_TURN': {
-            const { newEnclaveData, newPlayerPendingOrders, newAiPendingOrders, newRoutes, newCurrentTurn, newDisasterMarkers, gameOverState, effectsToPlay } = action.payload;
+            const { 
+                newEnclaveData, 
+                newPlayerPendingOrders, 
+                newAiPendingOrders, 
+                newRoutes, 
+                newCurrentTurn, 
+                newDisasterMarkers, 
+                gameOverState, 
+                effectsToPlay, 
+                playerConquestsThisTurn, 
+                opponentConquestsThisTurn,
+                playerHasHadFirstConquestDialog,
+                opponentHasHadFirstConquestDialog,
+            } = action.payload;
             
             Object.values(newEnclaveData).forEach((enclave: Enclave) => {
                 if (enclave.activeEffects) {
@@ -102,6 +120,11 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 gameOverState: gameOverState,
                 isPaused: gameOverState !== 'none' ? true : state.isPaused,
                 isResolvingTurn: false,
+                effectQueue: [...state.effectQueue, ...finalEffectsToPlay],
+                playerConquestsThisTurn,
+                opponentConquestsThisTurn,
+                playerHasHadFirstConquestDialog,
+                opponentHasHadFirstConquestDialog,
             };
 
             const turnThatJustEnded = state.currentTurn;

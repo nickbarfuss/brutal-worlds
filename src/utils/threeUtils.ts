@@ -78,6 +78,8 @@ export const serializeGameStateForWorker = (payload: any) => {
         playerLegacyKey: payload.playerLegacyKey,
         opponentArchetypeKey: payload.opponentArchetypeKey,
         opponentLegacyKey: payload.opponentLegacyKey,
+        playerHasHadFirstConquest: payload.playerHasHadFirstConquest,
+        aiHasHadFirstConquest: payload.aiHasHadFirstConquest,
     };
 };
 
@@ -89,6 +91,8 @@ export const serializeResolvedTurn = (result: any) => {
         newCurrentTurn: result.newCurrentTurn,
         gameOverState: result.gameOverState,
         gameSessionId: result.gameSessionId,
+        playerConquests: result.playerConquests,
+        aiConquests: result.aiConquests,
 
         newEnclaveData: Object.fromEntries(
             Object.entries(result.newEnclaveData as { [id: number]: Enclave }).map(([id, enclave]) => {

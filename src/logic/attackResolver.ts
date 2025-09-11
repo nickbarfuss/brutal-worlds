@@ -1,4 +1,4 @@
-import { Enclave, PendingOrders, Player, Order, EffectQueueItem, MapCell } from '@/types/game.ts';
+import { Enclave, PendingOrders, Player, Order, EffectQueueItem, MapCell, ConquestEvent } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
 import { getAppliedModifiers } from '@/logic/effectProcessor.ts';
 import { getAttackBonusForEnclave } from '@/data/birthrightManager.ts';
@@ -23,10 +23,11 @@ export const resolveAttacks = (
     playerLegacyKey: string | null,
     opponentArchetypeKey: string | null,
     opponentLegacyKey: string | null,
-): { newEnclaveData: Map<number, Enclave>, newPendingOrders: PendingOrders } => {
+): { newEnclaveData: Map<number, Enclave>, newPendingOrders: PendingOrders, conquestEvents: ConquestEvent[] } => {
     const newEnclavesMap = new Map<number, Enclave>(currentEnclavesMap);
     const newPendingOrders = { ...processedOrders };
     const { FORCE_SUPPLY_CAP } = gameConfig;
+    const conquestEvents: ConquestEvent[] = [];
 
     const attackOrders = new Map<number, Attack[]>();
     const forcesLeaving: { [fromId: number]: number } = {};
@@ -175,15 +176,6 @@ export const resolveAttacks = (
                 ? `sfx-conquest-player-${Math.floor(Math.random() * 3) + 1}`
                 : `sfx-conquest-opponent-${Math.floor(Math.random() * 2) + 1}`;
 
-            const conqueringArchetypeKey = target.archetypeKey;
-            const conqueringLegacyKey = target.owner === 'player-1' ? playerLegacyKey : opponentLegacyKey;
-            let dialogSfxKey: string | null = null;
-
-            if (conqueringArchetypeKey && conqueringLegacyKey) {
-                const randomDialogIndex = Math.floor(Math.random() * 5) + 1; // 1-5
-                dialogSfxKey = `${conqueringArchetypeKey}-${conqueringLegacyKey}-conquest-${randomDialogIndex}`;
-            }
-
             effectsToPlay.push({
                 id: `eff-conquest-${target.id}-${Date.now()}`,
                 vfxKey,
@@ -191,15 +183,19 @@ export const resolveAttacks = (
                 position: target.center,
             });
 
-            if (dialogSfxKey) {
-                effectsToPlay.push({
-                    id: `eff-conquest-dialog-${target.id}-${Date.now()}`,
-                    sfx: { key: dialogSfxKey, channel: 'dialog', position: target.center },
-                    position: target.center,
+            const conqueringArchetypeKey = target.archetypeKey;
+            const conqueringLegacyKey = target.owner === 'player-1' ? playerLegacyKey : opponentLegacyKey;
+
+            if (conqueringArchetypeKey && conqueringLegacyKey) {
+                conquestEvents.push({
+                    enclaveId: target.id,
+                    conqueror: target.owner,
+                    archetypeKey: conqueringArchetypeKey,
+                    legacyKey: conqueringLegacyKey,
                 });
             }
         }
     });
 
-    return { newEnclaveData: newEnclavesMap, newPendingOrders };
+    return { newEnclaveData: newEnclavesMap, newPendingOrders, conquestEvents };
 };

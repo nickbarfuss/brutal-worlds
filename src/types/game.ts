@@ -405,6 +405,10 @@ export interface GameState {
     opponentArchetypeKey: string | null;
     opponentLegacyKey: string | null;
     opponentLegacyIndex: number | null;
+    playerHasHadFirstConquestDialog: boolean;
+    opponentHasHadFirstConquestDialog: boolean;
+    playerConquestsThisTurn: number;
+    opponentConquestsThisTurn: number;
     playerGambits: ActiveGambit[];
     opponentGambits: ActiveGambit[];
     hoveredCellId: number;
@@ -448,4 +452,11 @@ export interface GameState {
     inspectedArchetypeOwner: PlayerIdentifier | null;
     inspectedMapEntity: InspectedMapEntity | { type: 'world' } | null;
     worldInspectorManuallyClosed: boolean;
+}
+
+export interface ConquestEvent {
+    enclaveId: number;
+    conqueror: Player;
+    archetypeKey: string;
+    legacyKey: string;
 }

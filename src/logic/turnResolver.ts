@@ -8,7 +8,7 @@ import { resolveHolding } from '@/logic/holdResolver';
 import { resolveAssists } from '@/logic/assistResolver';
 import { resolveAttacks } from '@/logic/attackResolver';
 // FIX: GameConfig is not exported from types/game.ts. It is imported from data/config.ts.
-import { Enclave, PendingOrders, EffectQueueItem, Player, ActiveDisasterMarker, Route, MapCell, ActiveEffect, DisasterProfile } from '@/types/game.ts';
+import { Enclave, PendingOrders, EffectQueueItem, Player, ActiveDisasterMarker, Route, MapCell, ActiveEffect, DisasterProfile, ConquestEvent } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
 import * as THREE from 'three';
 import { DISASTER_PROFILES } from '@/data/disasters';
@@ -231,6 +231,8 @@ export const resolveTurn = (
     playerLegacyKey: string | null,
     opponentArchetypeKey: string | null,
     opponentLegacyKey: string | null,
+    playerHasHadFirstConquestDialog: boolean,
+    opponentHasHadFirstConquestDialog: boolean,
 ) => {
     try {
         const effectsToPlay: EffectQueueItem[] = [];
@@ -252,13 +254,57 @@ export const resolveTurn = (
         // --- 3. Order Resolution Pipeline ---
         const enclavesAfterHolding = resolveHolding(enclavesAfterDisasters, allValidOrders, routesAfterDisasters, gameConfig);
         const enclavesAfterAssists = resolveAssists(enclavesAfterHolding, allValidOrders, gameConfig);
-        const { newEnclaveData: enclavesAfterAttacks, newPendingOrders: ordersAfterAttacks } = resolveAttacks(
+        const { newEnclaveData: enclavesAfterAttacks, newPendingOrders: ordersAfterAttacks, conquestEvents } = resolveAttacks(
             enclavesAfterAssists, allValidOrders, gameConfig, effectsToPlay, playerArchetypeKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey,
         );
         
         let finalEnclavesMap = enclavesAfterAttacks;
 
-        // --- 4. Game Over Check ---
+        // --- 4. Conquest Dialog Logic ---
+        let newPlayerHasHadFirstConquestDialog = playerHasHadFirstConquestDialog;
+        let newOpponentHasHadFirstConquestDialog = opponentHasHadFirstConquestDialog;
+        const playerConquestsThisTurn = conquestEvents.filter(c => c.conqueror === 'player-1').length;
+        const opponentConquestsThisTurn = conquestEvents.filter(c => c.conqueror === 'player-2').length;
+
+        if (playerConquestsThisTurn > 0 || opponentConquestsThisTurn > 0) {
+            let dialogWinner: Player | null = null;
+            if (playerConquestsThisTurn > opponentConquestsThisTurn) {
+                dialogWinner = 'player-1';
+            } else if (opponentConquestsThisTurn > playerConquestsThisTurn) {
+                dialogWinner = 'player-2';
+            } else if (playerConquestsThisTurn > 0 || opponentConquestsThisTurn > 0) {
+                dialogWinner = 'player-1'; // Player wins ties
+            }
+
+            if (dialogWinner) {
+                const winnerHasHadFirstDialog = dialogWinner === 'player-1' ? newPlayerHasHadFirstConquestDialog : newOpponentHasHadFirstConquestDialog;
+                const shouldPlayDialog = !winnerHasHadFirstDialog || Math.random() < gameConfig.CONQUEST_DIALOG_CHANCE;
+
+                if (shouldPlayDialog) {
+                    const conquestEvent = conquestEvents.find(c => c.conqueror === dialogWinner);
+                    if (conquestEvent) {
+                        const randomDialogIndex = Math.floor(Math.random() * 5) + 1; // 1-5
+                        const dialogSfxKey = `${conquestEvent.archetypeKey}-${conquestEvent.legacyKey}-conquest-${randomDialogIndex}`;
+                        const enclave = finalEnclavesMap.get(conquestEvent.enclaveId);
+                        if (enclave) {
+                            effectsToPlay.push({
+                                id: `eff-conquest-dialog-${conquestEvent.enclaveId}-${Date.now()}`,
+                                sfx: { key: dialogSfxKey, channel: 'dialog', position: enclave.center },
+                                position: enclave.center,
+                            });
+                        }
+                    }
+
+                    if (dialogWinner === 'player-1') {
+                        newPlayerHasHadFirstConquestDialog = true;
+                    } else {
+                        newOpponentHasHadFirstConquestDialog = true;
+                    }
+                }
+            }
+        }
+
+        // --- 5. Game Over Check ---
         const finalEnclaves = Array.from(finalEnclavesMap.values());
         const playerEnclaveCount = finalEnclaves.filter(e => e.owner === 'player-1').length;
         const opponentEnclaveCount = finalEnclaves.filter(e => e.owner === 'player-2').length;
@@ -279,6 +325,10 @@ export const resolveTurn = (
             gameOverState,
             effectsToPlay,
             gameSessionId,
+            playerConquestsThisTurn,
+            opponentConquestsThisTurn,
+            playerHasHadFirstConquestDialog: newPlayerHasHadFirstConquestDialog,
+            opponentHasHadFirstConquestDialog: newOpponentHasHadFirstConquestDialog,
         };
 
     } catch (e) {
@@ -291,34 +341,44 @@ export const resolveTurn = (
 
 // --- Web Worker Message Handler ---
 self.onmessage = (e: MessageEvent) => {
-    const state = JSON.parse(e.data);
+    try {
+        console.log('[turnResolver] Received state:', e.data);
+        const state = JSON.parse(e.data);
 
-    // Re-hydrate all Vector3 instances on entry
-    Object.values(state.enclaveData).forEach((enclave: any) => {
-        enclave.center = deserializeVector3(enclave.center);
-    });
-    state.mapData.forEach((cell: any) => {
-        cell.center = deserializeVector3(cell.center);
-    });
-    state.activeDisasterMarkers.forEach((marker: any) => {
-        marker.position = deserializeVector3(marker.position);
-    });
+        // Re-hydrate all Vector3 instances on entry
+        Object.values(state.enclaveData).forEach((enclave: any) => {
+            enclave.center = deserializeVector3(enclave.center);
+        });
+        state.mapData.forEach((cell: any) => {
+            cell.center = deserializeVector3(cell.center);
+        });
+        state.activeDisasterMarkers.forEach((marker: any) => {
+            marker.position = deserializeVector3(marker.position);
+        });
 
         const result = resolveTurn(
-        state.enclaveData,
-        state.playerPendingOrders,
-        state.aiPendingOrders,
-        state.routes,
-        state.mapData,
-        state.currentTurn,
-        state.gameSessionId,
-        state.activeDisasterMarkers,
-        state.gameConfig,
-        state.playerArchetypeKey,
-        state.playerLegacyKey,
-        state.opponentArchetypeKey,
-        state.opponentLegacyKey,
-    );
-    
-    self.postMessage(JSON.stringify(result));
+            state.enclaveData,
+            state.playerPendingOrders,
+            state.aiPendingOrders,
+            state.routes,
+            state.mapData,
+            state.currentTurn,
+            state.gameSessionId,
+            state.activeDisasterMarkers,
+            state.gameConfig,
+            state.playerArchetypeKey,
+            state.playerLegacyKey,
+            state.opponentArchetypeKey,
+            state.opponentLegacyKey,
+            state.playerHasHadFirstConquestDialog,
+            state.opponentHasHadFirstConquestDialog,
+        );
+        
+        console.log('[turnResolver] Posting result:', JSON.stringify(result));
+        self.postMessage(JSON.stringify(result));
+    } catch (error) {
+        console.error('[turnResolver] FATAL ERROR:', error);
+        self.postMessage(JSON.stringify({ error: 'A fatal error occurred in the turn resolver.' }));
+    }
 };
+
