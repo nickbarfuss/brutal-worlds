@@ -72,7 +72,7 @@ export class SfxManager {
                 this.channelGains.set(channel, gainNode);
                 this.setVolume(channel, this.channelVolumes[channel]);
             });
-            console.log("AudioContext created.");
+            
         } catch (e) {
             console.error("Web Audio API is not supported in this browser.", e);
             throw e;

@@ -59,7 +59,7 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
                 ...state,
                 selectedEnclaveId: null,
                 inspectedMapEntity: { type: 'enclave', id: cell.enclaveId },
-                sfxToPlay: state.selectedEnclaveId !== null ? { key: 'game-command-mode-exit', channel: 'fx' as const, position: state.enclaveData[state.selectedEnclaveId]?.center } : null,
+                sfxToPlay: state.selectedEnclaveId !== null ? { key: 'sfx-command-mode-exit', channel: 'fx' as const, position: state.enclaveData[state.selectedEnclaveId]?.center } : null,
             };
         }
         

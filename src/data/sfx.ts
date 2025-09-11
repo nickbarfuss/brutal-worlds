@@ -161,6 +161,8 @@ export const SFX_SOURCES: {
     'first-sword-warlords-ascendancy-conquest-1': { url: `${DIALOG_BASE_URL}/first-sword-warlords-ascendancy-conquest-1.mp3` },
     'first-sword-warlords-ascendancy-conquest-2': { url: `${DIALOG_BASE_URL}/first-sword-warlords-ascendancy-conquest-2.mp3` },
     'first-sword-warlords-ascendancy-conquest-3': { url: `${DIALOG_BASE_URL}/first-sword-warlords-ascendancy-conquest-3.mp3` },
+    'first-sword-warlords-ascendancy-conquest-4': { url: `${DIALOG_BASE_URL}/first-sword-warlords-ascendancy-conquest-4.mp3` },
+    'first-sword-warlords-ascendancy-conquest-5': { url: `${DIALOG_BASE_URL}/first-sword-warlords-ascendancy-conquest-5.mp3` },
     'pact-whisperer-whispering-covenant-conquest-1': { url: `${DIALOG_BASE_URL}/pact-whisperer-whispering-covenant-conquest-1.mp3` },
     'pact-whisperer-whispering-covenant-conquest-2': { url: `${DIALOG_BASE_URL}/pact-whisperer-whispering-covenant-conquest-2.mp3` },
     'pact-whisperer-whispering-covenant-conquest-3': { url: `${DIALOG_BASE_URL}/pact-whisperer-whispering-covenant-conquest-3.mp3` },

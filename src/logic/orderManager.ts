@@ -104,7 +104,7 @@ export const handleSingleClick = (
         }
         
         // 3c. Click on anything else (invalid target, self while holding, etc.): Deselect and inspect the new target.
-        return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders, vfxToPlay: null, sfxToPlay: { key: 'game-command-mode-exit', channel: 'fx' as const, position: originEnclave.center } };
+        return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders, vfxToPlay: null, sfxToPlay: { key: 'sfx-command-mode-exit', channel: 'fx' as const, position: originEnclave.center } };
 
     } else {
         // 4. Default action: Not in command mode, so just inspect the clicked entity.

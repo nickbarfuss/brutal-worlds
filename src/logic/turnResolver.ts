@@ -227,7 +227,12 @@ export const resolveTurn = (
     gameSessionId: number,
     initialDisasterMarkers: ActiveDisasterMarker[],
     gameConfig: GameConfig,
+    playerArchetypeKey: string | null,
+    playerLegacyKey: string | null,
+    opponentArchetypeKey: string | null,
+    opponentLegacyKey: string | null,
 ) => {
+    console.log(`Turn ${currentTurn} started resolving.`);
     try {
         const effectsToPlay: EffectQueueItem[] = [];
         
@@ -249,7 +254,7 @@ export const resolveTurn = (
         const enclavesAfterHolding = resolveHolding(enclavesAfterDisasters, allValidOrders, routesAfterDisasters, gameConfig);
         const enclavesAfterAssists = resolveAssists(enclavesAfterHolding, allValidOrders, gameConfig);
         const { newEnclaveData: enclavesAfterAttacks, newPendingOrders: ordersAfterAttacks } = resolveAttacks(
-            enclavesAfterAssists, allValidOrders, gameConfig, effectsToPlay
+            enclavesAfterAssists, allValidOrders, gameConfig, effectsToPlay, playerArchetypeKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey,
         );
         
         let finalEnclavesMap = enclavesAfterAttacks;
@@ -300,7 +305,7 @@ self.onmessage = (e: MessageEvent) => {
         marker.position = deserializeVector3(marker.position);
     });
 
-    const result = resolveTurn(
+        const result = resolveTurn(
         state.enclaveData,
         state.playerPendingOrders,
         state.aiPendingOrders,
@@ -310,6 +315,10 @@ self.onmessage = (e: MessageEvent) => {
         state.gameSessionId,
         state.activeDisasterMarkers,
         state.gameConfig,
+        state.playerArchetypeKey,
+        state.playerLegacyKey,
+        state.opponentArchetypeKey,
+        state.opponentLegacyKey,
     );
     
     self.postMessage(JSON.stringify(result));

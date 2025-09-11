@@ -19,6 +19,10 @@ export const resolveAttacks = (
     processedOrders: PendingOrders,
     gameConfig: GameConfig,
     effectsToPlay: EffectQueueItem[],
+    playerArchetypeKey: string | null,
+    playerLegacyKey: string | null,
+    opponentArchetypeKey: string | null,
+    opponentLegacyKey: string | null,
 ): { newEnclaveData: Map<number, Enclave>, newPendingOrders: PendingOrders } => {
     const newEnclavesMap = new Map<number, Enclave>(currentEnclavesMap);
     const newPendingOrders = { ...processedOrders };
@@ -176,14 +180,18 @@ export const resolveAttacks = (
                 position: target.center,
             });
 
-            attackers.forEach(attacker => {
-                if (attacker.owner === target.owner) {
-                    const order = newPendingOrders[attacker.from];
-                    if (order && order.to === targetId && order.type === 'attack') {
-                        order.type = 'assist';
-                    }
-                }
-            });
+            const conqueringArchetypeKey = target.owner === 'player-1' ? playerArchetypeKey : opponentArchetypeKey;
+            const conqueringLegacyKey = target.owner === 'player-1' ? playerLegacyKey : opponentLegacyKey;
+
+            if (conqueringArchetypeKey && conqueringLegacyKey) {
+                const randomDialogIndex = Math.floor(Math.random() * 5) + 1; // 1-5
+                const dialogSfxKey = `${conqueringArchetypeKey}-${conqueringLegacyKey}-conquest-${randomDialogIndex}`;
+                effectsToPlay.push({
+                    id: `eff-conquest-dialog-${target.id}-${Date.now()}`,
+                    sfx: { key: dialogSfxKey, channel: 'dialog', position: target.center },
+                    position: target.center,
+                });
+            }
         }
     });
 
