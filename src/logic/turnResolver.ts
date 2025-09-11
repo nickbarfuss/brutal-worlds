@@ -9,7 +9,7 @@ import { resolveAssists } from '@/logic/assistResolver';
 import { resolveAttacks } from '@/logic/attackResolver';
 // FIX: GameConfig is not exported from types/game.ts. It is imported from data/config.ts.
 import { Enclave, PendingOrders, EffectQueueItem, Player, ActiveDisasterMarker, Route, MapCell, ActiveEffect, DisasterProfile } from '@/types/game.ts';
-import { GameConfig } from '@/data/config.ts';
+import { GameConfig } from '@/types/game.ts';
 import * as THREE from 'three';
 import { DISASTER_PROFILES } from '@/data/disasters';
 import { applyContinuousRules, applyInstantaneousRules } from '@/logic/effectProcessor';
