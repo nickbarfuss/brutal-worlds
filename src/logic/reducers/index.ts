@@ -72,8 +72,8 @@ export const initialState: GameState = {
     isResolvingTurn: false,
     gameOverState: 'none',
     isGloballyMuted: false,
-    volumes: { fx: 0.7, ambient: 0.20, music: 0.6, ui: 0.6, dialog: 0.8 },
-    mutedChannels: { fx: false, ambient: false, music: false, ui: false, dialog: false },
+    volumes: { fx: 0.7, ambient: 0.2, music: 0.6, ui: 0.6, dialog: 0.8 },
+    mutedChannels: { fx: false, ambient: true, music: true, ui: false, dialog: false },
     isBloomEnabled: GAME_CONFIG.ENABLE_BLOOM_EFFECT,
     bloomSettings: { threshold: 0.5, strength: 0.5, radius: 1.0 },
     materialSettings: {

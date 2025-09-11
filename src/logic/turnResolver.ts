@@ -232,7 +232,6 @@ export const resolveTurn = (
     opponentArchetypeKey: string | null,
     opponentLegacyKey: string | null,
 ) => {
-    console.log(`Turn ${currentTurn} started resolving.`);
     try {
         const effectsToPlay: EffectQueueItem[] = [];
         

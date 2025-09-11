@@ -169,33 +169,31 @@ export const resolveAttacks = (
         
         newEnclavesMap.set(targetId, target);
 
-        if (originalOwner !== target.owner) {
+        if (originalOwner !== target.owner && target.owner) {
             const vfxKey = target.owner === 'player-1' ? 'conquest-player' : 'conquest-opponent';
             const sfxKey = target.owner === 'player-1'
                 ? `sfx-conquest-player-${Math.floor(Math.random() * 3) + 1}`
                 : `sfx-conquest-opponent-${Math.floor(Math.random() * 2) + 1}`;
+
+            const conqueringArchetypeKey = target.archetypeKey;
+            const conqueringLegacyKey = target.owner === 'player-1' ? playerLegacyKey : opponentLegacyKey;
+            let dialogSfxKey: string | null = null;
+
+            if (conqueringArchetypeKey && conqueringLegacyKey) {
+                const randomDialogIndex = Math.floor(Math.random() * 5) + 1; // 1-5
+                dialogSfxKey = `${conqueringArchetypeKey}-${conqueringLegacyKey}-conquest-${randomDialogIndex}`;
+            }
+
+            console.log(`[attackResolver] Creating conquest effects for target ${target.id}: VFX=${vfxKey}, SFX=${sfxKey}, Dialog=${dialogSfxKey || 'none'}`);
+
             effectsToPlay.push({
-                id: `eff-conquest-${target.id}-${Date.now()}`, vfxKey,
+                id: `eff-conquest-${target.id}-${Date.now()}`,
+                vfxKey,
                 sfx: { key: sfxKey, channel: 'fx', position: target.center },
                 position: target.center,
             });
 
-            const conqueringArchetypeKey = target.archetypeKey;
-            const conqueringLegacyKey = target.owner === 'player-1' ? playerLegacyKey : opponentLegacyKey;
-
-            console.log("[attackResolver] Conquest Keys:", {
-                owner: target.owner,
-                conqueringArchetypeKey,
-                conqueringLegacyKey,
-                playerArchetypeKey,
-                playerLegacyKey,
-                opponentArchetypeKey,
-                opponentLegacyKey
-            });
-
-            if (conqueringArchetypeKey && conqueringLegacyKey) {
-                const randomDialogIndex = Math.floor(Math.random() * 5) + 1; // 1-5
-                const dialogSfxKey = `${conqueringArchetypeKey}-${conqueringLegacyKey}-conquest-${randomDialogIndex}`;
+            if (dialogSfxKey) {
                 effectsToPlay.push({
                     id: `eff-conquest-dialog-${target.id}-${Date.now()}`,
                     sfx: { key: dialogSfxKey, channel: 'dialog', position: target.center },

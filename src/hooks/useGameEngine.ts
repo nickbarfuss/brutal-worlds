@@ -65,7 +65,6 @@ export const useGameEngine = () => {
 
     const setGamePhase = useCallback((phase: GamePhase) => dispatch({ type: 'SET_GAME_PHASE', payload: phase }), []);
     const startGame = useCallback((playerArchetypeKey: string, worldKey: string, playerLegacyIndex: number, opponentArchetypeKey?: string, opponentLegacyIndex?: number) => {
-        console.log('startGame dispatched with:', { playerArchetypeKey, worldKey, playerLegacyIndex, opponentArchetypeKey, opponentLegacyIndex });
         vfxManager.current.reset();
         // FIX: Corrected payload property from 'playerArchetypeSkinIndex' to 'playerLegacyIndex' to match action type.
         dispatch({ type: 'START_GAME', payload: { playerArchetypeKey, worldKey, playerLegacyIndex, opponentArchetypeKey, opponentLegacyIndex } });
@@ -250,8 +249,6 @@ export const useGameEngine = () => {
             opponentLegacyKey: state.opponentLegacyKey,
         });
 
-        console.log('[useGameEngine] Sending state to worker:', serializableState);
-        
         workerRef.current.postMessage(JSON.stringify(serializableState));
     }, [
         state.isResolvingTurn, 
@@ -324,6 +321,12 @@ export const useGameEngine = () => {
     }, [state.isGloballyMuted]);
 
     useEffect(() => {
+        for (const channel in state.mutedChannels) {
+            sfxManager.current.setMuted(channel as AudioChannel, state.mutedChannels[channel as AudioChannel]);
+        }
+    }, [state.mutedChannels]);
+
+    useEffect(() => {
         if (state.vfxToPlay) {
             vfxManager.current.playEffect(state.vfxToPlay.key, state.vfxToPlay.center);
             // By wrapping the dispatch in a timeout, we push the state clearing to the
@@ -336,6 +339,7 @@ export const useGameEngine = () => {
     
     useEffect(() => {
         if (state.sfxToPlay) {
+            console.log(`[useGameEngine] Playing sound: ${state.sfxToPlay.key} on channel ${state.sfxToPlay.channel}`);
             sfxManager.current.playSound(state.sfxToPlay.key, state.sfxToPlay.channel, state.sfxToPlay.position);
             // By wrapping the dispatch in a timeout, we push the state clearing to the
             // next event loop tick. This resolves a race condition where the sound

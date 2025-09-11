@@ -8,6 +8,20 @@ It is crucial to ensure that the data sent to and from the worker is correctly s
 
 When debugging issues related to turn resolution, it's important to inspect the data that is being passed to and from the worker.
 
+## Web Worker Data Flow
+
+When debugging issues related to data being unavailable in the `turnResolver` web worker, it's important to trace the data's path from its origin to the worker.
+
+1.  **State Initialization (`/src/logic/reducers/gameFlowReducer.ts`):** The `START_GAME` action handler in this reducer is responsible for setting the initial game state. Any data that needs to be available from the start of the game (like `playerArchetypeKey`, `playerLegacyKey`, etc.) must be correctly placed into the state object here.
+
+2.  **Engine Hook (`/src/hooks/useGameEngine.ts`):** This hook holds the main game state via `useReducer`. The `resolveTurn` function is responsible for gathering all necessary data from the current state and preparing it to be sent to the worker. All data required by the worker must be included in the object passed to `serializeGameStateForWorker` and also added to the `useCallback` dependency array for `resolveTurn`.
+
+3.  **Serialization (`/src/utils/threeUtils.ts`):** The `serializeGameStateForWorker` function acts as a gatekeeper. It takes the state from `useGameEngine` and creates a new, sanitized object to be sent to the worker. **Crucially, any property not explicitly included in the object returned by this function will not reach the worker.** If data is missing in the worker, verify it is being passed through here.
+
+4.  **Worker (`/src/logic/turnResolver.ts`):** The worker receives the serialized state. From here, it passes the data to other resolvers like `attackResolver.ts`.
+
+By checking these files in order, you can trace why data might be missing in the web worker.
+
 ## Turn Timing and Web Workers
 
 When implementing features that rely on specific timing within a turn (e.g., playing sounds at the start or end of a turn), it's crucial to understand the asynchronous nature of web workers.
