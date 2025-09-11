@@ -177,13 +177,13 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
 
         const playBeginDialog = () => {
             const genericKeys = [
-                'begin-generic-1', 'begin-generic-2',
-                'begin-generic-3', 'begin-generic-4',
+                'narrator-arrival-1', 'narrator-arrival-2',
+                'narrator-arrival-3', 'narrator-arrival-4',
             ];
             const legacySoundKeys: string[] = [];
             if (playerArchetypeKey && playerLegacyKey) {
                 for (let i = 1; i <= 4; i++) {
-                    legacySoundKeys.push(`${playerArchetypeKey}-${playerLegacyKey}-begin-${i}`);
+                    legacySoundKeys.push(`${playerArchetypeKey}-${playerLegacyKey}-arrival-${i}`);
                 }
             }
             const validLegacyKeys = legacySoundKeys.filter(key => sfxManager.getSoundDuration(key, 'dialog') > 0);
@@ -212,8 +212,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 if (!currentWorld) return;
                 
                 const dialogKeys = [
-                    'dialog-world-intro-1', 'dialog-world-intro-2',
-                    'dialog-world-intro-3', 'dialog-world-intro-4',
+                    'narrator-world-intro-1', 'narrator-world-intro-2',
+                    'narrator-world-intro-3', 'narrator-world-intro-4',
                 ];
                 const randomDialogKey = dialogKeys[Math.floor(Math.random() * dialogKeys.length)];
                 sfxManager.playSound(randomDialogKey, 'dialog');
@@ -222,10 +222,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
 
                 if (dialogDuration > 0) {
                     setTimeout(() => {
-                        sfxManager.playSound(`dialog-world-intro-${currentWorld.key}`, 'dialog');
+                        sfxManager.playSound(`narrator-world-${currentWorld.key}`, 'dialog');
                     }, dialogDuration * 1000);
                 } else {
-                    sfxManager.playSound(`dialog-world-intro-${currentWorld.key}`, 'dialog');
+                    sfxManager.playSound(`narrator-world-${currentWorld.key}`, 'dialog');
                 }
             };
 

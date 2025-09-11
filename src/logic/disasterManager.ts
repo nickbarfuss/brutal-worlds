@@ -127,10 +127,24 @@ export const triggerNewDisaster = (key: string, context: TriggerContext) => {
                 sfx: alertSfxKey ? { key: alertSfxKey, channel: 'dialog', position: cell.center } : undefined,
                 position: cell.center,
             });
+            const randomDialogIndex = Math.floor(Math.random() * 3) + 1;
+            const dialogKey = `narrator-disaster-${key}-alert-${randomDialogIndex}`;
+            effectsToPlay.push({
+                id: `eff-${key}-alert-dialog-${cell.id}-${Date.now()}`,
+                sfx: { key: dialogKey, channel: 'dialog', position: cell.center },
+                position: cell.center,
+            });
         } else if (alertSfxKey) { // Play SFX even if there's no VFX
              effectsToPlay.push({
                 id: `eff-${key}-alert-sfx-${cell.id}-${Date.now()}`,
                 sfx: { key: alertSfxKey, channel: 'dialog', position: cell.center },
+                position: cell.center,
+            });
+            const randomDialogIndex = Math.floor(Math.random() * 3) + 1;
+            const dialogKey = `narrator-disaster-${key}-alert-${randomDialogIndex}`;
+            effectsToPlay.push({
+                id: `eff-${key}-alert-dialog-${cell.id}-${Date.now()}`,
+                sfx: { key: dialogKey, channel: 'dialog', position: cell.center },
                 position: cell.center,
             });
         }

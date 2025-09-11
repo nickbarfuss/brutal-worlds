@@ -54,7 +54,7 @@ export class SfxManager {
     
             await this.preloadAllSounds();
             this.isInitialized = true;
-            console.log("SFX Manager initialized. All sounds preloaded.");
+            
         })();
         
         return this.preloadPromise;

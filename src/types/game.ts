@@ -184,7 +184,7 @@ export interface VfxProfile {
 export interface SfxProfile {
     url: string;
 }
-export type SfxCategoryName = 'ui' | 'game' | 'world' | 'dialog' | 'archetype' | 'ambient' | 'music';
+export type SfxCategoryName = 'ui' | 'game' | 'dialog' | 'ambient' | 'music';
 
 // Core Types
 export type PlayerIdentifier = 'player-1' | 'player-2';

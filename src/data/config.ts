@@ -6,9 +6,9 @@ export const GAME_CONFIG = {
     FORCE_SUPPLY_CAP: 50,
     QUICK_START: {
         enabled: true,
-        player1Archetype: '',
+        player1Archetype: 'first-sword',
         player2Archetype: '',
-        worldKey: '',
+        worldKey: 'skull-sands',
     },
     ENABLE_BLOOM_EFFECT: true,
     DISASTER_TESTING: {

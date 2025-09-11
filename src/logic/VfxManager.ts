@@ -23,7 +23,7 @@ export class VfxManager {
         try {
             await Promise.all(assetPromises);
             this.isInitialized = true;
-            console.log("VFX Manager initialized successfully.");
+            
         } catch (error) {
             console.error("Error initializing VFX Manager:", error);
             throw new Error("Failed to load one or more VFX assets.");
