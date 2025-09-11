@@ -184,8 +184,6 @@ export const resolveAttacks = (
                 dialogSfxKey = `${conqueringArchetypeKey}-${conqueringLegacyKey}-conquest-${randomDialogIndex}`;
             }
 
-            console.log(`[attackResolver] Creating conquest effects for target ${target.id}: VFX=${vfxKey}, SFX=${sfxKey}, Dialog=${dialogSfxKey || 'none'}`);
-
             effectsToPlay.push({
                 id: `eff-conquest-${target.id}-${Date.now()}`,
                 vfxKey,

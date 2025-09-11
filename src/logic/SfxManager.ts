@@ -1,4 +1,3 @@
-
 import * as THREE from 'three';
 import { SFX_SOURCES } from '@/data/sfx';
 import { getAssetUrl } from '@/utils/assetUtils';
@@ -117,7 +116,6 @@ export class SfxManager {
     }
 
     public async playSound(key: string, channel: AudioChannel = 'fx', position?: Vector3): Promise<void> {
-        console.log(`[SfxManager] playSound CALLED with key: ${key}, channel: ${channel}`);
         if (!this.hasUserInteracted || !this.audioContext) {
             return;
         }

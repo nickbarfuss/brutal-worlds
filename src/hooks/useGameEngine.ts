@@ -323,7 +323,6 @@ export const useGameEngine = () => {
     
     useEffect(() => {
         if (state.sfxToPlay) {
-            console.log(`[useGameEngine] Playing sound: ${state.sfxToPlay.key} on channel ${state.sfxToPlay.channel}`);
             sfxManager.current.playSound(state.sfxToPlay.key, state.sfxToPlay.channel, state.sfxToPlay.position);
             setTimeout(() => dispatch({ type: 'CLEAR_SFX' }), 0);
         }

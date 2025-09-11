@@ -98,7 +98,6 @@ const GameView: React.FC = () => {
                 p2LegacyIndex = legacyIndex !== -1 ? legacyIndex : Math.floor(Math.random() * p2ArchetypeData.legacies.length);
             }
             
-            console.log('Calling engine.startGame with:', { finalP1Archetype, finalWorldKey, p1LegacyIndex, finalP2Archetype, p2LegacyIndex });
             engine.startGame(finalP1Archetype, finalWorldKey, p1LegacyIndex, finalP2Archetype, p2LegacyIndex);
         } else {
             // Normal flow: open the archetype selection dialog.
