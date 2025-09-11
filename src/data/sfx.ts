@@ -10,10 +10,13 @@ export const SFX_SOURCES: {
   [key in SfxCategoryName]: { [key: string]: SfxProfile }
 } = {
   ui: {
+    //general
     'tap-1': { url: `${UI_BASE_URL}/ui-tap-1.mp3` },
     'button-game-start': { url: `${UI_BASE_URL}/button-game-start.mp3` },
     'button-dialog-complete': { url: `${UI_BASE_URL}/button-dialog-complete.mp3` },
     'button-dialog-nav': { url: `${UI_BASE_URL}/button-dialog-nav.mp3` },
+
+    //archetype selection
     'first-sword-1': { url: `${UI_BASE_URL}/first-sword-1.mp3` },
     'first-sword-2': { url: `${UI_BASE_URL}/first-sword-2.mp3` },
     'first-sword-3': { url: `${UI_BASE_URL}/first-sword-3.mp3` },
@@ -32,7 +35,8 @@ export const SFX_SOURCES: {
     'resonance-warden-4': { url: `${UI_BASE_URL}/resonance-warden-4.mp3` },
     'resonance-warden-5': { url: `${UI_BASE_URL}/resonance-warden-5.mp3` },
   },
-  game: {
+  sfx: {
+    //disaster
     'entropy-wind-alert': { url: `${SFX_BASE_URL}/entropy-wind-alert.mp3` },
     'entropy-wind-impact': { url: `${SFX_BASE_URL}/entropy-wind-impact.mp3` },
     'entropy-wind-aftermath': { url: `${SFX_BASE_URL}/entropy-wind-aftermath.mp3` },
@@ -51,14 +55,20 @@ export const SFX_SOURCES: {
     'void-surge-alert': { url: `${SFX_BASE_URL}/void-surge-alert.mp3` },
     'void-surge-impact': { url: `${SFX_BASE_URL}/void-surge-impact.mp3` },
     'void-surge-aftermath': { url: `${SFX_BASE_URL}/void-surge-aftermath.mp3` },
+
+    //intro
     'warp-engage-1': { url: `${SFX_BASE_URL}/warp-engage-1.mp3` },
     'warp-exit-1': { url: `${SFX_BASE_URL}/warp-exit-1.mp3` },
     'warp-exit-2': { url: `${SFX_BASE_URL}/warp-exit-2.mp3` },
     'warp-exit-3': { url: `${SFX_BASE_URL}/warp-exit-3.mp3` },
     'warp-exit-4': { url: `${SFX_BASE_URL}/warp-exit-4.mp3` },
+
+    //command mode
     'command-mode-enter-1': { url: `${SFX_BASE_URL}/command-mode-enter-1.mp3` },
     'command-mode-enter-2': { url: `${SFX_BASE_URL}/command-mode-enter-2.mp3` },
     'command-mode-exit': { url: `${SFX_BASE_URL}/command-mode-exit.mp3` },
+
+    //orders
     'order-assist-1': { url: `${SFX_BASE_URL}/order-assist-1.mp3` },
     'order-assist-2': { url: `${SFX_BASE_URL}/order-assist-2.mp3` },
     'order-assist-3': { url: `${SFX_BASE_URL}/order-assist-3.mp3` },
@@ -73,6 +83,8 @@ export const SFX_SOURCES: {
     'order-hold-4': { url: `${SFX_BASE_URL}/order-hold-4.mp3` },
     'order-hold-5': { url: `${SFX_BASE_URL}/order-hold-5.mp3` },
     'order-hold-6': { url: `${SFX_BASE_URL}/order-hold-6.mp3` },
+
+    //conquest
     'conquest-player-1': { url: `${SFX_BASE_URL}/conquest-player-explosion-1.mp3` },
     'conquest-player-2': { url: `${SFX_BASE_URL}/conquest-player-explosion-2.mp3` },
     'conquest-player-3': { url: `${SFX_BASE_URL}/conquest-player-explosion-3.mp3` },
@@ -80,7 +92,7 @@ export const SFX_SOURCES: {
     'conquest-opponent-2': { url: `${SFX_BASE_URL}/conquest-opponent-explosion-2.mp3` },
   },    
   dialog: {
-    // CINEMATIC INTRO
+    //intro
     'narrator-world-intro-1': { url: `${DIALOG_BASE_URL}/narrator-world-intro-1.mp3` },
     'narrator-world-intro-2': { url: `${DIALOG_BASE_URL}/narrator-world-intro-2.mp3` },
     'narrator-world-intro-3': { url: `${DIALOG_BASE_URL}/narrator-world-intro-3.mp3` },
@@ -98,7 +110,8 @@ export const SFX_SOURCES: {
     'narrator-world-shatter-spire': { url: `${DIALOG_BASE_URL}/narrator-world-intro-shatter-spire.mp3` },
     'narrator-world-steel-spine': { url: `${DIALOG_BASE_URL}/narrator-world-intro-steel-spine.mp3` },
 
-    // WORLD ARRIVAL
+    //arrival Archetype
+    //75% chance to play on arrival
     'first-sword-annihilation-doctrine-arrival-1': { url: `${DIALOG_BASE_URL}/first-sword-annihilation-doctrine-arrival-1.mp3` },
     'first-sword-annihilation-doctrine-arrival-2': { url: `${DIALOG_BASE_URL}/first-sword-annihilation-doctrine-arrival-2.mp3` },
     'first-sword-annihilation-doctrine-arrival-3': { url: `${DIALOG_BASE_URL}/first-sword-annihilation-doctrine-arrival-3.mp3` },
@@ -131,12 +144,15 @@ export const SFX_SOURCES: {
     'resonance-warden-genesis-forge-mandate-arrival-2': { url: `${DIALOG_BASE_URL}/resonance-warden-genesis-forge-mandate-arrival-2.mp3` },
     'resonance-warden-genesis-forge-mandate-arrival-3': { url: `${DIALOG_BASE_URL}/resonance-warden-genesis-forge-mandate-arrival-3.mp3` },
     'resonance-warden-genesis-forge-mandate-arrival-4': { url: `${DIALOG_BASE_URL}/resonance-warden-genesis-forge-mandate-arrival-4.mp3` },
+    
+    //arrival narrator
+    //25% chace to play on arrival
     'narrator-arrival-1': { url: `${DIALOG_BASE_URL}/narrator-arrival-1.mp3` },
     'narrator-arrival-2': { url: `${DIALOG_BASE_URL}/narrator-arrival-2.mp3` },
     'narrator-arrival-3': { url: `${DIALOG_BASE_URL}/narrator-arrival-3.mp3` },
     'narrator-arrival-4': { url: `${DIALOG_BASE_URL}/narrator-arrival-4.mp3` },
 
-    // CONQUEST
+    //archetyptes
     'first-sword-annihilation-doctrine-conquest-1': { url: `${DIALOG_BASE_URL}/first-sword-annihilation-doctrine-conquest-1.mp3` },
     'first-sword-annihilation-doctrine-conquest-2': { url: `${DIALOG_BASE_URL}/first-sword-annihilation-doctrine-conquest-2.mp3` },
     'first-sword-annihilation-doctrine-conquest-3': { url: `${DIALOG_BASE_URL}/first-sword-annihilation-doctrine-conquest-3.mp3` },
@@ -176,7 +192,7 @@ export const SFX_SOURCES: {
     'resonance-warden-genesis-forge-mandate-conquest-4': { url: `${DIALOG_BASE_URL}/resonance-warden-genesis-forge-mandate-conquest-4.mp3` },
     'resonance-warden-genesis-forge-mandate-conquest-5': { url: `${DIALOG_BASE_URL}/resonance-warden-genesis-forge-mandate-conquest-5.mp3` },
 
-    // DISASTER ALERT
+    //disaster
     'narrator-disaster-entropy-wind-alert-1': { url: `${DIALOG_BASE_URL}/narrator-disaster-entropy-wind-alert-1.mp3` },
     'narrator-disaster-entropy-wind-alert-2': { url: `${DIALOG_BASE_URL}/narrator-disaster-entropy-wind-alert-2.mp3` },
     'narrator-disaster-entropy-wind-alert-3': { url: `${DIALOG_BASE_URL}/narrator-disaster-entropy-wind-alert-3.mp3` },

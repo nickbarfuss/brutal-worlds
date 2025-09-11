@@ -158,7 +158,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             });
         
             if (ordersWereCancelled) {
-                const sfxKey = `game-order-hold-${Math.floor(Math.random() * 6) + 1}`;
+                const sfxKey = `sfx-order-hold-${Math.floor(Math.random() * 6) + 1}`;
                 return {
                     ...state,
                     playerPendingOrders: newPlayerOrders,
@@ -175,7 +175,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             if (!fromEnclave || !toEnclave) return state;
 
             const newAiOrders = { ...state.aiPendingOrders, [fromId]: order };
-            const sfxKey = `game-order-${order.type}-${Math.floor(Math.random() * 4) + 1}`;
+            const sfxKey = `sfx-order-${order.type}-${Math.floor(Math.random() * 4) + 1}`;
             
             // Get the VFX key from the order profile
             const vfxKey = ORDER_PROFILES[order.type].vfxKey;
@@ -198,7 +198,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             const newAiOrders = { ...state.aiPendingOrders };
             delete newAiOrders[fromId];
 
-            const sfxKey = `game-order-hold-${Math.floor(Math.random() * 6) + 1}`;
+            const sfxKey = `sfx-order-hold-${Math.floor(Math.random() * 6) + 1}`;
 
             // Get the VFX key for a "holding" order
             const vfxKey = ORDER_PROFILES.holding.vfxKey;

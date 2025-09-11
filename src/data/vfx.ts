@@ -1,20 +1,20 @@
 import { VfxProfile } from '@/types/game';
 
 export const VFX_PROFILES: { [key: string]: VfxProfile } = {
-    // --- General / Conquest ---
+    //conquest
     'conquest-player': { url: 'https://storage.googleapis.com/brutal-worlds/vfx/conquest-player.webm', width: 256, height: 256 },
     'conquest-opponent': { url: 'https://storage.googleapis.com/brutal-worlds/vfx/conquest-opponent.webm', width: 256, height: 256 },
     
-    // --- Cinematic ---
+    //cinematic
     'warp-enter': { url: 'https://storage.googleapis.com/brutal-worlds/vfx/warp-enter.webm' },
     'warp-exit': { url: 'https://storage.googleapis.com/brutal-worlds/vfx/warp-exit.webm' },
 
-    // --- Orders ---
+    //orders
     'order-attack': { url: 'https://storage.googleapis.com/brutal-worlds/vfx/order-attack.webm', width: 256, height: 256 },
     'order-assist': { url: 'https://storage.googleapis.com/brutal-worlds/vfx/order-assist.webm', width: 256, height: 256 },
     'order-holding': { url: 'https://storage.googleapis.com/brutal-worlds/vfx/order-hold.webm', width: 256, height: 256 },
     
-    // --- Disasters ---
+    //disasters
     'disaster-entropy-wind-alert': { url: 'https://storage.googleapis.com/brutal-worlds/vfx/entropy-wind-alert.webm', width: 256, height: 256 },
     'disaster-entropy-wind-impact': { url: 'https://storage.googleapis.com/brutal-worlds/vfx/entropy-wind-impact.webm', width: 256, height: 256 },
     'disaster-entropy-wind-aftermath': { url: 'https://storage.googleapis.com/brutal-worlds/vfx/entropy-wind-aftermath.webm', width: 256, height: 256 },

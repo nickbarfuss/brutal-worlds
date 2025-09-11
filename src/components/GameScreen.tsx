@@ -187,10 +187,23 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 }
             }
             const validLegacyKeys = legacySoundKeys.filter(key => sfxManager.getSoundDuration(key, 'dialog') > 0);
-            const soundPool = [...genericKeys, ...validLegacyKeys];
-            if (soundPool.length > 0) {
-                const randomKey = soundPool[Math.floor(Math.random() * soundPool.length)];
-                sfxManager.playSound(randomKey, 'dialog');
+
+            let selectedKey: string | undefined;
+            const randomChance = Math.random();
+
+            if (randomChance <= 0.75 && validLegacyKeys.length > 0) {
+                // 75% chance to play a legacy sound
+                selectedKey = validLegacyKeys[Math.floor(Math.random() * validLegacyKeys.length)];
+            } else if (genericKeys.length > 0) {
+                // 25% chance to play a generic sound, or fallback if no legacy sounds
+                selectedKey = genericKeys[Math.floor(Math.random() * genericKeys.length)];
+            } else if (validLegacyKeys.length > 0) {
+                // Fallback: if generic is empty, but legacy is not, play legacy
+                selectedKey = validLegacyKeys[Math.floor(Math.random() * validLegacyKeys.length)];
+            }
+
+            if (selectedKey) {
+                sfxManager.playSound(selectedKey, 'dialog');
             }
         };
     
@@ -247,7 +260,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     setIntroPhase('entry');
                     videoEnter.currentTime = 0;
                     videoEnter.play();
-                    sfxManager.playSound('game-warp-engage-1', 'fx');
+                    sfxManager.playSound('sfx-warp-engage-1', 'fx');
                 })
                 .call(playWorldSounds, [], "+=1.0")
                 .to({}, { duration: enterDuration / 2 - 1.0 })
@@ -265,7 +278,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     setIntroPhase('exit');
                     videoExit.currentTime = 0;
                     videoExit.play();
-                    const soundKeys = ['game-warp-exit-1', 'game-warp-exit-2', 'game-warp-exit-3', 'game-warp-exit-4'];
+                    const soundKeys = ['sfx-warp-exit-1', 'sfx-warp-exit-2', 'sfx-warp-exit-3', 'sfx-warp-exit-4'];
                     const randomKey = soundKeys[Math.floor(Math.random() * soundKeys.length)];
                     sfxManager.playSound(randomKey, 'fx');
                     setWarpPhase('ending');

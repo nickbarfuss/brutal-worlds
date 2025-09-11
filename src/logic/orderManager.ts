@@ -13,7 +13,7 @@ export const handleSingleClick = (
     // 1. Handle click on empty space (deselects everything)
     if (clickedEnclaveId === null) {
         const deselectedEnclave = selectedEnclaveId !== null ? enclaveData[selectedEnclaveId] : null;
-        const sfxToPlay = deselectedEnclave ? { key: 'game-command-mode-exit', channel: 'fx' as const, position: deselectedEnclave.center } : null;
+        const sfxToPlay = deselectedEnclave ? { key: 'sfx-command-mode-exit', channel: 'fx' as const, position: deselectedEnclave.center } : null;
         return {
             newSelectedEnclaveId: null,
             newInspectedEnclaveId: null,
@@ -32,8 +32,8 @@ export const handleSingleClick = (
     if (isCtrlPressed && clickedEnclave.owner === 'player-1') {
         const newSelectedId = selectedEnclaveId === clickedEnclaveId ? null : clickedEnclaveId;
         const sfxKey = newSelectedId !== null 
-            ? `game-command-mode-enter-${Math.floor(Math.random() * 2) + 1}` 
-            : 'game-command-mode-exit';
+            ? `sfx-command-mode-enter-${Math.floor(Math.random() * 2) + 1}` 
+            : 'sfx-command-mode-exit';
         return {
             newSelectedEnclaveId: newSelectedId,
             newInspectedEnclaveId: clickedEnclaveId,
@@ -50,7 +50,7 @@ export const handleSingleClick = (
         const originEnclave = enclaveData[selectedEnclaveId];
         if (!originEnclave) {
              const deselectedEnclave = selectedEnclaveId !== null ? enclaveData[selectedEnclaveId] : null;
-             const sfxToPlay = deselectedEnclave ? { key: 'game-command-mode-exit', channel: 'fx' as const, position: deselectedEnclave.center } : null;
+             const sfxToPlay = deselectedEnclave ? { key: 'sfx-command-mode-exit', channel: 'fx' as const, position: deselectedEnclave.center } : null;
             return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders, vfxToPlay: null, sfxToPlay };
         }
         
@@ -60,7 +60,7 @@ export const handleSingleClick = (
             if (newOrders[selectedEnclaveId]) {
                 delete newOrders[selectedEnclaveId];
                 const vfxKey = ORDER_PROFILES.holding.vfxKey;
-                const sfxKey = `game-order-hold-${Math.floor(Math.random() * 6) + 1}`;
+                const sfxKey = `sfx-order-hold-${Math.floor(Math.random() * 6) + 1}`;
                 return {
                     newSelectedEnclaveId: null, // Exit command mode
                     newInspectedEnclaveId: clickedEnclaveId,
@@ -96,7 +96,7 @@ export const handleSingleClick = (
 
                 if (safeForces - forceToSend > 0) { // Valid order condition
                     const vfxKey = ORDER_PROFILES[orderType].vfxKey;
-                    const sfxKey = `game-order-${orderType}-${Math.floor(Math.random() * 4) + 1}`;
+                    const sfxKey = `sfx-order-${orderType}-${Math.floor(Math.random() * 4) + 1}`;
                     const updatedOrders = { ...playerPendingOrders, [selectedEnclaveId]: { to: clickedEnclaveId, type: orderType }};
                     return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders, vfxToPlay: vfxKey ? { key: vfxKey, center: clickedEnclave.center } : null, sfxToPlay: { key: sfxKey, channel: 'fx' as const, position: originEnclave.center } };
                 }
@@ -136,7 +136,7 @@ export const handleDoubleClick = (
     }
     // A double click on a player-owned enclave always enters command mode.
     // The logic to cancel an order has been moved to a self-click in handleSingleClick.
-    const sfxKey = `game-command-mode-enter-${Math.floor(Math.random() * 2) + 1}`;
+    const sfxKey = `sfx-command-mode-enter-${Math.floor(Math.random() * 2) + 1}`;
     return {
         updatedOrders: playerPendingOrders,
         vfxToPlay: null,

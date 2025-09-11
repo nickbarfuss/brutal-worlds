@@ -168,8 +168,8 @@ export const resolveAttacks = (
         if (originalOwner !== target.owner) {
             const vfxKey = target.owner === 'player-1' ? 'conquest-player' : 'conquest-opponent';
             const sfxKey = target.owner === 'player-1'
-                ? `game-conquest-player-${Math.floor(Math.random() * 3) + 1}`
-                : `game-conquest-opponent-${Math.floor(Math.random() * 2) + 1}`;
+                ? `sfx-conquest-player-${Math.floor(Math.random() * 3) + 1}`
+                : `sfx-conquest-opponent-${Math.floor(Math.random() * 2) + 1}`;
             effectsToPlay.push({
                 id: `eff-conquest-${target.id}-${Date.now()}`, vfxKey,
                 sfx: { key: sfxKey, channel: 'fx', position: target.center },
