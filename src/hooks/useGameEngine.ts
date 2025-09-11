@@ -47,13 +47,9 @@ export const useGameEngine = () => {
     const workerRef = useRef<Worker | null>(null);
     const aiActionTimeoutsRef = useRef<number[]>([]);
     
-    // Use a ref to track the current session ID. This allows the worker's message handler,
-    // which is only created once, to access the latest session ID without needing to be re-created.
     const gameSessionIdRef = useRef<number>(state.gameSessionId);
     gameSessionIdRef.current = state.gameSessionId;
 
-    // Create a ref to track the current game phase. This is crucial for the worker
-    // message handler, which is only created once but needs access to the latest phase.
     const gamePhaseRef = useRef<GamePhase>(state.gamePhase);
     gamePhaseRef.current = state.gamePhase;
 
@@ -66,7 +62,6 @@ export const useGameEngine = () => {
     const setGamePhase = useCallback((phase: GamePhase) => dispatch({ type: 'SET_GAME_PHASE', payload: phase }), []);
     const startGame = useCallback((playerArchetypeKey: string, worldKey: string, playerLegacyIndex: number, opponentArchetypeKey?: string, opponentLegacyIndex?: number) => {
         vfxManager.current.reset();
-        // FIX: Corrected payload property from 'playerArchetypeSkinIndex' to 'playerLegacyIndex' to match action type.
         dispatch({ type: 'START_GAME', payload: { playerArchetypeKey, worldKey, playerLegacyIndex, opponentArchetypeKey, opponentLegacyIndex } });
     }, []);
 
@@ -81,6 +76,19 @@ export const useGameEngine = () => {
         sfxManager.current.reset();
         dispatch({ type: 'GO_TO_MAIN_MENU' });
     }, []);
+
+    const handleUserInteraction = useCallback(async () => {
+        await sfxManager.current.handleUserInteraction();
+        // Now that the audio context is confirmed to be ready, immediately apply the
+        // current volume and mute state to prevent race conditions on startup.
+        if (sfxManager.current) {
+            (Object.keys(state.volumes) as AudioChannel[]).forEach(channel => {
+                const isMuted = state.isGloballyMuted || state.mutedChannels[channel];
+                const volume = state.volumes[channel];
+                sfxManager.current.setVolume(channel, isMuted ? 0 : volume);
+            });
+        }
+    }, [state.volumes, state.mutedChannels, state.isGloballyMuted]);
 
     // Effect to schedule AI actions for the current turn with human-like delays.
     useEffect(() => {
@@ -135,8 +143,6 @@ export const useGameEngine = () => {
     }, [state.enclaveData, state.playerPendingOrders, state.gamePhase, state.isPaused, state.isResolvingTurn]);
     
     useEffect(() => {
-        // Use modern syntax for worker creation, assuming a build tool like Vite.
-        // This is the "real-world" solution that avoids the previous Blob workaround.
         const worker = new Worker(new URL('../logic/turnResolver.ts', import.meta.url), {
             type: 'module'
         });
@@ -159,12 +165,8 @@ export const useGameEngine = () => {
 
                 const deserializedResult = deserializeResolvedTurn(result);
                 
-                // The core game state is applied first.
                 dispatch({ type: 'APPLY_RESOLVED_TURN', payload: deserializedResult });
 
-                // Now, process the queue of effects that the resolver generated.
-                // A staggered delay is used to ensure effects don't all play at once
-                // and have a more natural, sequential feel.
                 if (deserializedResult.effectsToPlay && deserializedResult.effectsToPlay.length > 0) {
                     deserializedResult.effectsToPlay.forEach((effect, index) => {
                         setTimeout(() => {
@@ -174,7 +176,7 @@ export const useGameEngine = () => {
                             if (effect.sfx) {
                                 dispatch({ type: 'PLAY_SFX', payload: effect.sfx });
                             }
-                        }, index * 150); // 150ms stagger between effects
+                        }, index * 150);
                     });
                 }
             } catch (error) {
@@ -186,8 +188,6 @@ export const useGameEngine = () => {
 
         worker.addEventListener('message', handleMessage);
         
-        // FIX: Replaced the `onerror` handler with a more robust version that correctly
-        // inspects the ErrorEvent object for a meaningful string message.
         worker.onerror = (e: ErrorEvent) => {
             console.error("A fatal worker error occurred:", e);
             let errorMessage = 'A fatal error occurred in the background process.';
@@ -202,24 +202,18 @@ export const useGameEngine = () => {
             });
         };
     
-        // Cleanup: Terminate worker
         return () => {
           workerRef.current?.terminate();
           workerRef.current = null;
         };
-      }, []); // This should run only once.
+      }, []);
 
-    // This effect manages the lifecycle of the disaster snackbar timeout.
-    // It is now tied directly to the lifecycle of the `latestDisaster` state.
     useEffect(() => {
         if (state.latestDisaster) {
             const timerId = setTimeout(() => {
                 dispatch({ type: 'CLEAR_LATEST_DISASTER' });
             }, 5100);
 
-            // This cleanup function will automatically run if the component unmounts
-            // or if `state.latestDisaster` changes, preventing memory leaks and
-            // state updates on unmounted components.
             return () => clearTimeout(timerId);
         }
     }, [state.latestDisaster, dispatch]);
@@ -228,17 +222,14 @@ export const useGameEngine = () => {
     const resolveTurn = useCallback(() => {
         if (state.isResolvingTurn || !workerRef.current) return;
     
-        // All disaster creation logic has been moved to the reducer to fix a timing issue.
-        // The resolver is now only responsible for processing the current state.
         dispatch({ type: 'START_RESOLVING_TURN' });
         
-        // Prepare the state for the worker.
         const serializableState = serializeGameStateForWorker({
             enclaveData: state.enclaveData,
             playerPendingOrders: state.playerPendingOrders,
             aiPendingOrders: state.aiPendingOrders,
             routes: state.routes,
-            mapData: state.mapData, // Pass map data for disaster processing
+            mapData: state.mapData,
             currentTurn: state.currentTurn,
             gameSessionId: state.gameSessionId,
             activeDisasterMarkers: state.activeDisasterMarkers,
@@ -269,7 +260,6 @@ export const useGameEngine = () => {
     
     const clearLatestDisaster = useCallback(() => dispatch({ type: 'CLEAR_LATEST_DISASTER' }), []);
     
-    // This function is now only for manual disaster triggering (e.g., from the Inspector UI).
     const triggerDisaster = useCallback((key: string) => {
         dispatch({ type: 'TRIGGER_DISASTER', payload: key });
     }, []);
@@ -289,14 +279,12 @@ export const useGameEngine = () => {
     
     const toggleGlobalMute = useCallback(() => dispatch({ type: 'TOGGLE_GLOBAL_MUTE' }), []);
     const setVolume = useCallback((channel: AudioChannel, volume: number) => {
-        sfxManager.current.setVolume(channel, volume);
         dispatch({ type: 'SET_VOLUME', payload: { channel, volume } });
     }, []);
     const toggleMuteChannel = useCallback((channel: AudioChannel) => {
-        const isMuted = !state.mutedChannels[channel];
-        sfxManager.current.setMuted(channel, isMuted);
         dispatch({ type: 'TOGGLE_MUTE_CHANNEL', payload: channel });
-    }, [state.mutedChannels]);
+    }, []);
+
     const setBloomEnabled = useCallback((enabled: boolean) => dispatch({ type: 'SET_BLOOM_ENABLED', payload: enabled }), []);
     const setBloomValue = useCallback((key: 'threshold' | 'strength' | 'radius', value: number) => {
         dispatch({ type: 'SET_BLOOM_VALUE', payload: { key, value } });
@@ -317,22 +305,18 @@ export const useGameEngine = () => {
     useGameInitializer(vfxManager, sfxManager, startGame, setGamePhase, setInitializationState);
     
     useEffect(() => {
-        sfxManager.current.setGlobalMute(state.isGloballyMuted);
-    }, [state.isGloballyMuted]);
-
-    useEffect(() => {
-        for (const channel in state.mutedChannels) {
-            sfxManager.current.setMuted(channel as AudioChannel, state.mutedChannels[channel as AudioChannel]);
+        if (sfxManager.current) {
+            (Object.keys(state.volumes) as AudioChannel[]).forEach(channel => {
+                const isMuted = state.isGloballyMuted || state.mutedChannels[channel];
+                const volume = state.volumes[channel];
+                sfxManager.current.setVolume(channel, isMuted ? 0 : volume);
+            });
         }
-    }, [state.mutedChannels]);
+    }, [state.volumes, state.mutedChannels, state.isGloballyMuted]);
 
     useEffect(() => {
         if (state.vfxToPlay) {
             vfxManager.current.playEffect(state.vfxToPlay.key, state.vfxToPlay.center);
-            // By wrapping the dispatch in a timeout, we push the state clearing to the
-            // next event loop tick. This resolves a race condition where the effect
-            // was being cleared before the rendering engine or audio context had a
-            // chance to process it.
             setTimeout(() => dispatch({ type: 'CLEAR_VFX' }), 0);
         }
     }, [state.vfxToPlay, dispatch]);
@@ -341,9 +325,6 @@ export const useGameEngine = () => {
         if (state.sfxToPlay) {
             console.log(`[useGameEngine] Playing sound: ${state.sfxToPlay.key} on channel ${state.sfxToPlay.channel}`);
             sfxManager.current.playSound(state.sfxToPlay.key, state.sfxToPlay.channel, state.sfxToPlay.position);
-            // By wrapping the dispatch in a timeout, we push the state clearing to the
-            // next event loop tick. This resolves a race condition where the sound
-            // was being cleared from state before the audio context could start playback.
             setTimeout(() => dispatch({ type: 'CLEAR_SFX' }), 0);
         }
     }, [state.sfxToPlay, dispatch]);
@@ -383,7 +364,7 @@ export const useGameEngine = () => {
     
     return {
         ...state,
-        dispatch, // Pass dispatch down for the renderer to use
+        dispatch,
         vfxManager: vfxManager.current,
         sfxManager: sfxManager.current,
         setGamePhase,
@@ -391,7 +372,6 @@ export const useGameEngine = () => {
         completeIntro,
         resetGame,
         openArchetypeSelection: () => setGamePhase('archetypeSelection'),
-        // FIX: Correct typo from 'closeArchechetypeSelection' to 'closeArchetypeSelection'.
         closeArchetypeSelection: () => setGamePhase('mainMenu'),
         goToMainMenu,
         togglePause,
@@ -410,6 +390,7 @@ export const useGameEngine = () => {
         toggleGlobalMute,
         setVolume,
         toggleMuteChannel,
+        handleUserInteraction, // Export the new centralized function
         setBloomEnabled,
         setBloomValue,
         setMaterialValue,

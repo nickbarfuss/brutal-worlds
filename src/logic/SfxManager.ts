@@ -1,4 +1,3 @@
-
 import * as THREE from 'three';
 import { SFX_SOURCES } from '@/data/sfx';
 import { getAssetUrl } from '@/utils/assetUtils';
@@ -32,18 +31,10 @@ export class SfxManager {
     private currentAmbientKey: string | null = null;
     private camera: THREE.Camera | null = null;
 
-    private isGloballyMuted = false;
     private hasUserInteracted = false;
     private isInitialized = false;
 
     private preloadPromise: Promise<void> | null = null;
-
-    private channelVolumes: Record<AudioChannel, number> = {
-        fx: 0.7, ambient: 0.20, music: 0.6, ui: 0.6, dialog: 0.8,
-    };
-    private mutedChannels: Record<AudioChannel, boolean> = {
-        fx: false, ambient: false, music: false, ui: false, dialog: false,
-    };
 
     public init(): Promise<void> {
         if (this.isInitialized) return Promise.resolve();
@@ -66,11 +57,14 @@ export class SfxManager {
             this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
             this.masterGain = this.audioContext.createGain();
             this.masterGain.connect(this.audioContext.destination);
-            (Object.keys(this.channelVolumes) as AudioChannel[]).forEach(channel => {
+            
+            // Create gain nodes for each channel
+            const defaultVolume = 0.7; // A sensible default
+            (['fx', 'ambient', 'music', 'ui', 'dialog'] as AudioChannel[]).forEach(channel => {
                 const gainNode = this.audioContext!.createGain();
+                gainNode.gain.setValueAtTime(defaultVolume, this.audioContext!.currentTime);
                 gainNode.connect(this.masterGain!);
                 this.channelGains.set(channel, gainNode);
-                this.setVolume(channel, this.channelVolumes[channel]);
             });
             
         } catch (e) {
@@ -106,7 +100,6 @@ export class SfxManager {
             this.decodedBuffers.set(key, audioBuffer);
         } catch (error) {
             console.error(`Failed to load and decode sound "${key}":`, error);
-            // Do not re-throw the error. Allow the promise to resolve, effectively skipping this sound.
         }
     }
 
@@ -142,12 +135,10 @@ export class SfxManager {
 
         if (channel === 'fx' && position) {
             const panner = this.audioContext.createPanner();
-    
-            // Calibrated settings for planetary scale
             panner.panningModel = 'HRTF';
             panner.distanceModel = 'exponential';
-            panner.refDistance = 24; // Distance for full volume (camera distance - sphere radius)
-            panner.rolloffFactor = 2.5; // How quickly volume drops off
+            panner.refDistance = 24;
+            panner.rolloffFactor = 2.5;
             panner.coneInnerAngle = 360;
             panner.coneOuterAngle = 0;
             panner.coneOuterGain = 0;
@@ -172,9 +163,7 @@ export class SfxManager {
     }
     
     public playSpatialLoop(loopId: string, soundKey: string, channel: AudioChannel, position: Vector3): void {
-        if (!this.hasUserInteracted || !this.audioContext) {
-            return;
-        }
+        if (!this.hasUserInteracted || !this.audioContext) return;
 
         if (this.activeSpatialLoops.has(loopId)) {
             this.stopSpatialLoop(loopId);
@@ -199,7 +188,6 @@ export class SfxManager {
         panner.coneOuterAngle = 0;
         panner.coneOuterGain = 0;
 
-        // Position is set relative to the map container (local position)
         panner.positionX.value = position.x;
         panner.positionY.value = position.y;
         panner.positionZ.value = position.z;
@@ -233,7 +221,7 @@ export class SfxManager {
     public async handleUserInteraction(): Promise<void> {
         if (this.hasUserInteracted) return;
         
-        await this.preloadPromise; // Ensure all sounds are loaded before creating context
+        await this.preloadPromise;
         
         if (!this.audioContext) {
             await this.createAudioContext();
@@ -285,7 +273,7 @@ export class SfxManager {
     }
 
     public reset(): void {
-        (Object.keys(this.channelVolumes) as AudioChannel[]).forEach(channel => {
+        (['fx', 'ambient', 'music', 'ui', 'dialog'] as AudioChannel[]).forEach(channel => {
             this.stopLoop(channel);
         });
         this.activeSpatialSounds.forEach(s => s.source.stop());
@@ -295,22 +283,12 @@ export class SfxManager {
     }
     
     public setVolume(channel: AudioChannel, volume: number): void {
-        this.channelVolumes[channel] = volume;
-        if (this.channelGains.has(channel) && this.audioContext && !this.mutedChannels[channel]) {
+        if (this.channelGains.has(channel) && this.audioContext) {
             this.channelGains.get(channel)!.gain.setValueAtTime(volume, this.audioContext.currentTime);
         }
     }
     
-    public setMuted(channel: AudioChannel, isMuted: boolean): void {
-        this.mutedChannels[channel] = isMuted;
-        if (this.channelGains.has(channel) && this.audioContext) {
-            const newVolume = isMuted ? 0 : this.channelVolumes[channel];
-            this.channelGains.get(channel)!.gain.setValueAtTime(newVolume, this.audioContext.currentTime);
-        }
-    }
-    
     public setGlobalMute(isMuted: boolean): void {
-        this.isGloballyMuted = isMuted;
         if (this.masterGain && this.audioContext) {
             this.masterGain.gain.setValueAtTime(isMuted ? 0 : 1, this.audioContext.currentTime);
         }
@@ -328,13 +306,8 @@ export class SfxManager {
         const cameraDirection = new THREE.Vector3();
         camera.getWorldDirection(cameraDirection);
 
-        // FIX: The original code modified camera.up in place, creating a feedback
-        // loop with OrbitControls that caused erratic camera movement. This now
-        // clones the vector before applying the quaternion, leaving the original
-        // camera object's state untouched and resolving the glitch.
         const cameraUp = camera.up.clone().applyQuaternion(camera.quaternion);
         
-        // Use setPosition and setOrientation for modern Web Audio API
         if (listener.positionX) {
             listener.positionX.setValueAtTime(cameraPosition.x, this.audioContext.currentTime);
             listener.positionY.setValueAtTime(cameraPosition.y, this.audioContext.currentTime);
@@ -346,12 +319,10 @@ export class SfxManager {
             listener.upY.setValueAtTime(cameraUp.y, this.audioContext.currentTime);
             listener.upZ.setValueAtTime(cameraUp.z, this.audioContext.currentTime);
         } else {
-            // Fallback for older browsers
             (listener as any).setPosition(cameraPosition.x, cameraPosition.y, cameraPosition.z);
             (listener as any).setOrientation(cameraDirection.x, cameraDirection.y, cameraDirection.z, cameraUp.x, cameraUp.y, cameraUp.z);
         }
 
-        // Update positions of all active spatial sounds based on map container rotation
         if (mapContainer) {
             const updatePannerPosition = (panner: PannerNode, localPosition: Vector3, worldMatrix: THREE.Matrix4) => {
                 const worldPosition = localPosition.clone().applyMatrix4(worldMatrix);
@@ -364,14 +335,10 @@ export class SfxManager {
                 }
             };
             
-            // Update looping spatial sounds
             this.activeSpatialLoops.forEach(loop => {
                 updatePannerPosition(loop.panner, loop.position, mapContainer.matrixWorld);
             });
 
-            // FIX: Added a new loop to update one-shot spatial sounds. This was the source of the bug
-            // where game sounds were not being correctly positioned in 3D space after the world rotated.
-            // This ensures all playing 3D sounds are updated every frame.
             this.activeSpatialSounds.forEach(sound => {
                 updatePannerPosition(sound.panner, sound.position, mapContainer.matrixWorld);
             });

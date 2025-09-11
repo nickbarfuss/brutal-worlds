@@ -1,5 +1,32 @@
 This file contains notes and observations about the project.
 
+## Architectural Principles: State Management & Race Conditions
+
+To ensure application stability and prevent difficult-to-trace bugs, we must adhere to the following React-centric architectural principles.
+
+### 1. Managers Must Be Stateless
+
+Any class or "manager" (e.g., `SfxManager`, `VfxManager`) that is instantiated and managed within a React hook (`useRef(new ...())`) should be treated as a stateless "engine." These classes should **not** maintain their own internal state (e.g., `this.isMuted`, `this.volume`). They should only contain methods that perform actions.
+
+### 2. The Reducer is the Single Source of Truth
+
+All application state must reside within the central `useReducer` hook (e.g., in `useGameEngine`). This includes UI state, game logic state, and settings like volumes or mute status. When a manager needs to know whether to perform an action (e.g., play a sound silently), that information must be passed down from the React state at the time the action is called.
+
+### 3. Avoiding Initialization Race Conditions
+
+We have encountered race conditions where a `useEffect` to play a sound runs before the `useEffect` that sets its initial volume/mute state. This is especially problematic for browser APIs that require user interaction to initialize (like Web Audio).
+
+**The Solution Pattern:**
+
+1.  **Centralize Initialization:** Create a single function within the main game engine hook (`useGameEngine`) to handle the first user interaction (e.g., `handleUserInteraction`).
+2.  **Synchronous State Push:** This function is responsible for two things, in order:
+    a. Calling the manager's one-time initialization method (e.g., `sfxManager.handleUserInteraction()`).
+    b. **Immediately after** the initialization `await`s, it must read the current, correct state from the reducer and push it to the manager (e.g., loop through `state.mutedChannels` and call `sfxManager.setVolume()` for each).
+3.  **Update UI:** All UI components (e.g., the "Begin Game" button) must call this single, centralized function from the engine hook, rather than interacting with the manager directly.
+
+This pattern makes the data flow explicit and guarantees that the manager's configuration is synchronized with the application state at the exact moment it becomes ready.
+
+
 ## Web Worker Communication
 
 The game uses a web worker to resolve turns in the background. The main thread sends the game state to the worker, and the worker sends back the new state.

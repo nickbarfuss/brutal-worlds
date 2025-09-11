@@ -1,5 +1,3 @@
-
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useGameEngine } from '@/hooks/useGameEngine';
 import Loader from '@/components/Loader';
@@ -61,8 +59,7 @@ const GameView: React.FC = () => {
     
     const handleBegin = async () => {
         // This now waits for the audio context to be ready before proceeding.
-        // Since all assets are preloaded, this is fast and reliable.
-        await engine.sfxManager.handleUserInteraction();
+        await engine.handleUserInteraction();
     
         // These sounds will now play immediately and reliably.
         engine.sfxManager.playSound('ui-button-game-start', 'ui');
