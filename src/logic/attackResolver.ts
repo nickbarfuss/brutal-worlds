@@ -180,8 +180,18 @@ export const resolveAttacks = (
                 position: target.center,
             });
 
-            const conqueringArchetypeKey = target.owner === 'player-1' ? playerArchetypeKey : opponentArchetypeKey;
+            const conqueringArchetypeKey = target.archetypeKey;
             const conqueringLegacyKey = target.owner === 'player-1' ? playerLegacyKey : opponentLegacyKey;
+
+            console.log("[attackResolver] Conquest Keys:", {
+                owner: target.owner,
+                conqueringArchetypeKey,
+                conqueringLegacyKey,
+                playerArchetypeKey,
+                playerLegacyKey,
+                opponentArchetypeKey,
+                opponentLegacyKey
+            });
 
             if (conqueringArchetypeKey && conqueringLegacyKey) {
                 const randomDialogIndex = Math.floor(Math.random() * 5) + 1; // 1-5

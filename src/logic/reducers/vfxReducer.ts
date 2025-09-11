@@ -13,6 +13,12 @@ export const handleFx = (state: GameState, action: Action): GameState => {
             };
         }
 
+        case 'PLAY_VFX':
+            return { ...state, vfxToPlay: action.payload };
+
+        case 'PLAY_SFX':
+            return { ...state, sfxToPlay: action.payload };
+
         case 'CLEAR_VFX':
             return { ...state, vfxToPlay: null };
 

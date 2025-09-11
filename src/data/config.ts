@@ -7,14 +7,16 @@ export const GAME_CONFIG = {
     QUICK_START: {
         enabled: true,
         player1Archetype: 'first-sword',
-        player2Archetype: '',
+        player1Legacy: 'annihilation-doctrine',
+        player2Archetype: 'pact-whisperer',
+        player2Legacy: 'voidsworn-covenant',
         worldKey: 'skull-sands',
     },
     ENABLE_BLOOM_EFFECT: true,
     DISASTER_TESTING: {
         enabled: true,
         disasterKey: 'entropy-wind',
-        triggerOnTurn: 1,
+        triggerOnTurn: 5,
     },
 };
 

@@ -12,7 +12,7 @@ export type Action =
     | { type: 'SET_INITIALIZATION_STATE'; payload: { isInitialized: boolean; message: string; error: string | null } }
     | { type: 'SET_GAME_PHASE'; payload: GamePhase }
     // FIX: Changed payload property from 'playerArchetypeSkinIndex' to 'playerLegacyIndex' to match state shape.
-    | { type: 'START_GAME'; payload: { playerArchetypeKey: string; worldKey: string; playerLegacyIndex: number; opponentArchetypeKey?: string; } }
+    | { type: 'START_GAME'; payload: { playerArchetypeKey: string; worldKey: string; playerLegacyIndex: number; opponentArchetypeKey?: string; opponentLegacyIndex?: number; } }
     | { type: 'COMPLETE_INTRO' }
     | { type: 'RESET_GAME' }
     | { type: 'TOGGLE_PAUSE' }
@@ -34,6 +34,8 @@ export type Action =
     | { type: 'TRIGGER_DISASTER'; payload: string }
     | { type: 'CLEAR_LATEST_DISASTER' }
     | { type: 'PROCESS_EFFECT_QUEUE'; payload: { playedIds: string[] } }
+    | { type: 'PLAY_VFX'; payload: { key: string; center: Vector3 } }
+    | { type: 'PLAY_SFX'; payload: { key: string; channel: AudioChannel; position?: Vector3 } }
     | { type: 'CLEAR_VFX' }
     | { type: 'CLEAR_SFX' }
     | { type: 'GO_TO_MAIN_MENU' }
@@ -126,6 +128,8 @@ export const reducer = (state: GameState, action: Action): GameState => {
 
         // VFX/SFX
         case 'PROCESS_EFFECT_QUEUE':
+        case 'PLAY_VFX':
+        case 'PLAY_SFX':
         case 'CLEAR_VFX':
         case 'CLEAR_SFX':
             return handleFx(state, action);

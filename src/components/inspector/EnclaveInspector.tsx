@@ -13,7 +13,7 @@ import { getAppliedModifiers } from '../../logic/effectProcessor';
 import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldingBonusForEnclave } from '../../logic/birthrightManager';
 import { calculateEnclaveTurnPreview, TurnPreview } from '../../logic/previewManager';
 import { getAssetUrl } from '../../utils/assetUtils';
-import { GameConfig } from '../../data/config';
+import { GAME_CONFIG as GameConfig } from '../../data/config';
 
 interface EnclaveInspectorProps {
     enclave: Enclave;
@@ -25,7 +25,7 @@ interface EnclaveInspectorProps {
     activeDisasterMarkers: ActiveDisasterMarker[];
     isSelected: boolean;
     isConfirming: boolean;
-    gameConfig: GameConfig;
+    gameConfig: typeof GameConfig;
     onFocusEnclave: (id: number) => void;
     onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerLeave: (e: React.PointerEvent<HTMLDivElement>) => void;

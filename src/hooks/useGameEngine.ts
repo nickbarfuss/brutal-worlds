@@ -1,5 +1,3 @@
-
-
 import { useCallback, useRef, useEffect, useReducer } from 'react';
 import * as THREE from 'three';
 import {
@@ -66,10 +64,11 @@ export const useGameEngine = () => {
     }, []);
 
     const setGamePhase = useCallback((phase: GamePhase) => dispatch({ type: 'SET_GAME_PHASE', payload: phase }), []);
-    const startGame = useCallback((playerArchetypeKey: string, worldKey: string, playerLegacyIndex: number, opponentArchetypeKey?: string) => {
+    const startGame = useCallback((playerArchetypeKey: string, worldKey: string, playerLegacyIndex: number, opponentArchetypeKey?: string, opponentLegacyIndex?: number) => {
+        console.log('startGame dispatched with:', { playerArchetypeKey, worldKey, playerLegacyIndex, opponentArchetypeKey, opponentLegacyIndex });
         vfxManager.current.reset();
         // FIX: Corrected payload property from 'playerArchetypeSkinIndex' to 'playerLegacyIndex' to match action type.
-        dispatch({ type: 'START_GAME', payload: { playerArchetypeKey, worldKey, playerLegacyIndex, opponentArchetypeKey } });
+        dispatch({ type: 'START_GAME', payload: { playerArchetypeKey, worldKey, playerLegacyIndex, opponentArchetypeKey, opponentLegacyIndex } });
     }, []);
 
     const completeIntro = useCallback(() => dispatch({ type: 'COMPLETE_INTRO' }), []);
@@ -160,7 +159,25 @@ export const useGameEngine = () => {
                 }
 
                 const deserializedResult = deserializeResolvedTurn(result);
+                
+                // The core game state is applied first.
                 dispatch({ type: 'APPLY_RESOLVED_TURN', payload: deserializedResult });
+
+                // Now, process the queue of effects that the resolver generated.
+                // A staggered delay is used to ensure effects don't all play at once
+                // and have a more natural, sequential feel.
+                if (deserializedResult.effectsToPlay && deserializedResult.effectsToPlay.length > 0) {
+                    deserializedResult.effectsToPlay.forEach((effect, index) => {
+                        setTimeout(() => {
+                            if (effect.vfxKey && effect.position) {
+                                dispatch({ type: 'PLAY_VFX', payload: { key: effect.vfxKey, center: effect.position } });
+                            }
+                            if (effect.sfx) {
+                                dispatch({ type: 'PLAY_SFX', payload: effect.sfx });
+                            }
+                        }, index * 150); // 150ms stagger between effects
+                    });
+                }
             } catch (error) {
                 console.error("Error processing message from worker:", error, "Data:", e.data);
                 const errorMessage = error instanceof Error ? error.message : "An unknown error occurred while processing the turn.";
@@ -227,7 +244,13 @@ export const useGameEngine = () => {
             gameSessionId: state.gameSessionId,
             activeDisasterMarkers: state.activeDisasterMarkers,
             gameConfig: state.gameConfig,
+            playerArchetypeKey: state.playerArchetypeKey,
+            playerLegacyKey: state.playerLegacyKey,
+            opponentArchetypeKey: state.opponentArchetypeKey,
+            opponentLegacyKey: state.opponentLegacyKey,
         });
+
+        console.log('[useGameEngine] Sending state to worker:', serializableState);
         
         workerRef.current.postMessage(JSON.stringify(serializableState));
     }, [
@@ -241,6 +264,10 @@ export const useGameEngine = () => {
         state.currentTurn,
         state.gameSessionId,
         state.gameConfig,
+        state.playerArchetypeKey,
+        state.playerLegacyKey,
+        state.opponentArchetypeKey,
+        state.opponentLegacyKey,
     ]);
     
     const clearLatestDisaster = useCallback(() => dispatch({ type: 'CLEAR_LATEST_DISASTER' }), []);

@@ -70,7 +70,7 @@ const GameView: React.FC = () => {
     
         // Open the dialog.
         if (GAME_CONFIG.QUICK_START.enabled) {
-            const { player1Archetype, player2Archetype, worldKey } = GAME_CONFIG.QUICK_START;
+            const { player1Archetype, player1Legacy, player2Archetype, player2Legacy, worldKey } = GAME_CONFIG.QUICK_START;
     
             const archetypeKeys = Object.keys(ARCHETYPES);
             const worldKeys = WORLD_LIBRARY.map(w => w.key);
@@ -88,10 +88,21 @@ const GameView: React.FC = () => {
                 : worldKeys[Math.floor(Math.random() * worldKeys.length)];
 
             const p1ArchetypeData = ARCHETYPES[finalP1Archetype];
-            // FIX: Correct property access from 'skins' to 'legacies' and rename variable for clarity.
-            const randomLegacyIndex = Math.floor(Math.random() * (p1ArchetypeData.legacies?.length || 1));
+            let p1LegacyIndex = 0;
+            if (p1ArchetypeData.legacies && p1ArchetypeData.legacies.length > 0) {
+                const legacyIndex = p1ArchetypeData.legacies.findIndex(l => l.key === player1Legacy);
+                p1LegacyIndex = legacyIndex !== -1 ? legacyIndex : Math.floor(Math.random() * p1ArchetypeData.legacies.length);
+            }
+
+            const p2ArchetypeData = ARCHETYPES[finalP2Archetype];
+            let p2LegacyIndex = 0;
+            if (p2ArchetypeData.legacies && p2ArchetypeData.legacies.length > 0) {
+                const legacyIndex = p2ArchetypeData.legacies.findIndex(l => l.key === player2Legacy);
+                p2LegacyIndex = legacyIndex !== -1 ? legacyIndex : Math.floor(Math.random() * p2ArchetypeData.legacies.length);
+            }
             
-            engine.startGame(finalP1Archetype, finalWorldKey, randomLegacyIndex, finalP2Archetype);
+            console.log('Calling engine.startGame with:', { finalP1Archetype, finalWorldKey, p1LegacyIndex, finalP2Archetype, p2LegacyIndex });
+            engine.startGame(finalP1Archetype, finalWorldKey, p1LegacyIndex, finalP2Archetype, p2LegacyIndex);
         } else {
             // Normal flow: open the archetype selection dialog.
             isStartingGameRef.current = false;

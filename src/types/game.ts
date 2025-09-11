@@ -1,5 +1,7 @@
 import { Vector3 } from 'three';
-import { GameConfig } from '@/data/config.ts';
+import { GAME_CONFIG } from '@/data/config.ts';
+
+export type GameConfig = typeof GAME_CONFIG;
 
 export type { Vector3 };
 
@@ -186,25 +188,7 @@ export interface SfxProfile {
 }
 export type SfxCategoryName = 'ui' | 'sfx' | 'dialog' | 'ambient' | 'music';
 
-export interface GameConfig {
-    TURN_DURATION: number;
-    PLAYER_STARTING_ENCLAVES: number;
-    MULTIPLE_STARTING_TERRITORIES: boolean;
-    FORCE_ADJACENT_START: boolean;
-    FORCE_SUPPLY_CAP: number;
-    QUICK_START: {
-        enabled: boolean;
-        player1Archetype?: string;
-        player2Archetype?: string;
-        worldKey?: string;
-    };
-    ENABLE_BLOOM_EFFECT: boolean;
-    DISASTER_TESTING?: {
-        enabled: boolean;
-        disasterKey: string;
-        triggerOnTurn: number;
-    };
-}
+
 
 // Core Types
 export type PlayerIdentifier = 'player-1' | 'player-2';

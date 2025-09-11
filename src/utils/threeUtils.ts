@@ -72,6 +72,12 @@ export const serializeGameStateForWorker = (payload: any) => {
             disasters: marker.disasters,
             metadata: marker.metadata,
         })),
+
+        // Pass through player/opponent archetype and legacy info
+        playerArchetypeKey: payload.playerArchetypeKey,
+        playerLegacyKey: payload.playerLegacyKey,
+        opponentArchetypeKey: payload.opponentArchetypeKey,
+        opponentLegacyKey: payload.opponentLegacyKey,
     };
 };
 

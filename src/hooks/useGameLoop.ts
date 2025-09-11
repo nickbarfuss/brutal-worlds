@@ -62,8 +62,10 @@ export const useGameLoop = (
 
             const elapsed = timestamp - turnStartTimeRef.current;
             if (elapsed >= GAME_CONFIG.TURN_DURATION * 1000) {
-                // Reset for the next turn by setting to null. This will cause it to be re-initialized on the next frame after the turn resolves.
-                turnStartTimeRef.current = null;
+                // By setting this to a very large number, we prevent the loop from re-triggering
+                // the turn resolution on subsequent frames while waiting for the worker to finish.
+                // It will be reset to null on the next turn, allowing the timer to start fresh.
+                turnStartTimeRef.current = Infinity;
                 resolveTurn();
             }
         };

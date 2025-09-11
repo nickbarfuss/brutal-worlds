@@ -7,7 +7,7 @@ import WorldInspector from '@/components/inspector/WorldInspector';
 import DomainInspector from '@/components/inspector/DomainInspector';
 import RiftInspector from '@/components/inspector/RiftInspector';
 import ExpanseInspector from '@/components/inspector/ExpanseInspector';
-import { GameConfig } from '@/data/config';
+import { GAME_CONFIG as GameConfig } from '@/data/config';
 import DisasterInspector from '@/components/inspector/DisasterMarkerInspector';
 import ArchetypeInspector from '@/components/inspector/ArchetypeInspector';
 
@@ -27,7 +27,7 @@ interface InspectorCardProps {
   routes: Route[];
   currentWorld: WorldProfile | null;
   activeDisasterMarkers: ActiveDisasterMarker[];
-  gameConfig: GameConfig;
+  gameConfig: typeof GameConfig;
   onFocusEnclave: (id: number) => void;
   onFocusVector: (vector: Vector3) => void;
   onShowBriefing: (type: 'order' | 'effect' | 'route' | 'domain' | 'disasterProfile' | 'birthright', contentKey: string) => void;
