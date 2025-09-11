@@ -294,12 +294,13 @@ export const resolveTurn = (
                             });
                         }
                     }
-
-                    if (dialogWinner === 'player-1') {
-                        newPlayerHasHadFirstConquestDialog = true;
-                    } else {
-                        newOpponentHasHadFirstConquestDialog = true;
-                    }
+                }
+                // Always set the flag to true if a conquest occurred for this player,
+                // regardless of whether dialog was played this turn.
+                if (dialogWinner === 'player-1') {
+                    newPlayerHasHadFirstConquestDialog = true;
+                } else {
+                    newOpponentHasHadFirstConquestDialog = true;
                 }
             }
         }
@@ -342,7 +343,6 @@ export const resolveTurn = (
 // --- Web Worker Message Handler ---
 self.onmessage = (e: MessageEvent) => {
     try {
-        console.log('[turnResolver] Received state:', e.data);
         const state = JSON.parse(e.data);
 
         // Re-hydrate all Vector3 instances on entry

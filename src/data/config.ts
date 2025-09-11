@@ -17,6 +17,6 @@ export const GAME_CONFIG = {
     DISASTER_TESTING: {
         enabled: true,
         disasterKey: 'entropy-wind',
-        triggerOnTurn: 5,
+        triggerOnTurn: 1,
     },
 };

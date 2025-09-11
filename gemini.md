@@ -3,7 +3,7 @@ This file contains notes and observations about the project.
 ## Feature Development
 
 ### Conquest Dialog System
-*   **Status:** In Progress
+*   **Status:** Complete
 *   **Goal:** Make conquest dialog more dynamic and less repetitive.
 *   **Rules:**
     *   A maximum of one conquest dialog sound plays per turn.
