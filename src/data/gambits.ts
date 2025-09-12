@@ -11,8 +11,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'celestial-annihilation',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/first-sword-celestial-annihilation.jpg',
-                sfxImpact: 'celestial-annihilation-impact',
-                vfxImpact: 'celestial-annihilation-impact',
+                sfx: {
+                    impact: 'celestial-annihilation-impact',
+                },
+                vfx: {
+                    impact: 'celestial-annihilation-impact',
+                },
+                dialog: {
+                    impact: 'celestial-annihilation-impact',
+                }
             }
         },
         logic: {
@@ -48,8 +55,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'war-fulcrum',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/first-sword-war-fulcrum.jpg',
-                sfxImpact: 'war-fulcrum-impact',
-                vfxImpact: 'war-fulcrum-impact',
+                sfx: {
+                    impact: 'war-fulcrum-impact',
+                },
+                vfx: {
+                    impact: 'war-fulcrum-impact',
+                },
+                dialog: {
+                    impact: 'war-fulcrum-impact',
+                }
             }
         },
         logic: {
@@ -85,8 +99,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'shatterpoint-strike',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/first-sword-shatterpoint-strike.jpg',
-                sfxImpact: 'shatterpoint-strike-impact',
-                vfxImpact: 'shatterpoint-strike-impact',
+                sfx: {
+                    impact: 'shatterpoint-strike-impact',
+                },
+                vfx: {
+                    impact: 'shatterpoint-strike-impact',
+                },
+                dialog: {
+                    impact: 'shatterpoint-strike-impact',
+                }
             }
         },
         logic: {
@@ -122,8 +143,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'trans-dimensional-armory',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/first-sword-trans-dimensional-armory.jpg',
-                sfxImpact: 'trans-dimensional-armory-impact',
-                vfxImpact: 'trans-dimensional-armory-impact',
+                sfx: {
+                    impact: 'trans-dimensional-armory-impact',
+                },
+                vfx: {
+                    impact: 'trans-dimensional-armory-impact',
+                },
+                dialog: {
+                    impact: 'trans-dimensional-armory-impact',
+                }
             }
         },
         logic: {
@@ -161,8 +189,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'soul-forging',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/pact-whisperer-soul-forging.jpg',
-                sfxImpact: 'soul-forging-impact',
-                vfxImpact: 'soul-forging-impact',
+                sfx: {
+                    impact: 'soul-forging-impact',
+                },
+                vfx: {
+                    impact: 'soul-forging-impact',
+                },
+                dialog: {
+                    impact: 'soul-forging-impact',
+                }
             }
         },
         logic: {
@@ -199,8 +234,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'void-untethering',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/pact-whisperer-void-untethering.jpg',
-                sfxImpact: 'void-untethering-impact',
-                vfxImpact: 'void-untethering-impact',
+                sfx: {
+                    impact: 'void-untethering-impact',
+                },
+                vfx: {
+                    impact: 'void-untethering-impact',
+                },
+                dialog: {
+                    impact: 'void-untethering-impact',
+                }
             }
         },
         logic: {
@@ -236,8 +278,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'whispers-from-the-void',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/pact-whisperer-whispers-from-the-void.jpg',
-                sfxImpact: 'whispers-from-the-void-impact',
-                vfxImpact: 'whispers-from-the-void-impact',
+                sfx: {
+                    impact: 'whispers-from-the-void-impact',
+                },
+                vfx: {
+                    impact: 'whispers-from-the-void-impact',
+                },
+                dialog: {
+                    impact: 'whispers-from-the-void-impact',
+                }
             }
         },
         logic: {
@@ -273,8 +322,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'data-shroud',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/pact-whisperer-data-shroud.jpg',
-                sfxImpact: 'data-shroud-impact',
-                vfxImpact: 'data-shroud-impact',
+                sfx: {
+                    impact: 'data-shroud-impact',
+                },
+                vfx: {
+                    impact: 'data-shroud-impact',
+                },
+                dialog: {
+                    impact: 'data-shroud-impact',
+                }
             }
         },
         logic: {
@@ -312,8 +368,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'orbital-nullification-beam',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/resonance-warden-orbital-nullification-beam.jpg',
-                sfxImpact: 'orbital-nullification-beam-impact',
-                vfxImpact: 'orbital-nullification-beam-impact',
+                sfx: {
+                    impact: 'orbital-nullification-beam-impact',
+                },
+                vfx: {
+                    impact: 'orbital-nullification-beam-impact',
+                },
+                dialog: {
+                    impact: 'orbital-nullification-beam-impact',
+                }
             }
         },
         logic: {
@@ -349,8 +412,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'world-ender-protocol',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/resonance-warden-world-ender-protocol.jpg',
-                sfxImpact: 'world-ender-protocol-impact',
-                vfxImpact: 'world-ender-protocol-impact',
+                sfx: {
+                    impact: 'world-ender-protocol-impact',
+                },
+                vfx: {
+                    impact: 'world-ender-protocol-impact',
+                },
+                dialog: {
+                    impact: 'world-ender-protocol-impact',
+                }
             }
         },
         logic: {
@@ -387,8 +457,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'aegis-protocol',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/resonance-warden-aegis-protocol.jpg',
-                sfxImpact: 'aegis-protocol-impact',
-                vfxImpact: 'aegis-protocol-impact',
+                sfx: {
+                    impact: 'aegis-protocol-impact',
+                },
+                vfx: {
+                    impact: 'aegis-protocol-impact',
+                },
+                dialog: {
+                    impact: 'aegis-protocol-impact',
+                }
             }
         },
         logic: {
@@ -424,8 +501,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'forge-links',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/resonance-warden-forge-links.jpg',
-                sfxImpact: 'forge-links-impact',
-                vfxImpact: 'forge-links-impact',
+                sfx: {
+                    impact: 'forge-links-impact',
+                },
+                vfx: {
+                    impact: 'forge-links-impact',
+                },
+                dialog: {
+                    impact: 'forge-links-impact',
+                }
             }
         },
         logic: {
@@ -463,8 +547,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'ghost-in-the-system',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/labyrinthine-ghost-ghost-in-the-system.jpg',
-                sfxImpact: 'ghost-in-the-system-impact',
-                vfxImpact: 'ghost-in-the-system-impact',
+                 sfx: {
+                    impact: 'ghost-in-the-system-impact',
+                },
+                vfx: {
+                    impact: 'ghost-in-the-system-impact',
+                },
+                dialog: {
+                    impact: 'ghost-in-the-system-impact',
+                }
             }
         },
         logic: {
@@ -501,8 +592,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'void-cordon',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/labyrinthine-ghost-void-cordon.jpg',
-                sfxImpact: 'void-cordon-impact',
-                vfxImpact: 'void-cordon-impact',
+                 sfx: {
+                    impact: 'void-cordon-impact',
+                },
+                vfx: {
+                    impact: 'void-cordon-impact',
+                },
+                dialog: {
+                    impact: 'void-cordon-impact',
+                }
             }
         },
         logic: {
@@ -538,8 +636,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'labyrinth',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/labyrinthine-ghost-labyrinth.jpg',
-                sfxImpact: 'labyrinth-impact',
-                vfxImpact: 'labyrinth-impact',
+                 sfx: {
+                    impact: 'labyrinth-impact',
+                },
+                vfx: {
+                    impact: 'labyrinth-impact',
+                },
+                dialog: {
+                    impact: 'labyrinth-impact',
+                }
             }
         },
         logic: {
@@ -575,8 +680,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             assets: {
                 key: 'quantum-loop',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/labyrinthine-ghost-quantum-loop.jpg',
-                sfxImpact: 'quantum-loop-impact',
-                vfxImpact: 'quantum-loop-impact',
+                 sfx: {
+                    impact: 'quantum-loop-impact',
+                },
+                vfx: {
+                    impact: 'quantum-loop-impact',
+                },
+                dialog: {
+                    impact: 'quantum-loop-impact',
+                }
             }
         },
         logic: {
@@ -615,8 +727,15 @@ export const COMMON_GAMBITS: { [key: string]: EffectProfile } = { // want to ren
             assets: {
                 key: 'flesh-weavers-harvest',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-flesh-weavers-harvest.jpg',
-                sfxImpact: 'flesh-weavers-harvest-impact',
-                vfxImpact: 'flesh-weavers-harvest-impact',
+                sfx: {
+                    impact: 'flesh-weavers-harvest-impact',
+                },
+                vfx: {
+                    impact: 'flesh-weavers-harvest-impact',
+                },
+                dialog: {
+                    impact: 'flesh-weavers-harvest-impact',
+                }
             }
         },
         logic: {
@@ -650,8 +769,15 @@ export const COMMON_GAMBITS: { [key: string]: EffectProfile } = { // want to ren
             assets: {
                 key: 'off-world-mercenaries',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-off-world-mercenaries.jpg',
-                sfxImpact: 'off-world-mercenaries-impact',
-                vfxImpact: 'off-world-mercenaries-impact',
+                 sfx: {
+                    impact: 'off-world-mercenaries-impact',
+                },
+                vfx: {
+                    impact: 'off-world-mercenaries-impact',
+                },
+                dialog: {
+                    impact: 'off-world-mercenaries-impact',
+                }
             }
         },
         logic: {
@@ -685,8 +811,15 @@ export const COMMON_GAMBITS: { [key: string]: EffectProfile } = { // want to ren
             assets: {
                 key: 'orbital-bombardment',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-orbital-bombardment.jpg',
-                sfxImpact: 'orbital-bombardment-impact',
-                vfxImpact: 'orbital-bombardment-impact',
+                 sfx: {
+                    impact: 'orbital-bombardment-impact',
+                },
+                vfx: {
+                    impact: 'orbital-bombardment-impact',
+                },
+                dialog: {
+                    impact: 'orbital-bombardment-impact',
+                }
             }
         },
         logic: {
@@ -720,8 +853,15 @@ export const COMMON_GAMBITS: { [key: string]: EffectProfile } = { // want to ren
             assets: {
                 key: 'scorched-earth',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-scorched-earth.jpg',
-                sfxImpact: 'scorched-earth-impact',
-                vfxImpact: 'scorched-earth-impact',
+                sfx: {
+                    impact: 'scorched-earth-impact',
+                },
+                vfx: {
+                    impact: 'scorched-earth-impact',
+                },
+                dialog: {
+                    impact: 'scorched-earth-impact',
+                }
             }
         },
         logic: {
@@ -757,8 +897,15 @@ export const COMMON_GAMBITS: { [key: string]: EffectProfile } = { // want to ren
             assets: {
                 key: 'the-calling',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-the-calling.jpg',
-                sfxImpact: 'the-calling-impact',
-                vfxImpact: 'the-calling-impact',
+                sfx: {
+                    impact: 'the-calling-impact',
+                },
+                vfx: {
+                    impact: 'the-calling-impact',
+                },
+                dialog: {
+                    impact: 'the-calling-dialog-impact',
+                }
             }
         },
         logic: {
@@ -792,8 +939,15 @@ export const COMMON_GAMBITS: { [key: string]: EffectProfile } = { // want to ren
             assets: {
                 key: 'the-witching-hour',
                 image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-the-witching-hour.jpg',
-                sfxImpact: 'the-witching-hour-impact',
-                vfxImpact: 'the-witching-hour-impact',
+                sfx: {
+                    impact: 'the-witching-hour-impact',
+                },
+                vfx: {
+                    impact: 'the-witching-hour-impact',
+                },
+                dialog: {
+                    impact: 'the-witching-hour-impact',
+                }
             }
         },
         logic: {

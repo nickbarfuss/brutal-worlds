@@ -1,5 +1,3 @@
 {
-  "checkpointing": {
-    "enabled": true
-  }
+  "checkpointing": {"enabled": true}
 }

@@ -143,69 +143,77 @@ export const useGameEngine = () => {
     }, [state.enclaveData, state.playerPendingOrders, state.gamePhase, state.isPaused, state.isResolvingTurn]);
     
     useEffect(() => {
-        const worker = new Worker(new URL('../logic/turnResolver.ts', import.meta.url), {
-            type: 'module'
-        });
-        workerRef.current = worker;
+        try {
+            const worker = new Worker(new URL('../logic/turnResolver.ts', import.meta.url), {
+                type: 'module'
+            });
+            workerRef.current = worker;
 
-        const handleMessage = (e: MessageEvent) => {
-            try {
-                const result = JSON.parse(e.data);
+            const handleMessage = (e: MessageEvent) => {
+                try {
+                    const result = JSON.parse(e.data);
 
-                if (result.error) {
-                    console.error("Worker Error:", result.error);
-                    dispatch({ type: 'SET_INITIALIZATION_STATE', payload: { isInitialized: true, message: '', error: result.error } });
-                    return;
+                    if (result.error) {
+                        console.error("Worker Error:", result.error);
+                        dispatch({ type: 'SET_INITIALIZATION_STATE', payload: { isInitialized: true, message: '', error: result.error } });
+                        return;
+                    }
+                    
+                    if (result.gameSessionId !== gameSessionIdRef.current || gamePhaseRef.current !== 'playing') {
+                        console.log(`Ignoring stale/irrelevant turn result from session ${result.gameSessionId} (current is ${gameSessionIdRef.current}, phase is ${gamePhaseRef.current})`);
+                        return;
+                    }
+
+                    const deserializedResult = deserializeResolvedTurn(result);
+                    
+                    dispatch({ type: 'APPLY_RESOLVED_TURN', payload: deserializedResult });
+
+                    if (deserializedResult.effectsToPlay && deserializedResult.effectsToPlay.length > 0) {
+                        deserializedResult.effectsToPlay.forEach((effect, index) => {
+                            setTimeout(() => {
+                                if (effect.vfxKey && effect.position) {
+                                    dispatch({ type: 'PLAY_VFX', payload: { key: effect.vfxKey, center: effect.position } });
+                                }
+                                if (effect.sfx) {
+                                    dispatch({ type: 'PLAY_SFX', payload: effect.sfx });
+                                }
+                            }, index * 150);
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error processing message from worker:", error, "Data:", e.data);
+                    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred while processing the turn.";
+                    dispatch({ type: 'SET_INITIALIZATION_STATE', payload: { isInitialized: true, message: '', error: `Could not process turn result: ${errorMessage}` } });
                 }
-                
-                if (result.gameSessionId !== gameSessionIdRef.current || gamePhaseRef.current !== 'playing') {
-                    console.log(`Ignoring stale/irrelevant turn result from session ${result.gameSessionId} (current is ${gameSessionIdRef.current}, phase is ${gamePhaseRef.current})`);
-                    return;
+            };
+
+            worker.addEventListener('message', handleMessage);
+            
+            worker.onerror = (e: ErrorEvent) => {
+                console.error("A fatal worker error occurred:", e);
+                let errorMessage = 'A fatal error occurred in the background process.';
+                if (e && e.message) {
+                    errorMessage = `${e.message} (at ${e.filename}:${e.lineno})`;
+                } else if (e && e.error && e.error.message) {
+                    errorMessage = e.error.message;
                 }
-
-                const deserializedResult = deserializeResolvedTurn(result);
-                
-                dispatch({ type: 'APPLY_RESOLVED_TURN', payload: deserializedResult });
-
-                if (deserializedResult.effectsToPlay && deserializedResult.effectsToPlay.length > 0) {
-                    deserializedResult.effectsToPlay.forEach((effect, index) => {
-                        setTimeout(() => {
-                            if (effect.vfxKey && effect.position) {
-                                dispatch({ type: 'PLAY_VFX', payload: { key: effect.vfxKey, center: effect.position } });
-                            }
-                            if (effect.sfx) {
-                                dispatch({ type: 'PLAY_SFX', payload: effect.sfx });
-                            }
-                        }, index * 150);
-                    });
-                }
-            } catch (error) {
-                console.error("Error processing message from worker:", error, "Data:", e.data);
-                const errorMessage = error instanceof Error ? error.message : "An unknown error occurred while processing the turn.";
-                dispatch({ type: 'SET_INITIALIZATION_STATE', payload: { isInitialized: true, message: '', error: `Could not process turn result: ${errorMessage}` } });
-            }
-        };
-
-        worker.addEventListener('message', handleMessage);
+                dispatch({
+                    type: 'SET_INITIALIZATION_STATE',
+                    payload: { isInitialized: true, message: '', error: errorMessage },
+                });
+            };
         
-        worker.onerror = (e: ErrorEvent) => {
-            console.error("A fatal worker error occurred:", e);
-            let errorMessage = 'A fatal error occurred in the background process.';
-            if (e && e.message) {
-                errorMessage = `${e.message} (at ${e.filename}:${e.lineno})`;
-            } else if (e && e.error && e.error.message) {
-                errorMessage = e.error.message;
-            }
+            return () => {
+              workerRef.current?.terminate();
+              workerRef.current = null;
+            };
+        } catch (error) {
+            console.error("Failed to create Web Worker:", error);
             dispatch({
                 type: 'SET_INITIALIZATION_STATE',
-                payload: { isInitialized: true, message: '', error: errorMessage },
+                payload: { isInitialized: true, message: '', error: `Failed to initialize game: ${error instanceof Error ? error.message : 'Unknown error'}` },
             });
-        };
-    
-        return () => {
-          workerRef.current?.terminate();
-          workerRef.current = null;
-        };
+        }
       }, []);
 
     useEffect(() => {

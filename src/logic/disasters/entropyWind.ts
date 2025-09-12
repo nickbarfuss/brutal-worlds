@@ -1,6 +1,7 @@
 import { Enclave, ActiveEffect, DisasterProfile, Route, EffectQueueItem, DisasterRule, MapCell } from '@/types/game';
 import { applyContinuousRules, applyInstantaneousRules } from '@/logic/effectProcessor';
 export { processMarker, processEffect } from '@/logic/disasters/defaultHandler';
+import { queueEffectAssets } from '@/logic/turnResolver';
 
 const resolveNumericRange = (value: number | [number, number]): number => {
     if (Array.isArray(value)) {
@@ -48,12 +49,7 @@ export const handleContinuous = (
         // Apply impact at current location if not already impacted this turn
         // The `hasImpactedThisTurn` flag should be reset by the game engine at the start of each turn.
         if (!effect.metadata.hasImpactedThisTurn) {
-            sideEffects.push({
-                type: 'PLAY_VFX_SFX', // New type for playing VFX/SFX
-                vfxKey: profile.ui.assets.vfxImpact,
-                sfx: { key: profile.ui.assets.sfxImpact, channel: 'fx' as const, position: currentCell.center },
-                position: currentCell.center,
-            });
+            queueEffectAssets(profile, 'impact', currentCell.center, sideEffects);
 
             // Apply impact rules to the current enclave if it exists
             if (currentCell.enclaveId !== null) {

@@ -16,9 +16,51 @@ import { cloneEnclave } from '@/logic/cloneUtils';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
 import * as entropyWindHandler from '@/logic/disasters/entropyWind';
 
+const resolveNumericRange = (value: number | [number, number]): number => {
+    if (Array.isArray(value)) {
+        // Return a random integer within the range (inclusive)
+        return Math.floor(Math.random() * (value[1] - value[0] + 1)) + value[0];
+    }
+    return value;
+};
+
 const effectHandlers: { [key: string]: any } = {
     default: defaultHandler,
     'entropy-wind': entropyWindHandler,
+};
+
+export const queueEffectAssets = (
+    profile: EffectProfile,
+    phase: 'alert' | 'impact' | 'aftermath',
+    position: THREE.Vector3,
+    effectsToPlay: EffectQueueItem[]
+) => {
+    const sfxKey = profile.ui.assets.sfx?.[phase];
+    const vfxKey = profile.ui.assets.vfx?.[phase];
+    const dialogKey = profile.ui.assets.dialog?.[phase];
+
+    if (vfxKey) {
+        effectsToPlay.push({
+            id: `eff-${profile.key}-${phase}-vfx-${position.x}-${position.y}-${position.z}-${Date.now()}`,
+            vfxKey: vfxKey,
+            sfx: sfxKey ? { key: sfxKey, channel: 'fx', position: position } : undefined,
+            position: position,
+        });
+    } else if (sfxKey) {
+        effectsToPlay.push({
+            id: `eff-${profile.key}-${phase}-sfx-${position.x}-${position.y}-${position.z}-${Date.now()}`,
+            sfx: { key: sfxKey, channel: 'fx', position: position },
+            position: position,
+        });
+    }
+
+    if (dialogKey) {
+        effectsToPlay.push({
+            id: `eff-${profile.key}-${phase}-dialog-${position.x}-${position.y}-${position.z}-${Date.now()}`,
+            sfx: { key: dialogKey, channel: 'dialog', position: position },
+            position: position,
+        });
+    }
 };
 
 export const processEffectMarkers = (
@@ -99,12 +141,32 @@ export const processEffectMarkers = (
         if (marker.durationInPhase <= 0) {
             const profile = EFFECT_PROFILES[marker.profileKey];
             if (!profile) return;
-            
-            const handler = effectHandlers[marker.profileKey] || effectHandlers.default;
-            if (handler && handler.processMarker) {
-                const result = handler.processMarker(marker, profile, workingEnclaves, workingRoutes, effectsToPlay, mapData);
-                result.effectsToAdd?.forEach((e: { enclaveId: number, effect: ActiveEffect }) => effectsToAdd.push(e));
-                workingRoutes = result.newRoutes || workingRoutes;
+
+            let nextPhase: 'impact' | 'aftermath' | undefined;
+            let nextPhaseLogic: EffectProfile['logic']['impact'] | EffectProfile['logic']['aftermath'] | undefined;
+
+            if (marker.currentPhase === 'alert' && profile.logic.impact) {
+                nextPhase = 'impact';
+                nextPhaseLogic = profile.logic.impact;
+            } else if (marker.currentPhase === 'impact' && profile.logic.aftermath) {
+                nextPhase = 'aftermath';
+                nextPhaseLogic = profile.logic.aftermath;
+            }
+
+            if (nextPhase && nextPhaseLogic) {
+                marker.currentPhase = nextPhase;
+                marker.durationInPhase = resolveNumericRange(nextPhaseLogic.duration);
+                // Re-queue assets for the new phase
+                queueEffectAssets(profile, nextPhase, marker.position, effectsToPlay);
+                remainingEffectMarkers.push(marker); // Keep marker if it transitions to next phase
+            } else {
+                // Effect is complete, or no next phase
+                const handler = effectHandlers[marker.profileKey] || effectHandlers.default;
+                if (handler && handler.processMarker) {
+                    const result = handler.processMarker(marker, profile, workingEnclaves, workingRoutes, effectsToPlay, mapData);
+                    result.effectsToAdd?.forEach((e: { enclaveId: number, effect: ActiveEffect }) => effectsToAdd.push(e));
+                    workingRoutes = result.newRoutes || workingRoutes;
+                }
             }
         } else {
             remainingEffectMarkers.push(marker);
@@ -286,11 +348,27 @@ export const resolveTurn = (
                         const dialogSfxKey = `${conquestEvent.archetypeKey}-${conquestEvent.legacyKey}-conquest-${randomDialogIndex}`;
                         const enclave = finalEnclavesMap.get(conquestEvent.enclaveId);
                         if (enclave) {
-                            effectsToPlay.push({
-                                id: `eff-conquest-dialog-${conquestEvent.enclaveId}-${Date.now()}`,
-                                sfx: { key: dialogSfxKey, channel: 'dialog', position: enclave.center },
-                                position: enclave.center,
-                            });
+                            const dummyProfile: EffectProfile = {
+                                key: 'conquest-dialog', // Dummy key
+                                ui: {
+                                    name: 'Conquest Dialog',
+                                    icon: '', // Not used
+                                    description: '', // Not used
+                                    assets: {
+                                        key: 'conquest-dialog-assets', // Dummy key
+                                        image: '', // Not used
+                                        dialog: {
+                                            impact: dialogSfxKey, // Using 'impact' as a generic phase for this one-off dialog
+                                        },
+                                    },
+                                },
+                                logic: {
+                                    impact: { // Dummy logic for impact phase
+                                        name: '', description: '', duration: 1, radius: 0, rules: [],
+                                    },
+                                },
+                            };
+                            queueEffectAssets(dummyProfile, 'impact', enclave.center, effectsToPlay);
                         }
                     }
                 }
@@ -378,7 +456,11 @@ self.onmessage = (e: MessageEvent) => {
         self.postMessage(JSON.stringify(result));
     } catch (error) {
         console.error('[turnResolver] FATAL ERROR:', error);
-        self.postMessage(JSON.stringify({ error: 'A fatal error occurred in the turn resolver.' }));
+        if (error instanceof Error) {
+            self.postMessage(JSON.stringify({ error: `A fatal error occurred in the turn resolver: ${error.message}\n${error.stack}` }));
+        } else {
+            self.postMessage(JSON.stringify({ error: 'An unknown fatal error occurred in the turn resolver.' }));
+        }
     }
 };
 

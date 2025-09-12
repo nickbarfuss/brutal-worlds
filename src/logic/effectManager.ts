@@ -114,34 +114,29 @@ export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext
             }
         }
 
-        const alertSfxKey = profile.ui.assets.sfxAlert;
-        const alertVfxKey = profile.ui.assets.vfxAlert;
+        const alertSfxKey = profile.ui.assets.sfx?.alert;
+        const alertVfxKey = profile.ui.assets.vfx?.alert;
+        const alertDialogKey = profile.ui.assets.dialog?.alert;
         
         if (alertVfxKey) {
              effectsToPlay.push({
                 id: `eff-${profile.key}-alert-${cell.id}-${Date.now()}`,
                 vfxKey: alertVfxKey,
-                sfx: alertSfxKey ? { key: alertSfxKey, channel: 'dialog', position: cell.center } : undefined,
-                position: cell.center,
-            });
-            const randomDialogIndex = Math.floor(Math.random() * 3) + 1;
-            const dialogKey = `narrator-effect-${profile.key}-alert-${randomDialogIndex}`;
-            effectsToPlay.push({
-                id: `eff-${profile.key}-alert-dialog-${cell.id}-${Date.now()}`,
-                sfx: { key: dialogKey, channel: 'dialog', position: cell.center },
+                sfx: alertSfxKey ? { key: alertSfxKey, channel: 'fx', position: cell.center } : undefined,
                 position: cell.center,
             });
         } else if (alertSfxKey) { // Play SFX even if there's no VFX
              effectsToPlay.push({
                 id: `eff-${profile.key}-alert-sfx-${cell.id}-${Date.now()}`,
-                sfx: { key: alertSfxKey, channel: 'dialog', position: cell.center },
+                sfx: { key: alertSfxKey, channel: 'fx', position: cell.center },
                 position: cell.center,
             });
-            const randomDialogIndex = Math.floor(Math.random() * 3) + 1;
-            const dialogKey = `narrator-effect-${profile.key}-alert-${randomDialogIndex}`;
+        }
+
+        if (alertDialogKey) {
             effectsToPlay.push({
                 id: `eff-${profile.key}-alert-dialog-${cell.id}-${Date.now()}`,
-                sfx: { key: dialogKey, channel: 'dialog', position: cell.center },
+                sfx: { key: alertDialogKey, channel: 'dialog', position: cell.center },
                 position: cell.center,
             });
         }

@@ -1,5 +1,6 @@
 import { Enclave, ActiveDisasterMarker, ActiveEffect, DisasterProfile, Route, EffectQueueItem, SfxPlayback, MapCell } from '@/types/game';
 import { applyInstantaneousRules } from '@/logic/effectProcessor';
+import { queueEffectAssets } from '@/logic/turnResolver';
 
 const resolveNumericRange = (value: number | [number, number]): number => {
     if (Array.isArray(value)) {
@@ -75,12 +76,7 @@ export const processMarker = (
                     }
                 });
                 
-                const sfxKey = profile.ui.assets.sfxImpact;
-                const sfx = sfxKey ? { key: sfxKey, channel: 'fx' as const, position: enclave.center } : undefined;
-                effectsToPlay.push({
-                    id: `eff-impact-${marker.profileKey}-${enclaveId}-${Date.now()}`,
-                    vfxKey: profile.ui.assets.vfxImpact, sfx, position: enclave.center,
-                });
+                queueEffectAssets(profile, 'impact', enclave.center, effectsToPlay);
             }
         });
     }
@@ -134,12 +130,7 @@ export const processEffect = (
 
             const targetEnclave = workingEnclaves.get(enclaveId);
             if (targetEnclave) {
-                 const sfxKey = profile.ui.assets.sfxAftermath;
-                 const sfx = sfxKey ? { key: sfxKey, channel: 'fx' as const, position: targetEnclave.center } : undefined;
-                 effectsToPlay.push({
-                     id: `eff-aftermath-${effect.profileKey}-${enclaveId}-${Date.now()}`,
-                     vfxKey: profile.ui.assets.vfxAftermath, sfx, position: targetEnclave.center,
-                 });
+                 queueEffectAssets(profile, 'aftermath', targetEnclave.center, effectsToPlay);
             }
         });
     }

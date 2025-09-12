@@ -136,12 +136,24 @@ export type Rule =
 export interface EffectAssets {
     key: string;
     image: string;
-    sfxAlert?: string;
-    sfxImpact?: string;
-    sfxAftermath?: string;
-    vfxAlert?: string;
-    vfxImpact?: string;
-    vfxAftermath?: string;
+    sfx?: {
+        alert?: string;
+        impact?: string;
+        aftermath?: string;
+        [key: string]: string | undefined;
+    };
+    vfx?: {
+        alert?: string;
+        impact?: string;
+        aftermath?: string;
+        [key: string]: string | undefined;
+    };
+    dialog?: {
+        alert?: string;
+        impact?: string;
+        aftermath?: string;
+        [key: string]: string | undefined;
+    };
 }
 
 export interface EffectUI {

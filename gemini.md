@@ -68,3 +68,21 @@ To ensure proper timing, consider:
 *   **Where effects are generated**: Effects (like sounds or VFX) should be generated in the worker and returned as part of the resolved turn state.
 *   **When effects are processed**: The main thread should process these effects immediately after receiving the resolved turn state from the worker, before advancing the game to the next logical step (e.g., incrementing the turn counter).
 *   **State synchronization**: Ensure that all relevant state is correctly passed to and from the worker to maintain consistency.
+
+## Effect Dialog System
+
+**Objective:**
+Implement a scalable system where any effect (like a disaster or gambit) can trigger specific "dialog" sounds on the "dialog" audio channel during *any* of its defined phases (e.g., alert, resolution, start, end). This will be in addition to any existing sound effects.
+
+**Plan of Action:**
+
+1.  **Review Asset Structure:** Analyze `src/data/disasters.ts` and related files to define a clean, top-level `assets` object in the effect profile. This will contain sub-objects for `sfx`, `vfx`, and `dialog`.
+2.  **Introduce Phase-Specific Dialogs:** The `assets.dialog` object will now be a map where keys correspond to effect phases (e.g., `alert`, `resolution`, `start`, `end`) and values are the sound asset keys for the dialogs to be played during that specific phase. This allows for multiple dialogs per effect, each tied to a different phase.
+3.  **Refactor Effect Processing Logic:** Trace the code that handles *all* phases of an effect. For each phase, modify the logic to:
+    *   Check if a dialog is defined for the *current phase* within `effect.assets.dialog`.
+    *   If it exists, instruct the `SfxManager` to play it on the dedicated "dialog" channel.
+4.  **Remove Hardcoded Logic:** Search for and remove any existing special-case logic for playing dialog sounds, ensuring our new, flexible system is the single source of truth.
+
+## User Preferences
+
+- User prefers to manually commit changes. I will save changes to disk, but will not commit them to Git unless explicitly requested.

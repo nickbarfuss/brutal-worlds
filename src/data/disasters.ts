@@ -10,13 +10,20 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
             assets: {
                 key: 'entropy-wind',
                 image: 'https://storage.googleapis.com/brutal-worlds/disaster/entropy-wind.jpg',
-                sfxAlert: 'entropy-wind-alert',
-                sfxImpact: 'entropy-wind-impact',
-                sfxAftermath: 'entropy-wind-aftermath',
-                vfxAlert: 'disaster-entropy-wind-alert',
-                vfxImpact: 'disaster-entropy-wind-impact',
-                vfxAftermath: 'disaster-entropy-wind-aftermath',
-            }
+                sfx: {
+                    alert: 'entropy-wind-alert',
+                    impact: 'entropy-wind-impact',
+                    aftermath: 'entropy-wind-aftermath',
+                },
+                vfx: {
+                    alert: 'entropy-wind-alert',
+                    impact: 'entropy-wind-impact',
+                    aftermath: 'entropy-wind-aftermath',
+                },
+                dialog: {
+                    alert: 'entropy-wind-alert',
+                }
+            },
         },
         logic: {
             originCellType: 'Area',
@@ -62,12 +69,19 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
             assets: {
                 key: 'ion-tempest',
                 image: 'https://storage.googleapis.com/brutal-worlds/disaster/ion-tempest.jpg',
-                sfxAlert: 'ion-tempest-alert',
-                sfxImpact: 'ion-tempest-impact',
-                sfxAftermath: 'ion-tempest-aftermath',
-                vfxAlert: 'disaster-ion-tempest-alert',
-                vfxImpact: 'disaster-ion-tempest-impact',
-                vfxAftermath: 'disaster-ion-tempest-aftermath',
+                sfx: {
+                        alert: 'ion-tempest-alert',
+                        impact: 'ion-tempest-impact',
+                        aftermath: 'ion-tempest-aftermath',
+                    },
+                vfx: {
+                    alert: 'disaster-ion-tempest-alert',
+                    impact: 'ion-tempest-impact',
+                    aftermath: 'ion-tempest-aftermath',
+                },
+                dialog: {
+                    alert: 'ion-tempest-dialog-alert',
+                }
             }
         },
         logic: {
@@ -114,12 +128,19 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
             assets: {
                 key: 'pyroclasm',
                 image: 'https://storage.googleapis.com/brutal-worlds/disaster/pyroclasm.jpg',
-                sfxAlert: 'pyroclasm-alert',
-                sfxImpact: 'pyroclasm-impact',
-                sfxAftermath: 'pyroclasm-aftermath',
-                vfxAlert: 'disaster-pyroclasm-alert',
-                vfxImpact: 'disaster-pyroclasm-impact',
-                vfxAftermath: 'disaster-pyroclasm-aftermath',
+                sfx: {
+                    alert: 'pyroclasm-alert',
+                    impact: 'pyroclasm-impact',
+                    aftermath: 'pyroclasm-aftermath',
+                },
+                vfx: {
+                    alert: 'pyroclasm-alert',
+                    impact: 'pyroclasm-impact',
+                    aftermath: 'pyroclasm-aftermath',
+                },
+                dialog: {
+                    alert: 'pyroclasm-dialog-alert',
+                }
             }
         },
         logic: {
@@ -166,12 +187,19 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
             assets: {
                 key: 'resonance-cascade',
                 image: 'https://storage.googleapis.com/brutal-worlds/disaster/resonance-cascade.jpg',
-                sfxAlert: 'resonance-cascade-alert',
-                sfxImpact: 'resonance-cascade-impact',
-                sfxAftermath: 'resonance-cascade-aftermath',
-                vfxAlert: 'disaster-resonance-cascade-alert',
-                vfxImpact: 'disaster-resonance-cascade-impact',
-                vfxAftermath: 'disaster-resonance-cascade-aftermath',
+                sfx: {
+                    alert: 'resonance-cascade-alert',
+                    impact: 'resonance-cascade-impact',
+                    aftermath: 'resonance-cascade-aftermath',
+                },
+                vfx: {
+                    alert: 'resonance-cascade-alert',
+                    impact: 'resonance-cascade-impact',
+                    aftermath: 'resonance-cascade-aftermath',
+                },
+                dialog: {
+                    alert: 'pyroclasm-dialog-alert',
+                }
             }
         },
         logic: {
@@ -223,12 +251,19 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
             assets: {
                 key: 'skyfall-shards',
                 image: 'https://storage.googleapis.com/brutal-worlds/disaster/skyfall-shards.jpg',
-                sfxAlert: 'skyfall-shards-alert',
-                sfxImpact: 'skyfall-shards-impact',
-                sfxAftermath: 'skyfall-shards-aftermath',
-                vfxAlert: 'disaster-skyfall-shards-alert',
-                vfxImpact: 'disaster-skyfall-shards-impact',
-                vfxAftermath: 'disaster-skyfall-shards-aftermath',
+                sfx: {
+                    alert: 'skyfall-shards-alert',
+                    impact: 'skyfall-shards-impact',
+                    aftermath: 'skyfall-shards-aftermath',
+                },
+                vfx: {
+                    alert: 'skyfall-shards-alert',
+                    impact: 'skyfall-shards-impact',
+                    aftermath: 'skyfall-shards-aftermath',
+                },
+                dialog: {
+                    alert: 'skyfall-shards-dialog-alert',
+                }
             }
         },
         logic: {
@@ -275,12 +310,19 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
             assets: {
                 key: 'void-surge',
                 image: 'https://storage.googleapis.com/brutal-worlds/disaster/void-surge.jpg',
-                sfxAlert: 'void-surge-alert',
-                sfxImpact: 'void-surge-impact',
-                sfxAftermath: 'void-surge-aftermath',
-                vfxAlert: 'disaster-void-surge-alert',
-                vfxImpact: 'disaster-void-surge-impact',
-                vfxAftermath: 'disaster-void-surge-aftermath',
+                sfx: {
+                    alert: 'void-surge-alert',
+                    impact: 'void-surge-impact',
+                    aftermath: 'void-surge-aftermath',
+                },
+                vfx: {
+                    alert: 'void-surge-alert',
+                    impact: 'void-surge-impact',
+                    aftermath: 'void-surge-aftermath',
+                },
+                dialog: {
+                    alert: 'void-surge-dialog-alert',
+                }
             }
         },
         logic: {
