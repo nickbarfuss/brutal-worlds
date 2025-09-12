@@ -1,0 +1,823 @@
+//need type definition
+
+export const GAMBITS: { [key: string]: EffectProfile } = {
+    // --- First Sword Gambits ---
+
+    'celestial-annihilation': {
+        key: 'celestial-annihilation',
+        ui: { 
+            name: "Celestial Annihilation", 
+            icon: 'satellite_alt', 
+            description: "The First Sword calls down a focused strike from orbit, battering a single enclave's defenses with overwhelming power.",
+            assets: {
+                key: 'celestial-annihilation',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/first-sword-celestial-annihilation.jpg',
+                sfxImpact: 'celestial-annihilation-impact',
+                vfxImpact: 'celestial-annihilation-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'First Sword',
+            legacy: 'Annihilation Doctrine',
+            availability: 10,
+            playstyle: 'Offensive',
+            targeting: {
+                targetType: 'Friendly Enclave',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Orbital Strike',
+                    description: "A concentrated beam of energy lances down from orbit, vaporizing defenses.",
+                    effect: "Reduces the target enclave's forces by 60%.",
+                    duration: 1,
+                    radius: 0,
+                    rules: [
+                        { type: 'ForceDamage', payload: { target: 'targetEnclave', damageType: 'percentage', value: 0.60 } }
+                    ]
+                }
+            }
+        }
+    },
+    'shatterpoint-strike': {
+        key: 'shatterpoint-strike',
+        ui: {
+            name: 'Shatterpoint Strike',
+            icon: 'bolt',
+            description: 'All power is focused into a single, cataclysmic strike, designed to shatter an enclave\'s defenses and break the opponent\'s will to fight.',
+            assets: {
+                key: 'first-sword-shatterpoint-strike',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/first-sword-shatterpoint-strike.jpg',
+                sfxImpact: 'shatterpoint-strike-impact',
+                vfxImpact: 'shatterpoint-strike-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'First Sword',
+            legacy: 'Warlord\'s Ascendancy',
+            availability: 8,
+            playstyle: 'Offensive',
+            targeting: {
+                targetType: 'Friendly Enclave with an active Attack order.',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Overcharged Attack',
+                    description: "The enclave's attack is supercharged, focusing all available power into a single, devastating blow.",
+                    effect: "Doubles the attack power of the target enclave for this turn.",
+                    duration: 1,
+                    radius: 0,
+                    rules: [
+                        { type: 'StatModifier', payload: { target: 'targetEnclave', stat: 'attack_order_multiplier', value: 2 } }
+                    ]
+                }
+            }
+        }
+    },
+    'trans-dimensional-armory': {
+        key: 'trans-dimensional-armory',
+        ui: {
+            name: 'Trans-dimensional Armory',
+            icon: 'biotech',
+            description: 'The First Sword unlocks the ability to forge trans-dimensional weapons, making their forces stronger and more effective in combat.',
+            assets: {
+                key: 'first-sword-trans-dimensional-armory',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/first-sword-trans-dimensional-armory.jpg',
+                sfxImpact: 'trans-dimensional-armory-impact',
+                vfxImpact: 'trans-dimensional-armory-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'First Sword',
+            legacy: 'Warlord\'s Ascendancy',
+            availability: 10,
+            playstyle: 'Offensive',
+            targeting: {
+                targetType: 'Friendly Enclave',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Weapon Enhancement',
+                    description: "Weapons are augmented with otherworldly technology, granting them a permanent edge in battle.",
+                    effect: "Permanently increases the combat bonus of the target enclave by 1.",
+                    duration: 'Permanent',
+                    radius: 0,
+                    rules: [
+                        { type: 'StatModifier', payload: { target: 'targetEnclave', stat: 'combat_bonus', value: 1, duration: 'Permanent' } }
+                    ]
+                }
+            }
+        }
+    },
+    'war-fulcrum': {
+        key: 'war-fulcrum',
+        ui: {
+            name: 'War Fulcrum',
+            icon: 'campaign',
+            description: 'The War Fulcrum, a commanding entity bred for war, leads an invasion and inspires unparalleled ferocity in its attack strategies.',
+            assets: {
+                key: 'first-sword-war-fulcrum',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/first-sword-war-fulcrum.jpg',
+                sfxImpact: 'war-fulcrum-impact',
+                vfxImpact: 'war-fulcrum-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'First Sword',
+            legacy: 'Annihilation Doctrine',
+            availability: 4,
+            playstyle: 'Offensive',
+            targeting: {
+                targetType: 'Friendly Enclave',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Inspiring Presence',
+                    description: "The presence of the War Fulcrum inspires nearby troops, driving them to fight with unmatched zeal.",
+                    effect: "Permanently increases the attack order force bonus of the target enclave by 1.",
+                    duration: 'Permanent',
+                    radius: 0,
+                    rules: [
+                        { type: 'StatModifier', payload: { target: 'targetEnclave', stat: 'attack_order_force_bonus', value: 1, duration: 'Permanent' } }
+                    ]
+                }
+            }
+        }
+    },
+
+    // --- Pact Whisperer Gambits ---
+    'data-shroud': {
+        key: 'data-shroud',
+        ui: {
+            name: 'Data Shroud',
+            icon: 'visibility_off',
+            description: 'A tactical data shroud is deployed, concealing the true force counts of your enclaves from the opponent\'s sensory arrays and scanners.',
+            assets: {
+                key: 'pact-whisperer-data-shroud',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/pact-whisperer-data-shroud.jpg',
+                sfxImpact: 'data-shroud-impact',
+                vfxImpact: 'data-shroud-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'Pact Whisperer',
+            legacy: 'Whispering Covenant',
+            availability: 4,
+            playstyle: 'Defensive',
+            targeting: {
+                targetType: 'Self',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Information Blackout',
+                    description: "A cloak of static and ghost signals descends, masking all force movements from enemy sensors.",
+                    effect: "Hides your force counts from the opponent for 3 turns.",
+                    duration: 3,
+                    radius: 'Global',
+                    rules: [
+                        { type: 'HideForceCounts', payload: { target: 'opponent', duration: 3 } }
+                    ]
+                }
+            }
+        }
+    },
+    'soul-forging': {
+        key: 'soul-forging',
+        ui: {
+            name: 'Soul-Forging',
+            icon: 'record_voice_over',
+            description: 'The Pact Whisperer\'s influence is so potent that they can mentally break an opponent\'s forces, converting their will and adding them to your own army.',
+            assets: {
+                key: 'pact-whisperer-soul-forging',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/pact-whisperer-soul-forging.jpg',
+                sfxImpact: 'soul-forging-impact',
+                vfxImpact: 'soul-forging-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'Pact Whisperer',
+            legacy: 'Voidsworn Covenant',
+            availability: 6,
+            playstyle: 'Offensive',
+            targeting: {
+                targetType: 'Enemy Enclave',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Psychic Conversion',
+                    description: "Enemy wills are shattered and reforged, turning foes into loyal soldiers for your cause.",
+                    effect: "Reduces the target enemy enclave's forces by 15 and adds 15 forces to your capital.",
+                    duration: 1,
+                    radius: 0,
+                    rules: [
+                        { type: 'ForceDamage', payload: { target: 'targetEnclave', damageType: 'flat', value: 15 } },
+                        { type: 'GainForces', payload: { target: 'capitalEnclave', value: 15 } }
+                    ]
+                }
+            }
+        }
+    },
+    'void-untethering': {
+        key: 'void-untethering',
+        ui: {
+            name: 'Void Untethering',
+            icon: 'no_sailing',
+            description: 'The Pact Whisperer\'s influence is woven into the very fabric of the void, untethering the opponent\'s forces and severing their supply lines across the empty expanse.',
+            assets: {
+                key: 'pact-whisperer-void-untethering',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/pact-whisperer-void-untethering.jpg',
+                sfxImpact: 'void-untethering-impact',
+                vfxImpact: 'void-untethering-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'Pact Whisperer',
+            legacy: 'Voidsworn Covenant',
+            availability: 7,
+            playstyle: 'Defensive',
+            targeting: {
+                targetType: 'Self',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Void Isolation',
+                    description: "Psionic tendrils reach across the void, severing all connections and isolating the opponent's empire.",
+                    effect: "Disables all routes on the map for 3 turns.",
+                    duration: 3,
+                    radius: 'Global',
+                    rules: [
+                        { type: 'DisableRoutes', payload: { target: 'global', duration: 3 } }
+                    ]
+                }
+            }
+        }
+    },
+    'whispers-from-the-void': {
+        key: 'whispers-from-the-void',
+        ui: {
+            name: 'Whispers from the Void',
+            icon: 'record_voice_over',
+            description: 'The Pact Whisperer projects a cacophony of disorienting, psionic whispers into the opponent\'s mind, crippling their ability to command their forces.',
+            assets: {
+                key: 'pact-whisperer-whispers-from-the-void',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/pact-whisperer-whispers-from-the-void.jpg',
+                sfxImpact: 'whispers-from-the-void-impact',
+                vfxImpact: 'whispers-from-the-void-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'Pact Whisperer',
+            legacy: 'Whispering Covenant',
+            availability: 5,
+            playstyle: 'Utility',
+            targeting: {
+                targetType: 'Enemy Enclave',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Psionic Disruption',
+                    description: "Maddening whispers echo in the minds of the enemy leadership, sowing chaos and disrupting production.",
+                    effect: "Reduces the target enclave's production by 50% for 4 turns.",
+                    duration: 4,
+                    radius: 0,
+                    rules: [
+                        { type: 'StatModifier', payload: { target: 'targetEnclave', stat: 'production', value: 0.50 } }
+                    ]
+                }
+            }
+        }
+    },
+
+    // --- Resonance-Warden Gambits ---
+    'aegis-protocol': {
+        key: 'aegis-protocol',
+        ui: {
+            name: 'Aegis Protocol',
+            icon: 'shield',
+            description: 'The Resonance Warden implements a total lockdown, activating automated defense systems and shield generators to make an enclave impervious to attack for a limited time.',
+            assets: {
+                key: 'resonance-warden-aegis-protocol',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/resonance-warden-aegis-protocol.jpg',
+                sfxImpact: 'aegis-protocol-impact',
+                vfxImpact: 'aegis-protocol-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'Resonance-Warden',
+            legacy: 'Genesis Forge Mandate',
+            availability: 7,
+            playstyle: 'Defensive',
+            targeting: {
+                targetType: 'Friendly Enclave',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Total Lockdown',
+                    description: "Towering energy shields erupt around the enclave, creating an impenetrable fortress.",
+                    effect: "Makes the target enclave immune to attacks for 2 turns.",
+                    duration: 2,
+                    radius: 0,
+                    rules: [
+                        { type: 'StatModifier', payload: { target: 'targetEnclave', stat: 'cannot_be_attacked', value: true, duration: 2 } }
+                    ]
+                }
+            }
+        }
+    },
+    'forge-links': {
+        key: 'forge-links',
+        ui: {
+            name: 'Forge-Links',
+            icon: 'lan',
+            description: 'Using newly discovered mechanical devices, the Resonance Warden forges permanent links between enclaves, allowing for the rapid flow of resources and troops.',
+            assets: {
+                key: 'resonance-warden-forge-links',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/resonance-warden-forge-links.jpg',
+                sfxImpact: 'forge-links-impact',
+                vfxImpact: 'forge-links-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'Resonance-Warden',
+            legacy: 'Genesis Forge Mandate',
+            availability: 2,
+            playstyle: 'Utility',
+            targeting: {
+                targetType: 'Friendly Enclave',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Route Construction',
+                    description: "Automated construction drones forge new, permanent pathways between allied territories.",
+                    effect: "Creates 2 new routes from the target enclave to the nearest unconnected friendly enclaves.",
+                    duration: 'Permanent',
+                    radius: 0,
+                    rules: [
+                        { type: 'CreateRoutes', payload: { target: 'targetEnclave', count: 2, connectionType: 'nearestUnconnectedFriendly' } }
+                    ]
+                }
+            }
+        }
+    },
+    'orbital-nullification-beam': {
+        key: 'orbital-nullification-beam',
+        ui: {
+            name: 'Orbital Nullification Beam',
+            icon: 'school',
+            description: 'An orbiting command-ship locks on to a target, unleashing a focused laser beam that unravels all matter and energy, nullifying all manufactured constructs within its blast radius.',
+            assets: {
+                key: 'resonance-warden-orbital-nullification-beam',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/resonance-warden-orbital-nullification-beam.jpg',
+                sfxImpact: 'orbital-nullification-beam-impact',
+                vfxImpact: 'orbital-nullification-beam-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'Resonance-Warden',
+            legacy: 'Shatter-Wave Mandate',
+            availability: 1,
+            playstyle: 'Defensive',
+            targeting: {
+                targetType: 'Enemy Enclave (with an active Gambit)',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Gambit Cancel',
+                    description: "A precise energy beam from orbit targets and unravels the opponent's complex strategic maneuvers.",
+                    effect: "Cancels an active Gambit order on the target enclave.",
+                    duration: 1,
+                    radius: 0,
+                    rules: [
+                        { type: 'CancelOrder', payload: { target: 'targetEnclave', orderType: 'Gambit' } }
+                    ]
+                }
+            }
+        }
+    },
+    'world-ender-protocol': {
+        key: 'world-ender-protocol',
+        ui: {
+            name: 'World-Ender Protocol',
+            icon: 'nuclear',
+            description: 'A powerful, final gambit that activates a self-destruct sequence on an enclave, unleashing a cataclysmic blast that consumes the territory and a portion of all adjacent forces.',
+            assets: {
+                key: 'resonance-warden-world-ender-protocol',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/resonance-warden-world-ender-protocol.jpg',
+                sfxImpact: 'world-ender-protocol-impact',
+                vfxImpact: 'world-ender-protocol-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'Resonance-Warden',
+            legacy: 'Shatter-Wave Mandate',
+            availability: 15,
+            playstyle: 'Offensive',
+            targeting: {
+                targetType: 'Friendly Enclave',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Self-Destruct',
+                    description: "The enclave's core goes critical, unleashing a self-destructive blast of apocalyptic power.",
+                    effect: "Destroys all forces at the target enclave and reduces forces in all adjacent enclaves by 50%.",
+                    duration: 1,
+                    radius: 1,
+                    rules: [
+                        { type: 'SetForces', payload: { target: 'targetEnclave', value: 0 } },
+                        { type: 'ForceDamage', payload: { target: 'adjacentEnclaves', damageType: 'percentage', value: 0.50 } }
+                    ]
+                }
+            }
+        }
+    },
+
+    // --- Labyrinthine Ghost Gambits ---
+    'ghost-in-the-system': {
+        key: 'ghost-in-the-system',
+        ui: {
+            name: 'Ghost in the System',
+            icon: 'shield_question',
+            description: 'A hidden agent intercepts and nullifies an opponent command, canceling an incoming order before it can be executed.',
+            assets: {
+                key: 'labyrinthine-ghost-ghost-in-the-system',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/labyrinthine-ghost-ghost-in-the-system.jpg',
+                sfxImpact: 'ghost-in-the-system-impact',
+                vfxImpact: 'ghost-in-the-system-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'Labyrinthine Ghost',
+            legacy: 'Void Walker',
+            availability: 5,
+            playstyle: 'Defensive',
+            targeting: {
+                targetType: 'Friendly Enclave (that is being attacked or assisted)',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Order Intercept',
+                    description: "A ghost signal intercepts and corrupts an incoming enemy command, neutralizing the threat before it materializes.",
+                    effect: "Cancels an incoming Attack or Assist order targeting the enclave.",
+                    duration: 1,
+                    radius: 0,
+                    rules: [
+                        { type: 'CancelOrder', payload: { target: 'incomingOrder', orderType: 'Attack' } },
+                        { type: 'CancelOrder', payload: { target: 'incomingOrder', orderType: 'Assist' } }
+                    ]
+                }
+            }
+        }
+    },
+    'labyrinth': {
+        key: 'labyrinth',
+        ui: {
+            name: 'Labyrinth',
+            icon: 'link_off',
+            description: 'The Labyrinthine Ghost manipulates the very fabric of reality, twisting known connections into a disorienting, temporary labyrinth.',
+            assets: {
+                key: 'labyrinthine-ghost-labyrinth',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/labyrinthine-ghost-labyrinth.jpg',
+                sfxImpact: 'labyrinth-impact',
+                vfxImpact: 'labyrinth-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'Labyrinthine Ghost',
+            legacy: 'Karthian Oracle',
+            availability: 3,
+            playstyle: 'Offensive',
+            targeting: {
+                targetType: 'Route',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Route Scramble',
+                    description: "Reality warps and shifts, twisting a vital supply route into an impassable maze of dead ends.",
+                    effect: "Disables the target route for 2 turns.",
+                    duration: 2,
+                    radius: 0,
+                    rules: [
+                        { type: 'DisableRoutes', payload: { target: 'targetRoute', duration: 2 } }
+                    ]
+                }
+            }
+        }
+    },
+    'quantum-loop': {
+        key: 'quantum-loop',
+        ui: {
+            name: 'Quantum Loop',
+            icon: 'trip',
+            description: 'An opponent attack order is captured in a quantum loop, forcing the attacking forces to continue until the enclave is won or lost.',
+            assets: {
+                key: 'labyrinthine-ghost-quantum-loop',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/labyrinthine-ghost-quantum-loop.jpg',
+                sfxImpact: 'quantum-loop-impact',
+                vfxImpact: 'quantum-loop-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'Labyrinthine Ghost',
+            legacy: 'Karthian Oracle',
+            availability: 6,
+            playstyle: 'Defensive',
+            targeting: {
+                targetType: 'Enemy Enclave (that is attacking one of your enclaves)',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Locked Order',
+                    description: "The enemy's attack is trapped in a repeating time loop, forcing them to commit to the assault.",
+                    effect: "Locks the attacking enclave's order for 3 turns, preventing it from being changed.",
+                    duration: 3,
+                    radius: 0,
+                    rules: [
+                        { type: 'LockOrder', payload: { target: 'attackingEnclave', duration: 3 } }
+                    ]
+                }
+            }
+        }
+    },
+    'void-cordon': {
+        key: 'void-cordon',
+        ui: {
+            name: 'Void Cordon',
+            icon: 'no_sailing',
+            description: 'A silent, suffocating field is deployed across the aether, closing all void paths and stranding an opponent\'s forces in the abyss.',
+            assets: {
+                key: 'labyrinthine-ghost-void-cordon',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/labyrinthine-ghost-void-cordon.jpg',
+                sfxImpact: 'void-cordon-impact',
+                vfxImpact: 'void-cordon-impact',
+            }
+        },
+        logic: {
+            category: 'Archetype',
+            archetype: 'Labyrinthine Ghost',
+            legacy: 'Void Walker',
+            availability: 6,
+            playstyle: 'Offensive',
+            targeting: {
+                targetType: 'Self',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Sea Route Disruption',
+                    description: "A barrier of null-energy extends across the void, cutting off all sea-based travel and supply lines.",
+                    effect: "Disables all sea routes for 2 turns.",
+                    duration: 2,
+                    radius: 'Global',
+                    rules: [
+                        { type: 'DisableRoutes', payload: { target: 'seaRoutes', duration: 2 } }
+                    ]
+                }
+            }
+        }
+    },
+};
+
+export const COMMON_GAMBITS: { [key: string]: EffectProfile } = {
+    'flesh-weavers-harvest': {
+        key: 'flesh-weavers-harvest',
+        ui: {
+            name: 'Flesh-Weaver\'s Harvest',
+            icon: 'person_add',
+            description: 'A dark ritual is performed on a neutral enclave, converting its raw biological mass into a brutal, new fighting force for your cause.',
+            assets: {
+                key: 'common-flesh-weavers-harvest',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-flesh-weavers-harvest.jpg',
+                sfxImpact: 'flesh-weavers-harvest-impact',
+                vfxImpact: 'flesh-weavers-harvest-impact',
+            }
+        },
+        logic: {
+            category: 'Common',
+            availability: 5,
+            playstyle: 'Offensive',
+            targeting: {
+                targetType: 'Neutral Enclave',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Force Conversion',
+                    description: "The enclave's population is twisted and reshaped into a new fighting force, loyal only to their creator.",
+                    effect: "Converts a neutral enclave to your control with 20 forces.",
+                    duration: 1,
+                    radius: 0,
+                    rules: [
+                        { type: 'ConvertEnclave', payload: { target: 'targetEnclave', toOwner: 'friendly', forces: 20 } }
+                    ]
+                }
+            }
+        }
+    },
+    'off-world-mercenaries': {
+        key: 'off-world-mercenaries',
+        ui: {
+            name: 'Off-World Mercenaries',
+            icon: 'rocket',
+            description: 'The Archetype contacts nearby star-systems, leveraging their massive wealth to secure a temporary, powerful infusion of veteran off-world forces.',
+            assets: {
+                key: 'common-off-world-mercenaries',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-off-world-mercenaries.jpg',
+                sfxImpact: 'off-world-mercenaries-impact',
+                vfxImpact: 'off-world-mercenaries-impact',
+            }
+        },
+        logic: {
+            category: 'Common',
+            availability: 11,
+            playstyle: 'Defensive',
+            targeting: {
+                targetType: 'Friendly Enclave',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Mercenary Arrival',
+                    description: "Drop-pods scream through the atmosphere, delivering a hardened company of veteran soldiers to the battlefield.",
+                    effect: "Adds 50 forces to the target friendly enclave.",
+                    duration: 1,
+                    radius: 0,
+                    rules: [
+                        { type: 'GainForces', payload: { target: 'targetEnclave', value: 50 } }
+                    ]
+                }
+            }
+        }
+    },
+    'orbital-bombardment': {
+        key: 'orbital-bombardment',
+        ui: {
+            name: 'Orbital Bombardment',
+            icon: 'scatter_plot',
+            description: 'A catastrophic failure in an orbiting weapon platform sends a hail of metallic shrapnel screaming towards the planet\'s surface, striking random enclaves with devastating force.',
+            assets: {
+                key: 'common-orbital-bombardment',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-orbital-bombardment.jpg',
+                sfxImpact: 'orbital-bombardment-impact',
+                vfxImpact: 'orbital-bombardment-impact',
+            }
+        },
+        logic: {
+            category: 'Common',
+            availability: 8,
+            playstyle: 'Offensive',
+            targeting: {
+                targetType: 'Self',
+                siteCount: 5,
+            },
+            phases: {
+                impact: {
+                    name: 'Shrapnel Strike',
+                    description: "A random volley of kinetic strikes rains down from a decaying satellite, blasting multiple sites indiscriminately.",
+                    effect: "Reduces forces by 50% at 5 random enclaves.",
+                    duration: 1,
+                    radius: 0,
+                    rules: [
+                        { type: 'ForceDamage', payload: { target: 'affectedEnclaves', damageType: 'percentage', value: 0.50 } }
+                    ]
+                }
+            }
+        }
+    },
+    'scorched-earth': {
+        key: 'scorched-earth',
+        ui: {
+            name: 'Scorched Earth',
+            icon: 'bomb',
+            description: 'In a final act of defiance, all remaining forces are detonated, destroying the territory to prevent the opponent from capturing it. All routes to and from it are fused and destroyed, preventing any further use of the territory.',
+            assets: {
+                key: 'common-scorched-earth',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-scorched-earth.jpg',
+                sfxImpact: 'scorched-earth-impact',
+                vfxImpact: 'scorched-earth-impact',
+            }
+        },
+        logic: {
+            category: 'Common',
+            availability: 5,
+            playstyle: 'Defensive',
+            targeting: {
+                targetType: 'Friendly Enclave',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Final Act',
+                    description: "The enclave is sacrificed in a final, defiant explosion, leaving behind a ruined, useless wasteland.",
+                    effect: "Destroys all forces, converts the enclave to neutral, and destroys all connected routes.",
+                    duration: 1,
+                    radius: 0,
+                    rules: [
+                        { type: 'SetForces', payload: { target: 'targetEnclave', value: 0 } },
+                        { type: 'ConvertEnclave', payload: { target: 'targetEnclave', toOwner: 'neutral' } },
+                        { type: 'DestroyRoutes', payload: { target: 'targetEnclave' } }
+                    ]
+                }
+            }
+        }
+    },
+    'the-calling': {
+        key: 'the-calling',
+        ui: {
+            name: 'The Calling',
+            icon: 'podcasts',
+            description: 'A powerful psionic hymn is broadcast, calling a random neutral enclave to your cause as if by ancient prophecy.',
+            assets: {
+                key: 'common-the-calling',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-the-calling.jpg',
+                sfxImpact: 'the-calling-impact',
+                vfxImpact: 'the-calling-impact',
+            }
+        },
+        logic: {
+            category: 'Common',
+            availability: 4,
+            playstyle: 'Utility',
+            targeting: {
+                targetType: 'Self',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Psionic Call',
+                    description: "An irresistible psionic call radiates outwards, drawing a neutral territory and its people to your banner.",
+                    effect: "Converts a random neutral enclave to your control with 5 forces.",
+                    duration: 1,
+                    radius: 0,
+                    rules: [
+                        { type: 'ConvertEnclave', payload: { target: 'randomNeutralEnclave', toOwner: 'friendly', forces: 5 } }
+                    ]
+                }
+            }
+        }
+    },
+    'the-witching-hour': {
+        key: 'the-witching-hour',
+        ui: {
+            name: 'The Witching Hour',
+            icon: 'magic_button',
+            description: 'Ancient magicks, long dormant in the world\'s core, are called upon to manifest a disaster of your choosing. The chaotic forces of nature are brought to bear against a single target.',
+            assets: {
+                key: 'common-the-witching-hour',
+                image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-the-witching-hour.jpg',
+                sfxImpact: 'the-witching-hour-impact',
+                vfxImpact: 'the-witching-hour-impact',
+            }
+        },
+        logic: {
+            category: 'Common',
+            availability: 8,
+            playstyle: 'Offensive',
+            targeting: {
+                targetType: 'Enemy Enclave',
+                siteCount: 1,
+            },
+            phases: {
+                impact: {
+                    name: 'Summon Disaster',
+                    description: "Arcane energies are channeled, tearing open a rift to summon a chaotic, destructive force upon your foe.",
+                    effect: "Summons a random disaster at the target enemy enclave.",
+                    duration: 1,
+                    radius: 0,
+                    rules: [
+                        { type: 'SummonDisaster', payload: { target: 'targetEnclave', disasterKey: 'any' } }
+                    ]
+                }
+            }
+        }
+    }
+};
+
