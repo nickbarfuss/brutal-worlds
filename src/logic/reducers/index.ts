@@ -4,7 +4,7 @@ import { handleInitialization } from '@/logic/reducers/initializationReducer';
 import { handleGameFlow } from '@/logic/reducers/gameFlowReducer';
 import { handleMapInteraction } from '@/logic/reducers/mapInteractionReducer';
 import { handleTurnLogic } from '@/logic/reducers/turnLogicReducer';
-import { handleDisasters } from '@/logic/reducers/disasterReducer';
+import { handleEffects } from '@/logic/reducers/effectReducer';
 import { handleFx } from '@/logic/reducers/vfxReducer';
 import { handleUi } from '@/logic/reducers/uiReducer';
 
@@ -31,8 +31,8 @@ export type Action =
     | { type: 'AI_ISSUE_ORDER'; payload: { fromId: number; order: Order } }
     | { type: 'AI_CANCEL_ORDER'; payload: { fromId: number } }
     | { type: 'AI_CLEAR_ORDERS' }
-    | { type: 'TRIGGER_DISASTER'; payload: string }
-    | { type: 'CLEAR_LATEST_DISASTER' }
+    | { type: 'TRIGGER_EFFECT'; payload: string }
+    | { type: 'CLEAR_LATEST_EFFECT' }
     | { type: 'PROCESS_EFFECT_QUEUE'; payload: { playedIds: string[] } }
     | { type: 'PLAY_VFX'; payload: { key: string; center: Vector3 } }
     | { type: 'PLAY_SFX'; payload: { key: string; channel: AudioChannel; position?: Vector3 } }
@@ -56,7 +56,7 @@ export const initialState: GameState = {
     mapData: [], enclaveData: {}, domainData: {}, riftData: {}, expanseData: {}, routes: [],
     planetName: '', isInitialized: false, error: null, currentTurn: 0, 
     playerPendingOrders: {}, aiPendingOrders: {},
-    latestDisaster: null, activeDisasterMarkers: [],
+    latestEffect: null, activeEffectMarkers: [],
     loadingMessage: 'Initializing', currentWorld: null, gameConfig: GAME_CONFIG, gamePhase: 'loading',
     gameSessionId: 0,
     playerArchetypeKey: null, playerLegacyKey: null, playerLegacyIndex: null, opponentArchetypeKey: null, opponentLegacyKey: null, opponentLegacyIndex: null, 
@@ -124,10 +124,10 @@ export const reducer = (state: GameState, action: Action): GameState => {
         case 'AI_CLEAR_ORDERS':
             return handleTurnLogic(state, action);
 
-        // Disasters
-        case 'TRIGGER_DISASTER':
-        case 'CLEAR_LATEST_DISASTER':
-            return handleDisasters(state, action);
+        // Effects
+        case 'TRIGGER_EFFECT':
+        case 'CLEAR_LATEST_EFFECT':
+            return handleEffects(state, action);
 
         // VFX/SFX
         case 'PROCESS_EFFECT_QUEUE':

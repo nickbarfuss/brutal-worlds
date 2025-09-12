@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { WorldProfile, Domain, Enclave, Owner, Rift, Expanse, Vector3 } from '@/types/game';
-import { DISASTER_PROFILES } from '@/data/disasters';
+import { EFFECT_PROFILES } from '@/data/effects';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { getIconForEntityType } from '@/utils/entityUtils';
@@ -13,14 +13,14 @@ interface WorldInspectorProps {
     enclaveData: { [id: number]: Enclave };
     riftData: { [id: number]: Rift };
     expanseData: { [id: number]: Expanse };
-    onTriggerDisaster: (key: string) => void;
+    onTriggerEffect: (key: string) => void;
     onFocusVector: (vector: Vector3) => void;
     onClose: () => void;
     onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerLeave: (e: React.PointerEvent<HTMLDivElement>) => void;
 }
 
-const WorldInspector: React.FC<WorldInspectorProps> = ({ world, domainData, enclaveData, riftData, expanseData, onTriggerDisaster, onFocusVector, onClose, onPointerMove, onPointerLeave }) => {
+const WorldInspector: React.FC<WorldInspectorProps> = ({ world, domainData, enclaveData, riftData, expanseData, onTriggerEffect, onFocusVector, onClose, onPointerMove, onPointerLeave }) => {
     const domains = Object.values(domainData).sort((a, b) => a.name.localeCompare(b.name));
     const expanses = Object.values(expanseData).sort((a, b) => a.name.localeCompare(b.name));
     const rifts = Object.values(riftData).sort((a, b) => a.name.localeCompare(b.name));
@@ -48,21 +48,21 @@ const WorldInspector: React.FC<WorldInspectorProps> = ({ world, domainData, encl
                     <p className="text-base text-neutral-300">{world.description}</p>
                 </Card.Section>
 
-                {world.possibleDisasters.length > 0 && (
-                    <Card.Section title="Possible Disasters">
+                {world.possibleEffects.length > 0 && (
+                    <Card.Section title="Possible Effects">
                         <div className="space-y-2">
-                            {world.possibleDisasters.map(disasterKey => {
-                                const disaster = DISASTER_PROFILES[disasterKey];
-                                if (!disaster) return null;
+                            {world.possibleEffects.map(effectKey => {
+                                const effect = EFFECT_PROFILES[effectKey];
+                                if (!effect) return null;
                                 return (
                                     <ChipCard 
-                                        key={disasterKey}
-                                        icon={disaster.ui.icon}
+                                        key={effectKey}
+                                        icon={effect.ui.icon}
                                         iconColorClass="text-amber-400"
-                                        title={disaster.ui.name}
-                                        subtitle={disaster.ui.description.split('.')[0] + '.'}
-                                        briefingProps={{ type: 'disasterProfile', key: disasterKey }}
-                                        onClick={() => onTriggerDisaster(disasterKey)}
+                                        title={effect.ui.name}
+                                        subtitle={effect.ui.description.split('.')[0] + '.'}
+                                        briefingProps={{ type: 'effectProfile', key: effectKey }}
+                                        onClick={() => onTriggerEffect(effectKey)}
                                     />
                                 );
                             })}

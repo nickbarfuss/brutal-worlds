@@ -1,9 +1,8 @@
-
 import React from 'react';
-import { Enclave, Domain, PendingOrders, WorldProfile, ActiveDisasterMarker, Route, Owner, Order } from '../../types/game';
+import { Enclave, Domain, PendingOrders, WorldProfile, ActiveEffectMarker, Route, Owner, Order } from '../../types/game';
 import { ORDER_PROFILES } from '../../data/orders';
 import { PLAYER_THREE_COLORS, THEME_CONFIG } from '../../data/theme';
-import { DISASTER_PROFILES } from '../../data/disasters';
+import { EFFECT_PROFILES } from '../../data/effects';
 import { BIRTHRIGHTS } from '../../data/birthrights';
 import { ARCHETYPES } from '../../data/archetypes';
 import Card from '../ui/Card';
@@ -22,7 +21,7 @@ interface EnclaveInspectorProps {
     pendingOrders: PendingOrders;
     routes: Route[];
     currentWorld: WorldProfile | null;
-    activeDisasterMarkers: ActiveDisasterMarker[];
+    activeEffectMarkers: ActiveEffectMarker[];
     isSelected: boolean;
     isConfirming: boolean;
     gameConfig: typeof GameConfig;
@@ -43,7 +42,7 @@ const getPaletteForOwner = (owner: Owner, worldProfile: WorldProfile | null) => 
 };
 
 const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
-    enclave, enclaveData, domainData, pendingOrders, routes, currentWorld, activeDisasterMarkers,
+    enclave, enclaveData, domainData, pendingOrders, routes, currentWorld, activeEffectMarkers,
     isSelected, isConfirming, onFocusEnclave, gameConfig,
     onPointerMove, onPointerLeave
 }) => {
@@ -54,7 +53,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
     const incomingOrders = (Object.entries(pendingOrders) as [string, Order][]).filter(([, order]) => order.to === enclave.id);
     
     // FIX: Check marker metadata for targetEnclaveIds.
-    const alertMarkers = activeDisasterMarkers.filter(m => m.metadata && m.metadata.targetEnclaveIds && m.metadata.targetEnclaveIds.includes(enclave.id));
+    const effectMarkers = (activeEffectMarkers || []).filter(m => m.metadata && m.metadata.targetEnclaveIds && m.metadata.targetEnclaveIds.includes(enclave.id));
     const affectedRoutes = routes.filter(r => 
         (r.from === enclave.id || r.to === enclave.id) && 
         (r.isDestroyed || r.disabledForTurns > 0)
@@ -70,7 +69,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
             outgoingOrderValues.base = Math.floor(baseForces * combatModifier);
             outgoingOrderValues.bonus = 1 + getAttackBonusForEnclave(enclave);
         } else if (outgoingOrder.type === 'assist') {
-            const assistMultiplier = getAssistMultiplierForEnclave(enclave);
+            const assistMultiplier = getAssistMultiplierForEnclave(fromEnclave);
             outgoingOrderValues.base = Math.ceil(safeCurrentForces * assistMultiplier);
         }
     } else { // Holding
@@ -108,8 +107,8 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
     const allEffects = React.useMemo(() => {
         const effects: { id: string; category: string; component: React.ReactElement }[] = [];
         
-        alertMarkers.forEach(marker => {
-            const profile = DISASTER_PROFILES[marker.profileKey];
+        effectMarkers.forEach(marker => {
+            const profile = EFFECT_PROFILES[marker.profileKey];
             if (!profile) return;
             effects.push({
                 id: marker.id, category: 'Disaster',
@@ -119,7 +118,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
         });
     
         enclave.activeEffects.forEach(effect => {
-            const profile = DISASTER_PROFILES[effect.profileKey];
+            const profile = EFFECT_PROFILES[effect.profileKey];
             if (!profile) return;
             const phaseName = effect.phase === 'alert' ? profile.logic.alert.name : (effect.phase === 'impact' ? profile.logic.impact.name : (profile.logic.aftermath ? profile.logic.aftermath.name : ''));
             effects.push({
@@ -139,7 +138,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
         }
     
         return effects;
-    }, [enclave.id, enclave.activeEffects, alertMarkers, memeticResonanceSource]);
+    }, [enclave.id, enclave.activeEffects, effectMarkers, memeticResonanceSource]);
     
     const effectsByCategory = React.useMemo(() => allEffects.reduce((acc, effect) => {
         (acc[effect.category] = acc[effect.category] || []).push(effect.component);
@@ -150,8 +149,8 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
 
     const turnPreview = React.useMemo(() => {
         if (!currentWorld) return null;
-        return calculateEnclaveTurnPreview(enclave, enclaveData, pendingOrders, gameConfig, activeDisasterMarkers);
-    }, [enclave, enclaveData, pendingOrders, gameConfig, currentWorld, activeDisasterMarkers]);
+        return calculateEnclaveTurnPreview(enclave, enclaveData, pendingOrders, gameConfig, activeEffectMarkers);
+    }, [enclave, enclaveData, pendingOrders, gameConfig, currentWorld, activeEffectMarkers]);
 
     const renderFooter = () => {
         if (!turnPreview || turnPreview.status === 'unchanged') {

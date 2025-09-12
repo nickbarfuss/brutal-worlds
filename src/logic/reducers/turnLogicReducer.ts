@@ -1,8 +1,8 @@
 import { GameState, Enclave, Order, EffectQueueItem } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
-import { DISASTER_PROFILES } from '@/data/disasters';
+import { EFFECT_PROFILES } from '@/data/effects';
 import { ORDER_PROFILES } from '@/data/orders';
-import { triggerNewDisaster as triggerDisasterLogic } from '@/logic/disasterManager';
+import { triggerNewEffect as triggerEffectLogic } from "@/logic/effectManager";
 
 export const handleTurnLogic = (state: GameState, action: Action): GameState => {
     switch (action.type) {
@@ -15,7 +15,12 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
 
             // This logic specifically handles the test case for a disaster on Turn 1.
             if (disasterConfig?.enabled && disasterConfig.triggerOnTurn === 1) {
-                const result = triggerDisasterLogic(disasterConfig.disasterKey, {
+                const disasterProfile = EFFECT_PROFILES[disasterConfig.disasterKey];
+                if (!disasterProfile) {
+                    console.error(`Disaster profile not found for key: ${disasterConfig.disasterKey}`);
+                    return { ...state, ...updates };
+                }
+                const result = triggerEffectLogic(disasterProfile, {
                     enclaveData: state.enclaveData,
                     domainData: state.domainData,
                     mapData: state.mapData,
@@ -24,8 +29,8 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 });
 
                 if (result) {
-                    if (result.newMarkers) updates.activeDisasterMarkers = [...state.activeDisasterMarkers, ...result.newMarkers];
-                    if (result.snackbarData) updates.latestDisaster = result.snackbarData;
+                    if (result.newMarkers) updates.activeEffectMarkers = [...state.activeEffectMarkers, ...result.newMarkers];
+                    if (result.snackbarData) updates.latestEffect = result.snackbarData;
                 }
             }
             return { ...state, ...updates };
@@ -47,7 +52,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 newAiPendingOrders, 
                 newRoutes, 
                 newCurrentTurn, 
-                newDisasterMarkers, 
+                newEffectMarkers, 
                 gameOverState, 
                 effectsToPlay, 
                 playerConquestsThisTurn, 
@@ -59,7 +64,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             Object.values(newEnclaveData).forEach((enclave: Enclave) => {
                 if (enclave.activeEffects) {
                     enclave.activeEffects.forEach(effect => {
-                         const profile = DISASTER_PROFILES[effect.profileKey];
+                         const profile = EFFECT_PROFILES[effect.profileKey];
                          if (profile) {
                             if (effect.phase === 'impact' && profile.logic.impact) {
                                 effect.rules = profile.logic.impact.rules;
@@ -115,7 +120,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 aiPendingOrders: newAiPendingOrders,
                 routes: newRoutes,
                 currentTurn: newCurrentTurn,
-                activeDisasterMarkers: newDisasterMarkers,
+                activeEffectMarkers: newEffectMarkers,
                 gamePhase: gameOverState !== 'none' ? 'gameOver' : state.gamePhase,
                 gameOverState: gameOverState,
                 isPaused: gameOverState !== 'none' ? true : state.isPaused,
@@ -134,19 +139,24 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             const wasTestDisasterTurn = disasterConfig?.enabled && turnThatJustEnded === disasterConfig.triggerOnTurn;
 
             if (!wasTestDisasterTurn && world && turnThatJustEnded > 0 && world.disasterChance > 0 && Math.random() < world.disasterChance) {
-                if (world.possibleDisasters.length > 0) {
-                    const disasterKey = world.possibleDisasters[Math.floor(Math.random() * world.possibleDisasters.length)];
-                    const disasterResult = triggerDisasterLogic(disasterKey, {
-                        enclaveData: intermediateState.enclaveData,
-                        domainData: intermediateState.domainData,
-                        mapData: intermediateState.mapData,
-                        expanseData: intermediateState.expanseData,
-                        riftData: intermediateState.riftData,
-                    });
+                if (world.possibleEffects.length > 0) {
+                    const disasterKey = world.possibleEffects[Math.floor(Math.random() * world.possibleEffects.length)];
+                    const disasterProfile = EFFECT_PROFILES[disasterKey];
+                    if (!disasterProfile) {
+                        console.error(`Disaster profile not found for key: ${disasterKey}`);
+                    } else {
+                        const disasterResult = triggerEffectLogic(disasterProfile, {
+                            enclaveData: intermediateState.enclaveData,
+                            domainData: intermediateState.domainData,
+                            mapData: intermediateState.mapData,
+                            expanseData: intermediateState.expanseData,
+                            riftData: intermediateState.riftData,
+                        });
 
-                    if (disasterResult) {
-                        if (disasterResult.newMarkers) intermediateState.activeDisasterMarkers.push(...disasterResult.newMarkers);
-                        if (disasterResult.snackbarData) intermediateState.latestDisaster = disasterResult.snackbarData;
+                        if (disasterResult) {
+                            if (disasterResult.newMarkers) intermediateState.activeEffectMarkers.push(...disasterResult.newMarkers);
+                            if (disasterResult.snackbarData) intermediateState.latestEffect = disasterResult.snackbarData;
+                        }
                     }
                 }
             }

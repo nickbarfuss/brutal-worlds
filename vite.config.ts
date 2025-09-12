@@ -21,6 +21,11 @@ export default defineConfig(({ mode }) => {
         hmr: {
           overlay: true, // set to true to view the overlay debug in the browser
         },
-      }
+      },
+      test: {
+        globals: true,
+        environment: 'jsdom',
+        setupFiles: ['./vitest.setup.ts'],
+      },
     };
 });

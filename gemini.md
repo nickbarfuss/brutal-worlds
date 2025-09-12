@@ -1,63 +1,10 @@
 This file contains notes and observations about the project.
+This file should activeley be mainteined and updated.
 
 ## Feature Development
 
+Feaures notes and will be kept here as we desing and work on features we will log `Progress`, `Objective`, and `Actions` forthe feature. 
 
-
-### Implementation Plan: Unified Effects System
-
-**Status:** In Progress
-**Goal:** Refactor the existing Disaster and Gambit systems into a single, reusable Effect architecture to improve maintainability, scalability, and accelerate future feature development.
-
-**Phased Rollout Strategy:**
-
-This project will be executed in distinct phases to minimize risk and allow for incremental testing and verification.
-
-**Phase 1: Foundation - Unified Type Definitions**
-*   **Objective:** Establish core interfaces for the unified Effect system.
-*   **Action:** Define `EffectProfile`, `EffectUI`, `EffectAssets`, `EffectLogic`, `EffectPhase`, and a generalized `Rule` type in `src/types/game.ts`.
-*   **Status:** In Progress (Types drafted, awaiting application).
-
-**Phase 2: Integration - Adapt Disaster System**
-*   **Objective:** Refactor `src/data/disasters.ts` to conform to the new `EffectProfile` interface.
-*   **Action:** Update `DISASTER_PROFILES` to use the new types, ensuring all data structures align. This will involve mapping existing `DisasterProfile` fields to the new `EffectProfile` structure.
-*   **Status:** Not Started.
-
-**Phase 3: Reconstruction - Rebuild Gambit System**
-*   **Objective:** Refactor `src/data/gambits.ts` to conform to the new `EffectProfile` interface.
-*   **Action:** Update `GAMBITS` and `COMMON_GAMBITS` to use the new types, ensuring all data structures align. This will involve mapping existing `GambitProfile` fields to the new `EffectProfile` structure.
-*   **Status:** Not Started.
-
-**Phase 4: Unification - Refactor Core Managers**
-*   **Objective:** Abstract game managers to handle the generic `EffectProfile` type, decoupling them from Disaster or Gambit specifics.
-*   **Action:**
-    *   Rename `src/logic/disasterManager.ts` to `src/logic/effectManager.ts`.
-    *   Refactor `effectManager.ts` to process generic `EffectProfile` objects, handling all phases (alert, impact, aftermath).
-    *   Review `SfxManager` and `VfxManager` to ensure compatibility with the new `EffectProfile` for asset key retrieval.
-*   **Status:** Not Started.
-
-**Phase 5: Validation - Testing & QA**
-*   **Objective:** Conduct thorough testing to ensure the refactored system is stable and all effects resolve as intended.
-*   **Action:**
-    *   Test the complete lifecycle of at least two Disasters.
-    *   Test the execution of at least three Gambits, covering various `Rule` types.
-    *   Verify correct triggering of all associated UI, SFX, and VFX.
-    *   Confirm accurate game state alterations based on defined rules.
-*   **Status:** Not Started.
-
-**Key Considerations:**
-*   **High-Risk Area:** Phase 4 (Refactor Core Managers) requires careful implementation and thorough testing due to core logic abstraction.
-*   **Stateless Rules:** Ensure compatibility of stateless rules and objective systems with the new Effect processing logic during Phase 4.
-
-
-### Conquest Dialog System
-*   **Status:** Complete
-*   **Goal:** Make conquest dialog more dynamic and less repetitive.
-*   **Rules:**
-    *   A maximum of one conquest dialog sound plays per turn.
-    *   If both players have conquests, the player with the most conquests that turn gets priority (player wins ties).
-    *   The first time a player wins the dialog priority, their dialog is guaranteed to play.
-    *   All subsequent times a player wins priority, their dialog has a random chance to play (defined in config).
 
 ## Architectural Principles: State Management & Race Conditions
 

@@ -1,11 +1,17 @@
 import { GameState } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
-import { triggerNewDisaster as triggerDisasterLogic } from '@/logic/disasterManager';
+import { triggerNewEffect as triggerEffectLogic } from "@/logic/effectManager";
+import { EFFECT_PROFILES } from '@/data/effects';
 
-export const handleDisasters = (state: GameState, action: Action): GameState => {
+export const handleEffects = (state: GameState, action: Action): GameState => {
     switch (action.type) {
-        case 'TRIGGER_DISASTER': {
-            const result = triggerDisasterLogic(action.payload, {
+        case 'TRIGGER_EFFECT': {
+            const profile = EFFECT_PROFILES[action.payload as string];
+            if (!profile) {
+                console.error(`Effect profile not found for key: ${action.payload}`);
+                return state;
+            }
+            const result = triggerEffectLogic(profile, {
                 enclaveData: state.enclaveData,
                 domainData: state.domainData,
                 mapData: state.mapData,
@@ -18,11 +24,11 @@ export const handleDisasters = (state: GameState, action: Action): GameState => 
             const updates: Partial<GameState> = {};
 
             if (result.snackbarData) {
-                updates.latestDisaster = result.snackbarData;
+                updates.latestEffect = result.snackbarData;
             }
     
             if (result.newMarkers) {
-                updates.activeDisasterMarkers = [...state.activeDisasterMarkers, ...result.newMarkers];
+                updates.activeEffectMarkers = [...state.activeEffectMarkers, ...result.newMarkers];
             }
             
             if (result.effectsToPlay) {
@@ -32,8 +38,8 @@ export const handleDisasters = (state: GameState, action: Action): GameState => 
             return Object.keys(updates).length > 0 ? { ...state, ...updates } : state;
         }
 
-        case 'CLEAR_LATEST_DISASTER':
-            return { ...state, latestDisaster: null };
+        case 'CLEAR_LATEST_EFFECT':
+            return { ...state, latestEffect: null };
 
         default:
             return state;

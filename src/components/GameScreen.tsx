@@ -10,7 +10,7 @@ import GameOverDialog from '@/components/GameOverDialog';
 import GambitRail from '@/components/GambitRail';
 import { ORDER_PROFILES } from '@/data/orders';
 import { VFX_PROFILES } from '@/data/vfx';
-import { DISASTER_PROFILES } from '@/data/disasters';
+import { EFFECT_PROFILES } from '@/data/effects';
 import { ARCHETYPES } from '@/data/archetypes';
 import { BIRTHRIGHTS } from '@/data/birthrights';
 import { getIconForRouteStatus, getIconForEntityType, getDomainOwner } from '@/utils/entityUtils';
@@ -38,7 +38,7 @@ export type BriefingData = {
     content: BriefingContent;
     targetRect: DOMRect;
     parentRect: DOMRect;
-    type: 'order' | 'effect' | 'route' | 'domain' | 'disasterProfile' | 'birthright' | 'disasterMarker';
+    type: 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker';
 };
 
 interface GameScreenProps {
@@ -49,7 +49,7 @@ const MemoizedSettingsDrawer = React.memo(SettingsDrawer);
 
 const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
     const [briefing, setBriefing] = useState<BriefingData | null>(null);
-    const [briefingTarget, setBriefingTarget] = useState<{ type: 'order' | 'effect' | 'route' | 'domain' | 'disasterProfile' | 'birthright' | 'disasterMarker', key: string } | null>(null);
+    const [briefingTarget, setBriefingTarget] = useState<{ type: 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker', key: string } | null>(null);
     const [isClosingGameOver, setIsClosingGameOver] = useState(false);
     const [isClosingArchetypeInspector, setIsClosingArchetypeInspector] = useState(false);
     const [isClosingMapInspector, setIsClosingMapInspector] = useState(false);
@@ -75,10 +75,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
     const closeSettingsTimeoutRef = useRef<number | null>(null);
     const closeSurrenderTimeoutRef = useRef<number | null>(null);
 
-    const disasterTestKey = engine.gameConfig.DISASTER_TESTING?.enabled 
+    const effectTestKey = engine.gameConfig.DISASTER_TESTING?.enabled 
         ? engine.gameConfig.DISASTER_TESTING.disasterKey 
         : null;
-    const disasterTestProfile = disasterTestKey ? DISASTER_PROFILES[disasterTestKey] : null;
+    const effectTestProfile = effectTestKey ? EFFECT_PROFILES[effectTestKey] : null;
 
     useEffect(() => {
         return () => {
@@ -283,7 +283,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         isIntroComplete: engine.isIntroComplete,
     });
 
-    const showBriefing = useCallback((type: 'order' | 'effect' | 'route' | 'domain' | 'disasterProfile' | 'birthright' | 'disasterMarker', contentKey: string) => {
+    const showBriefing = useCallback((type: 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker', contentKey: string) => {
         setBriefingTarget({ type, key: contentKey });
     }, []);
 
@@ -301,7 +301,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         };
     };
 
-    const getBriefingContent = useCallback((type: 'order' | 'effect' | 'route' | 'domain' | 'disasterProfile' | 'birthright' | 'disasterMarker', contentKey: string): BriefingContent | null => {
+    const getBriefingContent = useCallback((type: 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker', contentKey: string): BriefingContent | null => {
         if (type === 'order') {
             const parts = contentKey.split('-');
             const orderType = parts[1] as OrderType | 'holding';
@@ -438,10 +438,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             if (!enclave) return null;
     
             const effect = enclave.activeEffects.find(e => e.id === effectOrMarkerId);
-            const marker = engine.activeDisasterMarkers.find(m => m.id === effectOrMarkerId && m.metadata?.targetEnclaveIds?.includes(enclaveId));
+            const marker = engine.activeEffectMarkers.find(m => m.id === effectOrMarkerId && m.metadata?.targetEnclaveIds?.includes(enclaveId));
     
             if (effect) {
-                 const profile = DISASTER_PROFILES[effect.profileKey];
+                 const profile = EFFECT_PROFILES[effect.profileKey];
                  if (!profile) return null;
                  
                  const phaseKey = effect.phase;
@@ -459,7 +459,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                      imageUrl: profile.ui.assets.image ? getAssetUrl(profile.ui.assets.image) : undefined,
                  };
             } else if (marker) {
-                const profile = DISASTER_PROFILES[marker.profileKey];
+                const profile = EFFECT_PROFILES[marker.profileKey];
                 if (!profile) return null;
                 const alertProfile = profile.logic.alert;
                 return {
@@ -475,12 +475,12 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             }
             return null;
         }
-        if (type === 'disasterMarker') {
+        if (type === 'effectMarker') {
             const markerId = contentKey;
-            const marker = engine.activeDisasterMarkers.find(m => m.id === markerId);
+            const marker = engine.activeEffectMarkers.find(m => m.id === markerId);
             if (!marker) return null;
     
-            const profile = DISASTER_PROFILES[marker.profileKey];
+            const profile = EFFECT_PROFILES[marker.profileKey];
             if (!profile) return null;
     
             const phaseKey = marker.currentPhase;
@@ -498,38 +498,15 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 imageUrl: profile.ui.assets.image ? getAssetUrl(profile.ui.assets.image) : undefined,
             };
         }
-        if (type === 'disasterProfile') {
-            const profile = DISASTER_PROFILES[contentKey];
+        if (type === 'effectProfile') {
+            const profile = EFFECT_PROFILES[contentKey];
             if (!profile) return null;
-        
-            let minDuration = 0;
-            let maxDuration = 0;
-            if (profile.logic.alert) {
-                minDuration += Array.isArray(profile.logic.alert.duration) ? profile.logic.alert.duration[0] : profile.logic.alert.duration;
-                maxDuration += Array.isArray(profile.logic.alert.duration) ? profile.logic.alert.duration[1] : profile.logic.alert.duration;
-            }
-            if (profile.logic.impact) {
-                minDuration += Array.isArray(profile.logic.impact.duration) ? profile.logic.impact.duration[0] : profile.logic.impact.duration;
-                maxDuration += Array.isArray(profile.logic.impact.duration) ? profile.logic.impact.duration[1] : profile.logic.impact.duration;
-            }
-            if (profile.logic.aftermath) {
-                minDuration += Array.isArray(profile.logic.aftermath.duration) ? profile.logic.aftermath.duration[0] : profile.logic.aftermath.duration;
-                maxDuration += Array.isArray(profile.logic.aftermath.duration) ? profile.logic.aftermath.duration[1] : profile.logic.aftermath.duration;
-            }
-            const totalDurationString = minDuration === maxDuration ? `${minDuration}` : `${minDuration}-${maxDuration}`;
-        
-            const getPhaseDuration = (duration: number | [number, number]): string => {
-                if (Array.isArray(duration)) {
-                    return `${duration[0]}-${duration[1]}`;
-                }
-                return String(duration);
-            };
         
             return {
                 icon: profile.ui.icon,
                 iconColorClass: 'text-amber-400',
                 title: profile.ui.name,
-                disasterDescription: profile.ui.description,
+                description: profile.ui.description,
                 imageUrl: profile.ui.assets.image ? getAssetUrl(profile.ui.assets.image) : undefined,
             };
         }
@@ -635,7 +612,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             };
         }
         return null;
-    }, [engine.enclaveData, engine.domainData, engine.routes, engine.activeDisasterMarkers, engine.currentWorld, engine.playerLegacyIndex, engine.opponentLegacyIndex]);
+    }, [engine.enclaveData, engine.domainData, engine.routes, engine.activeEffectMarkers, engine.currentWorld, engine.playerLegacyIndex, engine.opponentLegacyIndex]);
 
     useEffect(() => {
         const parentEl = engine.inspectedArchetypeOwner ? archetypeInspectorRef.current : mapInspectorRef.current;
@@ -865,7 +842,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     selectedEnclaveId={engine.selectedEnclaveId}
                     hoveredCellId={engine.hoveredCellId}
                     currentWorld={engine.currentWorld}
-                    activeDisasterMarkers={engine.activeDisasterMarkers}
+                    activeEffectMarkers={engine.activeEffectMarkers}
                     cameraFocusAnimation={engine.cameraFocusAnimation}
                     initialCameraTarget={engine.initialCameraTarget}
                     isBloomEnabled={engine.isBloomEnabled}
@@ -926,7 +903,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                             className="w-16 h-16 rounded-full grid place-items-center flex-shrink-0 bg-neutral-800 hover:bg-neutral-700 transition-colors"
                             aria-label="Toggle World Inspector"
                         >
-                            <span className="material-symbols-outlined">{disasterTestProfile.ui.icon}</span>
+                            <span className="material-symbols-outlined">{effectTestProfile.ui.icon}</span>
                             public
                         </button>
                     )}
@@ -970,19 +947,19 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 pendingOrders={{...engine.playerPendingOrders, ...engine.aiPendingOrders}}
                 routes={engine.routes}
                 currentWorld={engine.currentWorld}
-                activeDisasterMarkers={engine.activeDisasterMarkers}
+                activeEffectMarkers={engine.activeEffectMarkers}
                 gameConfig={engine.gameConfig}
                 onFocusEnclave={engine.focusOnEnclave}
                 onFocusVector={engine.focusOnVector}
                 onShowBriefing={showBriefing}
                 onHideBriefing={hideBriefing}
-                onTriggerDisaster={engine.triggerDisaster}
+                onTriggerEffect={engine.triggerEffect}
                 playerArchetypeKey={engine.playerArchetypeKey}
                 playerLegacyIndex={engine.playerLegacyIndex}
                 opponentArchetypeKey={engine.opponentArchetypeKey}
                 opponentLegacyIndex={engine.opponentLegacyIndex}
             />
-
+            
             <InspectorCard
                 ref={mapInspectorRef}
                 isVisible={!!engine.inspectedMapEntity && engine.isIntroComplete}
@@ -997,13 +974,13 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 pendingOrders={{...engine.playerPendingOrders, ...engine.aiPendingOrders}}
                 routes={engine.routes}
                 currentWorld={engine.currentWorld}
-                activeDisasterMarkers={engine.activeDisasterMarkers}
+                activeEffectMarkers={engine.activeEffectMarkers}
                 gameConfig={engine.gameConfig}
                 onFocusEnclave={engine.focusOnEnclave}
                 onFocusVector={engine.focusOnVector}
                 onShowBriefing={showBriefing}
                 onHideBriefing={hideBriefing}
-                onTriggerDisaster={engine.triggerDisaster}
+                onTriggerEffect={engine.triggerEffect}
                 playerArchetypeKey={engine.playerArchetypeKey}
                 playerLegacyIndex={engine.playerLegacyIndex}
                 opponentArchetypeKey={engine.opponentArchetypeKey}
@@ -1018,17 +995,17 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             </div>
 
             <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-40 pointer-events-auto">
-                <Snackbar data={engine.latestDisaster ? { icon: engine.latestDisaster.profile.ui.icon, title: engine.latestDisaster.profile.ui.name, subtitle: `Detected in ${engine.latestDisaster.locationName}`, iconColorClass: 'text-amber-400' } : null} onClose={engine.clearLatestDisaster} />
+                <Snackbar data={engine.latestEffect ? { icon: engine.latestEffect.profile.ui.icon, title: engine.latestEffect.profile.ui.name, subtitle: `Detected in ${engine.latestEffect.locationName}`, iconColorClass: 'text-amber-400' } : null} onClose={engine.clearLatestEffect} />
             </div>
 
-            {disasterTestProfile && (
+            {effectTestProfile && (
                 <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-auto">
                     <button
-                        onClick={() => disasterTestKey && engine.triggerDisaster(disasterTestKey)}
+                        onClick={() => effectTestKey && engine.triggerEffect(effectTestKey)}
                         className="bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 px-4 rounded-full flex items-center gap-2 shadow-lg transition-transform hover:scale-105"
                     >
-                        <span className="material-symbols-outlined">{disasterTestProfile.ui.icon}</span>
-                        Test: {disasterTestProfile.ui.name}
+                        <span className="material-symbols-outlined">{effectTestProfile.ui.icon}</span>
+                        Test: {effectTestProfile.ui.name}
                     </button>
                 </div>
             )}

@@ -1,5 +1,4 @@
-import { Enclave, Domain, MapCell, Expanse, ActiveDisasterMarker, DisasterProfile, Rift, EffectQueueItem, SfxPlayback } from '@/types/game.ts';
-import { DISASTER_PROFILES } from '@/data/disasters.ts';
+import { Enclave, Domain, MapCell, Expanse, ActiveEffectMarker, EffectProfile, Rift, EffectQueueItem, SfxPlayback } from '@/types/game.ts';
 import * as THREE from 'three';
 
 interface TriggerContext {
@@ -43,9 +42,7 @@ const getCellsInRadius = (startCellId: number, radius: number, mapData: MapCell[
     return cellsInRadius;
 };
 
-export const triggerNewDisaster = (key: string, context: TriggerContext) => {
-    const profile = DISASTER_PROFILES[key];
-    if (!profile) return null;
+export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext) => {
 
     const { enclaveData, mapData } = context;
 
@@ -63,7 +60,7 @@ export const triggerNewDisaster = (key: string, context: TriggerContext) => {
 
     if (candidateCells.length === 0) return null;
 
-    const newMarkers: ActiveDisasterMarker[] = [];
+    const newMarkers: ActiveEffectMarker[] = [];
     const effectsToPlay: EffectQueueItem[] = [];
     let locationName = "an unknown region";
 
@@ -87,16 +84,16 @@ export const triggerNewDisaster = (key: string, context: TriggerContext) => {
                 .filter((id): id is number => id !== null)
         )];
         
-        const newMarker: ActiveDisasterMarker = {
-            id: `dis-site-${key}-${cell.id}-${Date.now()}`,
-            profileKey: key,
+        const newMarker: ActiveEffectMarker = {
+            id: `eff-site-${profile.key}-${cell.id}-${Date.now()}`,
+            profileKey: profile.key,
             cellId: cell.id,
             position: cell.center.clone(),
             currentPhase: 'alert',
             durationInPhase: resolveNumericRange(alertPhase.duration),
             radius: radiusInCells,
             movement: resolveNumericRange(alertPhase.movement),
-            disasters: [key],
+            effects: [profile.key],
             metadata: { targetEnclaveIds }, // Store for later phases
         };
         newMarkers.push(newMarker);
@@ -122,28 +119,28 @@ export const triggerNewDisaster = (key: string, context: TriggerContext) => {
         
         if (alertVfxKey) {
              effectsToPlay.push({
-                id: `eff-${key}-alert-${cell.id}-${Date.now()}`,
+                id: `eff-${profile.key}-alert-${cell.id}-${Date.now()}`,
                 vfxKey: alertVfxKey,
                 sfx: alertSfxKey ? { key: alertSfxKey, channel: 'dialog', position: cell.center } : undefined,
                 position: cell.center,
             });
             const randomDialogIndex = Math.floor(Math.random() * 3) + 1;
-            const dialogKey = `narrator-disaster-${key}-alert-${randomDialogIndex}`;
+            const dialogKey = `narrator-effect-${profile.key}-alert-${randomDialogIndex}`;
             effectsToPlay.push({
-                id: `eff-${key}-alert-dialog-${cell.id}-${Date.now()}`,
+                id: `eff-${profile.key}-alert-dialog-${cell.id}-${Date.now()}`,
                 sfx: { key: dialogKey, channel: 'dialog', position: cell.center },
                 position: cell.center,
             });
         } else if (alertSfxKey) { // Play SFX even if there's no VFX
              effectsToPlay.push({
-                id: `eff-${key}-alert-sfx-${cell.id}-${Date.now()}`,
+                id: `eff-${profile.key}-alert-sfx-${cell.id}-${Date.now()}`,
                 sfx: { key: alertSfxKey, channel: 'dialog', position: cell.center },
                 position: cell.center,
             });
             const randomDialogIndex = Math.floor(Math.random() * 3) + 1;
-            const dialogKey = `narrator-disaster-${key}-alert-${randomDialogIndex}`;
+            const dialogKey = `narrator-effect-${profile.key}-alert-${randomDialogIndex}`;
             effectsToPlay.push({
-                id: `eff-${key}-alert-dialog-${cell.id}-${Date.now()}`,
+                id: `eff-${profile.key}-alert-dialog-${cell.id}-${Date.now()}`,
                 sfx: { key: dialogKey, channel: 'dialog', position: cell.center },
                 position: cell.center,
             });

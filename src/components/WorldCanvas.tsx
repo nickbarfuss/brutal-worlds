@@ -49,7 +49,7 @@ interface WorldCanvasProps {
     selectedEnclaveId: number | null;
     hoveredCellId: number;
     currentWorld: WorldProfile | null;
-    activeDisasterMarkers: ActiveDisasterMarker[];
+    activeEffectMarkers: ActiveEffectMarker[];
     cameraFocusAnimation: { active: boolean; target: Vector3 } | null;
     initialCameraTarget: Vector3 | null;
     isBloomEnabled: boolean;
@@ -312,6 +312,7 @@ const WorldCanvas = React.memo(forwardRef<WorldCanvasHandle, WorldCanvasProps>((
         highlightFillMesh: null,
         highlightFillOpacity: 0,
         colorPalette,
+        activeEffectMarkers: props.activeEffectMarkers,
     });
 
     return <div ref={mountRef} data-testid="world-canvas" className="w-full h-full" />;

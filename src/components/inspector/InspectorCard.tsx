@@ -1,6 +1,6 @@
 
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
-import { Enclave, Domain, PendingOrders, InspectedEntity, Rift, Expanse, ActiveDisasterMarker, Route, WorldProfile, Vector3, PlayerIdentifier } from '@/types/game';
+import { Enclave, Domain, PendingOrders, InspectedEntity, Rift, Expanse, ActiveEffectMarker, Route, WorldProfile, Vector3, PlayerIdentifier } from '@/types/game';
 import Card from '@/components/ui/Card';
 import EnclaveInspector from '@/components/inspector/EnclaveInspector';
 import WorldInspector from '@/components/inspector/WorldInspector';
@@ -8,7 +8,7 @@ import DomainInspector from '@/components/inspector/DomainInspector';
 import RiftInspector from '@/components/inspector/RiftInspector';
 import ExpanseInspector from '@/components/inspector/ExpanseInspector';
 import { GAME_CONFIG as GameConfig } from '@/data/config';
-import DisasterInspector from '@/components/inspector/DisasterMarkerInspector';
+import EffectInspector from '@/components/inspector/EffectInspector';
 import ArchetypeInspector from '@/components/inspector/ArchetypeInspector';
 
 // GSAP is loaded globally via script tag in index.html
@@ -26,13 +26,13 @@ interface InspectorCardProps {
   pendingOrders: PendingOrders;
   routes: Route[];
   currentWorld: WorldProfile | null;
-  activeDisasterMarkers: ActiveDisasterMarker[];
+  activeEffectMarkers: ActiveEffectMarker[];
   gameConfig: typeof GameConfig;
   onFocusEnclave: (id: number) => void;
   onFocusVector: (vector: Vector3) => void;
-  onShowBriefing: (type: 'order' | 'effect' | 'route' | 'domain' | 'disasterProfile' | 'birthright', contentKey: string) => void;
+  onShowBriefing: (type: 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker', contentKey: string) => void;
   onHideBriefing: () => void;
-  onTriggerDisaster: (key: string) => void;
+  onTriggerEffect: (key: string) => void;
   onClose: () => void;
   playerArchetypeKey: string | null;
   playerLegacyIndex: number | null;
@@ -41,7 +41,7 @@ interface InspectorCardProps {
 }
 
 const InspectorCard = React.memo(React.forwardRef<HTMLDivElement, InspectorCardProps>(({
-  isVisible, isClosing, inspectedEntity, selectedEnclaveId, onTriggerDisaster,
+  isVisible, isClosing, inspectedEntity, selectedEnclaveId, onTriggerEffect,
   onShowBriefing, onHideBriefing, onClose, onFocusVector, 
   playerArchetypeKey, playerLegacyIndex, opponentArchetypeKey, opponentLegacyIndex,
   ...rest
@@ -112,7 +112,7 @@ const InspectorCard = React.memo(React.forwardRef<HTMLDivElement, InspectorCardP
     hoveredBriefingRef.current = key;
 
     if (chip && key) {
-      const type = chip.dataset.briefingType as 'order' | 'effect' | 'route' | 'domain' | 'disasterProfile' | 'birthright';
+      const type = chip.dataset.briefingType as 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker';
       onShowBriefing(type, key);
     } else {
       onHideBriefing();
@@ -130,12 +130,12 @@ const InspectorCard = React.memo(React.forwardRef<HTMLDivElement, InspectorCardP
       if (!inspectedEntity) return null;
 
       const { type } = inspectedEntity;
-      const { enclaveData, domainData, riftData, expanseData, currentWorld, activeDisasterMarkers } = rest;
+      const { enclaveData, domainData, riftData, expanseData, currentWorld, activeEffectMarkers } = rest;
       
       const commonPointerProps = { onPointerMove: handlePointerMove, onPointerLeave: handlePointerLeave };
 
       if (type === 'world') {
-          return currentWorld ? <WorldInspector world={currentWorld} domainData={domainData} enclaveData={enclaveData} riftData={riftData} expanseData={expanseData} onTriggerDisaster={onTriggerDisaster} onClose={onClose} onFocusVector={onFocusVector} {...commonPointerProps} /> : null;
+          return currentWorld ? <WorldInspector world={currentWorld} domainData={domainData} enclaveData={enclaveData} riftData={riftData} expanseData={expanseData} onTriggerEffect={onTriggerEffect} onClose={onClose} onFocusVector={onFocusVector} {...commonPointerProps} /> : null;
       }
       if (type === 'archetype') {
           const owner = (inspectedEntity as { owner: PlayerIdentifier }).owner;
@@ -153,15 +153,15 @@ const InspectorCard = React.memo(React.forwardRef<HTMLDivElement, InspectorCardP
       }
       if (type === 'rift') {
           const rift = riftData[inspectedEntity.id];
-          return rift ? <RiftInspector entity={rift} enclaveData={enclaveData} activeDisasterMarkers={rest.activeDisasterMarkers} {...commonPointerProps} /> : null;
+          return rift ? <RiftInspector entity={rift} enclaveData={enclaveData} activeEffectMarkers={rest.activeEffectMarkers} {...commonPointerProps} /> : null;
       }
       if (type === 'expanse') {
           const expanse = expanseData[inspectedEntity.id];
-          return expanse ? <ExpanseInspector entity={expanse} enclaveData={enclaveData} activeDisasterMarkers={rest.activeDisasterMarkers} {...commonPointerProps} /> : null;
+          return expanse ? <ExpanseInspector entity={expanse} enclaveData={enclaveData} activeEffectMarkers={rest.activeEffectMarkers} {...commonPointerProps} /> : null;
       }
-      if (type === 'disaster') {
-          const marker = activeDisasterMarkers.find(m => m.id === (inspectedEntity as { id: string }).id);
-          return marker ? <DisasterInspector marker={marker} {...commonPointerProps} /> : null;
+      if (type === 'effect') {
+          const marker = (activeEffectMarkers || []).find(m => m.id === (inspectedEntity as { id: string }).id);
+          return marker ? <EffectInspector marker={marker} {...commonPointerProps} /> : null;
       }
       return null;
   };

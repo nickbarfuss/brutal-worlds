@@ -7,25 +7,24 @@
 import { resolveHolding } from '@/logic/holdResolver';
 import { resolveAssists } from '@/logic/assistResolver';
 import { resolveAttacks } from '@/logic/attackResolver';
-// FIX: GameConfig is not exported from types/game.ts. It is imported from data/config.ts.
-import { Enclave, PendingOrders, EffectQueueItem, Player, ActiveDisasterMarker, Route, MapCell, ActiveEffect, DisasterProfile, ConquestEvent } from '@/types/game.ts';
+import { Enclave, PendingOrders, EffectQueueItem, Player, ActiveEffectMarker, Route, MapCell, ActiveEffect, EffectProfile, ConquestEvent } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
 import * as THREE from 'three';
-import { DISASTER_PROFILES } from '@/data/disasters';
+import { EFFECT_PROFILES } from '@/data/effects';
 import { applyContinuousRules, applyInstantaneousRules } from '@/logic/effectProcessor';
 import { cloneEnclave } from '@/logic/cloneUtils';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
 import * as entropyWindHandler from '@/logic/disasters/entropyWind';
 
-const disasterHandlers: { [key: string]: any } = {
+const effectHandlers: { [key: string]: any } = {
     default: defaultHandler,
     'entropy-wind': entropyWindHandler,
 };
 
-export const processDisasterEffects = (
+export const processEffectMarkers = (
     initialEnclavesMap: Map<number, Enclave>,
     initialRoutes: Route[],
-    currentMarkers: ActiveDisasterMarker[],
+    currentMarkers: ActiveEffectMarker[],
     effectsToPlay: EffectQueueItem[],
     mapData: MapCell[],
 ) => {
@@ -44,10 +43,10 @@ export const processDisasterEffects = (
 
         for (let i = modifiedEnclave.activeEffects.length - 1; i >= 0; i--) {
             const effect = modifiedEnclave.activeEffects[i];
-            const profile = DISASTER_PROFILES[effect.profileKey];
+            const profile = EFFECT_PROFILES[effect.profileKey];
             if (!profile) continue;
             
-            const handler = disasterHandlers[effect.profileKey] || disasterHandlers.default;
+            const handler = effectHandlers[effect.profileKey] || effectHandlers.default;
             if (handler && handler.handleContinuous) {
                 // Reset hasImpactedThisTurn flag for the new turn
                 if (effect.metadata && effect.metadata.hasImpactedThisTurn !== undefined) {
@@ -92,23 +91,23 @@ export const processDisasterEffects = (
     });
     
     // --- STEP 2: PROCESS MARKERS AND PHASE TRANSITIONS ---
-    const remainingDisasterMarkers: ActiveDisasterMarker[] = [];
+    const remainingEffectMarkers: ActiveEffectMarker[] = [];
     const effectsToAdd: { enclaveId: number, effect: ActiveEffect }[] = [];
     
     currentMarkers.forEach(marker => {
         marker.durationInPhase--;
         if (marker.durationInPhase <= 0) {
-            const profile = DISASTER_PROFILES[marker.profileKey];
+            const profile = EFFECT_PROFILES[marker.profileKey];
             if (!profile) return;
             
-            const handler = disasterHandlers[marker.profileKey] || disasterHandlers.default;
+            const handler = effectHandlers[marker.profileKey] || effectHandlers.default;
             if (handler && handler.processMarker) {
                 const result = handler.processMarker(marker, profile, workingEnclaves, workingRoutes, effectsToPlay, mapData);
                 result.effectsToAdd?.forEach((e: { enclaveId: number, effect: ActiveEffect }) => effectsToAdd.push(e));
                 workingRoutes = result.newRoutes || workingRoutes;
             }
         } else {
-            remainingDisasterMarkers.push(marker);
+            remainingEffectMarkers.push(marker);
         }
     });
     
@@ -119,10 +118,10 @@ export const processDisasterEffects = (
             if (effect.duration > 0) {
                 remainingEffects.push(effect);
             } else {
-                const profile = DISASTER_PROFILES[effect.profileKey];
+                const profile = EFFECT_PROFILES[effect.profileKey];
                 if (!profile) continue;
                 
-                const handler = disasterHandlers[effect.profileKey] || disasterHandlers.default;
+                const handler = effectHandlers[effect.profileKey] || effectHandlers.default;
                 if (handler && handler.processEffect) {
                     const result = handler.processEffect(effect, profile, enclave, workingEnclaves, workingRoutes, effectsToPlay, mapData);
                     result.effectsToAdd?.forEach((e: { enclaveId: number, effect: ActiveEffect }) => effectsToAdd.push(e));
@@ -145,7 +144,7 @@ export const processDisasterEffects = (
     return {
         newEnclaveStates: workingEnclaves,
         newRoutes: workingRoutes,
-        remainingDisasterMarkers,
+        remainingEffectMarkers,
     };
 };
 
@@ -225,7 +224,7 @@ export const resolveTurn = (
     mapData: MapCell[],
     currentTurn: number,
     gameSessionId: number,
-    initialDisasterMarkers: ActiveDisasterMarker[],
+    initialEffectMarkers: ActiveEffectMarker[],
     gameConfig: GameConfig,
     playerArchetypeKey: string | null,
     playerLegacyKey: string | null,
@@ -240,19 +239,19 @@ export const resolveTurn = (
         // Convert to Maps for safe, immutable operations
         const initialEnclavesMap = new Map<number, Enclave>(Object.entries(initialEnclaveData).map(([id, e]) => [parseInt(id), e]));
 
-        // --- 1. Disaster Phase ---
-        const { newEnclaveStates: enclavesAfterDisasters, newRoutes: routesAfterDisasters, remainingDisasterMarkers } = processDisasterEffects(
-            initialEnclavesMap, initialRoutes, initialDisasterMarkers, effectsToPlay, mapData
+        // --- 1. Effect Marker Processing Phase ---
+        const { newEnclaveStates: enclavesAfterEffects, newRoutes: routesAfterEffects, remainingEffectMarkers } = processEffectMarkers(
+            initialEnclavesMap, initialRoutes, initialEffectMarkers, effectsToPlay, mapData
         );
 
         // --- 2. Order Pruning ---
         const { validPlayerOrders, validAiOrders } = pruneInvalidOrders(
-            enclavesAfterDisasters, routesAfterDisasters, playerPendingOrders, aiPendingOrders
+            enclavesAfterEffects, routesAfterEffects, playerPendingOrders, aiPendingOrders
         );
         const allValidOrders = { ...validPlayerOrders, ...validAiOrders };
 
         // --- 3. Order Resolution Pipeline ---
-        const enclavesAfterHolding = resolveHolding(enclavesAfterDisasters, allValidOrders, routesAfterDisasters, gameConfig);
+        const enclavesAfterHolding = resolveHolding(enclavesAfterEffects, allValidOrders, routesAfterEffects, gameConfig);
         const enclavesAfterAssists = resolveAssists(enclavesAfterHolding, allValidOrders, gameConfig);
         const { newEnclaveData: enclavesAfterAttacks, newPendingOrders: ordersAfterAttacks, conquestEvents } = resolveAttacks(
             enclavesAfterAssists, allValidOrders, gameConfig, effectsToPlay, playerArchetypeKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey,
@@ -320,9 +319,9 @@ export const resolveTurn = (
             newEnclaveData,
             newPlayerPendingOrders: validPlayerOrders, // Orders can be invalidated
             newAiPendingOrders: validAiOrders,
-            newRoutes: routesAfterDisasters,
+            newRoutes: routesAfterEffects,
             newCurrentTurn: currentTurn + 1,
-            newDisasterMarkers: remainingDisasterMarkers,
+            newEffectMarkers: remainingEffectMarkers,
             gameOverState,
             effectsToPlay,
             gameSessionId,
@@ -334,7 +333,8 @@ export const resolveTurn = (
 
     } catch (e) {
         if (e instanceof Error) {
-            return { error: `Resolver Error: ${e.message} \n ${e.stack}` };
+            return { error: `Resolver Error: ${e.message} 
+ ${e.stack}` };
         }
         return { error: `An unknown error occurred in the turn resolver.` };
     }
@@ -352,7 +352,7 @@ self.onmessage = (e: MessageEvent) => {
         state.mapData.forEach((cell: any) => {
             cell.center = deserializeVector3(cell.center);
         });
-        state.activeDisasterMarkers.forEach((marker: any) => {
+        (state.activeEffectMarkers || []).forEach((marker: any) => {
             marker.position = deserializeVector3(marker.position);
         });
 
@@ -364,7 +364,7 @@ self.onmessage = (e: MessageEvent) => {
             state.mapData,
             state.currentTurn,
             state.gameSessionId,
-            state.activeDisasterMarkers,
+            state.activeEffectMarkers,
             state.gameConfig,
             state.playerArchetypeKey,
             state.playerLegacyKey,

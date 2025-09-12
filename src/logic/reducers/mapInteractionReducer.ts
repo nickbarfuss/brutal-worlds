@@ -41,13 +41,13 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
 
     // --- NEW: Check for a nearby disaster marker first, regardless of cell type ---
     const clickedPos = cell.center;
-    for (const marker of state.activeDisasterMarkers) {
+    for (const marker of state.activeEffectMarkers) {
         // Using a slightly larger radius for easier clicking
         if (marker.position.distanceTo(clickedPos) < 3.0) { 
             return {
                 ...state,
                 selectedEnclaveId: null,
-                inspectedMapEntity: { type: 'disaster', id: marker.id },
+                inspectedMapEntity: { type: 'effect', id: marker.id },
             };
         }
     }

@@ -11,7 +11,7 @@ import { reducer as gameReducer, initialState, Action } from '@/logic/reducers';
 import { deserializeResolvedTurn, serializeGameStateForWorker } from '@/utils/threeUtils';
 import { calculateAIOrderChanges } from '@/logic/ai';
 import { getAssistMultiplierForEnclave } from '@/data/birthrightManager.ts';
-import { triggerNewDisaster } from '@/logic/disasterManager';
+
 
 
 // DEV NOTE: Remember to update metadata.json version for new features/fixes.
@@ -209,14 +209,14 @@ export const useGameEngine = () => {
       }, []);
 
     useEffect(() => {
-        if (state.latestDisaster) {
+        if (state.latestEffect) {
             const timerId = setTimeout(() => {
-                dispatch({ type: 'CLEAR_LATEST_DISASTER' });
+                dispatch({ type: 'CLEAR_LATEST_EFFECT' });
             }, 5100);
 
             return () => clearTimeout(timerId);
         }
-    }, [state.latestDisaster, dispatch]);
+    }, [state.latestEffect, dispatch]);
 
 
     const resolveTurn = useCallback(() => {
@@ -225,6 +225,7 @@ export const useGameEngine = () => {
         dispatch({ type: 'START_RESOLVING_TURN' });
         
         console.log('[useGameEngine] Sending state to worker:', state);
+        
         const serializableState = serializeGameStateForWorker({
             enclaveData: state.enclaveData,
             playerPendingOrders: state.playerPendingOrders,
@@ -233,7 +234,7 @@ export const useGameEngine = () => {
             mapData: state.mapData,
             currentTurn: state.currentTurn,
             gameSessionId: state.gameSessionId,
-            activeDisasterMarkers: state.activeDisasterMarkers,
+            activeEffectMarkers: state.activeEffectMarkers,
             gameConfig: state.gameConfig,
             playerArchetypeKey: state.playerArchetypeKey,
             playerLegacyKey: state.playerLegacyKey,
@@ -248,7 +249,7 @@ export const useGameEngine = () => {
         state.isResolvingTurn, 
         state.enclaveData, 
         state.mapData,
-        state.activeDisasterMarkers,
+        state.activeEffectMarkers,
         state.playerPendingOrders,
         state.aiPendingOrders,
         state.routes,
@@ -263,10 +264,10 @@ export const useGameEngine = () => {
         state.opponentHasHadFirstConquestDialog,
     ]);
     
-    const clearLatestDisaster = useCallback(() => dispatch({ type: 'CLEAR_LATEST_DISASTER' }), []);
+    const clearLatestEffect = useCallback(() => dispatch({ type: 'CLEAR_LATEST_EFFECT' }), []);
     
-    const triggerDisaster = useCallback((key: string) => {
-        dispatch({ type: 'TRIGGER_DISASTER', payload: key });
+    const triggerEffect = useCallback((key: string) => {
+        dispatch({ type: 'TRIGGER_EFFECT', payload: key });
     }, []);
     
     const setHoveredCellId = useCallback((id: number) => dispatch({ type: 'SET_HOVERED_CELL', payload: id }), []);
@@ -379,8 +380,8 @@ export const useGameEngine = () => {
         closeArchetypeSelection: () => setGamePhase('mainMenu'),
         goToMainMenu,
         togglePause,
-        clearLatestDisaster,
-        triggerDisaster,
+        clearLatestEffect,
+        triggerEffect,
         setHoveredCellId,
         handleMapClick,
         handleEnclaveDblClick,

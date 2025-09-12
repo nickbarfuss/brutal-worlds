@@ -3,6 +3,193 @@ import { GAME_CONFIG } from '@/data/config.ts';
 
 export type GameConfig = typeof GAME_CONFIG;
 
+export interface ForceDamageRule {
+    type: 'forceDamage';
+    payload: {
+        target: 'occupyingEnclave' | 'affectedEnclaves' | 'targetEnclave' | 'adjacentEnclaves';
+        damageType: 'percentage' | 'flat';
+        value: number | [number, number];
+    };
+}
+
+export interface RouteDisableRule {
+    type: 'routeDisable';
+    payload: {
+        target: 'affectedEnclaves' | 'global' | 'targetRoute' | 'seaRoutes';
+        duration: number;
+        chance?: number;
+    };
+}
+
+export interface RouteDestroyRule {
+    type: 'routeDestroy';
+    payload: {
+        target: 'affectedEnclaves' | 'targetEnclave';
+        chance?: number;
+    };
+}
+
+export interface StatModifierRule {
+    type: 'statModifier';
+    payload: {
+        target: 'affectedEnclaves' | 'targetEnclave';
+        stat: 'production' | 'combat' | 'attack_order_multiplier' | 'combat_bonus' | 'attack_order_force_bonus' | 'cannot_be_attacked';
+        value: number | boolean;
+        duration?: number | 'permanent';
+    };
+}
+
+export interface DissipateOnNoMoveTargetRule {
+    type: 'dissipateOnNoMoveTarget';
+}
+
+export interface ApplyAftermathOnChanceRule {
+    type: 'applyAftermathOnChance';
+    payload: {
+        target: 'affectedEnclaves';
+        chance: number;
+    };
+}
+
+export interface HideForceCountsRule {
+    type: 'hideForceCounts';
+    payload: {
+        target: 'opponent';
+        duration: number;
+    };
+}
+
+export interface GainForcesRule {
+    type: 'gainForces';
+    payload: {
+        target: 'capitalEnclave' | 'targetEnclave';
+        value: number;
+    };
+}
+
+export interface CancelOrderRule {
+    type: 'cancelOrder';
+    payload: {
+        target: 'targetEnclave' | 'incomingOrder';
+        orderType: 'Gambit' | 'Attack' | 'Assist';
+    };
+}
+
+export interface CreateRoutesRule {
+    type: 'createRoutes';
+    payload: {
+        target: 'targetEnclave';
+        count: number;
+        connectionType: 'nearestUnconnectedFriendly';
+    };
+}
+
+export interface SetForcesRule {
+    type: 'setForces';
+    payload: {
+        target: 'targetEnclave';
+        value: number;
+    };
+}
+
+export interface ConvertEnclaveRule {
+    type: 'convertEnclave';
+    payload: {
+        target: 'targetEnclave' | 'randomNeutralEnclave';
+        toOwner: 'friendly' | 'neutral';
+        forces?: number;
+    };
+}
+
+export interface SummonDisasterRule {
+    type: 'summonDisaster';
+    payload: {
+        target: 'targetEnclave';
+        disasterKey: 'any';
+    };
+}
+
+export interface LockOrderRule {
+    type: 'lockOrder';
+    payload: {
+        target: 'attackingEnclave';
+        duration: number;
+    };
+}
+
+export type Rule =
+    | ForceDamageRule
+    | RouteDisableRule
+    | RouteDestroyRule
+    | StatModifierRule
+    | DissipateOnNoMoveTargetRule
+    | ApplyAftermathOnChanceRule
+    | HideForceCountsRule
+    | GainForcesRule
+    | CancelOrderRule
+    | CreateRoutesRule
+    | SetForcesRule
+    | ConvertEnclaveRule
+    | SummonDisasterRule
+    | LockOrderRule;
+
+export interface EffectAssets {
+    key: string;
+    image: string;
+    sfxAlert?: string;
+    sfxImpact?: string;
+    sfxAftermath?: string;
+    vfxAlert?: string;
+    vfxImpact?: string;
+    vfxAftermath?: string;
+}
+
+export interface EffectUI {
+    name: string;
+    icon: string;
+    description: string;
+    assets: EffectAssets;
+}
+
+export interface EffectTargeting {
+    targetType: string; // e.g., 'Friendly Enclave', 'Self', 'Enemy Enclave', 'Route'
+    siteCount: number;
+}
+
+export interface EffectPhase {
+    name: string;
+    description: string;
+    effect?: string;
+    duration: number | [number, number] | 'Permanent';
+    radius: number | [number, number] | (() => number) | 'Global';
+    movement?: number | [number, number];
+    rules: Rule[];
+}
+
+export interface EffectLogic {
+    category?: 'Archetype' | 'Common';
+    playstyle?: 'Offensive' | 'Defensive' | 'Utility';
+    targeting?: EffectTargeting;
+
+    originCellType?: 'Area' | 'Void' | 'Area or Void';
+    siteCount?: number | [number, number];
+
+    archetype?: string;
+    legacy?: string;
+    availability?: number;
+
+    alert?: EffectPhase;
+    impact: EffectPhase;
+    aftermath?: EffectPhase;
+}
+
+export interface EffectProfile {
+    key: string;
+    ui: EffectUI;
+    logic: EffectLogic;
+}
+
+
 export type { Vector3 };
 
 // Static Profiles & Configurations
@@ -73,7 +260,7 @@ export interface WorldProfile {
     rifts: string[];
     expanses: string[];
   };
-  possibleDisasters: string[];
+  possibleEffects: string[];
   disasterChance: number;
   bloom?: {
     threshold: number;
@@ -95,47 +282,11 @@ export interface SfxPlayback {
   position?: Vector3;
 }
 
-export type DisasterRule = 
-    | { type: 'forceDamage', target: 'occupyingEnclave' | 'affectedEnclaves', damageType: 'percentage' | 'flat', value: number | [number, number] }
-    | { type: 'routeDisable', target: 'affectedEnclaves', duration: number, chance?: number }
-    | { type: 'routeDestroy', target: 'affectedEnclaves', chance: number }
-    | { type: 'statModifier', target: 'affectedEnclaves', stat: 'production' | 'combat', reduction: number }
-    | { type: 'dissipateOnNoMoveTarget' }
-    | { type: 'applyAftermathOnChance', target: 'affectedEnclaves', chance: number };
 
-export interface DisasterPhase {
-    name: string;
-    description: string;
-    duration: number | [number, number];
-    radius: number | [number, number] | (() => number);
-    movement: number | [number, number];
-    rules: DisasterRule[];
-}
 
-export interface DisasterProfile {
-  ui: {
-    name: string;
-    icon: string;
-    description: string;
-    assets: {
-        key: string;
-        image: string;
-        sfxAlert: string;
-        sfxImpact: string;
-        sfxAftermath: string;
-        vfxAlert: string;
-        vfxImpact: string;
-        vfxAftermath: string;
-    };
-  };
-  logic: {
-    originCellType: 'Area' | 'Void' | 'Area or Void';
-    siteCount: number | [number, number];
-    alert: DisasterPhase;
-    impact: DisasterPhase;
-    aftermath?: DisasterPhase;
-  };
-}
+
+
+
 
 export interface LegacyProfile {
     key: string;
@@ -163,21 +314,7 @@ export interface BirthrightProfile {
     rules: string;
 }
 
-export interface GambitProfile {
-    key: string;
-    name: string;
-    icon: string;
-    description: string;
-    target: string;
-    scope: string;
-    category: 'Archetype' | 'Common';
-    restriction: string;
-    availabilityTurn: number;
-    playstyle: 'Offensive' | 'Defensive' | 'Utility';
-    effect: string;
-    duration: string;
-    uses?: number;
-}
+
 export interface VfxProfile {
     url: string;
     width?: number;
@@ -214,7 +351,7 @@ export interface ScreenPosition {
 export type GamePhase = 'loading' | 'mainMenu' | 'archetypeSelection' | 'playing' | 'gameOver';
 export type GameOverState = 'none' | 'victory' | 'defeat';
 
-export type MapEntityType = 'enclave' | 'rift' | 'expanse' | 'domain' | 'disaster';
+export type MapEntityType = 'enclave' | 'rift' | 'expanse' | 'domain' | 'effect';
 export type InspectedMapEntity = { type: MapEntityType; id: number | string };
 
 export type InspectedEntity = 
@@ -302,11 +439,11 @@ export interface ActiveEffect {
   duration: number;
   maxDuration: number;
   phase: 'alert' | 'impact' | 'aftermath';
-  rules: DisasterRule[];
+  rules: Rule[];
   metadata?: any;
 }
 
-export interface ActiveDisasterMarker {
+export interface ActiveEffectMarker {
   id: string;
   profileKey: string;
   cellId: number;
@@ -315,7 +452,7 @@ export interface ActiveDisasterMarker {
   durationInPhase: number;
   radius: number;
   movement: number;
-  disasters: string[];
+  effects: string[];
   metadata?: {
     targetEnclaveIds?: number[];
     [key: string]: any;
@@ -392,8 +529,8 @@ export interface GameState {
     currentTurn: number;
     playerPendingOrders: PendingOrders;
     aiPendingOrders: PendingOrders;
-    latestDisaster: { profile: DisasterProfile; locationName: string } | null;
-    activeDisasterMarkers: ActiveDisasterMarker[];
+    latestEffect: { profile: EffectProfile; locationName: string } | null;
+    activeEffectMarkers: ActiveEffectMarker[];
     loadingMessage: string;
     currentWorld: WorldProfile | null;
     gameConfig: GameConfig;

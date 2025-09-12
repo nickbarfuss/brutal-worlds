@@ -1,29 +1,29 @@
 import React from 'react';
-import { ActiveDisasterMarker } from '@/types/game';
-import { DISASTER_PROFILES } from '@/data/disasters';
+import { ActiveEffectMarker } from '@/types/game';
+import { EFFECT_PROFILES } from '@/data/effects';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { getIconForEntityType } from '@/utils/entityUtils';
 
-interface DisasterInspectorProps {
-    marker: ActiveDisasterMarker;
+interface EffectInspectorProps {
+    marker: ActiveEffectMarker;
     onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerLeave: (e: React.PointerEvent<HTMLDivElement>) => void;
 }
 
-const DisasterInspector: React.FC<DisasterInspectorProps> = ({ marker, onPointerMove, onPointerLeave }) => {
-    // For overlapping disasters, we show info for the first one in the list.
-    const primaryProfile = DISASTER_PROFILES[marker.profileKey];
+const EffectInspector: React.FC<EffectInspectorProps> = ({ marker, onPointerMove, onPointerLeave }) => {
+    // For overlapping effects, we show info for the first one in the list.
+    const primaryProfile = EFFECT_PROFILES[marker.profileKey];
     if (!primaryProfile) return null;
 
     const phaseProfile = primaryProfile.logic[marker.currentPhase];
     if (!phaseProfile) return null;
 
-    const isCrisis = marker.disasters.length > 1;
+    const isCrisis = marker.effects.length > 1;
     const icon = isCrisis ? getIconForEntityType('disaster') : primaryProfile.ui.icon;
     
-    // For briefing cards, show phase-specific info for a single disaster.
-    const briefingProps = { type: 'disasterMarker' as const, key: marker.id };
+    // For briefing cards, show phase-specific info for a single effect.
+    const briefingProps = { type: 'effectMarker' as const, key: marker.id };
 
     return (
         <>
@@ -31,15 +31,15 @@ const DisasterInspector: React.FC<DisasterInspectorProps> = ({ marker, onPointer
                <Card.Header
                   icon={icon}
                   iconColorClass="text-amber-400"
-                  title="Disaster Site"
+                  title="Effect Zone"
               />
           </div>
           
           <div className="flex-grow overflow-y-auto no-scrollbar" onPointerMove={onPointerMove} onPointerLeave={onPointerLeave}>
-              <Card.Section title={isCrisis ? "Active Disasters" : "Active Phase"}>
+              <Card.Section title={isCrisis ? "Active Effects" : "Active Phase"}>
                  {isCrisis ? (
-                    marker.disasters.map(key => {
-                        const profile = DISASTER_PROFILES[key];
+                    marker.effects.map(key => {
+                        const profile = EFFECT_PROFILES[key];
                         if (!profile) return null;
                         const currentPhase = profile.logic[marker.currentPhase];
                         return (
@@ -51,7 +51,7 @@ const DisasterInspector: React.FC<DisasterInspectorProps> = ({ marker, onPointer
                                 subtitle={profile.ui.name}
                                 baseValue={marker.durationInPhase}
                                 valueType="duration"
-                                briefingProps={{ type: 'disasterProfile', key: key }}
+                                briefingProps={{ type: 'effectProfile', key: key }}
                             />
                         );
                     })
@@ -73,4 +73,4 @@ const DisasterInspector: React.FC<DisasterInspectorProps> = ({ marker, onPointer
     );
 };
 
-export default DisasterInspector;
+export default EffectInspector;

@@ -7,8 +7,8 @@ export const GAME_CONFIG = {
     CONQUEST_DIALOG_CHANCE: 0.5,
     QUICK_START: {
         enabled: true,
-        player1Archetype: 'first-sword',
-        player1Legacy: 'annihilation-doctrine',
+        player1Archetype: '', //first-sword
+        player1Legacy: '', //annihilation-doctrine
         player2Archetype: '',
         player2Legacy: '',
         worldKey: 'skull-sands',

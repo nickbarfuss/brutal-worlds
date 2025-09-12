@@ -1,25 +1,25 @@
 
 import React from 'react';
-import { Expanse, ActiveDisasterMarker, Enclave } from '@/types/game';
-import { DISASTER_PROFILES } from '@/data/disasters';
+import { Expanse, ActiveEffectMarker, Enclave } from '@/types/game';
+import { EFFECT_PROFILES } from '@/data/effects';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { getIconForEntityType } from '@/utils/entityUtils';
 
 interface ExpanseInspectorProps {
     entity: Expanse;
-    activeDisasterMarkers: ActiveDisasterMarker[];
+    activeEffectMarkers: ActiveEffectMarker[];
     enclaveData: { [id: number]: Enclave };
     onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerLeave: (e: React.PointerEvent<HTMLDivElement>) => void;
 }
 
-const ExpanseInspector: React.FC<ExpanseInspectorProps> = ({ entity, activeDisasterMarkers, enclaveData, onPointerMove, onPointerLeave }) => {
-    const activeMarker = activeDisasterMarkers.find(marker => marker.position.equals(entity.center));
+const ExpanseInspector: React.FC<ExpanseInspectorProps> = ({ entity, activeEffectMarkers, enclaveData, onPointerMove, onPointerLeave }) => {
+    const activeMarker = activeEffectMarkers.find(marker => marker.position.equals(entity.center));
       
     const nearbyEnclaves = Object.values(enclaveData).filter(e => e.center.distanceTo(entity.center) < 15);
     // Add enclaveId to each effect for constructing the briefing key
-    const aftermathEffects = nearbyEnclaves.flatMap(e => e.activeEffects.map(eff => ({...eff, enclaveId: e.id}))).filter(eff => eff.phase === 'aftermath');
+    const aftermathEffects = nearbyEnclaves.flatMap(e => e.activeEffects ? e.activeEffects.map(eff => ({...eff, enclaveId: e.id})) : []).filter(eff => eff.phase === 'aftermath');
     const uniqueAftermathKeys = [...new Set(aftermathEffects.map(eff => eff.profileKey))];
 
     const hasEffects = !!activeMarker || uniqueAftermathKeys.length > 0;
@@ -41,13 +41,13 @@ const ExpanseInspector: React.FC<ExpanseInspectorProps> = ({ entity, activeDisas
               </Card.Section>
               <Card.Section title="Effects" hasContent={hasEffects}>
                  {activeMarker && (() => {
-                    const profile = DISASTER_PROFILES[activeMarker.profileKey];
+                    const profile = EFFECT_PROFILES[activeMarker.profileKey];
                     if (!profile) return null;
                     // FIX: Find the first target enclave from metadata for briefing key
                     const firstTargetEnclaveId = activeMarker.metadata && activeMarker.metadata.targetEnclaveIds && activeMarker.metadata.targetEnclaveIds.length > 0 ? activeMarker.metadata.targetEnclaveIds[0] : null;
                     const briefingProps = firstTargetEnclaveId !== null
                         ? { type: 'effect' as const, key: `effect-${firstTargetEnclaveId}-${activeMarker.id}` }
-                        : { type: 'disasterProfile' as const, key: activeMarker.profileKey };
+                        : { type: 'effectProfile' as const, key: activeMarker.profileKey };
                     return (
                       <ChipCard
                           key={activeMarker.id}
@@ -58,14 +58,14 @@ const ExpanseInspector: React.FC<ExpanseInspectorProps> = ({ entity, activeDisas
                           baseValue={activeMarker.durationInPhase}
                           valueType="duration"
                           briefingProps={briefingProps}
-                          title={profile.logic.alert.name}
+                          title={profile.logic.impact.name}
                           subtitle={profile.ui.name}
                       />
                     );
                  })()}
                  {uniqueAftermathKeys.map(key => {
                       const effect = aftermathEffects.find(e => e.profileKey === key);
-                      const profile = DISASTER_PROFILES[key];
+                      const profile = EFFECT_PROFILES[key];
                       if (!effect || !profile || !profile.logic.aftermath) return null;
   
                       return (

@@ -75,7 +75,7 @@ interface MapRendererProps {
     selectedEnclaveId: number | null;
     hoveredCellId: number;
     currentWorld: WorldProfile | null;
-    activeDisasterMarkers: ActiveDisasterMarker[];
+    activeEffectMarkers: ActiveEffectMarker[];
     cameraFocusAnimation: { active: boolean; target: Vector3 } | null;
     initialCameraTarget: Vector3 | null;
     isBloomEnabled: boolean;
@@ -654,6 +654,7 @@ export const useWorldRenderer = (props: MapRendererProps) => {
                     const progress = Math.min((time - state.uiFadeInStartTime) / fadeInDuration, 1.0);
                     uiAlpha = (t => 1 - Math.pow(1 - t, 3))(progress);
                 }
+                
                 
                 drawUICanvas(uiContext, clockTime, currentProps as unknown as GameState, vfxManager, camera, mapContainer, activeHighlight, uiAlpha);
             }

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Enclave, MapCell, ActiveDisasterMarker, ActiveEffect, EffectQueueItem, SfxPlayback } from '@/types/game.ts';
+import { Enclave, MapCell, ActiveEffectMarker, ActiveEffect, EffectQueueItem, SfxPlayback } from '@/types/game.ts';
 
 interface PlainVector3 {
     x: number;
@@ -60,7 +60,7 @@ export const serializeGameStateForWorker = (payload: any) => {
             })
         ),
         
-        activeDisasterMarkers: (payload.activeDisasterMarkers || []).map((marker: ActiveDisasterMarker) => ({
+        activeEffectMarkers: (payload.activeEffectMarkers || []).map((marker: ActiveEffectMarker) => ({
             id: marker.id,
             profileKey: marker.profileKey,
             position: serializeVector3(marker.position),
@@ -69,7 +69,7 @@ export const serializeGameStateForWorker = (payload: any) => {
             durationInPhase: marker.durationInPhase,
             radius: marker.radius,
             movement: marker.movement,
-            disasters: marker.disasters,
+            effects: marker.effects,
             metadata: marker.metadata,
         })),
 
@@ -120,7 +120,7 @@ export const serializeResolvedTurn = (result: any) => {
             })
         ),
         
-        newDisasterMarkers: (result.newDisasterMarkers || []).map((marker: ActiveDisasterMarker) => ({
+        newEffectMarkers: (result.newEffectMarkers || []).map((marker: ActiveEffectMarker) => ({
             id: marker.id,
             profileKey: marker.profileKey,
             position: serializeVector3(marker.position),
@@ -129,7 +129,7 @@ export const serializeResolvedTurn = (result: any) => {
             durationInPhase: marker.durationInPhase,
             radius: marker.radius,
             movement: marker.movement,
-            disasters: marker.disasters,
+            effects: marker.effects,
             metadata: marker.metadata,
         })),
 
@@ -156,8 +156,8 @@ export const deserializeResolvedTurn = (result: any) => {
         });
     }
 
-    if (result.newDisasterMarkers) {
-        result.newDisasterMarkers.forEach((marker: ActiveDisasterMarker) => {
+    if (result.newEffectMarkers) {
+        result.newEffectMarkers.forEach((marker: ActiveEffectMarker) => {
             marker.position = deserializeVector3(marker.position as unknown as PlainVector3);
         });
     }
