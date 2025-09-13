@@ -168,7 +168,7 @@ export class SfxManager {
         }
         
         source.start();
-    }
+    };
     
     public playSpatialLoop(loopId: string, soundKey: string, channel: AudioChannel, position: Vector3): void {
         if (!this.hasUserInteracted || !this.audioContext) return;

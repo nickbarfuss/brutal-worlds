@@ -85,9 +85,9 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 },
                 dialog: {
                     alert: [
-                        'narrator-disaster-pyroclasm-dialog-alert-1',
-                        'narrator-disaster-pyroclasm-dialog-alert-2',
-                        'narrator-disaster-pyroclasm-dialog-alert-3',
+                        'narrator-disaster-pyroclasm-alert-1',
+                        'narrator-disaster-pyroclasm-alert-2',
+                        'narrator-disaster-pyroclasm-alert-3',
                     ],
                 }
             }
@@ -148,9 +148,9 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 },
                 dialog: {
                     alert: [
-                        'narrator-disaster-pyroclasm-dialog-alert-1',
-                        'narrator-disaster-pyroclasm-dialog-alert-2',
-                        'narrator-disaster-pyroclasm-dialog-alert-3',
+                        'narrator-disaster-pyroclasm-alert-1',
+                        'narrator-disaster-pyroclasm-alert-2',
+                        'narrator-disaster-pyroclasm-alert-3',
                     ],
                 }
             }
@@ -211,9 +211,9 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 },
                 dialog: {
                     alert: [
-                        'narrator-disaster-resonance-cascade-dialog-alert-1',
-                        'narrator-disaster-resonance-cascade-dialog-alert-2',
-                        'narrator-disaster-resonance-cascade-dialog-alert-3',
+                        'narrator-disaster-resonance-cascade-alert-1',
+                        'narrator-disaster-resonance-cascade-alert-2',
+                        'narrator-disaster-resonance-cascade-alert-3',
                     ],
                 }
             }
@@ -279,9 +279,9 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 },
                 dialog: {
                     alert: [
-                        'narrator-disaster-skyfall-shards-dialog-alert-1',
-                        'narrator-disaster-skyfall-shards-dialog-alert-2',
-                        'narrator-disaster-skyfall-shards-dialog-alert-3',
+                        'narrator-disaster-skyfall-shards-alert-1',
+                        'narrator-disaster-skyfall-shards-alert-2',
+                        'narrator-disaster-skyfall-shards-alert-3',
                     ],
                 }
             }

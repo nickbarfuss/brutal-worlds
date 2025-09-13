@@ -33,8 +33,8 @@ export type Action =
     | { type: 'AI_CLEAR_ORDERS' }
     | { type: 'TRIGGER_EFFECT'; payload: string }
     | { type: 'CLEAR_LATEST_EFFECT' }
-    | { type: 'PROCESS_EFFECT_QUEUE'; payload: { playedIds: string[] } }
     | { type: 'PLAY_VFX'; payload: { key: string; center: Vector3 } }
+    | { type: 'CLEAR_EFFECT_QUEUE' }
     | { type: 'PLAY_SFX'; payload: { key: string; channel: AudioChannel; position?: Vector3 } }
     | { type: 'CLEAR_VFX' }
     | { type: 'CLEAR_SFX' }

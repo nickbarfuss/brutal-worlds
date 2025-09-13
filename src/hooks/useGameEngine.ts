@@ -169,15 +169,17 @@ export const useGameEngine = () => {
                     dispatch({ type: 'APPLY_RESOLVED_TURN', payload: deserializedResult });
 
                     if (deserializedResult.effectsToPlay && deserializedResult.effectsToPlay.length > 0) {
-                        deserializedResult.effectsToPlay.forEach((effect, index) => {
-                            setTimeout(() => {
-                                if (effect.vfxKey && effect.position) {
-                                    dispatch({ type: 'PLAY_VFX', payload: { key: effect.vfxKey, center: effect.position } });
-                                }
-                                if (effect.sfx) {
-                                    dispatch({ type: 'PLAY_SFX', payload: effect.sfx });
-                                }
-                            }, index * 150);
+                        deserializedResult.effectsToPlay.forEach(effect => {
+                            if (effect.vfxKey && effect.position) {
+                                console.log(`[useGameEngine] Dispatching PLAY_VFX for key: ${effect.vfxKey}`);
+                                console.log(`[useGameEngine] Dispatching PLAY_VFX from worker result for key: ${effect.vfxKey}`);
+                                console.log(`[useGameEngine] Dispatching PLAY_VFX from worker result for key: ${effect.vfxKey}`);
+                                dispatch({ type: 'PLAY_VFX', payload: { key: effect.vfxKey, center: effect.position } });
+                            }
+                            if (effect.sfx) {
+                                console.log(`[useGameEngine] Dispatching PLAY_SFX for key: ${effect.sfx.key}, channel: ${effect.sfx.channel}`);
+                                dispatch({ type: 'PLAY_SFX', payload: effect.sfx });
+                            }
                         });
                     }
                 } catch (error) {
@@ -341,6 +343,23 @@ export const useGameEngine = () => {
             setTimeout(() => dispatch({ type: 'CLEAR_SFX' }), 0);
         }
     }, [state.sfxToPlay, dispatch]);
+
+    // Effect to process the effectQueue (for newly triggered effects)
+    useEffect(() => {
+        if (state.effectQueue.length > 0) {
+            state.effectQueue.forEach(effect => {
+                if (effect.vfxKey && effect.position) {
+                    console.log(`[useGameEngine] Dispatching PLAY_VFX from effectQueue for key: ${effect.vfxKey}`);
+                    dispatch({ type: 'PLAY_VFX', payload: { key: effect.vfxKey, center: effect.position } });
+                }
+                if (effect.sfx) {
+                    console.log(`[useGameEngine] Dispatching PLAY_SFX from effectQueue for key: ${effect.sfx.key}, channel: ${effect.sfx.channel}`);
+                    dispatch({ type: 'PLAY_SFX', payload: effect.sfx });
+                }
+            });
+            dispatch({ type: 'CLEAR_EFFECT_QUEUE' });
+        }
+    }, [state.effectQueue, dispatch]);
 
     useEffect(() => {
         if (state.isIntroComplete && state.gamePhase === 'playing' && state.currentTurn === 0) {

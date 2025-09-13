@@ -1,12 +1,22 @@
 import * as THREE from 'three';
-import { VfxProfile, ActiveVfx } from '@/types/game';
-import { getAssetUrl } from '@/utils/assetUtils';
-import { VFX_PROFILES } from '@/data/vfx';
+import { VfxProfile, VFX_PROFILES } from '../data/vfx';
+import { getAssetUrl } from '../utils/assetUtils';
+
+interface ActiveEffect {
+    key: string;
+    video: HTMLVideoElement;
+    worldPosition: THREE.Vector3;
+    width: number;
+    height: number;
+}
 
 export class VfxManager {
+    private isInitialized: boolean = false;
     private preloadedVideos: { [key: string]: HTMLVideoElement } = {};
-    private activeEffects: ActiveVfx[] = [];
-    private isInitialized = false;
+    private activeEffects: ActiveEffect[] = [];
+
+    // Constructor can be used for dependency injection if needed
+    constructor() {}
 
     public async init(profiles: { [key: string]: VfxProfile }): Promise<void> {
         if (this.isInitialized) return;
