@@ -43,7 +43,7 @@ export const resolveAttacks = (
         if (!origin || !origin.owner) return;
 
         const safeForces = Number.isFinite(origin.forces) ? origin.forces : 0;
-        const unitsLeaving = Math.ceil(safeForces * 0.35);
+        const unitsLeaving = Math.ceil(safeForces * gameConfig.ATTACK_RATE);
 
         if (unitsLeaving > 0 && safeForces >= unitsLeaving) {
             forcesLeaving[fromId] = unitsLeaving;

@@ -4,6 +4,7 @@ export const GAME_CONFIG = {
     MULTIPLE_STARTING_TERRITORIES: true,
     FORCE_ADJACENT_START: true,
     FORCE_SUPPLY_CAP: 50,
+    ATTACK_RATE: 0.35,
     CONQUEST_DIALOG_CHANCE: 0.5,
     QUICK_START: {
         enabled: true,

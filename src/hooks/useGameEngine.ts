@@ -188,7 +188,6 @@ export const useGameEngine = () => {
 
                     const deserializedResult = deserializeResolvedTurn(result);
                     
-                    console.log('useGameEngine: Received effectsToPlay from worker', deserializedResult.effectsToPlay);
                     dispatch({ type: 'APPLY_RESOLVED_TURN', payload: deserializedResult });
 
                     if (deserializedResult.effectsToPlay && deserializedResult.effectsToPlay.length > 0) {
@@ -343,17 +342,13 @@ export const useGameEngine = () => {
 
     // Effect to process the effectQueue (for newly triggered effects)
     useEffect(() => {
-        console.log('useGameEngine: effectQueue changed', state.effectQueue);
         if (state.effectQueue.length > 0) {
             const playedEffectIds: string[] = [];
             state.effectQueue.forEach(effect => {
-                console.log('useGameEngine: Processing effect from queue', effect);
                 if (effect.vfxKey && effect.position) {
-                    console.log('useGameEngine: Playing VFX', effect.vfxKey, effect.position);
                     vfxManager.current.playEffect(effect.vfxKey, effect.position);
                 }
                 if (effect.sfx) {
-                    console.log('useGameEngine: Playing SFX', effect.sfx.key, effect.sfx.channel, effect.sfx.position);
                     sfxManager.current.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
                 }
                 playedEffectIds.push(effect.id); // Collect IDs of played effects

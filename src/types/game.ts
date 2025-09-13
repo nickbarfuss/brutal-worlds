@@ -281,6 +281,55 @@ export interface WorldProfile {
   };
   tonemappingStrength?: number;
 }
+
+export interface StarfieldLayerConfig {
+  count: number;
+  radiusMultiplier: number;
+  baseSize: number;
+}
+
+export interface StarfieldConfig {
+  milkyWayDensityRatio: number;
+  layer1: StarfieldLayerConfig;
+  layer2: StarfieldLayerConfig;
+}
+
+export interface WorldProfile {
+  key: string;
+  name: string;
+  description: string;
+  illustrationUrl: string;
+  icon: string;
+  config: WorldConfig;
+  nebula: {
+    main: NebulaConfig;
+    wispy: NebulaConfig;
+  };
+  sunColor: string;
+  sunScale: number;
+  worldColor: string;
+  atmosphereColor: string;
+  worldColorTheme: WorldColorTheme;
+  neutralColorPalette: SemanticColorPalette;
+  names: {
+    domains: {
+      name: string;
+      strength: number;
+      enclaves: { name: string }[];
+    }[];
+    rifts: string[];
+    expanses: string[];
+  };
+  possibleEffects: string[];
+  disasterChance: number;
+  starfield: StarfieldConfig;
+  bloom?: {
+    threshold: number;
+    strength: number;
+    radius: number;
+  };
+  tonemappingStrength?: number;
+}
 export interface OrderProfile {
     name: string;
     icon: string;
