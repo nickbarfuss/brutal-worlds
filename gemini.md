@@ -32,6 +32,16 @@ We have encountered race conditions where a `useEffect` to play a sound runs bef
 
 This pattern makes the data flow explicit and guarantees that the manager's configuration is synchronized with the application state at the exact moment it becomes ready.
 
+### 4. Direct Effect Playback from `effectQueue`
+
+To ensure timely and singular playback of sound (SFX) and visual effects (VFX) and to prevent issues like duplicate plays or timing discrepancies, effects originating from the `effectQueue` (populated by the web worker) should directly trigger the `SfxManager` and `VfxManager`.
+
+**The Anti-Pattern to Avoid:**
+Do not dispatch intermediate Redux actions (e.g., `PLAY_VFX`, `PLAY_SFX`) that then update state variables (e.g., `state.vfxToPlay`, `state.sfxToPlay`) which are subsequently listened to by `useEffect` hooks to call the managers. This creates unnecessary indirection, potential for race conditions, and can lead to duplicate playback if the `useEffect` triggers multiple times before the state is cleared.
+
+**The Solution Pattern:**
+When processing the `effectQueue` within `useGameEngine`, directly call `sfxManager.current.playSound()` and `vfxManager.current.playEffect()` with the appropriate effect data. This ensures that effects are played immediately upon being processed from the queue, simplifying the data flow and reducing potential timing issues.
+
 
 ## Web Worker Communication
 

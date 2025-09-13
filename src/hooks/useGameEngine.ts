@@ -330,31 +330,19 @@ export const useGameEngine = () => {
         }
     }, [state.volumes, state.mutedChannels, state.isGloballyMuted]);
 
-    useEffect(() => {
-        if (state.vfxToPlay) {
-            vfxManager.current.playEffect(state.vfxToPlay.key, state.vfxToPlay.center);
-            setTimeout(() => dispatch({ type: 'CLEAR_VFX' }), 0);
-        }
-    }, [state.vfxToPlay, dispatch]);
     
-    useEffect(() => {
-        if (state.sfxToPlay) {
-            sfxManager.current.playSound(state.sfxToPlay.key, state.sfxToPlay.channel, state.sfxToPlay.position);
-            setTimeout(() => dispatch({ type: 'CLEAR_SFX' }), 0);
-        }
-    }, [state.sfxToPlay, dispatch]);
 
     // Effect to process the effectQueue (for newly triggered effects)
     useEffect(() => {
         if (state.effectQueue.length > 0) {
             state.effectQueue.forEach(effect => {
                 if (effect.vfxKey && effect.position) {
-                    console.log(`[useGameEngine] Dispatching PLAY_VFX from effectQueue for key: ${effect.vfxKey}`);
-                    dispatch({ type: 'PLAY_VFX', payload: { key: effect.vfxKey, center: effect.position } });
+                    console.log(`[useGameEngine] Directly playing VFX from effectQueue for key: ${effect.vfxKey}`);
+                    vfxManager.current.playEffect(effect.vfxKey, effect.position);
                 }
                 if (effect.sfx) {
-                    console.log(`[useGameEngine] Dispatching PLAY_SFX from effectQueue for key: ${effect.sfx.key}, channel: ${effect.sfx.channel}`);
-                    dispatch({ type: 'PLAY_SFX', payload: effect.sfx });
+                    console.log(`[useGameEngine] Directly playing SFX from effectQueue for key: ${effect.sfx.key}, channel: ${effect.sfx.channel}`);
+                    sfxManager.current.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
                 }
             });
             dispatch({ type: 'CLEAR_EFFECT_QUEUE' });

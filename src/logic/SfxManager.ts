@@ -117,7 +117,9 @@ export class SfxManager {
     }
 
     public async playSound(key: string | string[], channel: AudioChannel = 'fx', position?: Vector3): Promise<void> {
+        console.log(`[SfxManager] Attempting to play sound: ${key}, channel: ${channel}, position: ${position ? JSON.stringify(position) : 'none'}`);
         if (!this.hasUserInteracted || !this.audioContext) {
+            console.log(`[SfxManager] Play sound aborted: User not interacted or audio context not available.`);
             return;
         }
         
@@ -131,7 +133,7 @@ export class SfxManager {
         const fullKey = this.getFullKey(selectedKey, channel);
         const buffer = this.decodedBuffers.get(fullKey);
         if (!buffer) {
-            console.warn(`Sound buffer not found for key: ${selectedKey} (resolved to ${fullKey})`);
+            console.warn(`[SfxManager] Sound buffer not found for key: ${selectedKey} (resolved to ${fullKey}). Playback aborted.`);
             return;
         }
 
@@ -139,7 +141,10 @@ export class SfxManager {
         source.buffer = buffer;
         
         const channelGain = this.channelGains.get(channel);
-        if (!channelGain) return;
+        if (!channelGain) {
+            console.warn(`[SfxManager] Channel gain not found for channel: ${channel}. Playback aborted.`);
+            return;
+        }
 
         if (channel === 'fx' && position) {
             const panner = this.audioContext.createPanner();
@@ -161,6 +166,7 @@ export class SfxManager {
             this.activeSpatialSounds.push({ panner, position, source });
             source.onended = () => {
                 this.activeSpatialSounds = this.activeSpatialSounds.filter(s => s.source !== source);
+                console.log(`[SfxManager] Spatial sound ended for key: ${selectedKey}`);
             };
 
         } else {
@@ -168,18 +174,24 @@ export class SfxManager {
         }
         
         source.start();
+        console.log(`[SfxManager] Successfully started playback for: ${fullKey}`);
     };
     
     public playSpatialLoop(loopId: string, soundKey: string, channel: AudioChannel, position: Vector3): void {
-        if (!this.hasUserInteracted || !this.audioContext) return;
+        console.log(`[SfxManager] Attempting to play spatial loop: ${loopId}, soundKey: ${soundKey}, channel: ${channel}, position: ${JSON.stringify(position)}`);
+        if (!this.hasUserInteracted || !this.audioContext) {
+            console.log(`[SfxManager] Play spatial loop aborted: User not interacted or audio context not available.`);
+            return;
+        }
 
         if (this.activeSpatialLoops.has(loopId)) {
+            console.log(`[SfxManager] Spatial loop with ID ${loopId} already active, stopping existing loop.`);
             this.stopSpatialLoop(loopId);
         }
 
         const buffer = this.decodedBuffers.get(soundKey);
         if (!buffer) {
-            console.warn(`Sound buffer not found for key: ${soundKey}`);
+            console.warn(`[SfxManager] Sound buffer not found for spatial loop key: ${soundKey}. Playback aborted.`);
             return;
         }
 
@@ -201,13 +213,17 @@ export class SfxManager {
         panner.positionZ.value = position.z;
 
         const channelGain = this.channelGains.get(channel);
-        if (!channelGain) return;
+        if (!channelGain) {
+            console.warn(`[SfxManager] Channel gain not found for channel: ${channel}. Spatial loop playback aborted.`);
+            return;
+        }
 
         source.connect(panner);
         panner.connect(channelGain);
         source.start();
 
         this.activeSpatialLoops.set(loopId, { source, panner, position });
+        console.log(`[SfxManager] Successfully started spatial loop: ${loopId} for sound: ${soundKey}`);
     }
 
     public stopSpatialLoop(loopId: string): void {
