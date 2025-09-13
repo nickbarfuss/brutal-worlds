@@ -124,7 +124,7 @@ export const processEffectMarkers = (
         if (sideEffect.type === 'PLAY_VFX_SFX') {
             // Push the side effect directly to effectsToPlay for the main thread to handle VFX/SFX
             effectsToPlay.push({
-                id: `vfx-sfx-${Date.now()}-${Math.random()}`, // Generate a unique ID
+                id: `vfx-sfx-${Date.now()}-${Math.random()}`,
                 vfxKey: sideEffect.vfxKey,
                 sfx: sideEffect.sfx,
                 position: sideEffect.position,
@@ -313,53 +313,6 @@ export const resolveTurn = (
         );
         const allValidOrders = { ...validPlayerOrders, ...validAiOrders };
 
-        console.log('Turn Resolver: validAiOrders', validAiOrders);
-
-        // Helper to queue order effects
-        const queueOrderEffects = (order: Order, fromEnclave: Enclave, effectsToPlay: EffectQueueItem[]) => {
-            let sfxKey: string | undefined;
-            let vfxKey: string | undefined;
-
-            switch (order.type) {
-                case 'attack':
-                    sfxKey = `order-attack-${Math.floor(Math.random() * 4) + 1}`;
-                    vfxKey = 'order-attack';
-                    break;
-                case 'assist':
-                    sfxKey = `order-assist-${Math.floor(Math.random() * 4) + 1}`;
-                    vfxKey = 'order-assist';
-                    break;
-                case 'hold':
-                    sfxKey = `order-hold-${Math.floor(Math.random() * 6) + 1}`;
-                    vfxKey = 'order-holding';
-                    break;
-            }
-
-            if (sfxKey || vfxKey) {
-                const effectItem = {
-                    id: `order-effect-${fromEnclave.id}-${order.type}-${Date.now()}`,
-                    sfx: sfxKey ? { key: sfxKey, channel: 'fx', position: fromEnclave.center } : undefined,
-                    vfxKey: vfxKey,
-                    position: fromEnclave.center,
-                };
-                effectsToPlay.push(effectItem);
-                console.log('Turn Resolver: Queued AI Order Effect', effectItem);
-            }
-        };
-
-        // --- Queue AI Order Effects ---
-        for (const enclaveIdStr in validAiOrders) {
-            const enclaveId = parseInt(enclaveIdStr, 10);
-            const order = validAiOrders[enclaveId];
-            const fromEnclave = enclavesAfterEffects.get(enclaveId);
-            console.log(`Turn Resolver: Processing AI Order for enclave ${enclaveId}`, { order, fromEnclave });
-            if (order && fromEnclave) {
-                queueOrderEffects(order, fromEnclave, effectsToPlay);
-            }
-        }
-
-        console.log('Turn Resolver: effectsToPlay before return', effectsToPlay);
-
         // --- 3. Order Resolution Pipeline ---
         const enclavesAfterHolding = resolveHolding(enclavesAfterEffects, allValidOrders, routesAfterEffects, gameConfig);
         const enclavesAfterAssists = resolveAssists(enclavesAfterHolding, allValidOrders, gameConfig);
@@ -369,66 +322,8 @@ export const resolveTurn = (
         
         let finalEnclavesMap = enclavesAfterAttacks;
 
-        // --- 4. Conquest Dialog Logic ---
-        let newPlayerHasHadFirstConquestDialog = playerHasHadFirstConquestDialog;
-        let newOpponentHasHadFirstConquestDialog = opponentHasHadFirstConquestDialog;
         const playerConquestsThisTurn = conquestEvents.filter(c => c.conqueror === 'player-1').length;
         const opponentConquestsThisTurn = conquestEvents.filter(c => c.conqueror === 'player-2').length;
-
-        if (playerConquestsThisTurn > 0 || opponentConquestsThisTurn > 0) {
-            let dialogWinner: Player | null = null;
-            if (playerConquestsThisTurn > opponentConquestsThisTurn) {
-                dialogWinner = 'player-1';
-            } else if (opponentConquestsThisTurn > playerConquestsThisTurn) {
-                dialogWinner = 'player-2';
-            } else if (playerConquestsThisTurn > 0 || opponentConquestsThisTurn > 0) {
-                dialogWinner = 'player-1'; // Player wins ties
-            }
-
-            if (dialogWinner) {
-                const winnerHasHadFirstDialog = dialogWinner === 'player-1' ? newPlayerHasHadFirstConquestDialog : newOpponentHasHadFirstConquestDialog;
-                const shouldPlayDialog = !winnerHasHadFirstDialog || Math.random() < gameConfig.CONQUEST_DIALOG_CHANCE;
-
-                if (shouldPlayDialog) {
-                    const conquestEvent = conquestEvents.find(c => c.conqueror === dialogWinner);
-                    if (conquestEvent) {
-                        const randomDialogIndex = Math.floor(Math.random() * 5) + 1; // 1-5
-                        const dialogSfxKey = `${conquestEvent.archetypeKey}-${conquestEvent.legacyKey}-conquest-${randomDialogIndex}`;
-                        const enclave = finalEnclavesMap.get(conquestEvent.enclaveId);
-                        if (enclave) {
-                            const dummyProfile: EffectProfile = {
-                                key: 'conquest-dialog', // Dummy key
-                                ui: {
-                                    name: 'Conquest Dialog',
-                                    icon: '', // Not used
-                                    description: '', // Not used
-                                    assets: {
-                                        key: 'conquest-dialog-assets', // Dummy key
-                                        image: '', // Not used
-                                        dialog: {
-                                            impact: dialogSfxKey, // Using 'impact' as a generic phase for this one-off dialog
-                                        },
-                                    },
-                                },
-                                logic: {
-                                    impact: { // Dummy logic for impact phase
-                                        name: '', description: '', duration: 1, radius: 0, rules: [],
-                                    },
-                                },
-                            };
-                            queueEffectAssets(dummyProfile, 'impact', enclave.center, effectsToPlay);
-                        }
-                    }
-                }
-                // Always set the flag to true if a conquest occurred for this player,
-                // regardless of whether dialog was played this turn.
-                if (dialogWinner === 'player-1') {
-                    newPlayerHasHadFirstConquestDialog = true;
-                } else {
-                    newOpponentHasHadFirstConquestDialog = true;
-                }
-            }
-        }
 
         // --- 5. Game Over Check ---
         const finalEnclaves = Array.from(finalEnclavesMap.values());
@@ -441,7 +336,6 @@ export const resolveTurn = (
         // Convert Map back to object for serialization
         const newEnclaveData = Object.fromEntries(finalEnclavesMap.entries());
 
-        console.log('Turn Resolver: Final effectsToPlay', effectsToPlay);
         return {
             newEnclaveData,
             newPlayerPendingOrders: validPlayerOrders, // Orders can be invalidated
@@ -454,8 +348,8 @@ export const resolveTurn = (
             gameSessionId,
             playerConquestsThisTurn,
             opponentConquestsThisTurn,
-            playerHasHadFirstConquestDialog: newPlayerHasHadFirstConquestDialog,
-            opponentHasHadFirstConquestDialog: newOpponentHasHadFirstConquestDialog,
+            playerHasHadFirstConquestDialog,
+            opponentHasHadFirstConquestDialog,
         };
 
     } catch (e) {
@@ -512,4 +406,3 @@ self.onmessage = (e: MessageEvent) => {
         }
     }
 };
-
