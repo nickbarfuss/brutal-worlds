@@ -3,6 +3,7 @@ import { ARCHETYPES } from '@/data/archetypes';
 import { PlayerIdentifier } from '@/types/game';
 import { THEME_CONFIG } from '@/data/theme';
 import { getAssetUrl } from '@/utils/assetUtils';
+import { getArchetypeAvatarUrl } from '@/data/img';
 
 interface ArchetypeAvatarProps {
   owner: PlayerIdentifier;
@@ -24,7 +25,7 @@ const ArchetypeAvatar: React.FC<ArchetypeAvatarProps> = ({ owner, archetypeKey, 
 
   // Image URL
   const imageUrl = archetype && legacy 
-    ? getAssetUrl(`https://storage.googleapis.com/brutal-worlds/archetype/${archetype.key}-${legacy.key}.png`)
+    ? getArchetypeAvatarUrl(archetype.key, legacy.key)
     : null;
     
   // Fallback and legacy icons

@@ -6,7 +6,7 @@ import { handleMapInteraction } from '@/logic/reducers/mapInteractionReducer';
 import { handleTurnLogic } from '@/logic/reducers/turnLogicReducer';
 import { handleEffects } from '@/logic/reducers/effectReducer';
 import { handleFx } from '@/logic/reducers/vfxReducer';
-import { handleUi } from '@/logic/reducers/uiReducer';
+import { handleUi } from '@/logic/reducers/uiReducer'; 
 
 export type Action =
     | { type: 'SET_INITIALIZATION_STATE'; payload: { isInitialized: boolean; message: string; error: string | null } }

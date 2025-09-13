@@ -322,7 +322,7 @@ export interface WorldProfile {
   };
   possibleEffects: string[];
   disasterChance: number;
-  starfield: StarfieldConfig;
+  //starfield: StarfieldConfig; // Uncomment if starfield needed. Attempted to define and introduce concept but never completed.
   bloom?: {
     threshold: number;
     strength: number;

@@ -8,21 +8,25 @@ export const GAME_CONFIG = {
     CONQUEST_DIALOG_CHANCE: 0.5,
     QUICK_START: {
         enabled: true,
-        player1Archetype: '', //first-sword
-        player1Legacy: '', //annihilation-doctrine
+        player1Archetype: '',
+        player1Legacy: '',
         player2Archetype: '',
         player2Legacy: '',
-        worldKey: 'skull-sands',
+        worldKey: '',
     },
     DISASTER_TESTING: {
         enabled: true,
         disasterKey: 'entropy-wind',
         triggerOnTurn: 2,
     },
+    
+    // Audio settings and defaults
     AUDIO_DEFAULTS: {
         volumes: { fx: 0.7, ambient: 0.5, music: 0.6, ui: 0.6, dialog: 0.8 },
         mutedChannels: { fx: false, ambient: true, music: true, ui: false, dialog: false },
     },
+    
+    // Visual settings and post-processing defaults
     VISUAL_DEFAULTS: {
         enableBloom: true,
         bloomSettings: { threshold: 0.5, strength: 0.5, radius: 1.0 },
@@ -36,4 +40,18 @@ export const GAME_CONFIG = {
         playVfxFromPreviousTurns: true,
         stackVfx: false,
     },
+    
+    // Standard world generation config used as a base for all worlds
+    WORLD_STANDARD_CONFIG: {
+        seed: 0,
+        SPHERE_RADIUS: 10, NUM_POINTS: 1500,
+        LAND_COVERAGE_MIN: 0.25, LAND_COVERAGE_MAX: 0.50,
+        ISLAND_DOMAINS_MIN: 1, ISLAND_DOMAINS_MAX: 3, PENINSULA_CHANCE: 0.35,
+        ENCLAVE_SIZE_MIN: 8, ENCLAVE_SIZE_MAX: 15,
+        RIFT_THRESHOLD: 50, EXPANSE_MAX_SIZE: 300,
+        EXPANSE_COUNT_MIN: 1, EXPANSE_COUNT_MAX: 5,
+        DOMAIN_TOUCH_CHANCE: 0.25,
+        
+    },
+    
 }
