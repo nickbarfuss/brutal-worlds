@@ -7,7 +7,7 @@ import WorldInspector from '@/components/inspector/WorldInspector';
 import DomainInspector from '@/components/inspector/DomainInspector';
 import RiftInspector from '@/components/inspector/RiftInspector';
 import ExpanseInspector from '@/components/inspector/ExpanseInspector';
-import { GAME_CONFIG as GameConfig } from '@/data/config';
+import { CONFIG as GameConfig } from '@/data/config';
 import EffectInspector from '@/components/inspector/EffectInspector';
 import ArchetypeInspector from '@/components/inspector/ArchetypeInspector';
 

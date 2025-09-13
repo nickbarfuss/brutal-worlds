@@ -7,7 +7,7 @@ import { DISASTER_PROFILES } from '@/data/disasters';
 import { WORLD_LIBRARY } from '@/data/worlds';
 import { ARCHETYPES } from '@/data/archetypes';
 import { GamePhase, Enclave, Route, MapCell, PendingOrders } from '@/types/game';
-import { GAME_CONFIG } from '@/data/config';
+import { CONFIG } from '@/data/config';
 // import { resolveTurn } from '@/logic/turnResolver'; // This was causing an error
 import { generateNewWorld } from '@/hooks/useWorldGenerator';
 import { getAssetUrl } from '@/utils/assetUtils';

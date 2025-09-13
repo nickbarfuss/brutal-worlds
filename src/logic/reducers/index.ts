@@ -1,5 +1,5 @@
 import { GameState, GamePhase, InspectedEntity, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, PlayerIdentifier, InspectedMapEntity, EffectQueueItem } from '@/types/game';
-import { GAME_CONFIG } from '@/data/config';
+import { CONFIG } from '@/data/config';
 import { handleInitialization } from '@/logic/reducers/initializationReducer';
 import { handleGameFlow } from '@/logic/reducers/gameFlowReducer';
 import { handleMapInteraction } from '@/logic/reducers/mapInteractionReducer';
@@ -54,7 +54,7 @@ export const initialState: GameState = {
     planetName: '', isInitialized: false, error: null, currentTurn: 0, 
     playerPendingOrders: {}, aiPendingOrders: {},
     latestEffect: null, activeEffectMarkers: [],
-    loadingMessage: 'Initializing', currentWorld: null, gameConfig: GAME_CONFIG, gamePhase: 'loading',
+    loadingMessage: 'Initializing', currentWorld: null, gameConfig: CONFIG, gamePhase: 'loading',
     gameSessionId: 0,
     playerArchetypeKey: null, playerLegacyKey: null, playerLegacyIndex: null, opponentArchetypeKey: null, opponentLegacyKey: null, opponentLegacyIndex: null, 
     playerHasHadFirstConquestDialog: false,
@@ -72,15 +72,15 @@ export const initialState: GameState = {
     isResolvingTurn: false,
     gameOverState: 'none',
     isGloballyMuted: false,
-    volumes: GAME_CONFIG.AUDIO_DEFAULTS.volumes,
-    mutedChannels: GAME_CONFIG.AUDIO_DEFAULTS.mutedChannels,
-    isBloomEnabled: GAME_CONFIG.VISUAL_DEFAULTS.enableBloom,
-    bloomSettings: GAME_CONFIG.VISUAL_DEFAULTS.bloomSettings,
-    materialSettings: GAME_CONFIG.VISUAL_DEFAULTS.materialSettings,
-    ambientLightIntensity: GAME_CONFIG.VISUAL_DEFAULTS.ambientLightIntensity,
-    tonemappingStrength: GAME_CONFIG.VISUAL_DEFAULTS.tonemappingStrength,
-    playVfxFromPreviousTurns: GAME_CONFIG.VISUAL_DEFAULTS.playVfxFromPreviousTurns,
-    stackVfx: GAME_CONFIG.VISUAL_DEFAULTS.stackVfx,
+    volumes: CONFIG.AUDIO_DEFAULTS.volumes,
+    mutedChannels: CONFIG.AUDIO_DEFAULTS.mutedChannels,
+    isBloomEnabled: CONFIG.VISUAL_DEFAULTS.enableBloom,
+    bloomSettings: CONFIG.VISUAL_DEFAULTS.bloomSettings,
+    materialSettings: CONFIG.VISUAL_DEFAULTS.materialSettings,
+    ambientLightIntensity: CONFIG.VISUAL_DEFAULTS.ambientLightIntensity,
+    tonemappingStrength: CONFIG.VISUAL_DEFAULTS.tonemappingStrength,
+    playVfxFromPreviousTurns: CONFIG.VISUAL_DEFAULTS.playVfxFromPreviousTurns,
+    stackVfx: CONFIG.VISUAL_DEFAULTS.stackVfx,
 };
 
 export const reducer = (state: GameState, action: Action): GameState => {

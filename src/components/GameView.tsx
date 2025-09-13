@@ -7,7 +7,7 @@ import MainScreen from '@/components/MainScreen';
 import GameScreen from '@/components/GameScreen';
 import Backdrop from '@/components/ui/Backdrop';
 import { AudioChannel } from '@/types/game';
-import { GAME_CONFIG } from '@/data/config';
+import { CONFIG } from '@/data/config';
 import { ARCHETYPES } from '@/data/archetypes';
 import { WORLD_LIBRARY } from '@/data/worlds';
 
@@ -66,8 +66,8 @@ const GameView: React.FC = () => {
         engine.sfxManager.playLoopIfNotPlaying('music');
     
         // Open the dialog.
-        if (GAME_CONFIG.QUICK_START.enabled) {
-            const { player1Archetype, player1Legacy, player2Archetype, player2Legacy, worldKey } = GAME_CONFIG.QUICK_START;
+        if (CONFIG.QUICK_START.enabled) {
+            const { player1Archetype, player1Legacy, player2Archetype, player2Legacy, worldKey } = CONFIG.QUICK_START;
     
             const archetypeKeys = Object.keys(ARCHETYPES);
             const worldKeys = WORLD_LIBRARY.map(w => w.key);

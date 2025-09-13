@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { GamePhase, WorldProfile } from '@/types/game';
-import { GAME_CONFIG } from '@/data/config';
+import { CONFIG } from '@/data/config';
 
 export const useGameLoop = (
     isPaused: boolean,
@@ -67,7 +67,7 @@ export const useGameLoop = (
             }
 
             const elapsed = timestamp - turnStartTimeRef.current;
-            if (elapsed >= GAME_CONFIG.TURN_DURATION * 1000) {
+            if (elapsed >= CONFIG.TURN_DURATION * 1000) {
                 resolveTurn(); // Call resolveTurn
                 // Do NOT set turnStartTimeRef.current to Infinity here.
                 // It will be reset to the current timestamp when isResolvingTurn becomes false.

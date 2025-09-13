@@ -1,10 +1,11 @@
 import { SfxProfile, SfxCategoryName } from '@/types/game';
+import { CONFIG } from '@/data/config.ts';
 
-const DIALOG_BASE_URL = 'https://storage.googleapis.com/brutal-worlds/dialog';
-const SFX_BASE_URL = 'https://storage.googleapis.com/brutal-worlds/sfx';
-const MUSIC_BASE_URL = 'https://storage.googleapis.com/brutal-worlds/music';
-const AMBIENT_BASE_URL = 'https://storage.googleapis.com/brutal-worlds/ambient';
-const UI_BASE_URL = 'https://storage.googleapis.com/brutal-worlds/sfx';
+const DIALOG_BASE_URL = `${CONFIG.CDN_CONFIG.CDN_BASE_URL}/dialog`;
+const SFX_BASE_URL = `${CONFIG.CDN_CONFIG.CDN_BASE_URL}/sfx`;
+const MUSIC_BASE_URL = `${CONFIG.CDN_CONFIG.CDN_BASE_URL}/music`;
+const AMBIENT_BASE_URL = `${CONFIG.CDN_CONFIG.CDN_BASE_URL}/ambient`;
+const UI_BASE_URL = `${CONFIG.CDN_CONFIG.CDN_BASE_URL}/sfx`;
 
 export const SFX_SOURCES: {
   [key in SfxCategoryName]: { [key: string]: SfxProfile }

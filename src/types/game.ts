@@ -1,7 +1,7 @@
 import { Vector3 } from 'three';
-import { GAME_CONFIG } from '@/data/config.ts';
+import { CONFIG } from '@/data/config.ts';
 
-export type GameConfig = typeof GAME_CONFIG;
+export type GameConfig = typeof CONFIG;
 
 export interface ForceDamageRule {
     type: 'forceDamage';

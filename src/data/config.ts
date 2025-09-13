@@ -1,4 +1,4 @@
-export const GAME_CONFIG = {
+export const CONFIG = {
     TURN_DURATION: 20,
     PLAYER_STARTING_ENCLAVES: 2,
     MULTIPLE_STARTING_TERRITORIES: true,
@@ -53,5 +53,9 @@ export const GAME_CONFIG = {
         DOMAIN_TOUCH_CHANCE: 0.25,
         
     },
-    
+
+    //CDN url
+    CDN_CONFIG: {
+        CDN_BASE_URL: 'https://storage.googleapis.com/brutal-worlds', 
+    }   
 }

@@ -12,7 +12,7 @@ import { getAppliedModifiers } from '../../logic/effectProcessor';
 import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldingBonusForEnclave } from '../../logic/birthrightManager';
 import { calculateEnclaveTurnPreview, TurnPreview } from '../../logic/previewManager';
 import { getAssetUrl } from '../../utils/assetUtils';
-import { GAME_CONFIG as GameConfig } from '../../data/config';
+import { CONFIG as GameConfig } from '../../data/config';
 
 interface EnclaveInspectorProps {
     enclave: Enclave;

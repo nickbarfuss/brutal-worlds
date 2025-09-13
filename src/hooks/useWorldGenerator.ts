@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { geoVoronoi } from 'd3-geo-voronoi';
 import { geoCentroid } from 'd3-geo';
 import { MapCell, Enclave, Domain, Route, Rift, Expanse, WorldProfile } from '@/types/game';
-import { GAME_CONFIG } from '@/data/config';
+import { CONFIG } from '@/data/config';
 import { convertLatLonToVector3 as convertLatLonToVector3Util } from '@/utils/geo';
 
 // A simple seeded pseudo-random number generator (PRNG) to make world generation deterministic.
@@ -467,7 +467,7 @@ export const generateNewWorld = (worldProfile: WorldProfile): {
     });
 
     // --- 8. Assign Starting Enclaves ---
-    if (GAME_CONFIG.FORCE_ADJACENT_START && GAME_CONFIG.PLAYER_STARTING_ENCLAVES > 1) {
+    if (CONFIG.FORCE_ADJACENT_START && CONFIG.PLAYER_STARTING_ENCLAVES > 1) {
         const allLandEnclaves = Object.values(newEnclaveData);
 
         const findAdjacentPair = (candidates: Enclave[], occupied: Set<number>): Enclave[] => {
@@ -487,7 +487,7 @@ export const generateNewWorld = (worldProfile: WorldProfile): {
                 }
             }
             console.warn("Could not find adjacent starting pair in candidate set, using fallback.");
-            return candidates.filter(c => !occupied.has(c.id)).slice(0, GAME_CONFIG.PLAYER_STARTING_ENCLAVES);
+            return candidates.filter(c => !occupied.has(c.id)).slice(0, CONFIG.PLAYER_STARTING_ENCLAVES);
         };
 
         const occupiedEnclaves = new Set<number>();
@@ -506,8 +506,8 @@ export const generateNewWorld = (worldProfile: WorldProfile): {
 
     } else {
         const allLandEnclaves = Object.values(newEnclaveData).sort((a, b) => b.center.y - a.center.y);
-        const playerStarts = allLandEnclaves.slice(0, GAME_CONFIG.PLAYER_STARTING_ENCLAVES);
-        const opponentStarts = allLandEnclaves.slice(-GAME_CONFIG.PLAYER_STARTING_ENCLAVES);
+        const playerStarts = allLandEnclaves.slice(0, CONFIG.PLAYER_STARTING_ENCLAVES);
+        const opponentStarts = allLandEnclaves.slice(-CONFIG.PLAYER_STARTING_ENCLAVES);
         playerStarts.forEach(e => { e.owner = 'player-1'; e.forces = 10; });
         opponentStarts.forEach(e => { e.owner = 'player-2'; e.forces = 10; });
     }

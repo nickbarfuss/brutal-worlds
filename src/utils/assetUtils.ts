@@ -1,12 +1,45 @@
+import { CONFIG } from '@/data/config';
+
+export enum AssetType {
+  ArchetypeAvatar = 'archetypeAvatar',
+  // Add other asset types here
+}
+
+interface AssetParams {
+  archetypeKey?: string;
+  legacyKey?: string;
+  // Add other asset-specific parameters here
+}
+
 /**
- * Returns the asset URL. Cache-busting logic has been removed as it was causing
- * issues with font loading.
- * @param url The original asset URL.
- * @returns The original URL.
+ * Returns the asset URL. It can either construct a URL based on AssetType and parameters,
+ * or return a provided direct URL string.
+ * @param typeOrUrl The type of asset (AssetType) or a direct URL string.
+ * @param params Optional: Parameters specific to the asset type, if typeOrUrl is AssetType.
+ * @returns The constructed or provided asset URL.
  */
-export const getAssetUrl = (url: string): string => {
-    return url;
+export const getAssetUrl = (typeOrUrl: AssetType | string, params?: AssetParams): string => {
+  // If a direct URL string is provided, return it.
+  if (typeof typeOrUrl === 'string' && typeOrUrl.startsWith('http')) {
+    return typeOrUrl;
+  }
+
+  // Otherwise, treat typeOrUrl as AssetType and construct the URL.
+  const type = typeOrUrl as AssetType;
+  const CDN_BASE_URL = CONFIG.CDN_CONFIG.CDN_BASE_URL;
+
+  switch (type) {
+    case AssetType.ArchetypeAvatar:
+      if (!params?.archetypeKey || !params?.legacyKey) {
+        throw new Error('archetypeKey and legacyKey are required for ArchetypeAvatar assets.');
+      }
+      return `${CDN_BASE_URL}/archetype/${params.archetypeKey}-${params.legacyKey}.png`;
+    // Add cases for other asset types here
+    default:
+      throw new Error(`Unknown asset type: ${type}`);
+  }
 };
+
 
 /**
  * Takes a single asset key or an array of asset keys and returns a randomly selected key.
@@ -27,3 +60,4 @@ export const getRandomAssetKey = (assetKeys: string | string[] | undefined): str
     }
     return assetKeys;
 };
+
