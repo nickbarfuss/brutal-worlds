@@ -56,18 +56,17 @@ export const CONFIG = {
     },
 
     //CDN location of all assets
-    CDN_CONFIG: {
+    CDN: {
         //base
         base: 'https://storage.googleapis.com/brutal-worlds',
         
         //sounds
         ambient: 'https://storage.googleapis.com/brutal-worlds/ambient',
+        archetype: 'https://storage.googleapis.com/brutal-worlds/archetype'
         dialog: 'https://storage.googleapis.com/brutal-worlds/dialog',
         music: 'https://storage.googleapis.com/brutal-worlds/music',
         sfx: 'https://storage.googleapis.com/brutal-worlds/sfx',     
         ui: 'https://storage.googleapis.com/brutal-worlds/sfx',
-
-        //visuals
         vfx: 'https://storage.googleapis.com/brutal-worlds/vfx',
     },      
 }

@@ -19,7 +19,7 @@ export function getAssetUrl(dirOrUrl: string, key?: string, ext?: string): strin
     throw new Error('Key and extension are required when constructing an asset URL.');
   }
 
-  const CDN_BASE_URL = CONFIG.CDN_CONFIG.CDN_BASE_URL;
+  const CDN_BASE_URL = CONFIG.CDN.CDN_BASE_URL;
   return `${CDN_BASE_URL}/${dirOrUrl}/${key}.${ext}`;
 }
 
