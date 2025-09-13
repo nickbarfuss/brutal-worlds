@@ -72,19 +72,15 @@ export const initialState: GameState = {
     isResolvingTurn: false,
     gameOverState: 'none',
     isGloballyMuted: false,
-    volumes: { fx: 0.7, ambient: 0.2, music: 0.6, ui: 0.6, dialog: 0.8 },
-    mutedChannels: { fx: false, ambient: true, music: true, ui: false, dialog: false },
-    isBloomEnabled: GAME_CONFIG.ENABLE_BLOOM_EFFECT,
-    bloomSettings: { threshold: 0.5, strength: 0.5, radius: 1.0 },
-    materialSettings: {
-        player: { metalness: 0.0, roughness: 1.0, emissiveIntensity: 1.0 },
-        neutral: { metalness: 0.0, roughness: 1.0, emissiveIntensity: 0.3 },
-        void: { metalness: 0.0, roughness: 0.5, emissiveIntensity: 0.2 },
-    },
-    ambientLightIntensity: 1.0,
-    tonemappingStrength: 1.0,
-    playVfxFromPreviousTurns: true,
-    stackVfx: false,
+    volumes: GAME_CONFIG.AUDIO_DEFAULTS.volumes,
+    mutedChannels: GAME_CONFIG.AUDIO_DEFAULTS.mutedChannels,
+    isBloomEnabled: GAME_CONFIG.VISUAL_DEFAULTS.enableBloom,
+    bloomSettings: GAME_CONFIG.VISUAL_DEFAULTS.bloomSettings,
+    materialSettings: GAME_CONFIG.VISUAL_DEFAULTS.materialSettings,
+    ambientLightIntensity: GAME_CONFIG.VISUAL_DEFAULTS.ambientLightIntensity,
+    tonemappingStrength: GAME_CONFIG.VISUAL_DEFAULTS.tonemappingStrength,
+    playVfxFromPreviousTurns: GAME_CONFIG.VISUAL_DEFAULTS.playVfxFromPreviousTurns,
+    stackVfx: GAME_CONFIG.VISUAL_DEFAULTS.stackVfx,
 };
 
 export const reducer = (state: GameState, action: Action): GameState => {
