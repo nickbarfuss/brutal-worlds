@@ -103,27 +103,35 @@ export class SfxManager {
         }
     }
 
-    public getFullKey(key: string, channel: AudioChannel): string {
-        const mappedKey = this.simpleKeyToFullKeyMap.get(key);
+    public getFullKey(key: string | string[], channel: AudioChannel): string {
+        const actualKey = Array.isArray(key) ? key[0] : key; // Take the first key if it's an array for mapping purposes
+        const mappedKey = this.simpleKeyToFullKeyMap.get(actualKey);
         if (mappedKey) return mappedKey;
 
-        const keyParts = key.split('-');
+        const keyParts = actualKey.split('-');
         const categories = Object.keys(SFX_SOURCES);
         if (categories.includes(keyParts[0])) {
-            return key;
+            return actualKey;
         }
-        return `${channel}-${key}`;
+        return `${channel}-${actualKey}`;
     }
 
-    public async playSound(key: string, channel: AudioChannel = 'fx', position?: Vector3): Promise<void> {
+    public async playSound(key: string | string[], channel: AudioChannel = 'fx', position?: Vector3): Promise<void> {
         if (!this.hasUserInteracted || !this.audioContext) {
             return;
         }
         
-        const fullKey = this.getFullKey(key, channel);
+        let selectedKey: string;
+        if (Array.isArray(key)) {
+            selectedKey = key[Math.floor(Math.random() * key.length)];
+        } else {
+            selectedKey = key;
+        }
+
+        const fullKey = this.getFullKey(selectedKey, channel);
         const buffer = this.decodedBuffers.get(fullKey);
         if (!buffer) {
-            console.warn(`Sound buffer not found for key: ${key} (resolved to ${fullKey})`);
+            console.warn(`Sound buffer not found for key: ${selectedKey} (resolved to ${fullKey})`);
             return;
         }
 

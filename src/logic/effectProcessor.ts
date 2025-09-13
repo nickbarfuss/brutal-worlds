@@ -1,7 +1,5 @@
-
-
-
 import { Enclave, Route, DisasterRule } from '@/types/game.ts';
+import { getRandomAssetKey } from '@/utils/assetUtils.ts';
 
 /**
  * Calculates the combined production and combat modifiers for an enclave from all active effects.
@@ -150,4 +148,138 @@ export function applyContinuousRules(
 
 
     return { enclave: newEnclave, routes: newRoutes };
+}
+
+/**
+ * Processes a single active effect marker, advancing its phase or resolving it.
+ * @param marker The active effect marker to process.
+ * @param mapData All map cells.
+ * @param enclaveData All enclave data.
+ * @param domainData All domain data.
+ * @param effectProfiles All effect profiles.
+ * @returns An object containing updated markers, enclaves, routes, and any new effects to play.
+ */
+export function processEffectMarker(
+    marker: ActiveEffectMarker,
+    mapData: MapCell[],
+    enclaveData: { [id: number]: Enclave },
+    domainData: { [id: number]: Domain },
+    effectProfiles: { [key: string]: EffectProfile },
+    routes: Route[],
+): {
+    updatedMarker: ActiveEffectMarker | null;
+    updatedEnclaves: { [id: number]: Enclave };
+    updatedRoutes: Route[];
+    effectsToPlay: EffectQueueItem[];
+} {
+    let updatedMarker: ActiveEffectMarker | null = { ...marker };
+    let updatedEnclaves: { [id: number]: Enclave } = {};
+    let updatedRoutes: Route[] = [...routes];
+    const effectsToPlay: EffectQueueItem[] = [];
+
+    const profile = effectProfiles[marker.profileKey];
+    if (!profile) {
+        console.warn(`Effect profile not found for key: ${marker.profileKey}`);
+        return { updatedMarker: null, updatedEnclaves, updatedRoutes, effectsToPlay };
+    }
+
+    updatedMarker.durationInPhase--;
+
+    // Apply continuous rules if in a phase that has them
+    if (profile.logic[updatedMarker.currentPhase]?.continuousRules) {
+        const targetEnclaveIds = updatedMarker.metadata.targetEnclaveIds || [];
+        targetEnclaveIds.forEach((enclaveId: number) => {
+            const enclave = enclaveData[enclaveId];
+            if (enclave) {
+                const { enclave: newEnclave, routes: newRoutes } = applyContinuousRules(
+                    profile.logic[updatedMarker.currentPhase].continuousRules,
+                    enclave,
+                    updatedRoutes
+                );
+                updatedEnclaves[enclaveId] = newEnclave;
+                updatedRoutes = newRoutes;
+            }
+        });
+    }
+
+    if (updatedMarker.durationInPhase <= 0) {
+        // Transition to next phase or resolve
+        const nextPhaseKey = profile.logic[updatedMarker.currentPhase]?.nextPhase;
+
+        if (nextPhaseKey) {
+            const nextPhase = profile.logic[nextPhaseKey];
+            if (!nextPhase) {
+                console.warn(`Next phase '${nextPhaseKey}' not found for effect: ${marker.profileKey}`);
+                return { updatedMarker: null, updatedEnclaves, updatedRoutes, effectsToPlay };
+            }
+
+            updatedMarker.currentPhase = nextPhaseKey;
+            updatedMarker.durationInPhase = resolveNumericRange(nextPhase.duration);
+
+            // Apply instantaneous rules for the new phase
+            if (nextPhase.instantaneousRules) {
+                const targetEnclaveIds = updatedMarker.metadata.targetEnclaveIds || [];
+                targetEnclaveIds.forEach((enclaveId: number) => {
+                    const enclave = enclaveData[enclaveId];
+                    if (enclave) {
+                        const { enclave: newEnclave, routes: newRoutes } = applyInstantaneousRules(
+                            nextPhase.instantaneousRules,
+                            enclave,
+                            updatedRoutes,
+                            updatedMarker?.durationInPhase
+                        );
+                        updatedEnclaves[enclaveId] = newEnclave;
+                        updatedRoutes = newRoutes;
+                    }
+                });
+            }
+
+            // Play SFX/VFX for the new phase
+            const phaseSfxKey = getRandomAssetKey(profile.ui.assets.sfx?.[nextPhaseKey]);
+            const phaseVfxKey = getRandomAssetKey(profile.ui.assets.vfx?.[nextPhaseKey]);
+            const phaseDialogKey = getRandomAssetKey(profile.ui.assets.dialog?.[nextPhaseKey]);
+
+            if (phaseVfxKey) {
+                effectsToPlay.push({
+                    id: `eff-${profile.key}-${nextPhaseKey}-${marker.cellId}-${Date.now()}`,
+                    vfxKey: phaseVfxKey,
+                    sfx: phaseSfxKey ? { key: phaseSfxKey, channel: 'fx', position: marker.position } : undefined,
+                    position: marker.position,
+                });
+            } else if (phaseSfxKey) { // Play SFX even if there's no VFX
+                effectsToPlay.push({
+                    id: `eff-${profile.key}-${nextPhaseKey}-sfx-${marker.cellId}-${Date.now()}`,
+                    sfx: { key: phaseSfxKey, channel: 'fx', position: marker.position },
+                    position: marker.position,
+                });
+            }
+
+            if (phaseDialogKey) {
+                effectsToPlay.push({
+                    id: `eff-${profile.key}-${nextPhaseKey}-dialog-${marker.cellId}-${Date.now()}`,
+                    sfx: { key: phaseDialogKey, channel: 'dialog', position: marker.position },
+                    position: marker.position,
+                });
+            }
+
+        } else {
+            // No next phase, effect resolves
+            updatedMarker = null;
+        }
+    }
+
+    return { updatedMarker, updatedEnclaves, updatedRoutes, effectsToPlay };
+}
+
+export function getEffectSfxPlayback(effect: EffectQueueItem): SfxPlayback | undefined {
+    if (effect.sfx) {
+        return {
+            key: effect.sfx.key,
+            channel: effect.sfx.channel,
+            position: effect.sfx.position,
+            loop: effect.sfx.loop || false,
+            volume: effect.sfx.volume || 1,
+        };
+    }
+    return undefined;
 }

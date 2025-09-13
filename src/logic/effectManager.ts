@@ -1,4 +1,5 @@
 import { Enclave, Domain, MapCell, Expanse, ActiveEffectMarker, EffectProfile, Rift, EffectQueueItem, SfxPlayback } from '@/types/game.ts';
+import { getRandomAssetKey } from '@/utils/assetUtils.ts';
 import * as THREE from 'three';
 
 interface TriggerContext {
@@ -114,29 +115,28 @@ export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext
             }
         }
 
-        const alertSfxKey = profile.ui.assets.sfx?.alert;
-        const alertVfxKey = profile.ui.assets.vfx?.alert;
-        const alertDialogKey = profile.ui.assets.dialog?.alert;
+        const selectedAlertSfxKey = getRandomAssetKey(profile.ui.assets.sfx?.alert);
+        const selectedAlertVfxKey = getRandomAssetKey(profile.ui.assets.vfx?.alert);
+        const selectedAlertDialogKey = getRandomAssetKey(profile.ui.assets.dialog?.alert);
         
-        if (alertVfxKey) {
-             effectsToPlay.push({
-                id: `eff-${profile.key}-alert-${cell.id}-${Date.now()}`,
-                vfxKey: alertVfxKey,
-                sfx: alertSfxKey ? { key: alertSfxKey, channel: 'fx', position: cell.center } : undefined,
-                position: cell.center,
-            });
-        } else if (alertSfxKey) { // Play SFX even if there's no VFX
-             effectsToPlay.push({
-                id: `eff-${profile.key}-alert-sfx-${cell.id}-${Date.now()}`,
-                sfx: { key: alertSfxKey, channel: 'fx', position: cell.center },
+        if (selectedAlertVfxKey) {
+            effectsToPlay.push({
+                id: `eff-${profile.key}-alert-vfx-${cell.id}-${Date.now()}`,
+                vfxKey: selectedAlertVfxKey,
                 position: cell.center,
             });
         }
-
-        if (alertDialogKey) {
+        if (selectedAlertSfxKey) {
+            effectsToPlay.push({
+                id: `eff-${profile.key}-alert-sfx-${cell.id}-${Date.now()}`,
+                sfx: { key: selectedAlertSfxKey, channel: 'fx', position: cell.center },
+                position: cell.center,
+            });
+        }
+        if (selectedAlertDialogKey) {
             effectsToPlay.push({
                 id: `eff-${profile.key}-alert-dialog-${cell.id}-${Date.now()}`,
-                sfx: { key: alertDialogKey, channel: 'dialog', position: cell.center },
+                sfx: { key: selectedAlertDialogKey, channel: 'dialog', position: cell.center },
                 position: cell.center,
             });
         }

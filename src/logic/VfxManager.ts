@@ -85,23 +85,30 @@ export class VfxManager {
         this.activeEffects = [];
     }
 
-    public playEffect(key: string, worldPosition: THREE.Vector3): void {
-        const preloadedVideo = this.preloadedVideos[key];
+    public playEffect(key: string | string[], worldPosition: THREE.Vector3): void {
+        let selectedKey: string;
+        if (Array.isArray(key)) {
+            selectedKey = key[Math.floor(Math.random() * key.length)];
+        } else {
+            selectedKey = key;
+        }
+
+        const preloadedVideo = this.preloadedVideos[selectedKey];
         if (!preloadedVideo) {
-            console.warn(`VFX video "${key}" not found or not preloaded.`);
+            console.warn(`VFX video "${selectedKey}" not found or not preloaded.`);
             return;
         }
 
         const video = preloadedVideo.cloneNode(true) as HTMLVideoElement;
         video.currentTime = 0;
-        video.play().catch(e => console.error(`VFX play error for ${key}:`, e));
+        video.play().catch(e => console.error(`VFX play error for ${selectedKey}:`, e));
         
-        const profile = VFX_PROFILES[key];
+        const profile = VFX_PROFILES[selectedKey];
         const width = profile.width || 256;
         const height = profile.height || 256;
         
         this.activeEffects.push({
-            key,
+            key: selectedKey,
             video,
             worldPosition: worldPosition.clone(),
             width,

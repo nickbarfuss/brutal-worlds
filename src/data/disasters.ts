@@ -21,7 +21,11 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                     aftermath: 'entropy-wind-aftermath',
                 },
                 dialog: {
-                    alert: 'entropy-wind-alert',
+                    alert: [
+                        'narrator-disaster-entropy-wind-alert-1',
+                        'narrator-disaster-entropy-wind-alert-2',
+                        'narrator-disaster-entropy-wind-alert-3',
+                    ],
                 }
             },
         },
@@ -80,7 +84,11 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                     aftermath: 'ion-tempest-aftermath',
                 },
                 dialog: {
-                    alert: 'ion-tempest-dialog-alert',
+                    alert: [
+                        'narrator-disaster-pyroclasm-dialog-alert-1',
+                        'narrator-disaster-pyroclasm-dialog-alert-2',
+                        'narrator-disaster-pyroclasm-dialog-alert-3',
+                    ],
                 }
             }
         },
@@ -139,7 +147,11 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                     aftermath: 'pyroclasm-aftermath',
                 },
                 dialog: {
-                    alert: 'pyroclasm-dialog-alert',
+                    alert: [
+                        'narrator-disaster-pyroclasm-dialog-alert-1',
+                        'narrator-disaster-pyroclasm-dialog-alert-2',
+                        'narrator-disaster-pyroclasm-dialog-alert-3',
+                    ],
                 }
             }
         },
@@ -198,7 +210,11 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                     aftermath: 'resonance-cascade-aftermath',
                 },
                 dialog: {
-                    alert: 'pyroclasm-dialog-alert',
+                    alert: [
+                        'narrator-disaster-resonance-cascade-dialog-alert-1',
+                        'narrator-disaster-resonance-cascade-dialog-alert-2',
+                        'narrator-disaster-resonance-cascade-dialog-alert-3',
+                    ],
                 }
             }
         },
@@ -262,7 +278,11 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                     aftermath: 'skyfall-shards-aftermath',
                 },
                 dialog: {
-                    alert: 'skyfall-shards-dialog-alert',
+                    alert: [
+                        'narrator-disaster-skyfall-shards-dialog-alert-1',
+                        'narrator-disaster-skyfall-shards-dialog-alert-2',
+                        'narrator-disaster-skyfall-shards-dialog-alert-3',
+                    ],
                 }
             }
         },
@@ -321,7 +341,11 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                     aftermath: 'void-surge-aftermath',
                 },
                 dialog: {
-                    alert: 'void-surge-dialog-alert',
+                    alert: [
+                        'narrator-disaster-void-surge-dialog-alert-1',
+                        'narrator-disaster-void-surge-dialog-alert-2',
+                        'narrator-disaster-void-surge-dialog-alert-3',
+                    ],
                 }
             }
         },
