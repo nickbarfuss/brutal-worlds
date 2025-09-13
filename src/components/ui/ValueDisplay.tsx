@@ -13,16 +13,16 @@ interface ValueDisplayProps {
 }
 
 const ValueDisplay: React.FC<ValueDisplayProps> = ({ baseValue, bonusValue, valueType = 'text', owner, worldPalette, size = 'small', ownerForces }) => {
-  if (baseValue === undefined && !ownerForces) return null;
-
-  const valueContainerClasses = "flex items-center flex-shrink-0 self-center";
-
   const getPaletteForOwner = React.useCallback((o: Owner) => {
     if (o === 'player-1') return PLAYER_THREE_COLORS['player-1'];
     if (o === 'player-2') return PLAYER_THREE_COLORS['player-2'];
     if (worldPalette) return worldPalette;
     return null;
   }, [worldPalette]);
+
+  if (baseValue === undefined && !ownerForces) return null;
+
+  const valueContainerClasses = "flex items-center flex-shrink-0 self-center";
 
   const forceSizeClass = size === 'small' ? 'w-7 h-7' : 'w-9 h-9';
   const forceTextClass = size === 'small' ? 'font-medium text-sm' : 'font-semibold text-base';

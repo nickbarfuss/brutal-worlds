@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { handleEffects } from './effectReducer';
 import { initialState } from './index';
 import { GameState, EffectProfile, ActiveEffectMarker } from '@/types/game';

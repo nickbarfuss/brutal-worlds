@@ -33,7 +33,7 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
     if (cellId === null || cellId === -1) {
         const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
         const newInspectedEntity = state.worldInspectorManuallyClosed ? null : { type: 'world' as const };
-        return { ...state, selectedEnclaveId: null, inspectedMapEntity: newInspectedEntity, sfxToPlay: result.sfxToPlay };
+        return { ...state, selectedEnclaveId: null, inspectedMapEntity: newInspectedEntity, effectQueue: [...state.effectQueue, ...result.effectsToQueue] };
     }
     
     const cell = state.mapData[cellId];
@@ -54,15 +54,6 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
 
     // --- If no marker was clicked, proceed with the original logic ---
     if (cell.enclaveId !== null) {
-        if (state.currentTurn === 0) {
-            return {
-                ...state,
-                selectedEnclaveId: null,
-                inspectedMapEntity: { type: 'enclave', id: cell.enclaveId },
-                sfxToPlay: state.selectedEnclaveId !== null ? { key: 'sfx-command-mode-exit', channel: 'fx' as const, position: state.enclaveData[state.selectedEnclaveId]?.center } : null,
-            };
-        }
-        
         const result = handleSingleClick(
             cell.enclaveId, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, isCtrlPressed
         );
@@ -71,8 +62,7 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
             playerPendingOrders: result.updatedOrders,
             selectedEnclaveId: result.newSelectedEnclaveId,
             inspectedMapEntity: result.newInspectedEnclaveId !== null ? { type: 'enclave', id: result.newInspectedEnclaveId } : state.inspectedMapEntity,
-            vfxToPlay: result.vfxToPlay,
-            sfxToPlay: result.sfxToPlay,
+            effectQueue: [...state.effectQueue, ...result.effectsToQueue],
         };
     } else if (cell.domainId !== null && state.domainData[cell.domainId]) {
         const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
@@ -80,7 +70,7 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
             ...state,
             selectedEnclaveId: null,
             inspectedMapEntity: { type: 'domain', id: cell.domainId },
-            sfxToPlay: result.sfxToPlay,
+            effectQueue: [...state.effectQueue, ...result.effectsToQueue],
         };
     } else if (cell.voidId !== null) {
         // The disaster marker check has been moved up. Now just inspect the void feature.
@@ -90,13 +80,13 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
                 ...state,
                 selectedEnclaveId: null,
                 inspectedMapEntity: { type: cell.voidType, id: cell.voidId },
-                sfxToPlay: result.sfxToPlay,
+                effectQueue: [...state.effectQueue, ...result.effectsToQueue],
             };
         }
     }
     
     const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
-    return { ...state, selectedEnclaveId: null, inspectedMapEntity: null, sfxToPlay: result.sfxToPlay };
+    return { ...state, selectedEnclaveId: null, inspectedMapEntity: null, effectQueue: [...state.effectQueue, ...result.effectsToQueue] };
 };
 
 const dblClickMap = (state: GameState, payload: number | null): GameState => {
@@ -113,8 +103,7 @@ const dblClickMap = (state: GameState, payload: number | null): GameState => {
             playerPendingOrders: result.updatedOrders,
             selectedEnclaveId: result.newSelectedEnclaveId,
             inspectedMapEntity: { type: 'enclave', id: enclaveId },
-            vfxToPlay: result.vfxToPlay,
-            sfxToPlay: result.sfxToPlay,
+            effectQueue: [...state.effectQueue, ...result.effectsToQueue],
         };
     }
     

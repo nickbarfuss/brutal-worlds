@@ -11,6 +11,7 @@ import { reducer as gameReducer, initialState, Action } from '@/logic/reducers';
 import { deserializeResolvedTurn, serializeGameStateForWorker } from '@/utils/threeUtils';
 import { calculateAIOrderChanges } from '@/logic/ai';
 import { getAssistMultiplierForEnclave } from '@/data/birthrightManager.ts';
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -46,12 +47,20 @@ export const useGameEngine = () => {
     const [state, dispatch] = useReducer(gameReducer, initialState);
     const workerRef = useRef<Worker | null>(null);
     const aiActionTimeoutsRef = useRef<number[]>([]);
+    const stateRef = useRef<GameState>(state); // New: Ref to hold the latest state
     
+    // Update stateRef on every render
+    useEffect(() => {
+        stateRef.current = state;
+    }, [state]);
+
     const gameSessionIdRef = useRef<number>(state.gameSessionId);
     gameSessionIdRef.current = state.gameSessionId;
 
     const gamePhaseRef = useRef<GamePhase>(state.gamePhase);
     gamePhaseRef.current = state.gamePhase;
+
+    const getState = useCallback(() => state, [state]); // New: Function to get the latest state
 
 
     // --- State-dispatching callbacks ---
@@ -97,12 +106,24 @@ export const useGameEngine = () => {
             aiActionTimeoutsRef.current = [];
         };
 
-        if (state.gamePhase !== 'playing' || state.isPaused || state.currentTurn === 0 || state.isResolvingTurn) {
-            cleanup();
+        // AI should only schedule actions if the game is playing, not paused, and not resolving a turn.
+        // The timeouts should only be cleared if the game phase changes or the turn is 0.
+        if (state.gamePhase !== 'playing' || state.isPaused || state.currentTurn === 0) {
+            cleanup(); // Clear timeouts if game is not playing, paused, or turn 0
+            
             return;
         }
 
+        // If the turn is resolving, AI should not schedule new actions, but existing timeouts should not be cleared.
+        if (state.isResolvingTurn) {
+            
+            return;
+        }
+
+        
         const { newOrders, ordersToCancel } = calculateAIOrderChanges(state.enclaveData, state.routes, state.aiPendingOrders);
+        
+        
         const timeouts: number[] = [];
 
         ordersToCancel.forEach(fromId => {
@@ -118,6 +139,7 @@ export const useGameEngine = () => {
             const delay = Math.random() * (state.gameConfig.TURN_DURATION - 2) * 1000 + 1000;
 
             const timeoutId = window.setTimeout(() => {
+                
                 dispatch({ type: 'AI_ISSUE_ORDER', payload: { fromId, order: order as Order } });
             }, delay);
             timeouts.push(timeoutId);
@@ -166,21 +188,21 @@ export const useGameEngine = () => {
 
                     const deserializedResult = deserializeResolvedTurn(result);
                     
+                    console.log('useGameEngine: Received effectsToPlay from worker', deserializedResult.effectsToPlay);
                     dispatch({ type: 'APPLY_RESOLVED_TURN', payload: deserializedResult });
 
                     if (deserializedResult.effectsToPlay && deserializedResult.effectsToPlay.length > 0) {
-                        deserializedResult.effectsToPlay.forEach(effect => {
-                            if (effect.vfxKey && effect.position) {
-                                console.log(`[useGameEngine] Dispatching PLAY_VFX for key: ${effect.vfxKey}`);
-                                console.log(`[useGameEngine] Dispatching PLAY_VFX from worker result for key: ${effect.vfxKey}`);
-                                console.log(`[useGameEngine] Dispatching PLAY_VFX from worker result for key: ${effect.vfxKey}`);
-                                dispatch({ type: 'PLAY_VFX', payload: { key: effect.vfxKey, center: effect.position } });
+                        const newEffectQueueItems: EffectQueueItem[] = deserializedResult.effectsToPlay.map(effect => {
+                            const newEffect: EffectQueueItem = { id: uuidv4(), position: effect.position };
+                            if (effect.vfxKey) {
+                                newEffect.vfxKey = effect.vfxKey;
                             }
                             if (effect.sfx) {
-                                console.log(`[useGameEngine] Dispatching PLAY_SFX for key: ${effect.sfx.key}, channel: ${effect.sfx.channel}`);
-                                dispatch({ type: 'PLAY_SFX', payload: effect.sfx });
+                                newEffect.sfx = effect.sfx;
                             }
+                            return newEffect;
                         });
+                        dispatch({ type: 'ADD_EFFECTS_TO_QUEUE', payload: newEffectQueueItems });
                     }
                 } catch (error) {
                     console.error("Error processing message from worker:", error, "Data:", e.data);
@@ -228,50 +250,37 @@ export const useGameEngine = () => {
         }
     }, [state.latestEffect, dispatch]);
 
-
-    const resolveTurn = useCallback(() => {
-        if (state.isResolvingTurn || !workerRef.current) return;
+    const resolveTurn = useCallback(() => { // No longer accepts latestState as argument
+        const latestState = getState(); // Get the latest state
+        if (latestState.isResolvingTurn || !workerRef.current) return;
     
         dispatch({ type: 'START_RESOLVING_TURN' });
         
-        console.log('[useGameEngine] Sending state to worker:', state);
+        
         
         const serializableState = serializeGameStateForWorker({
-            enclaveData: state.enclaveData,
-            playerPendingOrders: state.playerPendingOrders,
-            aiPendingOrders: state.aiPendingOrders,
-            routes: state.routes,
-            mapData: state.mapData,
-            currentTurn: state.currentTurn,
-            gameSessionId: state.gameSessionId,
-            activeEffectMarkers: state.activeEffectMarkers,
-            gameConfig: state.gameConfig,
-            playerArchetypeKey: state.playerArchetypeKey,
-            playerLegacyKey: state.playerLegacyKey,
-            opponentArchetypeKey: state.opponentArchetypeKey,
-            opponentLegacyKey: state.opponentLegacyKey,
-            playerHasHadFirstConquestDialog: state.playerHasHadFirstConquestDialog,
-            opponentHasHadFirstConquestDialog: state.opponentHasHadFirstConquestDialog,
+            enclaveData: latestState.enclaveData,
+            playerPendingOrders: latestState.playerPendingOrders,
+            aiPendingOrders: latestState.aiPendingOrders, // Use latestState
+            routes: latestState.routes,
+            mapData: latestState.mapData,
+            currentTurn: latestState.currentTurn,
+            gameSessionId: latestState.gameSessionId,
+            activeEffectMarkers: latestState.activeEffectMarkers,
+            gameConfig: latestState.gameConfig,
+            playerArchetypeKey: latestState.playerArchetypeKey,
+            playerLegacyKey: latestState.playerLegacyKey,
+            opponentArchetypeKey: latestState.opponentArchetypeKey,
+            opponentLegacyKey: latestState.opponentLegacyKey,
+            playerHasHadFirstConquestDialog: latestState.playerHasHadFirstConquestDialog,
+            opponentHasHadFirstConquestDialog: latestState.opponentHasHadFirstConquestDialog,
         });
 
         workerRef.current.postMessage(JSON.stringify(serializableState));
     }, [
-        state.isResolvingTurn, 
-        state.enclaveData, 
-        state.mapData,
-        state.activeEffectMarkers,
-        state.playerPendingOrders,
-        state.aiPendingOrders,
-        state.routes,
-        state.currentTurn,
-        state.gameSessionId,
-        state.gameConfig,
-        state.playerArchetypeKey,
-        state.playerLegacyKey,
-        state.opponentArchetypeKey,
-        state.opponentLegacyKey,
-        state.playerHasHadFirstConquestDialog,
-        state.opponentHasHadFirstConquestDialog,
+        dispatch,
+        workerRef,
+        getState, // Add getState to dependencies
     ]);
     
     const clearLatestEffect = useCallback(() => dispatch({ type: 'CLEAR_LATEST_EFFECT' }), []);
@@ -334,18 +343,23 @@ export const useGameEngine = () => {
 
     // Effect to process the effectQueue (for newly triggered effects)
     useEffect(() => {
+        console.log('useGameEngine: effectQueue changed', state.effectQueue);
         if (state.effectQueue.length > 0) {
+            const playedEffectIds: string[] = [];
             state.effectQueue.forEach(effect => {
+                console.log('useGameEngine: Processing effect from queue', effect);
                 if (effect.vfxKey && effect.position) {
-                    console.log(`[useGameEngine] Directly playing VFX from effectQueue for key: ${effect.vfxKey}`);
+                    console.log('useGameEngine: Playing VFX', effect.vfxKey, effect.position);
                     vfxManager.current.playEffect(effect.vfxKey, effect.position);
                 }
                 if (effect.sfx) {
-                    console.log(`[useGameEngine] Directly playing SFX from effectQueue for key: ${effect.sfx.key}, channel: ${effect.sfx.channel}`);
+                    console.log('useGameEngine: Playing SFX', effect.sfx.key, effect.sfx.channel, effect.sfx.position);
                     sfxManager.current.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
                 }
+                playedEffectIds.push(effect.id); // Collect IDs of played effects
             });
-            dispatch({ type: 'CLEAR_EFFECT_QUEUE' });
+            // Dispatch action to remove played effects from the queue
+            dispatch({ type: 'PROCESS_EFFECT_QUEUE', payload: { playedIds: playedEffectIds } });
         }
     }, [state.effectQueue, dispatch]);
 
@@ -381,7 +395,30 @@ export const useGameEngine = () => {
             musicManager.stopLoop('music');
         }
     }, [state.gamePhase]);
+
+    // Effect for command mode sounds and VFX
+    const prevSelectedEnclaveId = useRef<number | null>(null);
+    useEffect(() => {
+        const sfx = sfxManager.current;
+        const vfx = vfxManager.current;
+
+        
+
+        if (state.selectedEnclaveId !== prevSelectedEnclaveId.current) {
+            if (state.selectedEnclaveId !== null) {
+                // Entering command mode
+                sfx.playSound(['command-mode-enter-1', 'command-mode-enter-2'], 'ui');
+            } else if (prevSelectedEnclaveId.current !== null) {
+                // Exiting command mode
+                sfx.playSound('command-mode-exit', 'ui');
+            }
+            prevSelectedEnclaveId.current = state.selectedEnclaveId;
+        }
+    }, [state.selectedEnclaveId]);
+
     
+
+
     return {
         ...state,
         dispatch,
@@ -418,5 +455,6 @@ export const useGameEngine = () => {
         setTonemappingStrength,
         setPlayVfxFromPreviousTurns,
         setStackVfx,
+        getState, // New: Export getState
     };
 };

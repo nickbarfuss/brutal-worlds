@@ -96,12 +96,18 @@ export class VfxManager {
     }
 
     public playEffect(key: string | string[], worldPosition: THREE.Vector3): void {
-        console.log(`[VfxManager] Attempting to play effect: ${key}, worldPosition: ${JSON.stringify(worldPosition)}`);
+        
         let selectedKey: string;
         if (Array.isArray(key)) {
             selectedKey = key[Math.floor(Math.random() * key.length)];
         } else {
             selectedKey = key;
+        }
+
+        // Validate worldPosition before proceeding
+        if (!(worldPosition instanceof THREE.Vector3)) {
+            console.error(`[VfxManager] Invalid worldPosition provided for effect "${selectedKey}". Expected THREE.Vector3, got:`, worldPosition);
+            return;
         }
 
         const preloadedVideo = this.preloadedVideos[selectedKey];
@@ -113,12 +119,13 @@ export class VfxManager {
         const video = preloadedVideo.cloneNode(true) as HTMLVideoElement;
         video.currentTime = 0;
         video.play().then(() => {
-            console.log(`[VfxManager] Successfully started playback for: ${selectedKey}`);
+            
         }).catch(e => console.error(`[VfxManager] VFX play error for ${selectedKey}:`, e));
         
         const profile = VFX_PROFILES[selectedKey];
-        const width = profile.width || 256;
-        const height = profile.height || 256;
+        // Provide default values if profile or its dimensions are undefined
+        const width = profile?.width || 256;
+        const height = profile?.height || 256;
         
         this.activeEffects.push({
             key: selectedKey,

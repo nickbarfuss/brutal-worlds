@@ -7,7 +7,7 @@ import { PLAYER_THREE_COLORS } from '@/data/theme';
 import { useWorldGeometry } from '@/hooks/useWorldGeometry';
 import { useCommandZone } from '@/hooks/useCommandZone';
 import { useWorldRenderer } from '@/hooks/useWorldRenderer';
-import { ActiveHighlight, SemanticColorPalette, GameState, MaterialProperties, MapCell, Enclave, Route, PendingOrders, ActiveDisasterMarker, WorldProfile, Vector3, Domain, Rift, Expanse, IntroPhase, GamePhase, EffectQueueItem } from '@/types/game';
+import { ActiveHighlight, SemanticColorPalette, GameState, MaterialProperties, MapCell, Enclave, Route, PendingOrders, ActiveEffectMarker, WorldProfile, Vector3, Domain, Rift, Expanse, IntroPhase, GamePhase, EffectQueueItem } from '@/types/game';
 import { SfxManager } from '@/logic/SfxManager';
 import { Action } from '@/logic/reducers';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
@@ -282,11 +282,12 @@ const WorldCanvas = React.memo(forwardRef<WorldCanvasHandle, WorldCanvasProps>((
         convertLatLonToVector3,
     });
 
-    const { commandBorderMeshes, commandBorderMaterials, commandFillMesh } = useCommandZone({
+    const { commandBorderMeshes, commandBorderMaterials, commandFillMesh, aiOrderMeshes, aiOrderMaterials } = useCommandZone({
         selectedEnclaveId: props.selectedEnclaveId,
         enclaveData: props.enclaveData,
         mapData: props.mapData,
         routes: props.routes,
+        aiPendingOrders: props.pendingOrders, // Pass aiPendingOrders
         convertLatLonToVector3,
     });
 
@@ -313,6 +314,8 @@ const WorldCanvas = React.memo(forwardRef<WorldCanvasHandle, WorldCanvasProps>((
         highlightFillOpacity: 0,
         colorPalette,
         activeEffectMarkers: props.activeEffectMarkers,
+        aiOrderMeshes,
+        aiOrderMaterials,
     });
 
     return <div ref={mountRef} data-testid="world-canvas" className="w-full h-full" />;

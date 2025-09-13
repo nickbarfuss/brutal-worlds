@@ -172,6 +172,11 @@ const worldData: WorldDataObject[] = [
         key: 'skull-sands', name: 'Skull-Sands', icon: 'globe',
         description: "A vast desert world where life clings to a few sparse continents. Resources are scarce, and control of the few fertile areas is paramount.",
         illustrationUrl: 'https://storage.googleapis.com/brutal-worlds/world/Skull-Sands.jpg',
+        bloom: {
+            threshold: 0,
+            strength: 0.3,
+            radius: 1.0,
+        },
         config: { ...STANDARD_CONFIG, seed: 808, NUM_POINTS: 2100, LAND_COVERAGE_MIN: 0.20, LAND_COVERAGE_MAX: 0.30 },
         disasterChance: 0.18,
         possibleEffects: ['entropy-wind', 'skyfall-shards'],

@@ -4,17 +4,18 @@
   orders, battles), and posts the new state back to the main thread.
 */
 
+import { Enclave, PendingOrders, EffectQueueItem, Player, ActiveEffectMarker, Route, MapCell, ActiveEffect, EffectProfile, ConquestEvent, Order, GameConfig } from '@/types/game.ts';
 import { resolveHolding } from '@/logic/holdResolver';
 import { resolveAssists } from '@/logic/assistResolver';
 import { resolveAttacks } from '@/logic/attackResolver';
-import { Enclave, PendingOrders, EffectQueueItem, Player, ActiveEffectMarker, Route, MapCell, ActiveEffect, EffectProfile, ConquestEvent } from '@/types/game.ts';
-import { GameConfig } from '@/types/game.ts';
 import * as THREE from 'three';
 import { EFFECT_PROFILES } from '@/data/effects';
 import { applyContinuousRules, applyInstantaneousRules } from '@/logic/effectProcessor';
 import { cloneEnclave } from '@/logic/cloneUtils';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
 import * as entropyWindHandler from '@/logic/disasters/entropyWind';
+import { SFX_SOURCES } from '@/data/sfx';
+import { VFX_PROFILES } from '@/data/vfx';
 
 const resolveNumericRange = (value: number | [number, number]): number => {
     if (Array.isArray(value)) {
@@ -312,6 +313,53 @@ export const resolveTurn = (
         );
         const allValidOrders = { ...validPlayerOrders, ...validAiOrders };
 
+        console.log('Turn Resolver: validAiOrders', validAiOrders);
+
+        // Helper to queue order effects
+        const queueOrderEffects = (order: Order, fromEnclave: Enclave, effectsToPlay: EffectQueueItem[]) => {
+            let sfxKey: string | undefined;
+            let vfxKey: string | undefined;
+
+            switch (order.type) {
+                case 'attack':
+                    sfxKey = `order-attack-${Math.floor(Math.random() * 4) + 1}`;
+                    vfxKey = 'order-attack';
+                    break;
+                case 'assist':
+                    sfxKey = `order-assist-${Math.floor(Math.random() * 4) + 1}`;
+                    vfxKey = 'order-assist';
+                    break;
+                case 'hold':
+                    sfxKey = `order-hold-${Math.floor(Math.random() * 6) + 1}`;
+                    vfxKey = 'order-holding';
+                    break;
+            }
+
+            if (sfxKey || vfxKey) {
+                const effectItem = {
+                    id: `order-effect-${fromEnclave.id}-${order.type}-${Date.now()}`,
+                    sfx: sfxKey ? { key: sfxKey, channel: 'fx', position: fromEnclave.center } : undefined,
+                    vfxKey: vfxKey,
+                    position: fromEnclave.center,
+                };
+                effectsToPlay.push(effectItem);
+                console.log('Turn Resolver: Queued AI Order Effect', effectItem);
+            }
+        };
+
+        // --- Queue AI Order Effects ---
+        for (const enclaveIdStr in validAiOrders) {
+            const enclaveId = parseInt(enclaveIdStr, 10);
+            const order = validAiOrders[enclaveId];
+            const fromEnclave = enclavesAfterEffects.get(enclaveId);
+            console.log(`Turn Resolver: Processing AI Order for enclave ${enclaveId}`, { order, fromEnclave });
+            if (order && fromEnclave) {
+                queueOrderEffects(order, fromEnclave, effectsToPlay);
+            }
+        }
+
+        console.log('Turn Resolver: effectsToPlay before return', effectsToPlay);
+
         // --- 3. Order Resolution Pipeline ---
         const enclavesAfterHolding = resolveHolding(enclavesAfterEffects, allValidOrders, routesAfterEffects, gameConfig);
         const enclavesAfterAssists = resolveAssists(enclavesAfterHolding, allValidOrders, gameConfig);
@@ -393,6 +441,7 @@ export const resolveTurn = (
         // Convert Map back to object for serialization
         const newEnclaveData = Object.fromEntries(finalEnclavesMap.entries());
 
+        console.log('Turn Resolver: Final effectsToPlay', effectsToPlay);
         return {
             newEnclaveData,
             newPlayerPendingOrders: validPlayerOrders, // Orders can be invalidated
@@ -452,10 +501,10 @@ self.onmessage = (e: MessageEvent) => {
             state.opponentHasHadFirstConquestDialog,
         );
         
-        console.log('[turnResolver] Posting result:', JSON.stringify(result));
+        
         self.postMessage(JSON.stringify(result));
     } catch (error) {
-        console.error('[turnResolver] FATAL ERROR:', error);
+        
         if (error instanceof Error) {
             self.postMessage(JSON.stringify({ error: `A fatal error occurred in the turn resolver: ${error.message}\n${error.stack}` }));
         } else {

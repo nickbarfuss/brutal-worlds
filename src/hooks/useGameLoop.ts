@@ -37,6 +37,12 @@ export const useGameLoop = (
                 return;
             }
 
+            // Reset turnStartTimeRef when isResolvingTurn transitions from true to false
+            // This ensures the timer starts fresh after a turn has resolved.
+            if (!isResolvingTurn && turnStartTimeRef.current === null) {
+                turnStartTimeRef.current = timestamp;
+            }
+
             if (isPaused) {
                 // If the game is paused, we record when the pause started so we can account for the duration later.
                 if (!pauseStartRef.current) {
@@ -62,11 +68,9 @@ export const useGameLoop = (
 
             const elapsed = timestamp - turnStartTimeRef.current;
             if (elapsed >= GAME_CONFIG.TURN_DURATION * 1000) {
-                // By setting this to a very large number, we prevent the loop from re-triggering
-                // the turn resolution on subsequent frames while waiting for the worker to finish.
-                // It will be reset to null on the next turn, allowing the timer to start fresh.
-                turnStartTimeRef.current = Infinity;
-                resolveTurn();
+                resolveTurn(); // Call resolveTurn
+                // Do NOT set turnStartTimeRef.current to Infinity here.
+                // It will be reset to the current timestamp when isResolvingTurn becomes false.
             }
         };
 

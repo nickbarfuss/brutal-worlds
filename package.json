@@ -16,7 +16,8 @@
     "eact": "^0.0.1-security",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "three": "^0.179.1"
+    "three": "^0.179.1",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.8.0",

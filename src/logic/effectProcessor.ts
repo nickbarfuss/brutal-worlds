@@ -1,4 +1,4 @@
-import { Enclave, Route, DisasterRule } from '@/types/game.ts';
+import { Enclave, Route, DisasterRule, ActiveEffectMarker, MapCell, Domain, EffectProfile, EffectQueueItem, SfxPlayback } from '@/types/game.ts';
 import { getRandomAssetKey } from '@/utils/assetUtils.ts';
 
 /**

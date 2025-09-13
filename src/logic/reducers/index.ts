@@ -1,4 +1,4 @@
-import { GameState, GamePhase, InspectedEntity, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, PlayerIdentifier, InspectedMapEntity } from '@/types/game';
+import { GameState, GamePhase, InspectedEntity, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, PlayerIdentifier, InspectedMapEntity, EffectQueueItem } from '@/types/game';
 import { GAME_CONFIG } from '@/data/config';
 import { handleInitialization } from '@/logic/reducers/initializationReducer';
 import { handleGameFlow } from '@/logic/reducers/gameFlowReducer';
@@ -33,11 +33,8 @@ export type Action =
     | { type: 'AI_CLEAR_ORDERS' }
     | { type: 'TRIGGER_EFFECT'; payload: string }
     | { type: 'CLEAR_LATEST_EFFECT' }
-    | { type: 'PLAY_VFX'; payload: { key: string; center: Vector3 } }
+    | { type: 'ADD_EFFECTS_TO_QUEUE'; payload: EffectQueueItem[] } // New action
     | { type: 'CLEAR_EFFECT_QUEUE' }
-    | { type: 'PLAY_SFX'; payload: { key: string; channel: AudioChannel; position?: Vector3 } }
-    | { type: 'CLEAR_VFX' }
-    | { type: 'CLEAR_SFX' }
     | { type: 'GO_TO_MAIN_MENU' }
     | { type: 'SET_ACTIVE_HIGHLIGHT'; payload: ActiveHighlight | null }
     | { type: 'TOGGLE_SETTINGS_DRAWER' }
@@ -69,7 +66,7 @@ export const initialState: GameState = {
     inspectedArchetypeOwner: null, inspectedMapEntity: null,
     worldInspectorManuallyClosed: false,
     isIntroComplete: false, cameraFocusAnimation: null, hoveredEntity: null,
-    isPaused: true, initialCameraTarget: null, vfxToPlay: null, sfxToPlay: null, activeHighlight: null,
+    isPaused: true, initialCameraTarget: null, activeHighlight: null,
     effectQueue: [],
     isSettingsOpen: false,
     isResolvingTurn: false,
@@ -131,10 +128,7 @@ export const reducer = (state: GameState, action: Action): GameState => {
 
         // VFX/SFX
         case 'PROCESS_EFFECT_QUEUE':
-        case 'PLAY_VFX':
-        case 'PLAY_SFX':
-        case 'CLEAR_VFX':
-        case 'CLEAR_SFX':
+        case 'ADD_EFFECTS_TO_QUEUE': // New action
             return handleFx(state, action);
 
         // UI

@@ -571,8 +571,6 @@ export interface GameState {
     } | null;
     isPaused: boolean;
     initialCameraTarget: Vector3 | null;
-    vfxToPlay: { key: string; center: Vector3 } | null;
-    sfxToPlay: SfxPlayback | null;
     activeHighlight: ActiveHighlight | null;
     effectQueue: EffectQueueItem[];
     isSettingsOpen: boolean;

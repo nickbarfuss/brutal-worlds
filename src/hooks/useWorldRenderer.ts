@@ -10,7 +10,7 @@ import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { useGameEngine } from '@/hooks/useGameEngine';
 import { VfxManager } from '@/logic/VfxManager';
 import { drawUICanvas } from '@/canvas/drawingUtils';
-import { Enclave, ActiveHighlight, GameState, MapCell, Route, PendingOrders, ActiveDisasterMarker, WorldProfile, Vector3, Domain, Rift, Expanse, IntroPhase, GamePhase } from '@/types/game';
+import { Enclave, ActiveHighlight, GameState, MapCell, Route, PendingOrders, ActiveEffectMarker, WorldProfile, Vector3, Domain, Rift, Expanse, IntroPhase, GamePhase } from '@/types/game';
 import { mainNebulaVertexShader, mainNebulaFragmentShader, wispyNebulaVertexShader, wispyNebulaFragmentShader, atmosphereVertexShader, atmosphereFragmentShader, sunVertexShader, sunFragmentShader } from '@/canvas/shaderUtils';
 import { createStarfield } from '@/canvas/starfieldUtils';
 // FIX: Import the SfxManager type to resolve the 'Cannot find name' error.
@@ -56,6 +56,8 @@ interface MapRendererProps {
     commandFillMesh: THREE.Mesh | null;
     commandFillOpacity: number;
     commandBorderOpacity: number;
+    aiOrderMeshes: Line2[];
+    aiOrderMaterials: LineMaterial[];
     highlightBorderMeshes: Line2[];
     highlightBorderMaterials: LineMaterial[];
     highlightFillMesh: THREE.Mesh | null;
@@ -102,6 +104,7 @@ const handleHighlightMeshes = (
         commandFillMesh: newCommandFill, commandBorderMeshes: newCommandBorders,
         highlightFillMesh: newHighlightFill, highlightBorderMeshes: newHighlightBorders,
         permanentBorderMeshes: newPermanentBorders,
+        aiOrderMeshes: newAiOrders, // Add this line
     } = dynamicProps;
 
     if (newPermanentBorders !== currentMeshes.permanent) {
@@ -133,6 +136,13 @@ const handleHighlightMeshes = (
         if (currentMeshes.highlightBorders) currentMeshes.highlightBorders.forEach((m: THREE.Object3D) => mapContainer.remove(m));
         currentMeshes.highlightBorders = newHighlightBorders;
         if (currentMeshes.highlightBorders) currentMeshes.highlightBorders.forEach((m: THREE.Object3D) => mapContainer.add(m));
+    }
+
+    // Handle AI Order Meshes
+    if (newAiOrders !== currentMeshes.aiOrders) {
+        if (currentMeshes.aiOrders) currentMeshes.aiOrders.forEach((m: THREE.Object3D) => mapContainer.remove(m));
+        currentMeshes.aiOrders = newAiOrders;
+        if (currentMeshes.aiOrders) currentMeshes.aiOrders.forEach((m: THREE.Object3D) => mapContainer.add(m));
     }
 };
 

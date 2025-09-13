@@ -43,6 +43,17 @@ Do not dispatch intermediate Redux actions (e.g., `PLAY_VFX`, `PLAY_SFX`) that t
 When processing the `effectQueue` within `useGameEngine`, directly call `sfxManager.current.playSound()` and `vfxManager.current.playEffect()` with the appropriate effect data. This ensures that effects are played immediately upon being processed from the queue, simplifying the data flow and reducing potential timing issues.
 
 
+### 5. Real-time vs. Turn-based Sound Playback
+
+It is crucial to distinguish between sound effects triggered by real-time user interactions and those generated as a result of turn resolution from the `effectQueue`.
+
+*   **Turn-based Effects (from `effectQueue`):** For sound and visual effects originating from the `effectQueue` (populated by the web worker after turn resolution), the `useGameEngine` hook should directly call `sfxManager.current.playSound()` and `vfxManager.current.playEffect()`. This ensures timely and singular playback for effects processed asynchronously after a turn.
+
+*   **Real-time User Interaction Effects:** Sound effects triggered by immediate user actions (e.g., clicking a button to issue an order, UI navigation) should be played directly by the relevant UI component or React hook that handles the interaction. These calls should also use `sfxManager.current.playSound()` (or `vfxManager.current.playEffect()` for visual feedback) at the point of interaction, bypassing the `effectQueue` mechanism to provide immediate feedback.
+
+This distinction ensures that turn-based effects are processed correctly within the game loop's asynchronous nature, while real-time interactions provide instant auditory feedback to the player.
+
+
 ## Web Worker Communication
 
 The game uses a web worker to resolve turns in the background. The main thread sends the game state to the worker, and the worker sends back the new state.
@@ -79,20 +90,3 @@ To ensure proper timing, consider:
 *   **When effects are processed**: The main thread should process these effects immediately after receiving the resolved turn state from the worker, before advancing the game to the next logical step (e.g., incrementing the turn counter).
 *   **State synchronization**: Ensure that all relevant state is correctly passed to and from the worker to maintain consistency.
 
-## Effect Dialog System
-
-**Objective:**
-Implement a scalable system where any effect (like a disaster or gambit) can trigger specific "dialog" sounds on the "dialog" audio channel during *any* of its defined phases (e.g., alert, resolution, start, end). This will be in addition to any existing sound effects.
-
-**Plan of Action:**
-
-1.  **Review Asset Structure:** Analyze `src/data/disasters.ts` and related files to define a clean, top-level `assets` object in the effect profile. This will contain sub-objects for `sfx`, `vfx`, and `dialog`.
-2.  **Introduce Phase-Specific Dialogs:** The `assets.dialog` object will now be a map where keys correspond to effect phases (e.g., `alert`, `resolution`, `start`, `end`) and values are the sound asset keys for the dialogs to be played during that specific phase. This allows for multiple dialogs per effect, each tied to a different phase.
-3.  **Refactor Effect Processing Logic:** Trace the code that handles *all* phases of an effect. For each phase, modify the logic to:
-    *   Check if a dialog is defined for the *current phase* within `effect.assets.dialog`.
-    *   If it exists, instruct the `SfxManager` to play it on the dedicated "dialog" channel.
-4.  **Remove Hardcoded Logic:** Search for and remove any existing special-case logic for playing dialog sounds, ensuring our new, flexible system is the single source of truth.
-
-## User Preferences
-
-- User prefers to manually commit changes. I will save changes to disk, but will not commit them to Git unless explicitly requested.

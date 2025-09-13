@@ -1,5 +1,7 @@
 import { GameState, Enclave } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
+import { v4 as uuidv4 } from 'uuid';
+import * as THREE from 'three';
 
 export const handleFx = (state: GameState, action: Action): GameState => {
     switch (action.type) {
@@ -13,17 +15,20 @@ export const handleFx = (state: GameState, action: Action): GameState => {
             };
         }
 
-        case 'PLAY_VFX':
-            return { ...state, vfxToPlay: action.payload };
+        case 'ADD_EFFECTS_TO_QUEUE': {
+            const newEffects = action.payload;
+            return {
+                ...state,
+                effectQueue: [...state.effectQueue, ...newEffects],
+            };
+        }
 
-        case 'PLAY_SFX':
-            return { ...state, sfxToPlay: action.payload };
-
-        case 'CLEAR_VFX':
-            return { ...state, vfxToPlay: null };
-
-        case 'CLEAR_SFX':
-            return { ...state, sfxToPlay: null };
+        case 'CLEAR_EFFECT_QUEUE': { // Re-add this case
+            return {
+                ...state,
+                effectQueue: [],
+            };
+        }
             
         default:
             return state;

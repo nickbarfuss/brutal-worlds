@@ -1,5 +1,6 @@
 import { GameState, Enclave, Order, EffectQueueItem } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
+import { v4 as uuidv4 } from 'uuid';
 import { EFFECT_PROFILES } from '@/data/effects';
 import { ORDER_PROFILES } from '@/data/orders';
 import { triggerNewEffect as triggerEffectLogic } from "@/logic/effectManager";
@@ -177,33 +178,27 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
         
             if (ordersWereCancelled) {
                 const sfxKey = `sfx-order-hold-${Math.floor(Math.random() * 6) + 1}`;
+                // Changed to add to effectQueue
+                const effectsToQueue: EffectQueueItem[] = [];
+                // Assuming the first cancelled order's enclave is representative for position
+                const fromEnclave = state.enclaveData[ordersToCancel[0]]; 
+                if (fromEnclave) {
+                    effectsToQueue.push({
+                        id: uuidv4(),
+                        sfx: { key: sfxKey, channel: 'fx', position: fromEnclave.center },
+                        position: fromEnclave.center,
+                    });
+                }
                 return {
                     ...state,
                     playerPendingOrders: newPlayerOrders,
-                    sfxToPlay: { key: sfxKey, channel: 'ui' },
+                    effectQueue: [...state.effectQueue, ...effectsToQueue],
                 };
             }
             return state;
         }
 
-        case 'AI_ISSUE_ORDER': {
-            const { fromId, order } = action.payload as { fromId: number, order: Order };
-            const fromEnclave = state.enclaveData[fromId];
-            const toEnclave = state.enclaveData[order.to];
-            if (!fromEnclave || !toEnclave) return state;
-
-            const newAiOrders = { ...state.aiPendingOrders, [fromId]: order };
-            const sfxKey = `sfx-order-${order.type}-${Math.floor(Math.random() * 4) + 1}`;
-            
-            const vfxKey = ORDER_PROFILES[order.type].vfxKey;
-            
-            return {
-                ...state,
-                aiPendingOrders: newAiOrders,
-                sfxToPlay: { key: sfxKey, channel: 'fx', position: fromEnclave.center },
-                vfxToPlay: vfxKey ? { key: vfxKey, center: toEnclave.center } : null,
-            };
-        }
+        
         
         case 'AI_CANCEL_ORDER': {
             const { fromId } = action.payload;
@@ -213,15 +208,65 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             const newAiOrders = { ...state.aiPendingOrders };
             delete newAiOrders[fromId];
 
+            const effectsToQueue: EffectQueueItem[] = [];
+
             const sfxKey = `sfx-order-hold-${Math.floor(Math.random() * 6) + 1}`;
+            effectsToQueue.push({
+                id: uuidv4(),
+                sfx: { key: sfxKey, channel: 'fx', position: fromEnclave.center },
+                position: fromEnclave.center,
+            });
 
             const vfxKey = ORDER_PROFILES.holding.vfxKey;
+            if (vfxKey) {
+                effectsToQueue.push({
+                    id: uuidv4(),
+                    vfxKey: vfxKey,
+                    position: fromEnclave.center,
+                });
+            }
 
             return {
                 ...state,
                 aiPendingOrders: newAiOrders,
-                sfxToPlay: { key: sfxKey, channel: 'fx', position: fromEnclave.center },
-                vfxToPlay: vfxKey ? { key: vfxKey, center: fromEnclave.center } : null,
+                effectQueue: [...state.effectQueue, ...effectsToQueue],
+            };
+        }
+
+        case 'AI_ISSUE_ORDER': {
+            const { fromId, order } = action.payload;
+            const fromEnclave = state.enclaveData[fromId];
+            const toEnclave = state.enclaveData[order.to];
+
+            if (!fromEnclave || !toEnclave) return state;
+
+            const effectsToQueue: EffectQueueItem[] = [];
+            const orderType = order.type;
+
+            const vfxKey = ORDER_PROFILES[orderType]?.vfxKey;
+            const sfxKey = `sfx-order-${orderType}-${Math.floor(Math.random() * 4) + 1}`;
+
+            if (vfxKey) {
+                effectsToQueue.push({
+                    id: uuidv4(),
+                    vfxKey: vfxKey,
+                    position: toEnclave.center, // VFX at target
+                });
+            }
+
+            effectsToQueue.push({
+                id: uuidv4(),
+                sfx: { key: sfxKey, channel: 'fx', position: fromEnclave.center }, // SFX at origin
+                position: fromEnclave.center,
+            });
+
+            return {
+                ...state,
+                aiPendingOrders: {
+                    ...state.aiPendingOrders,
+                    [fromId]: order,
+                },
+                effectQueue: [...state.effectQueue, ...effectsToQueue],
             };
         }
 

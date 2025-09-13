@@ -182,6 +182,7 @@ export const resolveAttacks = (
                 sfx: { key: sfxKey, channel: 'fx', position: target.center },
                 position: target.center,
             });
+            console.log('Attack Resolver: Queued Conquest Effect', { id: `eff-conquest-${target.id}-${Date.now()}`, vfxKey, sfx: { key: sfxKey, channel: 'fx', position: target.center }, position: target.center });
 
             const conqueringArchetypeKey = target.archetypeKey;
             const conqueringLegacyKey = target.owner === 'player-1' ? playerLegacyKey : opponentLegacyKey;

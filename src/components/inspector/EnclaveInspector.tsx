@@ -69,7 +69,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
             outgoingOrderValues.base = Math.floor(baseForces * combatModifier);
             outgoingOrderValues.bonus = 1 + getAttackBonusForEnclave(enclave);
         } else if (outgoingOrder.type === 'assist') {
-            const assistMultiplier = getAssistMultiplierForEnclave(fromEnclave);
+            const assistMultiplier = getAssistMultiplierForEnclave(enclave);
             outgoingOrderValues.base = Math.ceil(safeCurrentForces * assistMultiplier);
         }
     } else { // Holding
@@ -279,19 +279,19 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
 
                 <Card.Section title="Incoming" hasContent={incomingOrders.length > 0}>
                    {incomingOrders.map(([fromId, order]) => {
-                      const fromEnclave = enclaveData[parseInt(fromId, 10)];
-                      if (!fromEnclave) return null;
+                      const currentFromEnclave = enclaveData[parseInt(fromId, 10)]; // Renamed variable
+                      if (!currentFromEnclave) return null; // Use renamed variable
                       
-                      const { combatModifier } = getAppliedModifiers(fromEnclave);
-                      const safeForces = Number.isFinite(fromEnclave.forces) ? fromEnclave.forces : 0;
+                      const { combatModifier } = getAppliedModifiers(currentFromEnclave); // Use renamed variable
+                      const safeForces = Number.isFinite(currentFromEnclave.forces) ? currentFromEnclave.forces : 0; // Use renamed variable
 
                       let incomingValues = { base: 0, bonus: 0 };
                       if (order.type === 'attack') {
                           const baseForces = Math.ceil(safeForces * 0.35);
                           incomingValues.base = Math.floor(baseForces * combatModifier);
-                          incomingValues.bonus = 1 + getAttackBonusForEnclave(fromEnclave);
+                          incomingValues.bonus = 1 + getAttackBonusForEnclave(currentFromEnclave); // Use renamed variable
                       } else if (order.type === 'assist') {
-                          const assistMultiplier = getAssistMultiplierForEnclave(fromEnclave);
+                          const assistMultiplier = getAssistMultiplierForEnclave(currentFromEnclave); // Use renamed variable
                           incomingValues.base = Math.ceil(safeForces * assistMultiplier);
                       }
     
@@ -302,11 +302,11 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                             baseValue={incomingValues.base}
                             bonusValue={incomingValues.bonus}
                             valueType="force"
-                            owner={fromEnclave.owner}
+                            owner={currentFromEnclave.owner} // Use renamed variable
                             worldPalette={currentWorld ? currentWorld.neutralColorPalette : undefined}
                             briefingProps={{ type: 'order', key: `order-${order.type}-${fromId}-${enclave.id}` }}
                             title={incomingOrderSubtitles[order.type]}
-                            subtitle={fromEnclave.name}
+                            subtitle={currentFromEnclave.name} // Use renamed variable
                         />
                       );
                    })}
