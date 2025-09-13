@@ -1,4 +1,5 @@
 export const CONFIG = {
+    
     TURN_DURATION: 20,
     PLAYER_STARTING_ENCLAVES: 2,
     MULTIPLE_STARTING_TERRITORIES: true,
@@ -54,8 +55,19 @@ export const CONFIG = {
         
     },
 
-    //CDN url
+    //CDN location of all assets
     CDN_CONFIG: {
-        CDN_BASE_URL: 'https://storage.googleapis.com/brutal-worlds', 
-    }   
+        //base
+        base: 'https://storage.googleapis.com/brutal-worlds',
+        
+        //sounds
+        ambient: 'https://storage.googleapis.com/brutal-worlds/ambient',
+        dialog: 'https://storage.googleapis.com/brutal-worlds/dialog',
+        music: 'https://storage.googleapis.com/brutal-worlds/music',
+        sfx: 'https://storage.googleapis.com/brutal-worlds/sfx',     
+        ui: 'https://storage.googleapis.com/brutal-worlds/sfx',
+
+        //visuals
+        vfx: 'https://storage.googleapis.com/brutal-worlds/vfx',
+    },      
 }

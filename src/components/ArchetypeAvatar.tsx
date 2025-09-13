@@ -2,7 +2,7 @@ import React from 'react';
 import { ARCHETYPES } from '@/data/archetypes';
 import { PlayerIdentifier } from '@/types/game';
 import { THEME_CONFIG } from '@/data/theme';
-import { getAssetUrl, AssetType } from '@/utils/assetUtils';
+import { getAssetUrl } from '@/utils/assetUtils';
 
 interface ArchetypeAvatarProps {
   owner: PlayerIdentifier;
@@ -24,7 +24,7 @@ const ArchetypeAvatar: React.FC<ArchetypeAvatarProps> = ({ owner, archetypeKey, 
 
   // Image URL
   const imageUrl = archetype && legacy 
-  ? getAssetUrl(AssetType.ArchetypeAvatar, { archetypeKey: archetype.key, legacyKey: legacy.key })
+  ? getAssetUrl('archetype', `${archetype.key}-${legacy.key}`, 'png')
   : null;
     
   // Fallback and legacy icons

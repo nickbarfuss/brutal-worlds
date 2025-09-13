@@ -1,44 +1,27 @@
 import { CONFIG } from '@/data/config';
 
-export enum AssetType {
-  ArchetypeAvatar = 'archetypeAvatar',
-  // Add other asset types here
-}
-
-interface AssetParams {
-  archetypeKey?: string;
-  legacyKey?: string;
-  // Add other asset-specific parameters here
-}
-
 /**
- * Returns the asset URL. It can either construct a URL based on AssetType and parameters,
+ * Returns the asset URL. It can either construct a URL based on directory, key, and extension,
  * or return a provided direct URL string.
- * @param typeOrUrl The type of asset (AssetType) or a direct URL string.
- * @param params Optional: Parameters specific to the asset type, if typeOrUrl is AssetType.
+ * @param dirOrUrl The directory (e.g., 'archetype', 'sfx') or a direct URL string.
+ * @param key The file name (e.g., 'my-asset').
+ * @param ext The file extension (e.g., 'png', 'mp3').
  * @returns The constructed or provided asset URL.
  */
-export const getAssetUrl = (typeOrUrl: AssetType | string, params?: AssetParams): string => {
+export function getAssetUrl(dirOrUrl: string, key?: string, ext?: string): string {
   // If a direct URL string is provided, return it.
-  if (typeof typeOrUrl === 'string' && typeOrUrl.startsWith('http')) {
-    return typeOrUrl;
+  if (dirOrUrl.startsWith('http')) {
+    return dirOrUrl;
   }
 
-  // Otherwise, treat typeOrUrl as AssetType and construct the URL.
-  const type = typeOrUrl as AssetType;
+  // Otherwise, construct the URL from dir, key, and ext.
+  if (!key || !ext) {
+    throw new Error('Key and extension are required when constructing an asset URL.');
+  }
+
   const CDN_BASE_URL = CONFIG.CDN_CONFIG.CDN_BASE_URL;
-
-  switch (type) {
-    case AssetType.ArchetypeAvatar:
-      if (!params?.archetypeKey || !params?.legacyKey) {
-        throw new Error('archetypeKey and legacyKey are required for ArchetypeAvatar assets.');
-      }
-      return `${CDN_BASE_URL}/archetype/${params.archetypeKey}-${params.legacyKey}.png`;
-    // Add cases for other asset types here
-    default:
-      throw new Error(`Unknown asset type: ${type}`);
-  }
-};
+  return `${CDN_BASE_URL}/${dirOrUrl}/${key}.${ext}`;
+}
 
 
 /**

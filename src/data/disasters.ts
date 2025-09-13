@@ -1,4 +1,5 @@
 import { EffectProfile } from '@/types/game.ts';
+import { getAssetUrl } from '@/utils/assetUtils';
 
 export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to renamme DISASTER_PROFILES to COMMON
     'entropy-wind': {
@@ -9,22 +10,22 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
             description: "A howling gale of pure chaos moves across the land, unmaking everything in its path.",
             assets: {
                 key: 'entropy-wind',
-                image: 'https://storage.googleapis.com/brutal-worlds/disaster/entropy-wind.jpg',
+                image: getAssetUrl('disaster', 'entropy-wind', 'jpg'),
                 sfx: {
-                    alert: 'entropy-wind-alert',
-                    impact: 'entropy-wind-impact',
-                    aftermath: 'entropy-wind-aftermath',
+                    alert: getAssetUrl('sfx', 'entropy-wind-alert', 'mp3'),
+                    impact: getAssetUrl('sfx', 'entropy-wind-impact', 'mp3'),
+                    aftermath: getAssetUrl('sfx', 'entropy-wind-aftermath', 'mp3'),
                 },
                 vfx: {
-                    alert: 'entropy-wind-alert',
-                    impact: 'entropy-wind-impact',
-                    aftermath: 'entropy-wind-aftermath',
+                    alert: getAssetUrl('vfx', 'entropy-wind-alert', 'webm'),
+                    impact: getAssetUrl('vfx', 'entropy-wind-impact', 'webm'),
+                    aftermath: getAssetUrl('vfx', 'entropy-wind-aftermath', 'webm'),
                 },
                 dialog: {
                     alert: [
-                        'narrator-disaster-entropy-wind-alert-1',
-                        'narrator-disaster-entropy-wind-alert-2',
-                        'narrator-disaster-entropy-wind-alert-3',
+                        getAssetUrl('dialog', 'narrator-disaster-entropy-wind-alert-1', 'mp3'),
+                        getAssetUrl('dialog', 'narrator-disaster-entropy-wind-alert-2', 'mp3'),
+                        getAssetUrl('dialog', 'narrator-disaster-entropy-wind-alert-3', 'mp3'),
                     ],
                 }
             },
