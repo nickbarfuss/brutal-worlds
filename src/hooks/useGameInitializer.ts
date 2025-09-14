@@ -29,7 +29,7 @@ const preloadVideos = (urls: string[]): Promise<void[]> => {
         video.oncanplaythrough = () => resolve();
         //video.onerror = () => reject(`Failed to preload video: ${url}`);
         video.onerror = () => {
-            //console.warn(`Failed to preload video: ${url}`);
+            console.warn(`Failed to preload video: ${url}`);
             // TODO: Once all video assets are guaranteed to exist, change this to `reject()`
             // to ensure that missing assets cause a hard failure during initialization.
             resolve(); // Resolve even on error to prevent Promise.all from failing
@@ -46,7 +46,7 @@ const preloadImages = (urls: string[]): Promise<void[]> => {
         img.onload = () => resolve();
         //img.onerror = () => reject(`Failed to preload image: ${url}`);
         img.onerror = () => {
-            //console.warn(`Failed to preload image: ${url}`);
+            console.warn(`Failed to preload image: ${url}`);
             // TODO: Once all image assets are guaranteed to exist, change this to `reject()`
             // to ensure that missing assets cause a hard failure during initialization.
             resolve();
@@ -62,7 +62,7 @@ const preloadAudio = (urls: string[]): Promise<void[]> => {
         audio.oncanplaythrough = () => resolve();
         //audio.onerror = () => reject(`Failed to preload audio: ${url}`);
         audio.onerror = () => {
-            //console.warn(`Failed to preload audio: ${url}`);
+            console.warn(`Failed to preload audio: ${url}`);
             // TODO: Once all audio assets are guaranteed to exist, change this to `reject()`
             // to ensure that missing assets cause a hard failure during initialization.
             resolve(); // Resolve even on error to prevent Promise.all from failing

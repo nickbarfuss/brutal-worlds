@@ -493,23 +493,23 @@ export const ARCHETYPE_PROFILES: { [key: string]: EffectProfile } = {
             }
         }
     },
-    'forge-links': {
-        key: 'forge-links',
+    'forge-gate': {
+        key: 'forge-gate',
         ui: {
-            name: 'Forge Links',
+            name: 'Forge Gate',
             icon: 'link',
             description: 'Create a temporary, unbreakable supply line between all your enclaves, allowing for perfect reinforcement.',
             assets: {
-                key: 'forge-links',
-                image: ASSETS.gambit.forgeLinks.image,
+                key: 'forge-gate',
+                image: ASSETS.gambit.forgeGate.image,
                 sfx: {
-                    impact: ASSETS.gambit.forgeLinks.sfx.impact,
+                    impact: ASSETS.gambit.forgeGate.sfx.impact,
                 },
                 vfx: {
-                    impact: ASSETS.gambit.forgeLinks.vfx.impact,
+                    impact: ASSETS.gambit.forgeGate.vfx.impact,
                 },
                 dialog: {
-                    impact: ASSETS.gambit.forgeLinks.dialog.impact,
+                    impact: ASSETS.gambit.forgeGate.dialog.impact,
                 }
             }
         },
