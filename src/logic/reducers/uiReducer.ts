@@ -1,4 +1,4 @@
-import { GameState, ActiveHighlight, AudioChannel, PlayerIdentifier } from '@/types/game';
+import { GameState, ActiveHighlight } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
 
 export const handleUi = (state: GameState, action: Action): GameState => {

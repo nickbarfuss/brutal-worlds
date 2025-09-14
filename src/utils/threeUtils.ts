@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Enclave, MapCell, ActiveEffectMarker, ActiveEffect, EffectQueueItem, SfxPlayback } from '@/types/game.ts';
+import { Enclave, MapCell, ActiveEffectMarker, EffectQueueItem } from '@/types/game.ts';
 
 interface PlainVector3 {
     x: number;

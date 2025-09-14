@@ -1,4 +1,4 @@
-import { GameState, Enclave, Order, EffectQueueItem } from '@/types/game';
+import { GameState, Enclave, EffectQueueItem } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
 import { v4 as uuidv4 } from 'uuid';
 import { EFFECT_PROFILES } from '@/data/effects';

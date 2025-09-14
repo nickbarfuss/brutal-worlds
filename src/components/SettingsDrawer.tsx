@@ -5,6 +5,7 @@ import SliderCard from '@/components/ui/SliderCard';
 import SwitchCard from '@/components/ui/SwitchCard';
 import { SfxManager } from '@/logic/SfxManager';
 import { WorldCanvasHandle } from '@/components/WorldCanvas';
+import { APP_TEXT } from '@/data/text';
 
 interface SettingsDrawerProps {
   isOpen: boolean;
@@ -40,11 +41,11 @@ interface SettingsDrawerProps {
 }
 
 const soundChannels: { key: AudioChannel; label: string; }[] = [
-  { key: 'music', label: 'Music' },
-  { key: 'ambient', label: 'Ambient' },
-  { key: 'dialog', label: 'Dialog' },
-  { key: 'fx', label: 'Effects' },
-  { key: 'ui', label: 'Interface' },
+  { key: 'music', label: APP_TEXT.settings.sound.channels.music },
+  { key: 'ambient', label: APP_TEXT.settings.sound.channels.ambient },
+  { key: 'dialog', label: APP_TEXT.settings.sound.channels.dialog },
+  { key: 'fx', label: APP_TEXT.settings.sound.channels.fx },
+  { key: 'ui', label: APP_TEXT.settings.sound.channels.ui },
 ];
 
 const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ 
@@ -106,7 +107,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
       onMouseLeave={() => worldCanvasHandle.current?.setControlsEnabled(true)}
       className={`fixed top-0 left-0 h-full w-full max-w-[420px] bg-neutral-900 z-50 shadow-2xl border-r border-neutral-700/50 flex flex-col ${animationClass}`}>
       <div className="flex justify-between items-center p-4 border-b border-neutral-700 flex-shrink-0">
-        <h2 className="text-2xl font-bold">Settings</h2>
+        <h2 className="text-2xl font-bold">{APP_TEXT.settings.title}</h2>
         <button onClick={onClose} className="text-neutral-400 hover:text-white transition-colors duration-200 p-2 rounded-full">
           <span className="material-symbols-outlined text-3xl">close</span>
         </button>
@@ -114,11 +115,11 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
 
       <div className="flex-grow p-4 overflow-y-auto no-scrollbar space-y-6">
         <div>
-          <h3 className="font-medium text-base text-neutral-600 uppercase tracking-wider mb-3 px-1">Sound</h3>
+          <h3 className="font-medium text-base text-neutral-600 uppercase tracking-wider mb-3 px-1">{APP_TEXT.settings.sound.title}</h3>
           <div className="space-y-2">
             <SwitchCard
                 icon={isGloballyMuted ? 'volume_off' : 'volume_up'}
-                label="Audio"
+                label={APP_TEXT.settings.sound.audioToggle}
                 checked={!isGloballyMuted}
                 onChange={onToggleGlobalMute}
             />
@@ -147,15 +148,15 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
             <div className="space-y-2">
                 <SwitchCard
                     icon="replay"
-                    label="Previous turn FX"
-                    description="Play all visual and sound effects from previous turns."
+                    label={APP_TEXT.settings.fx.previousFXLabel}
+                    description={APP_TEXT.settings.fx.previouosFXDescription}
                     checked={playVfxFromPreviousTurns}
                     onChange={onSetPlayVfxFromPreviousTurns}
                 />
                 <SwitchCard
                     icon="layers"
-                    label="Stack FX"
-                    description="Play visual and sound effects simultaneously instead of chained."
+                    label={APP_TEXT.settings.fx.stackFXLabel}
+                    description={APP_TEXT.settings.fx.stackFXDescription}
                     checked={stackVfx}
                     onChange={onSetStackVfx}
                 />
@@ -163,11 +164,11 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
         </div>
 
         <div>
-          <h3 className="font-medium text-base text-neutral-600 uppercase tracking-wider mb-3 px-1">Camera - {fps} FPS</h3>
+          <h3 className="font-medium text-base text-neutral-600 uppercase tracking-wider mb-3 px-1">{APP_TEXT.settings.camera.title} - {fps} FPS</h3>
           <div className="space-y-2">
             <SliderCard
                 icon="settings_overscan"
-                label="FOV"
+                label={APP_TEXT.settings.camera.FOVLabel}
                 valueDisplay={fov.toFixed(0)}
                 sliderProps={{
                     min: 30,
@@ -179,7 +180,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
             />
             <SliderCard
                 icon="social_distance"
-                label="Distance"
+                label={APP_TEXT.settings.camera.distanceLabel}
                 valueDisplay={distance.toFixed(0)}
                 sliderProps={{
                     min: 20,
@@ -193,41 +194,41 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
         </div>
 
         <div>
-          <h3 className="font-medium text-base text-neutral-600 uppercase tracking-wider mb-3 px-1">Lighting</h3>
+          <h3 className="font-medium text-base text-neutral-600 uppercase tracking-wider mb-3 px-1">{APP_TEXT.settings.lighting.title}</h3>
           <div className="space-y-2">
              <SliderCard
                 icon="light_mode"
-                label="Ambient"
+                label={APP_TEXT.settings.lighting.ambientLabel}
                 valueDisplay={ambientLightIntensity.toFixed(2)}
                 sliderProps={{ min: 0, max: 2, step: 0.01, value: ambientLightIntensity, onChange: (v) => worldCanvasHandle.current?.setAmbientLightIntensity(v), onCommit: onAmbientLightIntensityChange }}
             />
             <SwitchCard
                 icon="flare"
-                label="Bloom Effect"
+                label={APP_TEXT.settings.lighting.bloomToggle}
                 checked={isBloomEnabled}
                 onChange={onToggleBloom}
             />
             <SliderCard
                 icon="filter_tilt_shift"
-                label="Threshold"
+                label={APP_TEXT.settings.lighting.thresholdLabel}
                 valueDisplay={bloomSettings.threshold.toFixed(2)}
                 sliderProps={{ min: 0, max: 1, step: 0.01, value: bloomSettings.threshold, onChange: (v) => worldCanvasHandle.current?.setBloomValue('threshold', v), onCommit: (v) => onBloomSettingChange('threshold', v), disabled: !isBloomEnabled }}
             />
             <SliderCard
                 icon="flare"
-                label="Strength"
+                label={APP_TEXT.settings.lighting.strengthLabel}
                 valueDisplay={bloomSettings.strength.toFixed(2)}
                 sliderProps={{ min: 0, max: 2, step: 0.01, value: bloomSettings.strength, onChange: (v) => worldCanvasHandle.current?.setBloomValue('strength', v), onCommit: (v) => onBloomSettingChange('strength', v), disabled: !isBloomEnabled }}
             />
             <SliderCard
                 icon="blur_on"
-                label="Radius"
+                label={APP_TEXT.settings.lighting.radiusLabel}
                 valueDisplay={bloomSettings.radius.toFixed(2)}
                 sliderProps={{ min: 0, max: 1, step: 0.01, value: bloomSettings.radius, onChange: (v) => worldCanvasHandle.current?.setBloomValue('radius', v), onCommit: (v) => onBloomSettingChange('radius', v), disabled: !isBloomEnabled }}
             />
             <SliderCard
                 icon="tonality"
-                label="Tonemapping"
+                label={APP_TEXT.settings.lighting.tonemappingLabel}
                 valueDisplay={(tonemappingStrength ?? 0).toFixed(2)}
                 sliderProps={{ min: 0, max: 1, step: 0.01, value: tonemappingStrength, onChange: (v) => worldCanvasHandle.current?.setTonemappingStrength(v), onCommit: onTonemappingStrengthChange, disabled: !isBloomEnabled }}
             />
@@ -235,72 +236,72 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
         </div>
 
         <div>
-          <h3 className="font-medium text-base text-neutral-600 uppercase tracking-wider mb-3 px-1">Materials</h3>
+          <h3 className="font-medium text-base text-neutral-600 uppercase tracking-wider mb-3 px-1">{APP_TEXT.settings.materials.title}</h3>
           <div className="space-y-4">
             <div>
-              <h4 className="font-semibold text-neutral-400 mb-2 px-1">Player</h4>
+              <h4 className="font-semibold text-neutral-400 mb-2 px-1">{APP_TEXT.settings.materials.categories.player}</h4>
               <div className="space-y-2">
                 <SliderCard
                   icon="texture"
-                  label="Metalness"
+                  label={APP_TEXT.settings.materials.metalnessLabel}
                   valueDisplay={materialSettings.player.metalness.toFixed(2)}
                   sliderProps={{ min: 0, max: 1, step: 0.01, value: materialSettings.player.metalness, onChange: (v) => worldCanvasHandle.current?.setMaterialValue('player', 'metalness', v), onCommit: (v) => onMaterialSettingChange('player', 'metalness', v) }}
                 />
                 <SliderCard
                   icon="brightness_6"
-                  label="Roughness"
+                  label={APP_TEXT.settings.materials.roughnessLabel}
                   valueDisplay={materialSettings.player.roughness.toFixed(2)}
                   sliderProps={{ min: 0, max: 1, step: 0.01, value: materialSettings.player.roughness, onChange: (v) => worldCanvasHandle.current?.setMaterialValue('player', 'roughness', v), onCommit: (v) => onMaterialSettingChange('player', 'roughness', v) }}
                 />
                 <SliderCard
                   icon="highlight"
-                  label="Emissive"
+                  label={APP_TEXT.settings.materials.emissiveLabel}
                   valueDisplay={(materialSettings.player.emissiveIntensity ?? 0).toFixed(2)}
                   sliderProps={{ min: 0, max: 1, step: 0.01, value: materialSettings.player.emissiveIntensity ?? 0, onChange: (v) => worldCanvasHandle.current?.setMaterialValue('player', 'emissiveIntensity', v), onCommit: (v) => onMaterialSettingChange('player', 'emissiveIntensity', v) }}
                 />
               </div>
             </div>
             <div>
-              <h4 className="font-semibold text-neutral-400 mb-2 px-1">Neutral</h4>
+              <h4 className="font-semibold text-neutral-400 mb-2 px-1">{APP_TEXT.settings.materials.categories.neutral}</h4>
               <div className="space-y-2">
                 <SliderCard
                   icon="texture"
-                  label="Metalness"
+                  label={APP_TEXT.settings.materials.metalnessLabel}
                   valueDisplay={materialSettings.neutral.metalness.toFixed(2)}
                   sliderProps={{ min: 0, max: 1, step: 0.01, value: materialSettings.neutral.metalness, onChange: (v) => worldCanvasHandle.current?.setMaterialValue('neutral', 'metalness', v), onCommit: (v) => onMaterialSettingChange('neutral', 'metalness', v) }}
                 />
                 <SliderCard
                   icon="brightness_6"
-                  label="Roughness"
+                  label={APP_TEXT.settings.materials.roughnessLabel}
                   valueDisplay={materialSettings.neutral.roughness.toFixed(2)}
                   sliderProps={{ min: 0, max: 1, step: 0.01, value: materialSettings.neutral.roughness, onChange: (v) => worldCanvasHandle.current?.setMaterialValue('neutral', 'roughness', v), onCommit: (v) => onMaterialSettingChange('neutral', 'roughness', v) }}
                 />
                 <SliderCard
                   icon="highlight"
-                  label="Emissive"
+                  label={APP_TEXT.settings.materials.emissiveLabel}
                   valueDisplay={(materialSettings.neutral.emissiveIntensity ?? 0).toFixed(2)}
                   sliderProps={{ min: 0, max: 1, step: 0.01, value: materialSettings.neutral.emissiveIntensity ?? 0, onChange: (v) => worldCanvasHandle.current?.setMaterialValue('neutral', 'emissiveIntensity', v), onCommit: (v) => onMaterialSettingChange('neutral', 'emissiveIntensity', v) }}
                 />
               </div>
             </div>
             <div>
-              <h4 className="font-semibold text-neutral-400 mb-2 px-1">Void</h4>
+              <h4 className="font-semibold text-neutral-400 mb-2 px-1">{APP_TEXT.settings.materials.categories.void}</h4>
               <div className="space-y-2">
                 <SliderCard
                   icon="texture"
-                  label="Metalness"
+                  label={APP_TEXT.settings.materials.metalnessLabel}
                   valueDisplay={materialSettings.void.metalness.toFixed(2)}
                   sliderProps={{ min: 0, max: 1, step: 0.01, value: materialSettings.void.metalness, onChange: (v) => worldCanvasHandle.current?.setMaterialValue('void', 'metalness', v), onCommit: (v) => onMaterialSettingChange('void', 'metalness', v) }}
                 />
                 <SliderCard
                   icon="brightness_6"
-                  label="Roughness"
+                  label={APP_TEXT.settings.materials.roughnessLabel}
                   valueDisplay={materialSettings.void.roughness.toFixed(2)}
                   sliderProps={{ min: 0, max: 1, step: 0.01, value: materialSettings.void.roughness, onChange: (v) => worldCanvasHandle.current?.setMaterialValue('void', 'roughness', v), onCommit: (v) => onMaterialSettingChange('void', 'roughness', v) }}
                 />
                  <SliderCard
                   icon="highlight"
-                  label="Emissive"
+                  label={APP_TEXT.settings.materials.emissiveLabel}
                   valueDisplay={(materialSettings.void.emissiveIntensity ?? 0).toFixed(2)}
                   sliderProps={{ min: 0, max: 1, step: 0.01, value: materialSettings.void.emissiveIntensity ?? 0, onChange: (v) => worldCanvasHandle.current?.setMaterialValue('void', 'emissiveIntensity', v), onCommit: (v) => onMaterialSettingChange('void', 'emissiveIntensity', v) }}
                 />

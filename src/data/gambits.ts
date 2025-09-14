@@ -2,7 +2,7 @@ import { EffectProfile } from '@/types/game.ts';
 import { ASSETS } from '@/data/assets.ts';
 
 export const ARCHETYPE_PROFILES: { [key: string]: EffectProfile } = {
-    // --- First Sword Gambits ---
+    // First Sword Gambits
     'celestial-annihilation': {
         key: 'celestial-annihilation',
         ui: {
@@ -180,7 +180,7 @@ export const ARCHETYPE_PROFILES: { [key: string]: EffectProfile } = {
         }
     },
 
-    // --- Pact Whisperer Gambits ---
+    // Pact Whisperer Gambits
     'soul-forging': {
         key: 'soul-forging',
         ui: {
@@ -359,7 +359,7 @@ export const ARCHETYPE_PROFILES: { [key: string]: EffectProfile } = {
         }
     },
     
-    // --- Resonance Warden Gambits ---
+    // Resonance Warden Gambits
     'orbital-nullification-beam': {
         key: 'orbital-nullification-beam',
         ui: {
@@ -538,7 +538,7 @@ export const ARCHETYPE_PROFILES: { [key: string]: EffectProfile } = {
         }
     },
 
-    // --- Labyrinthine Ghost Gambits ---
+    // Labyrinthine Ghost Gambits
     'ghost-in-the-system': {
         key: 'ghost-in-the-system',
         ui: {

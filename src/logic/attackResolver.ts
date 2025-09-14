@@ -1,4 +1,4 @@
-import { Enclave, PendingOrders, Player, Order, EffectQueueItem, MapCell, ConquestEvent } from '@/types/game.ts';
+import { Enclave, PendingOrders, Player, Order, EffectQueueItem, ConquestEvent } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
 import { getAppliedModifiers } from '@/logic/effectProcessor.ts';
 import { getAttackBonusForEnclave } from '@/logic/birthrightManager.ts';

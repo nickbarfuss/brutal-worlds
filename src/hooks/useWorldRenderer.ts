@@ -680,8 +680,8 @@ export const useWorldRenderer = (props: MapRendererProps) => {
             container.removeEventListener('pointermove', onPointerMove);
             container.removeEventListener('pointerup', onPointerUp);
             container.removeEventListener('pointerleave', onPointerUp as (e: Event) => void);
-            if (mountRef.current) mountRef.current.removeChild(renderer.domElement);
+            if (currentMount) currentMount.removeChild(renderer.domElement);
             if (uiCanvas.parentElement) uiCanvas.parentElement.removeChild(uiCanvas);
         };
-    }, [props.gameSessionId, props.currentWorld]);
+    }, [props.gameSessionId, props.currentWorld, cameraRef, controlsRef, mapContainerRef, mountRef, opacityController.world, props.ambientLightIntensity, props.initialCameraTarget, sceneElementsRef]);
 };

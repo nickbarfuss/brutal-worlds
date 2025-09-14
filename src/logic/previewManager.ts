@@ -1,6 +1,6 @@
 
 
-import { Enclave, PendingOrders, GameState, Player, DisasterRule } from '@/types/game';
+import { Enclave, PendingOrders, GameState, Player } from '@/types/game';
 import { getAppliedModifiers } from '@/logic/effectProcessor';
 import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldingBonusForEnclave } from '@/logic/birthrightManager';
 import { DISASTER_PROFILES } from '@/data/disasters';

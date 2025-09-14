@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { getAssetUrl, flattenAssetUrls } from '@/utils/assetUtils';
+import { flattenAssetUrls } from '@/utils/assetUtils';
 import { AudioChannel, Vector3 } from '@/types/game';
 import { ASSETS } from '@/data/assets';
 
@@ -239,7 +239,7 @@ export class SfxManager {
     }
     
     // Get the duration of a sound in seconds
-    public getSoundDuration(key: string, channel: AudioChannel): number {
+    public getSoundDuration(key: string, _channel: AudioChannel): number {
         const urls = this.flattenedAudioAssets.get(key);
         if (!urls || urls.length === 0) {
             console.warn(`[SfxManager] Sound key not found in flattened assets or no URLs for key: ${key}. Cannot get duration.`);

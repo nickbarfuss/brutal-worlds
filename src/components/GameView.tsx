@@ -62,6 +62,8 @@ const GameView: React.FC = () => {
         await engine.handleUserInteraction();
     
         // These sounds will now play immediately and reliably.
+        // Gemini note: these sounds shoud not be hardcoded here.
+        // they should be loaded from assets
         engine.sfxManager.playSound('ui-common-buttonGameStart', 'ui');
         engine.sfxManager.playLoopIfNotPlaying('music-main-menu', 'music');
     

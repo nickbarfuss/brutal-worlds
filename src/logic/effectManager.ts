@@ -1,6 +1,6 @@
-import { Enclave, Domain, MapCell, Expanse, ActiveEffectMarker, EffectProfile, Rift, EffectQueueItem, SfxPlayback } from '@/types/game.ts';
+import { Enclave, Domain, MapCell, Expanse, ActiveEffectMarker, EffectProfile, Rift, EffectQueueItem } from '@/types/game.ts';
 import { getRandomAssetKey } from '@/utils/assetUtils.ts';
-import * as THREE from 'three';
+
 
 interface TriggerContext {
     enclaveData: { [id: number]: Enclave };

@@ -1,8 +1,8 @@
-import { GameState, ActiveGambit, GambitState } from '@/types/game';
+import { GameState } from '@/types/game';
 import { Action, initialState } from '@/logic/reducers/index';
 import { WORLD_LIBRARY } from '@/data/worlds';
 import { ARCHETYPES } from '@/data/archetypes';
-import { ARCHETYPE_PROFILES } from '@/data/gambits';
+
 import { generateNewWorld } from '@/hooks/useWorldGenerator';
 
 export const handleGameFlow = (state: GameState, action: Action, baseInitialState: GameState): GameState => {

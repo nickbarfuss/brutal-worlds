@@ -140,7 +140,7 @@ export class VfxManager {
         ctx: CanvasRenderingContext2D, 
         mapContainer: THREE.Object3D, 
         camera: THREE.PerspectiveCamera, 
-        sphereRadius: number // No longer used, but kept for signature compatibility
+        _sphereRadius: number // No longer used, but kept for signature compatibility
     ): void {
         if (!this.isInitialized) return;
 

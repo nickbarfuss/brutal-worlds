@@ -1,4 +1,4 @@
-import { GameState, GamePhase, InspectedEntity, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, PlayerIdentifier, InspectedMapEntity, EffectQueueItem } from '@/types/game';
+import { GameState, GamePhase, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, PlayerIdentifier, InspectedMapEntity, EffectQueueItem } from '@/types/game';
 import { CONFIG } from '@/data/config';
 import { handleInitialization } from '@/logic/reducers/initializationReducer';
 import { handleGameFlow } from '@/logic/reducers/gameFlowReducer';

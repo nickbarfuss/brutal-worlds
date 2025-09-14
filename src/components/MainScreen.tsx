@@ -4,7 +4,7 @@ import ButtonBasic from '@/components/ui/ButtonBasic';
 import { WORLD_LIBRARY } from '@/data/worlds';
 import { getAssetUrl } from '@/utils/assetUtils';
 import ProductInfo from '@/components/ProductInfo';
-import { AppText } from '@/data/text';
+import { APP_TEXT } from '@/data/text';
 
 interface MainScreenProps {
   onBegin: () => void;
@@ -32,7 +32,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ onBegin }) => {
                 <ProductInfo className="" />
                 <div className="mt-8 pointer-events-auto">
                     <ButtonBasic onClick={onBegin}>
-                       {AppText.main.buttonStart}
+                       {APP_TEXT.main.buttonStart}
                     </ButtonBasic>
                 </div>
             </div>

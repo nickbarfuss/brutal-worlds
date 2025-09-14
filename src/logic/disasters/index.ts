@@ -1,4 +1,4 @@
-import { Enclave, Route, ActiveDisasterMarker, EffectQueueItem, ActiveEffect, DisasterProfile, MapCell } from '@/types/game';
+import { Enclave, Route, ActiveDisasterMarker, EffectQueueItem, ActiveEffect, MapCell } from '@/types/game';
 import { DISASTER_PROFILES } from '@/data/disasters';
 import { applyContinuousRules, applyInstantaneousRules } from '@/logic/effectProcessor';
 import { cloneEnclave } from '@/logic/cloneUtils';

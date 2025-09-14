@@ -5,11 +5,13 @@ import ButtonBasic from '@/components/ui/ButtonBasic';
 import ArchetypeSelectionCard from '@/components/ArchetypeSelectionCard';
 import WorldSelectionCard from '@/components/WorldSelectionCard';
 import { AudioChannel } from '@/types/game';
+import { ASSETS } from '@/data/assets';
 
 interface GameStartDialogProps {
     onConfirm: (archetypeKey: string, worldKey: string, legacyIndex: number) => void;
     onClose: () => void;
     isClosing: boolean;
+    //Gemini note: need to alloe playsound to to be a key from ASSETS
     playSound: (key: string, channel?: AudioChannel) => void;
 }
 
@@ -57,7 +59,7 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
     }, [onClose]);
 
     const handleSelectLegacy = (archetypeKey: string, legacyIndex: number) => {
-        playSound('ui-button-dialog-nav', 'ui');
+        playSound(ASSETS.ui.common.buttonDialogNav, 'ui');
 
         const isAlreadySelected = selectedArchetypeKey === archetypeKey && selectedLegacyIndex === legacyIndex;
 
@@ -68,6 +70,8 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
             setSelectedArchetypeKey(archetypeKey);
             setSelectedLegacyIndex(legacyIndex);
             
+            // Gemini note: these sounds shoud not be hardcoded here.
+            // they should be loaded from assets
             let soundKeys: string[] = [];
             switch (archetypeKey) {
                 case 'first-sword': soundKeys = ['archetype-first-sword-1', 'archetype-first-sword-2', 'archetype-first-sword-3', 'archetype-first-sword-4']; break;
@@ -136,13 +140,13 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
 
     const handleNext = () => {
         if (selectedArchetypeKey) {
-            playSound('ui-button-dialog-complete', 'ui');
+            playSound(ASSETS.ui.common.buttonDialogComplete, 'ui');
             setStep('world');
         }
     };
 
     const handleBack = () => {
-        playSound('ui-button-dialog-complete', 'ui');
+        playSound(ASSETS.ui.common.buttonDialogComplete, 'ui');
         setStep('archetype');
     };
 

@@ -24,11 +24,13 @@ export const ASSETS = {
         impact: [{ url: `${CONFIG.CDN.vfx}/entropy-wind-impact.webm`, width: 256, height: 256 }],
         aftermath: [{ url: `${CONFIG.CDN.vfx}/entropy-wind-aftermath.webm`, width: 256, height: 256 }],
       },
-      dialog: [
-        `${CONFIG.CDN.dialog}/narrator-disaster-entropy-wind-alert-1.mp3`,
-        `${CONFIG.CDN.dialog}/narrator-disaster-entropy-wind-alert-2.mp3`,
-        `${CONFIG.CDN.dialog}/narrator-disaster-entropy-wind-alert-3.mp3`,
-      ],
+      dialog: {
+        alert: [  
+          `${CONFIG.CDN.dialog}/narrator-disaster-entropy-wind-alert-1.mp3`,
+          `${CONFIG.CDN.dialog}/narrator-disaster-entropy-wind-alert-2.mp3`,
+          `${CONFIG.CDN.dialog}/narrator-disaster-entropy-wind-alert-3.mp3`,
+        ],
+      },
       image: `${CONFIG.CDN.disaster}/entropy-wind.png`,
     },
     ionTempest: {
@@ -42,11 +44,13 @@ export const ASSETS = {
         impact: [{ url: `${CONFIG.CDN.vfx}/ion-tempest-impact.webm`, width: 256, height: 256 }],
         aftermath: [{ url: `${CONFIG.CDN.vfx}/ion-tempest-aftermath.webm`, width: 256, height: 256 }],
       },
-      dialog: [
-        `${CONFIG.CDN.dialog}/narrator-disaster-ion-tempest-alert-1.mp3`,
-        `${CONFIG.CDN.dialog}/narrator-disaster-ion-tempest-alert-2.mp3`,
-        `${CONFIG.CDN.dialog}/narrator-disaster-ion-tempest-alert-3.mp3`,
-      ],
+      dialog: {
+        alert: [
+          `${CONFIG.CDN.dialog}/narrator-disaster-ion-tempest-alert-1.mp3`,
+          `${CONFIG.CDN.dialog}/narrator-disaster-ion-tempest-alert-2.mp3`,
+          `${CONFIG.CDN.dialog}/narrator-disaster-ion-tempest-alert-3.mp3`,
+        ],
+      },
       image: `${CONFIG.CDN.disaster}/ion-tempest.png`,
     },
     pyroclasm: {
@@ -60,11 +64,13 @@ export const ASSETS = {
         impact: [{ url: `${CONFIG.CDN.vfx}/pyroclasm-impact.webm`, width: 256, height: 256 }],
         aftermath: [{ url: `${CONFIG.CDN.vfx}/pyroclasm-aftermath.webm`, width: 256, height: 256 }],
       },
-      dialog: [
-        `${CONFIG.CDN.dialog}/narrator-disaster-pyroclasm-alert-1.mp3`,
-        `${CONFIG.CDN.dialog}/narrator-disaster-pyroclasm-alert-2.mp3`,
-        `${CONFIG.CDN.dialog}/narrator-disaster-pyroclasm-alert-3.mp3`,
-      ],
+      dialog: {
+        alert: [
+          `${CONFIG.CDN.dialog}/narrator-disaster-pyroclasm-alert-1.mp3`,
+          `${CONFIG.CDN.dialog}/narrator-disaster-pyroclasm-alert-2.mp3`,
+          `${CONFIG.CDN.dialog}/narrator-disaster-pyroclasm-alert-3.mp3`,
+        ],
+      },
       image: `${CONFIG.CDN.disaster}/pyroclasm.png`,
     },
     resonanceCascade: {
@@ -78,11 +84,13 @@ export const ASSETS = {
         impact: [{ url: `${CONFIG.CDN.vfx}/resonance-cascade-impact.webm`, width: 256, height: 256 }],
         aftermath: [{ url: `${CONFIG.CDN.vfx}/resonance-cascade-aftermath.webm`, width: 256, height: 256 }],
       },
-      dialog: [
-        `${CONFIG.CDN.dialog}/narrator-disaster-resonance-cascade-alert-1.mp3`,
-        `${CONFIG.CDN.dialog}/narrator-disaster-resonance-cascade-alert-2.mp3`,
-        `${CONFIG.CDN.dialog}/narrator-disaster-resonance-cascade-alert-3.mp3`,
-      ],
+      dialog: {
+        alert: [
+          `${CONFIG.CDN.dialog}/narrator-disaster-resonance-cascade-alert-1.mp3`,
+          `${CONFIG.CDN.dialog}/narrator-disaster-resonance-cascade-alert-2.mp3`,
+          `${CONFIG.CDN.dialog}/narrator-disaster-resonance-cascade-alert-3.mp3`,
+        ],
+      },
       image: `${CONFIG.CDN.disaster}/resonance-cascade.png`,
     },
     skyfallShards: {
@@ -96,11 +104,13 @@ export const ASSETS = {
         impact: [{ url: `${CONFIG.CDN.vfx}/skyfall-shards-impact.webm`, width: 256, height: 256 }],
         aftermath: [{ url: `${CONFIG.CDN.vfx}/skyfall-shards-aftermath.webm`, width: 256, height: 256 }],
       },
-      dialog: [
-        `${CONFIG.CDN.dialog}/narrator-disaster-skyfall-shards-alert-1.mp3`,
-        `${CONFIG.CDN.dialog}/narrator-disaster-skyfall-shards-alert-2.mp3`,
-        `${CONFIG.CDN.dialog}/narrator-disaster-skyfall-shards-alert-3.mp3`,
-      ],
+      dialog: {
+        alert: [
+          `${CONFIG.CDN.dialog}/narrator-disaster-skyfall-shards-alert-1.mp3`,
+          `${CONFIG.CDN.dialog}/narrator-disaster-skyfall-shards-alert-2.mp3`,
+          `${CONFIG.CDN.dialog}/narrator-disaster-skyfall-shards-alert-3.mp3`,
+        ],
+      },
       image: `${CONFIG.CDN.disaster}/skyfall-shards.png`,
     },
     voidSurge: {
@@ -114,11 +124,13 @@ export const ASSETS = {
         impact: [{ url: `${CONFIG.CDN.vfx}/void-surge-impact.webm`, width: 256, height: 256 }],
         aftermath: [{ url: `${CONFIG.CDN.vfx}/void-surge-aftermath.webm`, width: 256, height: 256 }],
       },
-      dialog: [
-        `${CONFIG.CDN.dialog}/narrator-disaster-void-surge-alert-1.mp3`,
-        `${CONFIG.CDN.dialog}/narrator-disaster-void-surge-alert-2.mp3`,
-        `${CONFIG.CDN.dialog}/narrator-disaster-void-surge-alert-3.mp3`,
-      ],
+      dialog: { 
+        alert: [
+          `${CONFIG.CDN.dialog}/narrator-disaster-void-surge-alert-1.mp3`,
+          `${CONFIG.CDN.dialog}/narrator-disaster-void-surge-alert-2.mp3`,
+          `${CONFIG.CDN.dialog}/narrator-disaster-void-surge-alert-3.mp3`,
+        ],
+      },
       image: `${CONFIG.CDN.disaster}/void-surge.png`,
     },
   },
@@ -126,53 +138,53 @@ export const ASSETS = {
   // world
   world: {
     xylosPrime: {
-      image: `${CONFIG.CDN.world}/Xylos-Prime.jpg`,
+      image: `${CONFIG.CDN.world}/xpylos-prime.jpg`,
       dialog: {
         intro: [`${CONFIG.CDN.dialog}/narrator-world-intro-xylos-prime.mp3`],
       },
     },
     aetheriaTor: {
-      image: `${CONFIG.CDN.world}/Aetheria-Tor.jpg`,
+      image: `${CONFIG.CDN.world}/aetheria-tor.jpg`,
       dialog: { intro: [`${CONFIG.CDN.dialog}/narrator-world-intro-aetheria-tor.mp3`] },
     },
     magentron: {
-      image: `${CONFIG.CDN.world}/Magnetron.jpg`,
+      image: `${CONFIG.CDN.world}/magnetron.jpg`,
       dialog: { intro: [`${CONFIG.CDN.dialog}/narrator-world-intro-magentron.mp3`] },
     },
     warWorld: {
-      image: `${CONFIG.CDN.world}/War-World.jpg`,
+      image: `${CONFIG.CDN.world}/war-world.jpg`,
       dialog: { intro: [`${CONFIG.CDN.dialog}/narrator-world-intro-war-world.mp3`] },
     },
     anvillar: {
-      image: `${CONFIG.CDN.world}/Anvillar.jpg`,
+      image: `${CONFIG.CDN.world}/anvillar.jpg`,
       dialog: { intro: [`${CONFIG.CDN.dialog}/narrator-world-intro-anvillar.mp3`] },
     },
     skullSands: {
-      image: `${CONFIG.CDN.world}/Skull-Sands.jpg`,
+      image: `${CONFIG.CDN.world}/skull-sands.jpg`,
       dialog: { intro: [`${CONFIG.CDN.dialog}/narrator-world-intro-skull-sands.mp3`] },
     },
     graveStar: {
-      image: `${CONFIG.CDN.world}/Grave-Star.jpg`,
+      image: `${CONFIG.CDN.world}/grave-star.jpg`,
       dialog: { intro: [`${CONFIG.CDN.dialog}/narrator-world-intro-grave-star.mp3`] },
     },
     bladesEdge: {
-      image: `${CONFIG.CDN.world}/Blades-Edge.jpg`,
+      image: `${CONFIG.CDN.world}/blades-edge.jpg`,
       dialog: { intro: [`${CONFIG.CDN.dialog}/narrator-world-intro-blades-edge.mp3`] },
     },
     cygnusX1: {
-      image: `${CONFIG.CDN.world}/Cygnus-X-1.jpg`,
-      dialog: { intro: [`${CONFIG.CDN.dialog}/narrator-world-intro-cygnus-x-1.mp3`] },
+      image: `${CONFIG.CDN.world}/cygnus-X1.jpg`,
+      dialog: { intro: [`${CONFIG.CDN.dialog}/narrator-world-intro-cygnus-x1.mp3`] },
     },
     magmaTor: {
-      image: `${CONFIG.CDN.world}/Magma-Tor.jpg`,
+      image: `${CONFIG.CDN.world}/magma-tor.jpg`,
       dialog: { intro: [`${CONFIG.CDN.dialog}/narrator-world-intro-magma-tor.mp3`] },
     },
     shatterSpire: {
-      image: `${CONFIG.CDN.world}/Shatter-Spire.jpg`,
+      image: `${CONFIG.CDN.world}/shatter-spire.jpg`,
       dialog: { intro: [`${CONFIG.CDN.dialog}/narrator-world-intro-shatter-spire.mp3`] },
     },
     steelSpine: {
-      image: `${CONFIG.CDN.world}/Steel-Spine.jpg`,
+      image: `${CONFIG.CDN.world}/steel-spine.jpg`,
       dialog: { intro: [`${CONFIG.CDN.dialog}/narrator-world-intro-steel-spine.mp3`] },
     },
   
@@ -192,10 +204,10 @@ export const ASSETS = {
     },
     arrival: {  
       dialog: [
-      `${CONFIG.CDN.dialog}/narrator-arrival-1.mp3`,
-      `${CONFIG.CDN.dialog}/narrator-arrival-2.mp3`,
-      `${CONFIG.CDN.dialog}/narrator-arrival-3.mp3`,
-      `${CONFIG.CDN.dialog}/narrator-arrival-4.mp3`,
+        `${CONFIG.CDN.dialog}/narrator-arrival-1.mp3`,
+        `${CONFIG.CDN.dialog}/narrator-arrival-2.mp3`,
+        `${CONFIG.CDN.dialog}/narrator-arrival-3.mp3`,
+        `${CONFIG.CDN.dialog}/narrator-arrival-4.mp3`,
       ],
       sfx: [
         `${CONFIG.CDN.sfx}/warp-exit-1.mp3`,
@@ -203,7 +215,9 @@ export const ASSETS = {
         `${CONFIG.CDN.sfx}/warp-exit-3.mp3`,
         `${CONFIG.CDN.sfx}/warp-exit-4.mp3`,
       ],
-      vfx: [{ url: `${CONFIG.CDN.vfx}/warp-exit.webm` }],
+      vfx: [
+        { url: `${CONFIG.CDN.vfx}/warp-exit.webm` }
+      ],
     }, 
   },
 
@@ -222,7 +236,9 @@ export const ASSETS = {
         `${CONFIG.CDN.sfx}/order-assist-3.mp3`,
         `${CONFIG.CDN.sfx}/order-assist-4.mp3`,
       ],
-      vfx: [{ url: `${CONFIG.CDN.vfx}/order-assist.webm`, width: 256, height: 256 }],
+      vfx: [
+        { url: `${CONFIG.CDN.vfx}/order-assist.webm`, width: 256, height: 256 }
+      ],
     },
     attack: {
       sfx: [
@@ -242,7 +258,9 @@ export const ASSETS = {
         `${CONFIG.CDN.sfx}/order-hold-5.mp3`,
         `${CONFIG.CDN.sfx}/order-hold-6.mp3`,
       ],
-      vfx: [{ url: `${CONFIG.CDN.vfx}/order-hold.webm`, width: 256, height: 256 }],
+      vfx: [
+        { url: `${CONFIG.CDN.vfx}/order-hold.webm`, width: 256, height: 256 }
+      ],
     },
   },
 
@@ -261,7 +279,9 @@ export const ASSETS = {
         `${CONFIG.CDN.sfx}/conquest-opponent-explosion-1.mp3`,
         `${CONFIG.CDN.sfx}/conquest-opponent-explosion-2.mp3`,
       ],
-      vfx: [{ url: `${CONFIG.CDN.vfx}/conquest-opponent.webm`, width: 256, height: 256 }],
+      vfx: [
+        { url: `${CONFIG.CDN.vfx}/conquest-opponent.webm`, width: 256, height: 256 }
+      ],
     },
   },
 

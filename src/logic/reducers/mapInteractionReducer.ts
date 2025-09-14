@@ -1,4 +1,4 @@
-import { GameState, InspectedMapEntity } from '@/types/game';
+import { GameState } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
 import { handleSingleClick, handleDoubleClick } from '@/logic/orderManager';
 

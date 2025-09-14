@@ -77,7 +77,7 @@ export const useWarpStarsRenderer = ({ mountRef, phase }: UseWarpStarsRendererPr
         (warpStarsRef.current.lines.material as THREE.Material).dispose();
       }
     };
-  }, [phase, rendererRef, cameraRef, sceneRef, animationFrameIdRef]);
+  }, [phase, mountRef]);
 
   // --- Phase Control ---
   useEffect(() => {

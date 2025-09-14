@@ -11,8 +11,10 @@ export const CONFIG = {
     FORCE_SUPPLY_CAP: 50,
     ATTACK_RATE: 0.35,
     CONQUEST_DIALOG_CHANCE: 0.5,
+    
+    //testing and debugging features
     QUICK_START: {
-        enabled: true,
+        enabled: false,
         player1Archetype: '',
         player1Legacy: '',
         player2Archetype: '',

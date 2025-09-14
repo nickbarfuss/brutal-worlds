@@ -27,7 +27,7 @@ import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldingBonu
 import CustomCursor from '@/components/ui/CustomCursor';
 import SettingsDrawer from '@/components/SettingsDrawer';
 import SurrenderConfirmDialog from '@/components/SurrenderConfirmDialog';
-import { getAssetUrl, getNestedAsset } from '@/utils/assetUtils';
+import { getAssetUrl } from '@/utils/assetUtils';
 import { toCamelCase } from '@/utils/stringUtils';
 import WarpStarsCanvas from '@/components/WarpStarsCanvas';
 

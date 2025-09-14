@@ -57,7 +57,7 @@ export function applyInstantaneousRules(
     rules: DisasterRule[], // FIX: Expect an array of rules
     enclave: Enclave,
     routes: Route[],
-    duration?: number
+    _duration?: number
 ): { enclave: Enclave; routes: Route[] } {
     let newEnclave = { ...enclave };
     let newRoutes = [...routes];

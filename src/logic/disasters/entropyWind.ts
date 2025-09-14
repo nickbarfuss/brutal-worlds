@@ -1,4 +1,4 @@
-import { Enclave, ActiveEffect, DisasterProfile, Route, EffectQueueItem, DisasterRule, MapCell } from '@/types/game';
+import { Enclave, ActiveEffect, DisasterProfile, Route, DisasterRule, MapCell } from '@/types/game';
 import { applyContinuousRules, applyInstantaneousRules } from '@/logic/effectProcessor';
 export { processMarker, processEffect } from '@/logic/disasters/defaultHandler';
 import { queueEffectAssets } from '@/logic/turnResolver';
