@@ -1,5 +1,5 @@
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Owner, Enclave, Domain, Rift, Expanse, HighlightType, ActiveHighlight, WorldProfile } from '@/types/game';
 import { getIconForEntityType, getDomainOwner } from '@/utils/entityUtils';
 import { PLAYER_THREE_COLORS } from '@/data/theme';

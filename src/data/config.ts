@@ -1,3 +1,7 @@
+// allows us to use CDN links in the config
+const CDN = ''; // https://storage.googleapis.com/brutal-worlds
+
+
 export const CONFIG = {
     
     TURN_DURATION: 20,
@@ -24,7 +28,7 @@ export const CONFIG = {
     // Audio settings and defaults
     AUDIO_DEFAULTS: {
         volumes: { fx: 0.7, ambient: 0.5, music: 0.6, ui: 0.6, dialog: 0.8 },
-        mutedChannels: { fx: false, ambient: true, music: true, ui: false, dialog: false },
+        mutedChannels: { fx: false, ambient: false, music: false, ui: false, dialog: false },
     },
     
     // Visual settings and post-processing defaults
@@ -58,18 +62,22 @@ export const CONFIG = {
     //CDN location of all assets
     CDN: {
         //base
-        base: 'https://storage.googleapis.com/brutal-worlds',
+        base: CDN,
         
-        //sounds
-        ambient: 'https://storage.googleapis.com/brutal-worlds/ambient',
-        archetype: 'https://storage.googleapis.com/brutal-worlds/archetype',
-        disaster: 'https://storage.googleapis.com/brutal-worlds/world',
-        dialog: 'https://storage.googleapis.com/brutal-worlds/dialog',
-        gambit: 'https://storage.googleapis.com/brutal-worlds/gambit',
-        music: 'https://storage.googleapis.com/brutal-worlds/music',
-        sfx: 'https://storage.googleapis.com/brutal-worlds/sfx',     
-        ui: 'https://storage.googleapis.com/brutal-worlds/sfx',
-        vfx: 'https://storage.googleapis.com/brutal-worlds/vfx',
-        world: 'https://storage.googleapis.com/brutal-worlds/world',
+        // asset types
+        ambient: `${CDN}/ambient`,
+        archetype: `${CDN}/archetype`,
+        backdrop: `${CDN}/backdrop`,
+        birthright: `${CDN}/birthright`,
+        cursor: `${CDN}/cursor`,
+        dialog: `${CDN}/dialog`,
+        disaster: `${CDN}/disaster`,
+        enclave: `${CDN}/enclave`,
+        gambit: `${CDN}/gambit`,
+        music: `${CDN}/music`,
+        sfx: `${CDN}/sfx`,
+        ui: `${CDN}/sfx`, //sfx and ui share the same folder. this is intentional.
+        vfx: `${CDN}/vfx`,
+        world: `${CDN}/world`,
     },      
 }

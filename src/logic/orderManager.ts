@@ -77,12 +77,12 @@ export const handleSingleClick = (
             const newOrders = { ...playerPendingOrders };
             if (newOrders[selectedEnclaveId]) {
                 delete newOrders[selectedEnclaveId];
-                const vfxKey = ORDER_PROFILES.holding.vfxKey;
+                const vfx = ORDER_PROFILES.holding.assets.vfx;
                 const sfxKey = `sfx-order-hold-${Math.floor(Math.random() * 6) + 1}`;
-                if (vfxKey) {
+                if (vfx) {
                     effectsToQueue.push({
                         id: uuidv4(),
-                        vfxKey: vfxKey,
+                        vfx: vfx,
                         position: clickedEnclave.center,
                     });
                 }
@@ -124,13 +124,13 @@ export const handleSingleClick = (
                 }
 
                 if (safeForces - forceToSend > 0) { // Valid order condition
-                    const vfxKey = ORDER_PROFILES[orderType].vfxKey;
+                    const vfx = ORDER_PROFILES[orderType].assets.vfx;
                     const sfxKey = `sfx-order-${orderType}-${Math.floor(Math.random() * 4) + 1}`;
                     const updatedOrders = { ...playerPendingOrders, [selectedEnclaveId]: { to: clickedEnclaveId, type: orderType }};
-                    if (vfxKey) {
+                    if (vfx) {
                         effectsToQueue.push({
                             id: uuidv4(),
-                            vfxKey: vfxKey,
+                            vfx: vfx,
                             position: clickedEnclave.center,
                         });
                     }

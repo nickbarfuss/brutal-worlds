@@ -1,5 +1,3 @@
-
-
 import { useEffect, useRef } from 'react';
 import { GamePhase, WorldProfile } from '@/types/game';
 import { CONFIG } from '@/data/config';

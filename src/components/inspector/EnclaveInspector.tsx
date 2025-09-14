@@ -10,7 +10,7 @@ import ChipCard from '../ui/ChipCard';
 import { getIconForEntityType, getIconForRouteStatus } from '../../utils/entityUtils';
 import { getAppliedModifiers } from '../../logic/effectProcessor';
 import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldingBonusForEnclave } from '../../logic/birthrightManager';
-import { calculateEnclaveTurnPreview, TurnPreview } from '../../logic/previewManager';
+import { calculateEnclaveTurnPreview, TurnPreview } from '../../logic/previewManager'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { getAssetUrl } from '../../utils/assetUtils';
 import { CONFIG as GameConfig } from '../../data/config';
 

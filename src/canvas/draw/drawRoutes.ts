@@ -1,6 +1,6 @@
-import * as THREE from 'three';
+import * as THREE from 'three'; // eslint-disable-line @typescript-eslint/no-unused-vars
 // Fix: Import SemanticColorPalette directly from the types definition file.
-import { Route, PendingOrders, Enclave, Owner, WorldProfile, SemanticColorPalette } from '@/types/game';
+import { Route, PendingOrders, Enclave, WorldProfile, SemanticColorPalette } from '@/types/game';
 import { getIconForRouteStatus } from '@/utils/entityUtils';
 import { getPaletteForOwner } from '@/canvas/draw/drawUtils';
 import { PLAYER_THREE_COLORS } from '@/data/theme';

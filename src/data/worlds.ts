@@ -1,4 +1,3 @@
-
 import { WorldProfile, WorldColorTheme, SemanticColorPalette } from '@/types/game.ts';
 import { generateColorScale } from '@/utils/color.ts';
 import { CONFIG } from '@/data/config.ts';

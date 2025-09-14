@@ -53,7 +53,7 @@ const GameView: React.FC = () => {
         // guarantees a clean transition to the game screen.
         setIsClosingStartDialog(false);
 
-        engine.sfxManager.playSound('ui-button-dialog-complete', 'ui');
+        engine.sfxManager.playSound('ui-common-buttonDialogComplete', 'ui');
         engine.startGame(archetypeKey, worldKey, archetypeSkinIndex);
     };
     
@@ -62,8 +62,8 @@ const GameView: React.FC = () => {
         await engine.handleUserInteraction();
     
         // These sounds will now play immediately and reliably.
-        engine.sfxManager.playSound('ui-button-game-start', 'ui');
-        engine.sfxManager.playLoopIfNotPlaying('music');
+        engine.sfxManager.playSound('ui-common-buttonGameStart', 'ui');
+        engine.sfxManager.playLoopIfNotPlaying('music-main-menu', 'music');
     
         // Open the dialog.
         if (CONFIG.QUICK_START.enabled) {
@@ -133,7 +133,7 @@ const GameView: React.FC = () => {
                             onConfirm={handleConfirmStartDialog}
                             onClose={handleCloseStartDialog}
                             isClosing={isClosingStartDialog}
-                            playSound={(key: string, channel?: AudioChannel) => engine.sfxManager.playSound(key, channel)}
+                            playSound={(key: string, channel?: AudioChannel) => engine.sfxManager.playSound(key, channel || 'ui')}
                         />
                     </>
                 )}

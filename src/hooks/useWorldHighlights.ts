@@ -1,7 +1,7 @@
 
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import * as THREE from 'three';
-import { MapCell, Owner, HighlightType, ActiveHighlight, Enclave, Domain, Rift, Expanse, WorldProfile } from '@/types/game';
+import { MapCell, Owner, ActiveHighlight, Enclave, Rift, WorldProfile } from '@/types/game';
 import { useHighlightZone } from '@/hooks/useHighlightZone';
 import { convertLatLonToVector3 as convertLatLonToVector3Util } from '@/utils/geo';
 import { PLAYER_THREE_COLORS } from '@/data/theme';
@@ -10,9 +10,7 @@ import { getDomainOwner } from '@/utils/entityUtils';
 interface UseWorldHighlightsProps {
     mapData: MapCell[];
     enclaveData: { [id: number]: Enclave };
-    domainData: { [id: number]: Domain };
     riftData: { [id: number]: Rift };
-    expanseData: { [id: number]: Expanse };
     currentWorld: WorldProfile | null;
     activeHighlight: ActiveHighlight | null;
     isIntroComplete: boolean;
@@ -21,9 +19,7 @@ interface UseWorldHighlightsProps {
 export const useWorldHighlights = ({
     mapData,
     enclaveData,
-    domainData,
     riftData,
-    expanseData,
     currentWorld,
     activeHighlight,
     isIntroComplete,
@@ -87,7 +83,7 @@ export const useWorldHighlights = ({
             if (entityTypeMatches && owners.has(entityOwner)) ids.add(cell.id);
         });
         return ids;
-    }, [activeHighlight, mapData, enclaveData, riftData, riftToDomainMap]);
+    }, [activeHighlight, mapData, enclaveData, riftToDomainMap]);
 
     const groupByFn = useMemo(() => {
         if (!activeHighlight) return undefined;

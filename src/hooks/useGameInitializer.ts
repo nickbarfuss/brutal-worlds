@@ -1,16 +1,10 @@
 import React, { useEffect } from 'react';
-import * as THREE from 'three';
 import { VfxManager } from '@/logic/VfxManager';
+import { extractVfxProfiles } from '@/utils/assetUtils';
 import { SfxManager } from '@/logic/SfxManager';
-import { VFX_PROFILES } from '@/data/vfx';
-import { DISASTER_PROFILES } from '@/data/disasters';
-import { WORLD_LIBRARY } from '@/data/worlds';
-import { ARCHETYPES } from '@/data/archetypes';
-import { GamePhase, Enclave, Route, MapCell, PendingOrders } from '@/types/game';
-import { CONFIG } from '@/data/config';
-// import { resolveTurn } from '@/logic/turnResolver'; // This was causing an error
-import { generateNewWorld } from '@/hooks/useWorldGenerator';
-import { getAssetUrl } from '@/utils/assetUtils';
+import { GamePhase } from '@/types/game';
+import { getAssetUrl, extractAssetUrls } from '@/utils/assetUtils';
+import { ASSETS } from '@/data/assets';
 
 const preloadFonts = async (): Promise<void> => {
     if (!document.fonts) {
@@ -29,26 +23,51 @@ const preloadFonts = async (): Promise<void> => {
 };
 
 const preloadVideos = (urls: string[]): Promise<void[]> => {
-    const promises = urls.map(url => new Promise<void>((resolve, reject) => {
+    const promises = urls.map(url => new Promise<void>((resolve, _reject) => {
         const video = document.createElement('video');
         video.src = getAssetUrl(url);
         video.oncanplaythrough = () => resolve();
-        video.onerror = () => reject(`Failed to load video: ${url}`);
+        //video.onerror = () => reject(`Failed to preload video: ${url}`);
+        video.onerror = () => {
+            console.warn(`Failed to preload video: ${url}`);
+            // TODO: Once all video assets are guaranteed to exist, change this to `reject()`
+            // to ensure that missing assets cause a hard failure during initialization.
+            resolve(); // Resolve even on error to prevent Promise.all from failing
+        };
         video.load();
     }));
     return Promise.all(promises);
 };
 
 const preloadImages = (urls: string[]): Promise<void[]> => {
-    const promises = urls.map(url => new Promise<void>((resolve, reject) => {
+    const promises = urls.map(url => new Promise<void>((resolve, _reject) => {
         const img = new Image();
         img.src = getAssetUrl(url);
         img.onload = () => resolve();
+        //img.onerror = () => reject(`Failed to preload image: ${url}`);
         img.onerror = () => {
-            // Don't reject the whole batch, just warn and resolve.
             console.warn(`Failed to preload image: ${url}`);
+            // TODO: Once all image assets are guaranteed to exist, change this to `reject()`
+            // to ensure that missing assets cause a hard failure during initialization.
             resolve();
         };
+    }));
+    return Promise.all(promises);
+};
+
+const preloadAudio = (urls: string[]): Promise<void[]> => {
+    const promises = urls.map(url => new Promise<void>((resolve) => {
+        const audio = new Audio();
+        audio.src = getAssetUrl(url);
+        audio.oncanplaythrough = () => resolve();
+        //audio.onerror = () => reject(`Failed to preload audio: ${url}`);
+        audio.onerror = () => {
+            console.warn(`Failed to preload audio: ${url}`);
+            // TODO: Once all audio assets are guaranteed to exist, change this to `reject()`
+            // to ensure that missing assets cause a hard failure during initialization.
+            resolve(); // Resolve even on error to prevent Promise.all from failing
+        };
+        audio.load();
     }));
     return Promise.all(promises);
 };
@@ -71,28 +90,23 @@ export const useGameInitializer = (
                 onProgress('Loading typography...');
                 await preloadFonts();
 
-                onProgress('Loading cinematics...');
-                await preloadVideos([
-                    VFX_PROFILES['warp-enter'].url,
-                    VFX_PROFILES['warp-exit'].url,
-                ]);
+                onProgress('Extracting asset URLs...');
+                const extractedUrls = extractAssetUrls(ASSETS);
+
+                onProgress('Preloading audio...');
+                await preloadAudio(extractedUrls.audio);
+
+                onProgress('Preloading videos...');
+                await preloadVideos(extractedUrls.video);
 
                 onProgress('Preloading imagery...');
-                const availableImageNumbers = [
-                    ...Array.from({ length: 20 }, (_, i) => i + 1), // 1-20
-                    22, 23, 25, 26, 27, 28, 30, 31, 120
-                ];
-                const enclaveImageUrls = availableImageNumbers.map(num => 
-                    `https://storage.googleapis.com/brutal-worlds/enclave/enclave-${String(num).padStart(3, '0')}.jpg`
-                );
-                const worldImageUrls = WORLD_LIBRARY.map(w => w.illustrationUrl);
-                const allImageUrls = new Set([...enclaveImageUrls, ...worldImageUrls]);
-                await preloadImages(Array.from(allImageUrls));
+                await preloadImages(extractedUrls.image);
                 
-                onProgress('Preloading visual effects...');
-                await vfxManager.current?.init(VFX_PROFILES);
+                onProgress('Initializing visual effects manager...');
+                const vfxProfiles = extractVfxProfiles(ASSETS);
+                await vfxManager.current?.init(vfxProfiles);
 
-                onProgress('Preloading sound effects...');
+                onProgress('Initializing sound effects manager...');
                 await sfxManager.current?.init();
                 
                 onProgress('Ready for command');

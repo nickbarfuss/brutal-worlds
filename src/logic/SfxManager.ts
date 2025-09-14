@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { SFX_SOURCES } from '@/data/sfx';
-import { getAssetUrl } from '@/utils/assetUtils';
-import { AudioChannel, SfxCategoryName, Vector3 } from '@/types/game';
+import { getAssetUrl, flattenAssetUrls } from '@/utils/assetUtils';
+import { AudioChannel, Vector3 } from '@/types/game';
+import { ASSETS } from '@/data/assets';
 
 interface ActiveSpatialSound {
     panner: PannerNode;
@@ -18,7 +18,6 @@ interface ActiveSpatialLoop {
 export class SfxManager {
     private audioContext: AudioContext | null = null;
     private decodedBuffers: Map<string, AudioBuffer> = new Map();
-    private simpleKeyToFullKeyMap: Map<string, string> = new Map();
     private masterGain: GainNode | null = null;
     private channelGains: Map<AudioChannel, GainNode> = new Map();
     private activeLoops: Map<string, AudioBufferSourceNode> = new Map();
@@ -34,21 +33,21 @@ export class SfxManager {
     private hasUserInteracted = false;
     private isInitialized = false;
 
-    private preloadPromise: Promise<void> | null = null;
+    private flattenedAudioAssets: Map<string, string[]> = new Map();
 
-    public init(): Promise<void> {
+    public async init(): Promise<void> {
         if (this.isInitialized) return Promise.resolve();
         
-        this.preloadPromise = (async () => {
-            this.musicTrackKeys = Object.keys(SFX_SOURCES.music);
-            this.ambientTrackKeys = Object.keys(SFX_SOURCES.ambient);
-    
-            await this.preloadAllSounds();
-            this.isInitialized = true;
-            
-        })();
+        this.flattenedAudioAssets = flattenAssetUrls(ASSETS);
+
+        // Populate music and ambient track keys
+        this.musicTrackKeys = Array.from(this.flattenedAudioAssets.keys()).filter(key => key.startsWith('music-'));
+        this.ambientTrackKeys = Array.from(this.flattenedAudioAssets.keys()).filter(key => key.startsWith('ambient-'));
         
-        return this.preloadPromise;
+        const audioUrlsToPreload = Array.from(this.flattenedAudioAssets.values()).flat();
+        
+        await this.preloadSounds(audioUrlsToPreload);
+        this.isInitialized = true;
     }
 
     private async createAudioContext(): Promise<void> {
@@ -73,28 +72,31 @@ export class SfxManager {
         }
     }
 
-    private async preloadAllSounds(): Promise<void> {
+    // Preload and decode audio files
+    private async preloadSounds(urls: string[]): Promise<void> {
         const decodingContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         
         const promises: Promise<void>[] = [];
-        for (const category in SFX_SOURCES) {
-            for (const key in SFX_SOURCES[category as SfxCategoryName]) {
-                const fullKey = `${category}-${key}`;
-                this.simpleKeyToFullKeyMap.set(key, fullKey);
-                const profile = SFX_SOURCES[category as SfxCategoryName][key];
-                promises.push(this.loadAndDecodeSound(fullKey, getAssetUrl(profile.url), decodingContext));
-            }
+        for (const url of urls) {
+            // Use the full URL as the key for decodedBuffers
+            promises.push(this.loadAndDecodeSound(url, url, decodingContext));
         }
         await Promise.all(promises);
         
         await decodingContext.close();
     }
     
+    // Load and decode a single sound
     private async loadAndDecodeSound(key: string, url: string, context: AudioContext): Promise<void> {
         if (this.decodedBuffers.has(key)) return;
         try {
             const response = await fetch(url);
-            if (!response.ok) throw new Error(`Failed to fetch sound "${key}"`);
+            if (!response.ok) {
+                console.warn(`[SfxManager] Failed to fetch sound "${key}": ${response.statusText}`);
+                // TEMP FIX: Allow initialization to continue even if some assets are missing.
+                // This should be removed once all assets are guaranteed to exist.
+                return;
+            }
             const arrayBuffer = await response.arrayBuffer();
             const audioBuffer = await context.decodeAudioData(arrayBuffer);
             this.decodedBuffers.set(key, audioBuffer);
@@ -103,37 +105,27 @@ export class SfxManager {
         }
     }
 
-    public getFullKey(key: string | string[], channel: AudioChannel): string {
-        const actualKey = Array.isArray(key) ? key[0] : key; // Take the first key if it's an array for mapping purposes
-        const mappedKey = this.simpleKeyToFullKeyMap.get(actualKey);
-        if (mappedKey) return mappedKey;
-
-        const keyParts = actualKey.split('-');
-        const categories = Object.keys(SFX_SOURCES);
-        if (categories.includes(keyParts[0])) {
-            return actualKey;
-        }
-        return `${channel}-${actualKey}`;
-    }
-
+    // Play a sound effect once
     public async playSound(key: string | string[], channel: AudioChannel = 'fx', position?: Vector3): Promise<void> {
         
         if (!this.hasUserInteracted || !this.audioContext) {
             
             return;
         }
+
+        const soundKey = Array.isArray(key) ? key[Math.floor(Math.random() * key.length)] : key;
         
-        let selectedKey: string;
-        if (Array.isArray(key)) {
-            selectedKey = key[Math.floor(Math.random() * key.length)];
-        } else {
-            selectedKey = key;
+        const urls = this.flattenedAudioAssets.get(soundKey);
+        if (!urls || urls.length === 0) {
+            console.warn(`[SfxManager] Sound key not found in flattened assets or no URLs for key: ${soundKey}. Playback aborted.`);
+            return;
         }
 
-        const fullKey = this.getFullKey(selectedKey, channel);
-        const buffer = this.decodedBuffers.get(fullKey);
+        const selectedUrl = urls[Math.floor(Math.random() * urls.length)];
+
+        const buffer = this.decodedBuffers.get(selectedUrl);
         if (!buffer) {
-            console.warn(`[SfxManager] Sound buffer not found for key: ${selectedKey} (resolved to ${fullKey}). Playback aborted.`);
+            console.warn(`[SfxManager] Sound buffer not found for URL: ${selectedUrl} (from key: ${soundKey}). Playback aborted.`);
             return;
         }
 
@@ -177,6 +169,7 @@ export class SfxManager {
         
     };
     
+    // Play a spatial looping sound
     public playSpatialLoop(loopId: string, soundKey: string, channel: AudioChannel, position: Vector3): void {
         
         if (!this.hasUserInteracted || !this.audioContext) {
@@ -189,9 +182,17 @@ export class SfxManager {
             this.stopSpatialLoop(loopId);
         }
 
-        const buffer = this.decodedBuffers.get(soundKey);
+        const urls = this.flattenedAudioAssets.get(soundKey);
+        if (!urls || urls.length === 0) {
+            console.warn(`[SfxManager] Sound key not found in flattened assets or no URLs for key: ${soundKey}. Playback aborted.`);
+            return;
+        }
+
+        const selectedUrl = urls[Math.floor(Math.random() * urls.length)];
+
+        const buffer = this.decodedBuffers.get(selectedUrl);
         if (!buffer) {
-            console.warn(`[SfxManager] Sound buffer not found for spatial loop key: ${soundKey}. Playback aborted.`);
+            console.warn(`[SfxManager] Sound buffer not found for URL: ${selectedUrl} (from key: ${soundKey}). Playback aborted.`);
             return;
         }
 
@@ -226,6 +227,7 @@ export class SfxManager {
         
     }
 
+    // Stop a spatial looping sound
     public stopSpatialLoop(loopId: string): void {
         const loop = this.activeSpatialLoops.get(loopId);
         if (loop) {
@@ -236,17 +238,22 @@ export class SfxManager {
         }
     }
     
+    // Get the duration of a sound in seconds
     public getSoundDuration(key: string, channel: AudioChannel): number {
-        const fullKey = this.getFullKey(key, channel);
-        const buffer = this.decodedBuffers.get(fullKey);
+        const urls = this.flattenedAudioAssets.get(key);
+        if (!urls || urls.length === 0) {
+            console.warn(`[SfxManager] Sound key not found in flattened assets or no URLs for key: ${key}. Cannot get duration.`);
+            return 0;
+        }
+        const selectedUrl = urls[0]; // Assuming duration is the same for all variations
+        const buffer = this.decodedBuffers.get(selectedUrl);
         return buffer ? buffer.duration : 0;
     }
 
+    // Handle user interaction to unlock audio context
     public async handleUserInteraction(): Promise<void> {
         if (this.hasUserInteracted) return;
-        
-        await this.preloadPromise;
-        
+                
         if (!this.audioContext) {
             await this.createAudioContext();
         }
@@ -257,23 +264,28 @@ export class SfxManager {
         this.hasUserInteracted = true;
     }
     
-    public playLoopIfNotPlaying(channel: AudioChannel): void {
+    // Play a looping sound if not already playing
+    public playLoopIfNotPlaying(key: string, channel: AudioChannel): void {
         if (!this.hasUserInteracted) return;
 
-        if (channel === 'music' && !this.activeLoops.has('music')) {
-            this.currentMusicKey = this.musicTrackKeys[Math.floor(Math.random() * this.musicTrackKeys.length)];
-            this.playLoop(this.currentMusicKey, 'music');
-        } else if (channel === 'ambient' && !this.activeLoops.has('ambient')) {
-            this.currentAmbientKey = this.ambientTrackKeys[Math.floor(Math.random() * this.ambientTrackKeys.length)];
-            this.playLoop(this.currentAmbientKey, 'ambient');
+        if (!this.activeLoops.has(channel)) {
+            this.playLoop(key, channel);
         }
     }
 
-    public playLoop(key: string, channel: AudioChannel): void {
+   // Play a looping sound, replacing any existing loop on the same channel
+   public playLoop(key: string, channel: AudioChannel): void {
         if (this.activeLoops.has(channel)) this.stopLoop(channel);
 
-        const fullKey = this.getFullKey(key, channel);
-        const buffer = this.decodedBuffers.get(fullKey);
+        const urls = this.flattenedAudioAssets.get(key);
+        if (!urls || urls.length === 0) {
+            console.warn(`[SfxManager] Sound key not found in flattened assets or no URLs for key: ${key}. Playback aborted.`);
+            return;
+        }
+
+        const selectedUrl = urls[Math.floor(Math.random() * urls.length)];
+
+        const buffer = this.decodedBuffers.get(selectedUrl);
         if (!buffer || !this.audioContext) return;
         
         const source = this.audioContext.createBufferSource();
@@ -287,6 +299,7 @@ export class SfxManager {
         }
     }
     
+    // Stop a looping sound on a specific channel
     public stopLoop(channel: AudioChannel): void {
         const loop = this.activeLoops.get(channel);
         if (loop) {
@@ -296,6 +309,7 @@ export class SfxManager {
         }
     }
 
+    // Stop all sounds and loops, clear active lists
     public reset(): void {
         (['fx', 'ambient', 'music', 'ui', 'dialog'] as AudioChannel[]).forEach(channel => {
             this.stopLoop(channel);
@@ -306,18 +320,22 @@ export class SfxManager {
         this.activeSpatialLoops.clear();
     }
     
+    // Set volume for a specific channel (0.0 to 1.0)
     public setVolume(channel: AudioChannel, volume: number): void {
         if (this.channelGains.has(channel) && this.audioContext) {
             this.channelGains.get(channel)!.gain.setValueAtTime(volume, this.audioContext.currentTime);
         }
     }
     
+    // Mute or unmute all sounds
     public setGlobalMute(isMuted: boolean): void {
         if (this.masterGain && this.audioContext) {
             this.masterGain.gain.setValueAtTime(isMuted ? 0 : 1, this.audioContext.currentTime);
         }
     }
     
+    // spatial sound management 
+    // Update listener position and orientation based on camera
     public updateListener(camera: THREE.Camera, mapContainer?: THREE.Object3D): void {
         this.camera = camera;
         if (!this.audioContext || !this.audioContext.listener) return;

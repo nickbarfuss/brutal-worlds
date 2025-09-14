@@ -141,7 +141,7 @@ export const serializeResolvedTurn = (result: any) => {
 
             return {
                 id: effect.id,
-                vfxKey: effect.vfxKey,
+                vfx: effect.vfx,
                 sfx: serializedSfx,
                 position: serializeVector3(effect.position),
             };

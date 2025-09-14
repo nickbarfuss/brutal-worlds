@@ -300,7 +300,10 @@ export interface OrderProfile {
     icon: string;
     description: string;
     effect: string;
-    vfxKey?: string;
+    assets: {
+        sfx?: string[];
+        vfx?: string[];
+    };
 }
 export interface SfxPlayback {
   key: string;
@@ -505,7 +508,7 @@ export interface ActiveGambit {
 
 export interface EffectQueueItem {
     id: string;
-    vfxKey?: string;
+    vfx?: (string | { key: string })[];
     sfx?: SfxPlayback;
     position: Vector3;
 }

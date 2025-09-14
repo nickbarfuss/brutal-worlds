@@ -1,4 +1,4 @@
-import { Enclave, WorldProfile, ActiveHighlight, Owner, ActiveEffectMarker } from '@/types/game';
+import { Enclave, WorldProfile, ActiveHighlight, ActiveEffectMarker } from '@/types/game';
 import { getPaletteForOwner } from '@/canvas/draw/drawUtils';
 import { getIconForEntityType } from '@/utils/entityUtils';
 import { EFFECT_PROFILES } from '@/data/effects';

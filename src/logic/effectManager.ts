@@ -122,7 +122,7 @@ export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext
         if (selectedAlertVfxKey) {
             effectsToPlay.push({
                 id: `eff-${profile.key}-alert-vfx-${cell.id}-${Date.now()}`,
-                vfxKey: selectedAlertVfxKey,
+                vfx: [selectedAlertVfxKey],
                 position: cell.center,
             });
         }

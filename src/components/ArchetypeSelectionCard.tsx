@@ -36,7 +36,7 @@ const ArchetypeSelectionCard: React.FC<ArchetypeSelectionCardProps> = ({ archety
     if (!isSelected && videoRef.current) {
       try {
         await videoRef.current.play();
-      } catch (error) {
+      } catch (error) { // eslint-disable-line @typescript-eslint/no-unused-vars
         // Play() can be interrupted by pause(), which is normal and can be ignored.
       }
     }

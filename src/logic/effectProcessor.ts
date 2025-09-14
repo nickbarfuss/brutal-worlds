@@ -242,7 +242,7 @@ export function processEffectMarker(
             if (phaseVfxKey) {
                 effectsToPlay.push({
                     id: `eff-${profile.key}-${nextPhaseKey}-${marker.cellId}-${Date.now()}`,
-                    vfxKey: phaseVfxKey,
+                    vfx: [phaseVfxKey],
                     sfx: phaseSfxKey ? { key: phaseSfxKey, channel: 'fx', position: marker.position } : undefined,
                     position: marker.position,
                 });

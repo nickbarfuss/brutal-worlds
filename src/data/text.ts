@@ -2,9 +2,6 @@ export const AppText = {
   common: {
     gameTitle: "Brutal Worlds",
   },
-  init: {
-    initalize: "InitialiZZZZZZZZ",
-  },
   main: {
     buttonStart: "Begin",
   },

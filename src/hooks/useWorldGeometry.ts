@@ -1,5 +1,3 @@
-
-
 import { useEffect, useState, useRef } from 'react';
 import * as THREE from 'three';
 import { MapCell, WorldProfile } from '@/types/game';

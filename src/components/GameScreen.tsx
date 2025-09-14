@@ -7,9 +7,9 @@ import InspectorCard from '@/components/inspector/InspectorCard';
 import Snackbar from '@/components/ui/Snackbar';
 import BriefingCard from '@/components/briefing/BriefingCard';
 import GameOverDialog from '@/components/GameOverDialog';
-import GambitRail from '@/components/GambitRail';
+
 import { ORDER_PROFILES } from '@/data/orders';
-import { VFX_PROFILES } from '@/data/vfx';
+import { ASSETS } from '@/data/assets';
 import { EFFECT_PROFILES } from '@/data/effects';
 import { ARCHETYPES } from '@/data/archetypes';
 import { BIRTHRIGHTS } from '@/data/birthrights';
@@ -18,7 +18,7 @@ import TurnDisplay from '@/components/TurnDisplay';
 import WorldDisplay from '@/components/WorldDisplay';
 import { PLAYER_THREE_COLORS, THEME_CONFIG } from '@/data/theme';
 import { useWorldHighlights } from '@/hooks/useWorldHighlights';
-import { BriefingContent, GameOverState, OrderType, Owner, WorldProfile, Enclave, Domain, IntroPhase, Vector3, EffectQueueItem, PlayerIdentifier, InspectedMapEntity } from '@/types/game';
+import { BriefingContent, GameOverState, OrderType, Owner, WorldProfile, Enclave, Domain, IntroPhase, Vector3, EffectQueueItem, PlayerIdentifier, InspectedMapEntity } from '@/types/game'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import Backdrop from '@/components/ui/Backdrop';
 import LegendDisplay from '@/components/LegendDisplay';
 import VignetteOverlay from '@/components/VignetteOverlay';
@@ -27,9 +27,10 @@ import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldingBonu
 import CustomCursor from '@/components/ui/CustomCursor';
 import SettingsDrawer from '@/components/SettingsDrawer';
 import SurrenderConfirmDialog from '@/components/SurrenderConfirmDialog';
-import { getAssetUrl } from '@/utils/assetUtils';
+import { getAssetUrl, getNestedAsset } from '@/utils/assetUtils';
+import { toCamelCase } from '@/utils/stringUtils';
 import WarpStarsCanvas from '@/components/WarpStarsCanvas';
-import { getScreenPosition } from '@/canvas/draw/drawUtils';
+
 import ErrorBoundary from '@/components/ErrorBoundary'; // Added ErrorBoundary import
 
 declare const gsap: any;
@@ -93,7 +94,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
     
     const { 
         gamePhase, isIntroComplete, completeIntro, sfxManager, currentWorld, 
-        gameSessionId, playerArchetypeKey, playerLegacyKey, vfxManager, dispatch 
+        gameSessionId, playerArchetypeKey, playerLegacyKey, dispatch 
     } = engine;
 
     useEffect(() => {
@@ -105,30 +106,21 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         let tl: any;
 
         const playBeginDialog = () => {
-            const genericKeys = [
-                'narrator-arrival-1', 'narrator-arrival-2',
-                'narrator-arrival-3', 'narrator-arrival-4',
-            ];
-            const legacySoundKeys: string[] = [];
+            const genericKey = 'cinematic-arrival-dialog';
+            let legacyKey: string | undefined;
             if (playerArchetypeKey && playerLegacyKey) {
-                for (let i = 1; i <= 4; i++) {
-                    legacySoundKeys.push(`${playerArchetypeKey}-${playerLegacyKey}-arrival-${i}`);
-                }
+                const camelPlayerArchetypeKey = toCamelCase(playerArchetypeKey);
+                const camelPlayerLegacyKey = toCamelCase(playerLegacyKey);
+                legacyKey = `archetype-${camelPlayerArchetypeKey}-${camelPlayerLegacyKey}-dialog-arrival`;
             }
-            const validLegacyKeys = legacySoundKeys.filter(key => sfxManager.getSoundDuration(key, 'dialog') > 0);
 
             let selectedKey: string | undefined;
             const randomChance = Math.random();
 
-            if (randomChance <= 0.75 && validLegacyKeys.length > 0) {
-                // 75% chance to play a legacy sound
-                selectedKey = validLegacyKeys[Math.floor(Math.random() * validLegacyKeys.length)];
-            } else if (genericKeys.length > 0) {
-                // 25% chance to play a generic sound, or fallback if no legacy sounds
-                selectedKey = genericKeys[Math.floor(Math.random() * genericKeys.length)];
-            } else if (validLegacyKeys.length > 0) {
-                // Fallback: if generic is empty, but legacy is not, play legacy
-                selectedKey = validLegacyKeys[Math.floor(Math.random() * validLegacyKeys.length)];
+            if (randomChance <= 0.75 && legacyKey && sfxManager.getSoundDuration(legacyKey, 'dialog') > 0) {
+                selectedKey = legacyKey;
+            } else {
+                selectedKey = genericKey;
             }
 
             if (selectedKey) {
@@ -152,22 +144,21 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
 
             const playWorldSounds = () => {
                 if (!currentWorld) return;
+
+                sfxManager.playSound('cinematic-intro-sfx', 'fx');
                 
-                const dialogKeys = [
-                    'narrator-world-intro-1', 'narrator-world-intro-2',
-                    'narrator-world-intro-3', 'narrator-world-intro-4',
-                ];
-                const randomDialogKey = dialogKeys[Math.floor(Math.random() * dialogKeys.length)];
+                const randomDialogKey = 'cinematic-intro-dialog';
                 sfxManager.playSound(randomDialogKey, 'dialog');
 
                 const dialogDuration = sfxManager.getSoundDuration(randomDialogKey, 'dialog');
+                const worldIntroDialogKey = `world-${toCamelCase(currentWorld.key)}-dialog-intro`;
 
                 if (dialogDuration > 0) {
                     setTimeout(() => {
-                        sfxManager.playSound(`narrator-world-${currentWorld.key}`, 'dialog');
+                        sfxManager.playSound(worldIntroDialogKey, 'dialog');
                     }, dialogDuration * 1000);
                 } else {
-                    sfxManager.playSound(`narrator-world-${currentWorld.key}`, 'dialog');
+                    sfxManager.playSound(worldIntroDialogKey, 'dialog');
                 }
             };
 
@@ -189,7 +180,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     setIntroPhase('entry');
                     videoEnter.currentTime = 0;
                     videoEnter.play();
-                    sfxManager.playSound('sfx-warp-engage-1', 'fx');
+                    sfxManager.playSound(ASSETS.cinematic.intro.sfx[0], 'fx');
                 })
                 .call(playWorldSounds, [], "+=1.0")
                 .to({}, { duration: enterDuration / 2 - 1.0 })
@@ -207,9 +198,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     setIntroPhase('exit');
                     videoExit.currentTime = 0;
                     videoExit.play();
-                    const soundKeys = ['sfx-warp-exit-1', 'sfx-warp-exit-2', 'sfx-warp-exit-3', 'sfx-warp-exit-4'];
-                    const randomKey = soundKeys[Math.floor(Math.random() * soundKeys.length)];
-                    sfxManager.playSound(randomKey, 'fx');
+                    sfxManager.playSound('cinematic-arrival-sfx', 'fx');
                     setWarpPhase('ending');
                 })
                 .to({}, { 
@@ -631,7 +620,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         } else {
             setBriefing(null);
         }
-    }, [briefingTarget, getBriefingContent, engine.inspectedArchetypeOwner, engine.inspectedMapEntity]);
+    }, [briefingTarget, getBriefingContent, engine.inspectedArchetypeOwner, engine.inspectedMapEntity, engine]);
 
     const handleNewGame = () => {
         setIsClosingGameOver(true);
@@ -706,7 +695,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         } else {
             engine.toggleSettingsDrawer();
         }
-    }, [engine.isSettingsOpen, engine.toggleSettingsDrawer]);
+    }, [engine]);
     
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -747,14 +736,14 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         handleToggleSettings, isSurrenderConfirmOpen, engine.gameOverState, engine.isSettingsOpen,
         engine.selectedEnclaveId, engine.handleMapClick, engine.toggleGlobalMute, engine.togglePause,
         engine.gamePhase, engine.isIntroComplete, engine.isResolvingTurn, 
-        engine.inspectedArchetypeOwner, engine.inspectedMapEntity
+        engine.inspectedArchetypeOwner, engine.inspectedMapEntity, engine
     ]);
     
     const enclaves: Enclave[] = Object.values(engine.enclaveData);
     const totalEnclaves = enclaves.length;
     const playerEnclaves = enclaves.filter(e => e.owner === 'player-1').length;
     const opponentEnclaves = enclaves.filter(e => e.owner === 'player-2').length;
-    const neutralEnclaves = totalEnclaves - playerEnclaves - opponentEnclaves;
+    
 
     const playerPercentage = totalEnclaves > 0 ? playerEnclaves / totalEnclaves : 0;
     const opponentPercentage = totalEnclaves > 0 ? opponentEnclaves / totalEnclaves : 0;
@@ -814,8 +803,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         <div className={`w-full h-full bg-black relative overflow-hidden ${cursorClass}`}>
             {engine.isResolvingTurn && <CustomCursor />}
             
-            <video ref={videoEnterRef} src={getAssetUrl(VFX_PROFILES['warp-enter'].url)} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'entry' ? 'block' : 'none' }} />
-            <video ref={videoExitRef} src={getAssetUrl(VFX_PROFILES['warp-exit'].url)} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'exit' ? 'block' : 'none' }} />
+            <video ref={videoEnterRef} src={getAssetUrl(ASSETS.cinematic.intro.vfx[0].url)} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'entry' ? 'block' : 'none' }} />
+            <video ref={videoExitRef} src={getAssetUrl(ASSETS.cinematic.arrival.vfx[0].url)} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'exit' ? 'block' : 'none' }} />
             <WarpStarsCanvas phase={warpPhase} className="absolute inset-0 z-0" />
             
             {engine.currentWorld && (

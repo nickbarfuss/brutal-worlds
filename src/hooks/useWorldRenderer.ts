@@ -7,7 +7,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
-import { useGameEngine } from '@/hooks/useGameEngine';
+
 import { VfxManager } from '@/logic/VfxManager';
 import { drawUICanvas } from '@/canvas/drawingUtils';
 import { Enclave, ActiveHighlight, GameState, MapCell, Route, PendingOrders, ActiveEffectMarker, WorldProfile, Vector3, Domain, Rift, Expanse, IntroPhase, GamePhase } from '@/types/game';
@@ -172,7 +172,8 @@ export const useWorldRenderer = (props: MapRendererProps) => {
     useEffect(() => {
         const state = stateRef.current;
         
-        if (!mountRef.current || !props.currentWorld) return;
+        const currentMount = mountRef.current; // Capture the current value here
+        if (!currentMount || !props.currentWorld) return;
 
         state.objectColorTransitions.clear();
         state.lastTargetColors.clear();
@@ -554,7 +555,7 @@ export const useWorldRenderer = (props: MapRendererProps) => {
             const clockTime = clock.getElapsedTime();
             if (sunMat) sunMat.uniforms.u_time.value = clockTime;
             sun.lookAt(camera.position);
-            nebulaGroup.children.forEach((plane, i) => plane.lookAt(camera.position));
+            nebulaGroup.children.forEach((plane, _i) => plane.lookAt(camera.position));
 
             if (!state.pointerInteraction.isDragging && isIntroComplete) {
                 const cellId = getCellIdFromEvent(pointer);

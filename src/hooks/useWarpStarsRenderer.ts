@@ -15,7 +15,8 @@ export const useWarpStarsRenderer = ({ mountRef, phase }: UseWarpStarsRendererPr
   const animationFrameIdRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!mountRef.current) return;
+    const currentMount = mountRef.current; // Capture the current value here
+    if (!currentMount) return;
 
     // --- Scene Setup ---
     const scene = new THREE.Scene();
@@ -28,8 +29,8 @@ export const useWarpStarsRenderer = ({ mountRef, phase }: UseWarpStarsRendererPr
     const renderer = new THREE.WebGLRenderer({ alpha: true }); // Transparent background
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    mountRef.current.innerHTML = ''; // Clear any existing children
-    mountRef.current.appendChild(renderer.domElement);
+    currentMount.innerHTML = ''; // Clear any existing children
+    currentMount.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
     // --- Warp Stars ---
@@ -50,9 +51,9 @@ export const useWarpStarsRenderer = ({ mountRef, phase }: UseWarpStarsRendererPr
     // --- Event Listeners ---
     const handleResize = () => {
       if (cameraRef.current && rendererRef.current) {
-        cameraRef.current.aspect = window.innerWidth / window.innerHeight;
+        cameraRef.current.aspect = currentMount.clientWidth / currentMount.clientHeight;
         cameraRef.current.updateProjectionMatrix();
-        rendererRef.current.setSize(window.innerWidth, window.innerHeight);
+        rendererRef.current.setSize(currentMount.clientWidth, currentMount.clientHeight);
       }
     };
     window.addEventListener('resize', handleResize);
@@ -63,9 +64,9 @@ export const useWarpStarsRenderer = ({ mountRef, phase }: UseWarpStarsRendererPr
         cancelAnimationFrame(animationFrameIdRef.current);
       }
       window.removeEventListener('resize', handleResize);
-      if (mountRef.current && rendererRef.current) {
-        if (mountRef.current.contains(rendererRef.current.domElement)) {
-            mountRef.current.removeChild(rendererRef.current.domElement);
+      if (currentMount && rendererRef.current) {
+        if (currentMount.contains(rendererRef.current.domElement)) {
+            currentMount.removeChild(rendererRef.current.domElement);
         }
       }
       if (rendererRef.current) {
@@ -76,7 +77,7 @@ export const useWarpStarsRenderer = ({ mountRef, phase }: UseWarpStarsRendererPr
         (warpStarsRef.current.lines.material as THREE.Material).dispose();
       }
     };
-  }, []); // Empty dependency array: runs only once on mount
+  }, [phase, rendererRef, cameraRef, sceneRef, animationFrameIdRef]);
 
   // --- Phase Control ---
   useEffect(() => {
@@ -90,5 +91,5 @@ export const useWarpStarsRenderer = ({ mountRef, phase }: UseWarpStarsRendererPr
     } else if (phase === 'idle') {
       stars.reset();
     }
-  }, [phase]); // Depends on phase: runs when phase changes
+  }, [phase, warpStarsRef, mountRef]); // Depends on phase: runs when phase changes
 };

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { VfxProfile, VFX_PROFILES } from '../data/vfx';
+import { VfxProfile } from '../types/game';
 import { getAssetUrl } from '../utils/assetUtils';
 
 interface ActiveEffect {
@@ -12,7 +12,7 @@ interface ActiveEffect {
 
 export class VfxManager {
     private isInitialized: boolean = false;
-    private preloadedVideos: { [key: string]: HTMLVideoElement } = {};
+    private preloadedVideos: { [key: string]: { video: HTMLVideoElement; profile: VfxProfile } } = {};
     private activeEffects: ActiveEffect[] = [];
 
     // Constructor can be used for dependency injection if needed
@@ -53,7 +53,7 @@ export class VfxManager {
             const timeout = setTimeout(() => {
                 if (!resolved) {
                     resolved = true;
-                    console.warn(`VFX video loading timed out for "${key}". Continuing without it.`);
+                    console.warn(`VFX video loading timed out for "${key}".`);
                     cleanup();
                     resolve();
                 }
@@ -62,7 +62,7 @@ export class VfxManager {
             const onCanPlayThrough = () => {
                 if (!resolved) {
                     resolved = true;
-                    this.preloadedVideos[key] = video;
+                    this.preloadedVideos[key] = { video, profile };
                     cleanup();
                     resolve();
                 }
@@ -110,19 +110,19 @@ export class VfxManager {
             return;
         }
 
-        const preloadedVideo = this.preloadedVideos[selectedKey];
-        if (!preloadedVideo) {
+        const preloadedAsset = this.preloadedVideos[selectedKey];
+        if (!preloadedAsset) {
             console.warn(`[VfxManager] VFX video "${selectedKey}" not found or not preloaded. Playback aborted.`);
             return;
         }
 
-        const video = preloadedVideo.cloneNode(true) as HTMLVideoElement;
+        const video = preloadedAsset.video.cloneNode(true) as HTMLVideoElement;
         video.currentTime = 0;
         video.play().then(() => {
             
         }).catch(e => console.error(`[VfxManager] VFX play error for ${selectedKey}:`, e));
         
-        const profile = VFX_PROFILES[selectedKey];
+        const profile = preloadedAsset.profile;
         // Provide default values if profile or its dimensions are undefined
         const width = profile?.width || 256;
         const height = profile?.height || 256;

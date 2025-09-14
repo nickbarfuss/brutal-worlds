@@ -217,11 +217,11 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 position: fromEnclave.center,
             });
 
-            const vfxKey = ORDER_PROFILES.holding.vfxKey;
-            if (vfxKey) {
+            const vfx = ORDER_PROFILES.holding.assets.vfx;
+            if (vfx) {
                 effectsToQueue.push({
                     id: uuidv4(),
-                    vfxKey: vfxKey,
+                    vfx: vfx,
                     position: fromEnclave.center,
                 });
             }
@@ -243,13 +243,13 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             const effectsToQueue: EffectQueueItem[] = [];
             const orderType = order.type;
 
-            const vfxKey = ORDER_PROFILES[orderType]?.vfxKey;
+            const vfx = ORDER_PROFILES[orderType]?.assets.vfx;
             const sfxKey = `sfx-order-${orderType}-${Math.floor(Math.random() * 4) + 1}`;
 
-            if (vfxKey) {
+            if (vfx) {
                 effectsToQueue.push({
                     id: uuidv4(),
-                    vfxKey: vfxKey,
+                    vfx: vfx,
                     position: toEnclave.center, // VFX at target
                 });
             }

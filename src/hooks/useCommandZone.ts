@@ -101,7 +101,7 @@ export const useCommandZone = ({ selectedEnclaveId, enclaveData, mapData, routes
             }
         }
         return meshes;
-    }, [aiPendingOrders, enclaveData, window.innerWidth, window.innerHeight]);
+    }, [aiPendingOrders, enclaveData]);
 
     const aiOrderMaterials = useMemo(() => {
         return aiOrderMeshes.map(mesh => mesh.material as LineMaterial);

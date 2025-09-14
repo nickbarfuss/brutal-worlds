@@ -4,18 +4,17 @@
   orders, battles), and posts the new state back to the main thread.
 */
 
-import { Enclave, PendingOrders, EffectQueueItem, Player, ActiveEffectMarker, Route, MapCell, ActiveEffect, EffectProfile, ConquestEvent, Order, GameConfig } from '@/types/game.ts';
+import { Enclave, PendingOrders, EffectQueueItem, ActiveEffectMarker, Route, MapCell, ActiveEffect, EffectProfile, GameConfig } from '@/types/game.ts';
 import { resolveHolding } from '@/logic/holdResolver';
 import { resolveAssists } from '@/logic/assistResolver';
 import { resolveAttacks } from '@/logic/attackResolver';
 import * as THREE from 'three';
 import { EFFECT_PROFILES } from '@/data/effects';
-import { applyContinuousRules, applyInstantaneousRules } from '@/logic/effectProcessor';
+import { applyContinuousRules } from '@/logic/effectProcessor';
 import { cloneEnclave } from '@/logic/cloneUtils';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
 import * as entropyWindHandler from '@/logic/disasters/entropyWind';
-import { SFX_SOURCES } from '@/data/sfx';
-import { VFX_PROFILES } from '@/data/vfx';
+
 
 const resolveNumericRange = (value: number | [number, number]): number => {
     if (Array.isArray(value)) {
@@ -37,13 +36,13 @@ export const queueEffectAssets = (
     effectsToPlay: EffectQueueItem[]
 ) => {
     const sfxKey = profile.ui.assets.sfx?.[phase];
-    const vfxKey = profile.ui.assets.vfx?.[phase];
+    const vfx = profile.ui.assets.vfx?.[phase];
     const dialogKey = profile.ui.assets.dialog?.[phase];
 
-    if (vfxKey) {
+    if (vfx) {
         effectsToPlay.push({
             id: `eff-${profile.key}-${phase}-vfx-${position.x}-${position.y}-${position.z}-${Date.now()}`,
-            vfxKey: vfxKey,
+            vfx: [vfx],
             sfx: sfxKey ? { key: sfxKey, channel: 'fx', position: position } : undefined,
             position: position,
         });
@@ -74,7 +73,7 @@ export const processEffectMarkers = (
     let workingEnclaves = new Map<number, Enclave>(initialEnclavesMap);
     let workingRoutes = JSON.parse(JSON.stringify(initialRoutes)); // Deep copy for mutation
     
-    // --- STEP 1: APPLY CONTINUOUS EFFECTS ---
+    // STEP 1: APPLY CONTINUOUS EFFECTS
     const continuousUpdateMap = new Map<number, Enclave>();
     const allSideEffects: any[] = []; 
 
@@ -125,7 +124,7 @@ export const processEffectMarkers = (
             // Push the side effect directly to effectsToPlay for the main thread to handle VFX/SFX
             effectsToPlay.push({
                 id: `vfx-sfx-${Date.now()}-${Math.random()}`,
-                vfxKey: sideEffect.vfxKey,
+                vfx: [sideEffect.vfxKey],
                 sfx: sideEffect.sfx,
                 position: sideEffect.position,
             });
@@ -133,7 +132,7 @@ export const processEffectMarkers = (
         // No longer need to handle APPLY_IMPACT_AND_EFFECT as impact rules are applied directly in entropyWind.ts
     });
     
-    // --- STEP 2: PROCESS MARKERS AND PHASE TRANSITIONS ---
+    // STEP 2: PROCESS MARKERS AND PHASE TRANSITIONS
     const remainingEffectMarkers: ActiveEffectMarker[] = [];
     const effectsToAdd: { enclaveId: number, effect: ActiveEffect }[] = [];
     
@@ -227,7 +226,7 @@ export const deserializeVector3 = (o: PlainVector3): THREE.Vector3 => {
     return new THREE.Vector3(0, 0, 0);
 };
 
-// --- Order Validation ---
+// Order Validation
 export const pruneInvalidOrders = (
     enclaveMap: Map<number, Enclave>,
     routes: Route[],
@@ -261,9 +260,6 @@ export const pruneInvalidOrders = (
             }
         }
         
-        // FIX: This was a syntactically invalid 'else' block that caused multiple scope-related errors.
-        // It has been removed.
-
         if (!isInvalid) {
             if (playerOrders[fromId]) {
                 validPlayerOrders[fromId] = order;
@@ -278,7 +274,7 @@ export const pruneInvalidOrders = (
 };
 
 
-// --- Main Turn Resolution Logic ---
+// Main Turn Resolution Logic
 export const resolveTurn = (
     initialEnclaveData: { [id: number]: Enclave },
     playerPendingOrders: PendingOrders,
@@ -302,21 +298,21 @@ export const resolveTurn = (
         // Convert to Maps for safe, immutable operations
         const initialEnclavesMap = new Map<number, Enclave>(Object.entries(initialEnclaveData).map(([id, e]) => [parseInt(id), e]));
 
-        // --- 1. Effect Marker Processing Phase ---
+        // Effect Marker Processing Phase
         const { newEnclaveStates: enclavesAfterEffects, newRoutes: routesAfterEffects, remainingEffectMarkers } = processEffectMarkers(
             initialEnclavesMap, initialRoutes, initialEffectMarkers, effectsToPlay, mapData
         );
 
-        // --- 2. Order Pruning ---
+        // Order Pruning
         const { validPlayerOrders, validAiOrders } = pruneInvalidOrders(
             enclavesAfterEffects, routesAfterEffects, playerPendingOrders, aiPendingOrders
         );
         const allValidOrders = { ...validPlayerOrders, ...validAiOrders };
 
-        // --- 3. Order Resolution Pipeline ---
+        // Order Resolution Pipeline
         const enclavesAfterHolding = resolveHolding(enclavesAfterEffects, allValidOrders, routesAfterEffects, gameConfig);
         const enclavesAfterAssists = resolveAssists(enclavesAfterHolding, allValidOrders, gameConfig);
-        const { newEnclaveData: enclavesAfterAttacks, newPendingOrders: ordersAfterAttacks, conquestEvents } = resolveAttacks(
+        const { newEnclaveData: enclavesAfterAttacks, conquestEvents } = resolveAttacks(
             enclavesAfterAssists, allValidOrders, gameConfig, effectsToPlay, playerArchetypeKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey,
         );
         
@@ -325,7 +321,7 @@ export const resolveTurn = (
         const playerConquestsThisTurn = conquestEvents.filter(c => c.conqueror === 'player-1').length;
         const opponentConquestsThisTurn = conquestEvents.filter(c => c.conqueror === 'player-2').length;
 
-        // --- 5. Game Over Check ---
+        // Game Over Check
         const finalEnclaves = Array.from(finalEnclavesMap.values());
         const playerEnclaveCount = finalEnclaves.filter(e => e.owner === 'player-1').length;
         const opponentEnclaveCount = finalEnclaves.filter(e => e.owner === 'player-2').length;
@@ -361,7 +357,7 @@ export const resolveTurn = (
     }
 };
 
-// --- Web Worker Message Handler ---
+// Web Worker Message Handler
 self.onmessage = (e: MessageEvent) => {
     try {
         const state = JSON.parse(e.data);

@@ -1,8 +1,10 @@
 import React from 'react';
 import { ARCHETYPES } from '@/data/archetypes';
+import { ASSETS } from '@/data/assets';
 import { PlayerIdentifier } from '@/types/game';
 import { THEME_CONFIG } from '@/data/theme';
-import { getAssetUrl } from '@/utils/assetUtils';
+import { getAssetUrl, getNestedAsset } from '@/utils/assetUtils';
+import { toCamelCase } from '@/utils/stringUtils';
 
 interface ArchetypeAvatarProps {
   owner: PlayerIdentifier;
@@ -23,9 +25,15 @@ const ArchetypeAvatar: React.FC<ArchetypeAvatarProps> = ({ owner, archetypeKey, 
   const legacyIconColorClass = `text-${playerTheme}-200`;
 
   // Image URL
-  const imageUrl = archetype && legacy 
-  ? getAssetUrl('archetype', `${archetype.key}-${legacy.key}`, 'png')
-  : null;
+  const imageUrl =
+    archetype && legacy
+      ? getAssetUrl(
+          getNestedAsset(
+            ASSETS,
+            `archetype.${toCamelCase(archetype.key)}.${toCamelCase(legacy.key)}.avatar`
+          )
+        )
+      : null;
     
   // Fallback and legacy icons
   const defaultArchetypeIcon = isPlayer1 ? 'neurology' : 'psychology';

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Owner, Enclave } from '@/types/game';
+import { Owner } from '@/types/game';
 import { getIconForEntityType } from '@/utils/entityUtils';
 import { PLAYER_THREE_COLORS } from '@/data/theme';
 

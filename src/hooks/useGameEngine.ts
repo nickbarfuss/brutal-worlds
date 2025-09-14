@@ -1,13 +1,13 @@
 import { useCallback, useRef, useEffect, useReducer } from 'react';
-import * as THREE from 'three';
+import * as THREE from 'three'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import {
-    Enclave, Domain, Rift, Expanse, Route, MapCell, PendingOrders, InspectedEntity, GamePhase, ActiveDisasterMarker, ActiveGambit, GameState, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, EffectQueueItem, PlayerIdentifier, InspectedMapEntity
+    Enclave, PendingOrders, GamePhase, GameState, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, EffectQueueItem, PlayerIdentifier, InspectedMapEntity
 } from '@/types/game';
 import { VfxManager } from '@/logic/VfxManager';
 import { SfxManager } from '@/logic/SfxManager';
 import { useGameInitializer } from '@/hooks/useGameInitializer';
 import { useGameLoop } from '@/hooks/useGameLoop';
-import { reducer as gameReducer, initialState, Action } from '@/logic/reducers';
+import { reducer as gameReducer, initialState } from '@/logic/reducers';
 import { deserializeResolvedTurn, serializeGameStateForWorker } from '@/utils/threeUtils';
 import { calculateAIOrderChanges } from '@/logic/ai';
 import { getAssistMultiplierForEnclave } from '@/logic/birthrightManager.ts';
@@ -193,8 +193,8 @@ export const useGameEngine = () => {
                     if (deserializedResult.effectsToPlay && deserializedResult.effectsToPlay.length > 0) {
                         const newEffectQueueItems: EffectQueueItem[] = deserializedResult.effectsToPlay.map(effect => {
                             const newEffect: EffectQueueItem = { id: uuidv4(), position: effect.position };
-                            if (effect.vfxKey) {
-                                newEffect.vfxKey = effect.vfxKey;
+                            if (effect.vfx) {
+                                newEffect.vfx = effect.vfx;
                             }
                             if (effect.sfx) {
                                 newEffect.sfx = effect.sfx;
@@ -325,7 +325,7 @@ export const useGameEngine = () => {
     const setPlayVfxFromPreviousTurns = useCallback((enabled: boolean) => dispatch({ type: 'SET_PLAY_VFX_FROM_PREVIOUS_TURNS', payload: enabled }), []);
     const setStackVfx = useCallback((enabled: boolean) => dispatch({ type: 'SET_STACK_VFX', payload: enabled }), []);
     
-    const { turnStartTimeRef } = useGameLoop(state.isPaused, state.gamePhase, state.isResolvingTurn, state.currentWorld, state.currentTurn, resolveTurn, state.isIntroComplete);
+    useGameLoop(state.isPaused, state.gamePhase, state.isResolvingTurn, state.currentWorld, state.currentTurn, resolveTurn, state.isIntroComplete);
     useGameInitializer(vfxManager, sfxManager, startGame, setGamePhase, setInitializationState);
     
     useEffect(() => {
@@ -345,8 +345,13 @@ export const useGameEngine = () => {
         if (state.effectQueue.length > 0) {
             const playedEffectIds: string[] = [];
             state.effectQueue.forEach(effect => {
-                if (effect.vfxKey && effect.position) {
-                    vfxManager.current.playEffect(effect.vfxKey, effect.position);
+                if (effect.vfx && effect.position) {
+                    // FIX: The vfx property can be an array of strings or an array of objects with a `key` property.
+                    // This ensures we always pass a string key to the playEffect method.
+                    const vfxKeys = effect.vfx.map(v => (typeof v === 'string' ? v : v.key)).flat();
+                    vfxKeys.forEach(vfxKey => {
+                        vfxManager.current.playEffect(vfxKey, effect.position);
+                    });
                 }
                 if (effect.sfx) {
                     sfxManager.current.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
@@ -354,7 +359,7 @@ export const useGameEngine = () => {
                 playedEffectIds.push(effect.id); // Collect IDs of played effects
             });
             // Dispatch action to remove played effects from the queue
-            dispatch({ type: 'PROCESS_EFFECT_QUEUE', payload: { playedIds: playedEffectIds } });
+            dispatch({ type: 'CLEAR_EFFECT_QUEUE' });
         }
     }, [state.effectQueue, dispatch]);
 
@@ -369,7 +374,7 @@ export const useGameEngine = () => {
 
     useEffect(() => {
         if (state.gamePhase === 'playing' && state.currentTurn === 1 && !state.isPaused) {
-            sfxManager.current.playLoopIfNotPlaying('ambient');
+            sfxManager.current.playLoopIfNotPlaying('ambient-space-drift', 'ambient');
         }
     }, [state.gamePhase, state.currentTurn, state.isPaused]);
     
@@ -379,14 +384,19 @@ export const useGameEngine = () => {
     
         const shouldPlayMusic = (
             phase === 'mainMenu' || 
-            phase === 'archetypeSelection' || 
-            phase === 'playing' || 
-            phase === 'gameOver'
+            phase === 'archetypeSelection'
         );
+
+        const shouldPlayGameMusic = (
+            phase === 'playing'
+        )
     
         if (shouldPlayMusic) {
-            musicManager.playLoopIfNotPlaying('music');
-        } else {
+            musicManager.playLoopIfNotPlaying('music-main-menu', 'music');
+        } else if (shouldPlayGameMusic) {
+            musicManager.playLoopIfNotPlaying('music-gameplay', 'music');
+        }
+        else {
             musicManager.stopLoop('music');
         }
     }, [state.gamePhase]);
@@ -395,17 +405,14 @@ export const useGameEngine = () => {
     const prevSelectedEnclaveId = useRef<number | null>(null);
     useEffect(() => {
         const sfx = sfxManager.current;
-        const vfx = vfxManager.current;
-
-        
 
         if (state.selectedEnclaveId !== prevSelectedEnclaveId.current) {
             if (state.selectedEnclaveId !== null) {
                 // Entering command mode
-                sfx.playSound(['command-mode-enter-1', 'command-mode-enter-2'], 'ui');
+                sfx.playSound('order-commandMode-sfx-enter', 'ui');
             } else if (prevSelectedEnclaveId.current !== null) {
                 // Exiting command mode
-                sfx.playSound('command-mode-exit', 'ui');
+                sfx.playSound('order-commandMode-sfx-exit', 'ui');
             }
             prevSelectedEnclaveId.current = state.selectedEnclaveId;
         }

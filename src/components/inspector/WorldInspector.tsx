@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { WorldProfile, Domain, Enclave, Owner, Rift, Expanse, Vector3 } from '@/types/game';
+import { WorldProfile, Domain, Enclave, Rift, Expanse, Vector3 } from '@/types/game';
 import { EFFECT_PROFILES } from '@/data/effects';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';

@@ -27,7 +27,7 @@ const Snackbar: React.FC<SnackbarProps> = ({ data, duration = 5, onClose }) => {
 
   if (!currentData) return null;
   
-  const animationStyle = {
+  const animationStyle = { // eslint-disable-line @typescript-eslint/no-unused-vars
     '--duration': `${duration}s`
   } as React.CSSProperties;
 
