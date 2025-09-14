@@ -10,7 +10,7 @@ import { useGameLoop } from '@/hooks/useGameLoop';
 import { reducer as gameReducer, initialState, Action } from '@/logic/reducers';
 import { deserializeResolvedTurn, serializeGameStateForWorker } from '@/utils/threeUtils';
 import { calculateAIOrderChanges } from '@/logic/ai';
-import { getAssistMultiplierForEnclave } from '@/data/birthrightManager.ts';
+import { getAssistMultiplierForEnclave } from '@/logic/birthrightManager.ts';
 import { v4 as uuidv4 } from 'uuid';
 
 

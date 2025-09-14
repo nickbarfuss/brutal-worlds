@@ -2,6 +2,7 @@
 import { WorldProfile, WorldColorTheme, SemanticColorPalette } from '@/types/game.ts';
 import { generateColorScale } from '@/utils/color.ts';
 import { CONFIG } from '@/data/config.ts';
+import { ASSETS } from '@/data/assets.ts';
 
 const placeholderIllustration = 'https://storage.googleapis.com/brutal-worlds/backdrop/main.jpg';
 
@@ -15,7 +16,7 @@ const worldData: WorldDataObject[] = [
     { 
         key: 'xylos-prime', name: 'Xylos Prime', icon: 'globe',
         description: "Lush forests and sprawling plains define this world, where strategic positioning on its balanced landmasses is key to victory.",
-        illustrationUrl: 'https://storage.googleapis.com/brutal-worlds/world/Xylos-Prime.jpg',
+        illustrationUrl: ASSETS.world.xylosPrime.image, 
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 101 },
         disasterChance: 0.15,
         possibleEffects: ['skyfall-shards', 'resonance-cascade'],
@@ -47,7 +48,7 @@ const worldData: WorldDataObject[] = [
             strength: 0.50,
             radius: 1.0,
         },
-        illustrationUrl: 'https://storage.googleapis.com/brutal-worlds/world/Aetheria-Tor.jpg',
+        illustrationUrl: ASSETS.world.aetheriaTor.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 202, DOMAIN_TOUCH_CHANCE: 0.6 },
         disasterChance: 0.15,
         possibleEffects: ['entropy-wind', 'resonance-cascade'],
@@ -75,7 +76,7 @@ const worldData: WorldDataObject[] = [
     { 
         key: 'magentron', name: 'Magentron', icon: 'globe',
         description: "A planet shattered into a vast archipelago. Naval superiority and control over the countless islands of Magentron are the only paths to global domination.",
-        illustrationUrl: 'https://storage.googleapis.com/brutal-worlds/world/Magnetron.jpg',
+        illustrationUrl: ASSETS.world.magentron.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 303, ISLAND_DOMAINS_MIN: 3, ISLAND_DOMAINS_MAX: 5 },
         disasterChance: 0.20,
         possibleEffects: ['ion-tempest', 'skyfall-shards'],
@@ -104,7 +105,7 @@ const worldData: WorldDataObject[] = [
     { 
         key: 'war-world', name: 'War-World', icon: 'globe',
         description: "There is only war. This massive super-continent is a brutal meat grinder where front lines shift constantly and only the most aggressive commander can claim victory.",
-        illustrationUrl: 'https://storage.googleapis.com/brutal-worlds/world/War-World.jpg',
+        illustrationUrl: ASSETS.world.warWorld.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 505, NUM_POINTS: 2200, LAND_COVERAGE_MIN: 0.5, LAND_COVERAGE_MAX: 0.6, ISLAND_DOMAINS_MIN: 0, ISLAND_DOMAINS_MAX: 1, ENCLAVE_SIZE_MIN: 12, ENCLAVE_SIZE_MAX: 20, DOMAIN_TOUCH_CHANCE: 0.8 },
         disasterChance: 0.25,
         possibleEffects: ['skyfall-shards', 'pyroclasm', 'resonance-cascade'],
@@ -131,7 +132,7 @@ const worldData: WorldDataObject[] = [
     { 
         key: 'anvillar', name: 'Anvillar', icon: 'globe',
         description: "Two titanic continents are locked in an eternal struggle. The narrow sea between them is the primary battleground for this world's fate.",
-        illustrationUrl: 'https://storage.googleapis.com/brutal-worlds/world/Anvillar.jpg',
+        illustrationUrl: ASSETS.world.anvillar.image,
         bloom: {
             threshold: 0.33,
             strength: 1.40,
@@ -160,7 +161,7 @@ const worldData: WorldDataObject[] = [
     { 
         key: 'skull-sands', name: 'Skull-Sands', icon: 'globe',
         description: "A vast desert world where life clings to a few sparse continents. Resources are scarce, and control of the few fertile areas is paramount.",
-        illustrationUrl: 'https://storage.googleapis.com/brutal-worlds/world/Skull-Sands.jpg',
+        illustrationUrl: ASSETS.world.skullSands.image,
         bloom: {
             threshold: 0,
             strength: 0.3,
@@ -194,7 +195,7 @@ const worldData: WorldDataObject[] = [
     { 
         key: 'grave-star', name: 'Grave-Star', icon: 'globe',
         description: "Lost in the silent void, Grave-Star is a collection of desolate islands. Conflict here is a quiet, lonely affair, fought over the last remnants of a forgotten world.",
-        illustrationUrl: 'https://storage.googleapis.com/brutal-worlds/world/Grave-Star.jpg',
+        illustrationUrl: ASSETS.world.graveStar.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 909, NUM_POINTS: 800, LAND_COVERAGE_MIN: 0.15, LAND_COVERAGE_MAX: 0.25, ISLAND_DOMAINS_MIN: 4, ISLAND_DOMAINS_MAX: 6 },
         disasterChance: 0.10,
         possibleEffects: ['void-surge', 'entropy-wind'],
@@ -221,7 +222,7 @@ const worldData: WorldDataObject[] = [
     { 
         key: 'blades-edge', name: 'Blade\'s Edge', icon: 'globe',
         description: "Small and brutal, Blade's Edge offers no room for grand strategy. Conflicts are swift, bloody, and decisive on this compact battlefield.",
-        illustrationUrl: 'https://storage.googleapis.com/brutal-worlds/world/Blades-Edge.jpg',
+        illustrationUrl: ASSETS.world.bladesEdge.image,
         bloom: {
             threshold: 0.27,
             strength: 1.08,
@@ -251,7 +252,7 @@ const worldData: WorldDataObject[] = [
     { 
         key: 'cygnus-x1', name: 'Cygnus X-1', icon: 'globe',
         description: "This dense cluster of islands is a tactician's dream, demanding mastery of naval routes and amphibious assaults to achieve victory.",
-        illustrationUrl: 'https://storage.googleapis.com/brutal-worlds/world/Cygnus-X-1.jpg',
+        illustrationUrl: ASSETS.world.cygnusX1.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1212, NUM_POINTS: 850, LAND_COVERAGE_MIN: 0.25, LAND_COVERAGE_MAX: 0.35, ISLAND_DOMAINS_MIN: 6, ISLAND_DOMAINS_MAX: 10 },
         disasterChance: 0.20,
         possibleEffects: ['void-surge', 'ion-tempest', 'skyfall-shards'],
@@ -280,7 +281,7 @@ const worldData: WorldDataObject[] = [
     { 
         key: 'magma-tor', name: 'Magma-Tor', icon: 'globe',
         description: "A world of fire and water where chains of volcanic islands dot a boiling sea. Survival, let alone conquest, requires adapting to its extreme and volatile environment.",
-        illustrationUrl: 'https://storage.googleapis.com/brutal-worlds/world/Magma-Tor.jpg',
+        illustrationUrl: ASSETS.world.magmaTor.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1313, LAND_COVERAGE_MIN: 0.10, LAND_COVERAGE_MAX: 0.18, ISLAND_DOMAINS_MIN: 10, ISLAND_DOMAINS_MAX: 15 },
         disasterChance: 0.30,
         possibleEffects: ['pyroclasm'],
@@ -307,7 +308,7 @@ const worldData: WorldDataObject[] = [
     { 
         key: 'shatter-spire', name: 'Shatter-Spire', icon: 'globe',
         description: "The fractured surface of Shatter-Spire is a chaotic mess of tiny, defensible enclaves. Warfare is a granular affair, won one shard at a time.",
-        illustrationUrl: 'https://storage.googleapis.com/brutal-worlds/world/Shatter-Spire.jpg',
+        illustrationUrl: ASSETS.world.shatterSpire.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1414, NUM_POINTS: 1800, ENCLAVE_SIZE_MIN: 4, ENCLAVE_SIZE_MAX: 8 },
         disasterChance: 0.28,
         possibleEffects: ['resonance-cascade', 'entropy-wind'],
@@ -334,7 +335,7 @@ const worldData: WorldDataObject[] = [
     { 
         key: 'steel-spine', name: 'Steel-Spine', icon: 'globe',
         description: "Steel-Spine's serpentine continents create natural chokepoints and fortified borders. Victory is a matter of breaking through enemy lines and securing these vital passages.",
-        illustrationUrl: 'https://storage.googleapis.com/brutal-worlds/world/Steel-Spine.jpg',
+        illustrationUrl: ASSETS.world.steelSpine.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1616, NUM_POINTS: 1600, LAND_COVERAGE_MIN: 0.35, LAND_COVERAGE_MAX: 0.45, PENINSULA_CHANCE: 0.8, DOMAIN_TOUCH_CHANCE: 0.1 },
         disasterChance: 0.18,
         possibleEffects: ['ion-tempest', 'resonance-cascade'],

@@ -1,5 +1,5 @@
 import { Enclave, PendingOrders, Route, OrderType, Order, EffectQueueItem } from '@/types/game.ts';
-import { getAssistMultiplierForEnclave } from '@/data/birthrightManager.ts';
+import { getAssistMultiplierForEnclave } from '@/logic/birthrightManager.ts';
 import { ORDER_PROFILES } from '@/data/orders.ts';
 import { v4 as uuidv4 } from 'uuid';
 import * as THREE from 'three'; // Assuming THREE is needed for Vector3

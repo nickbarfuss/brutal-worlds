@@ -1,7 +1,7 @@
 import React from 'react';
 import { ARCHETYPES } from '@/data/archetypes';
 import { BIRTHRIGHTS } from '@/data/birthrights';
-import { GAMBITS } from '@/data/gambits';
+import { ARCHETYPE_PROFILES } from '@/data/gambits';
 import ChipCard from '@/components/ui/ChipCard';
 import Card from '@/components/ui/Card';
 import { PlayerIdentifier } from '@/types/game';
@@ -77,7 +77,7 @@ const ArchetypeInspector: React.FC<ArchetypeInspectorProps> = ({ owner, archetyp
         <Card.Section title="Gambits">
           <div className="space-y-2">
             {legacy.gambitKeys.map(key => {
-              const gambit = GAMBITS[key];
+              const gambit = ARCHETYPE_PROFILES[key];
               if (!gambit) return null;
               return (
                 <ChipCard

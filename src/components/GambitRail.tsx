@@ -8,7 +8,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { ActiveGambit, GambitProfile } from '@/types/game';
-import { GAMBITS } from '@/data/gambits';
+import { ARCHETYPE_PROFILES } from '@/data/gambits';
 import GambitCard from '@/components/GambitCard';
 import ButtonGambit from '@/components/ui/ButtonGambit';
 
@@ -28,7 +28,7 @@ const GambitRail: React.FC<GambitRailProps> = ({ gambits }) => {
   const [hoveredGambit, setHoveredGambit] = useState<HoveredGambit | null>(null);
 
   const handleMouseEnter = useCallback((event: React.MouseEvent<HTMLButtonElement>, activeGambit: ActiveGambit) => {
-    const profile = GAMBITS[activeGambit.key];
+    const profile = ARCHETYPE_PROFILES[activeGambit.key];
     if (!profile) return;
     const rect = event.currentTarget.getBoundingClientRect();
     setHoveredGambit({
@@ -48,8 +48,8 @@ const GambitRail: React.FC<GambitRailProps> = ({ gambits }) => {
     return null;
   }
 
-  const archetypeGambits = gambits.filter(g => GAMBITS[g.key]?.category === 'Archetype');
-  const commonGambits = gambits.filter(g => GAMBITS[g.key]?.category === 'Common');
+  const archetypeGambits = gambits.filter(g => ARCHETYPE_PROFILES[g.key]?.category === 'Archetype');
+  const commonGambits = gambits.filter(g => ARCHETYPE_PROFILES[g.key]?.category === 'Common');
 
   return (
     <div className="h-full relative">

@@ -1,5 +1,5 @@
 import { EffectProfile } from '@/types/game.ts';
-import { getAssetUrl } from '@/utils/assetUtils';
+import { ASSETS } from '@/data/assets.ts';
 
 export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to renamme DISASTER_PROFILES to COMMON
     'entropy-wind': {
@@ -10,22 +10,22 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
             description: "A howling gale of pure chaos moves across the land, unmaking everything in its path.",
             assets: {
                 key: 'entropy-wind',
-                image: getAssetUrl('disaster', 'entropy-wind', 'jpg'),
+                image: ASSETS.disaster.entropyWind.image,
                 sfx: {
-                    alert: getAssetUrl('sfx', 'entropy-wind-alert', 'mp3'),
-                    impact: getAssetUrl('sfx', 'entropy-wind-impact', 'mp3'),
-                    aftermath: getAssetUrl('sfx', 'entropy-wind-aftermath', 'mp3'),
+                    alert: ASSETS.disaster.entropyWind.sfx.alert[0],
+                    impact: ASSETS.disaster.entropyWind.sfx.impact[0],
+                    aftermath: ASSETS.disaster.entropyWind.sfx.aftermath[0],
                 },
                 vfx: {
-                    alert: getAssetUrl('vfx', 'entropy-wind-alert', 'webm'),
-                    impact: getAssetUrl('vfx', 'entropy-wind-impact', 'webm'),
-                    aftermath: getAssetUrl('vfx', 'entropy-wind-aftermath', 'webm'),
+                    alert: ASSETS.disaster.entropyWind.vfx.alert[0].url,
+                    impact: ASSETS.disaster.entropyWind.vfx.impact[0].url,
+                    aftermath: ASSETS.disaster.entropyWind.vfx.aftermath[0].url,
                 },
                 dialog: {
                     alert: [
-                        getAssetUrl('dialog', 'narrator-disaster-entropy-wind-alert-1', 'mp3'),
-                        getAssetUrl('dialog', 'narrator-disaster-entropy-wind-alert-2', 'mp3'),
-                        getAssetUrl('dialog', 'narrator-disaster-entropy-wind-alert-3', 'mp3'),
+                        ASSETS.disaster.entropyWind.dialog[0],
+                        ASSETS.disaster.entropyWind.dialog[1],
+                        ASSETS.disaster.entropyWind.dialog[2],
                     ],
                 }
             },
@@ -73,22 +73,22 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
             description: "A storm of charged particles sweeps across the world, disrupting supply lines.",
             assets: {
                 key: 'ion-tempest',
-                image: 'https://storage.googleapis.com/brutal-worlds/disaster/ion-tempest.jpg',
+                image: ASSETS.disaster.ionTempest.image,
                 sfx: {
-                        alert: 'ion-tempest-alert',
-                        impact: 'ion-tempest-impact',
-                        aftermath: 'ion-tempest-aftermath',
-                    },
+                    alert: ASSETS.disaster.ionTempest.sfx.alert[0],
+                    impact: ASSETS.disaster.ionTempest.sfx.impact[0],
+                    aftermath: ASSETS.disaster.ionTempest.sfx.aftermath[0],
+                },
                 vfx: {
-                    alert: 'disaster-ion-tempest-alert',
-                    impact: 'ion-tempest-impact',
-                    aftermath: 'ion-tempest-aftermath',
+                    alert: ASSETS.disaster.ionTempest.vfx.alert[0].url,
+                    impact: ASSETS.disaster.ionTempest.vfx.impact[0].url,
+                    aftermath: ASSETS.disaster.ionTempest.vfx.aftermath[0].url,
                 },
                 dialog: {
                     alert: [
-                        'narrator-disaster-pyroclasm-alert-1',
-                        'narrator-disaster-pyroclasm-alert-2',
-                        'narrator-disaster-pyroclasm-alert-3',
+                        ASSETS.disaster.ionTempest.dialog[0],
+                        ASSETS.disaster.ionTempest.dialog[1],
+                        ASSETS.disaster.ionTempest.dialog[2],
                     ],
                 }
             }
@@ -136,22 +136,22 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
             description: "A superheated cloud of ash and rock erupts, incinerating everything in its path.",
             assets: {
                 key: 'pyroclasm',
-                image: 'https://storage.googleapis.com/brutal-worlds/disaster/pyroclasm.jpg',
+                image: ASSETS.disaster.pyroclasm.image,
                 sfx: {
-                    alert: 'pyroclasm-alert',
-                    impact: 'pyroclasm-impact',
-                    aftermath: 'pyroclasm-aftermath',
+                    alert: ASSETS.disaster.pyroclasm.sfx.alert[0],
+                    impact: ASSETS.disaster.pyroclasm.sfx.impact[0],
+                    aftermath: ASSETS.disaster.pyroclasm.sfx.aftermath[0],
                 },
                 vfx: {
-                    alert: 'pyroclasm-alert',
-                    impact: 'pyroclasm-impact',
-                    aftermath: 'pyroclasm-aftermath',
+                    alert: ASSETS.disaster.pyroclasm.vfx.alert[0].url,
+                    impact: ASSETS.disaster.pyroclasm.vfx.impact[0].url,
+                    aftermath: ASSETS.disaster.pyroclasm.vfx.aftermath[0].url,
                 },
                 dialog: {
                     alert: [
-                        'narrator-disaster-pyroclasm-alert-1',
-                        'narrator-disaster-pyroclasm-alert-2',
-                        'narrator-disaster-pyroclasm-alert-3',
+                        ASSETS.disaster.pyroclasm.dialog[0],
+                        ASSETS.disaster.pyroclasm.dialog[1],
+                        ASSETS.disaster.pyroclasm.dialog[2],
                     ],
                 }
             }
@@ -199,22 +199,22 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
             description: "The planetary core resonates violently, causing the ground to liquefy and shatter.",
             assets: {
                 key: 'resonance-cascade',
-                image: 'https://storage.googleapis.com/brutal-worlds/disaster/resonance-cascade.jpg',
+                image: ASSETS.disaster.resonanceCascade.image,
                 sfx: {
-                    alert: 'resonance-cascade-alert',
-                    impact: 'resonance-cascade-impact',
-                    aftermath: 'resonance-cascade-aftermath',
+                    alert: ASSETS.disaster.resonanceCascade.sfx.alert[0],
+                    impact: ASSETS.disaster.resonanceCascade.sfx.impact[0],
+                    aftermath: ASSETS.disaster.resonanceCascade.sfx.aftermath[0],
                 },
                 vfx: {
-                    alert: 'resonance-cascade-alert',
-                    impact: 'resonance-cascade-impact',
-                    aftermath: 'resonance-cascade-aftermath',
+                    alert: ASSETS.disaster.resonanceCascade.vfx.alert[0].url,
+                    impact: ASSETS.disaster.resonanceCascade.vfx.impact[0].url,
+                    aftermath: ASSETS.disaster.resonanceCascade.vfx.aftermath[0].url,
                 },
                 dialog: {
                     alert: [
-                        'narrator-disaster-resonance-cascade-alert-1',
-                        'narrator-disaster-resonance-cascade-alert-2',
-                        'narrator-disaster-resonance-cascade-alert-3',
+                        ASSETS.disaster.resonanceCascade.dialog[0],
+                        ASSETS.disaster.resonanceCascade.dialog[1],
+                        ASSETS.disaster.resonanceCascade.dialog[2],
                     ],
                 }
             }
@@ -267,22 +267,22 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
             description: "Crystalline fragments rain down from orbit, impacting multiple locations at once.",
             assets: {
                 key: 'skyfall-shards',
-                image: 'https://storage.googleapis.com/brutal-worlds/disaster/skyfall-shards.jpg',
+                image: ASSETS.disaster.skyfallShards.image,
                 sfx: {
-                    alert: 'skyfall-shards-alert',
-                    impact: 'skyfall-shards-impact',
-                    aftermath: 'skyfall-shards-aftermath',
+                    alert: ASSETS.disaster.skyfallShards.sfx.alert[0],
+                    impact: ASSETS.disaster.skyfallShards.sfx.impact[0],
+                    aftermath: ASSETS.disaster.skyfallShards.sfx.aftermath[0],
                 },
                 vfx: {
-                    alert: 'skyfall-shards-alert',
-                    impact: 'skyfall-shards-impact',
-                    aftermath: 'skyfall-shards-aftermath',
+                    alert: ASSETS.disaster.skyfallShards.vfx.alert[0].url,
+                    impact: ASSETS.disaster.skyfallShards.vfx.impact[0].url,
+                    aftermath: ASSETS.disaster.skyfallShards.vfx.aftermath[0].url,
                 },
                 dialog: {
                     alert: [
-                        'narrator-disaster-skyfall-shards-alert-1',
-                        'narrator-disaster-skyfall-shards-alert-2',
-                        'narrator-disaster-skyfall-shards-alert-3',
+                        ASSETS.disaster.skyfallShards.dialog[0],
+                        ASSETS.disaster.skyfallShards.dialog[1],
+                        ASSETS.disaster.skyfallShards.dialog[2],
                     ],
                 }
             }
@@ -330,22 +330,22 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
             description: "A tear in reality unleashes a scouring wave of void energy.",
             assets: {
                 key: 'void-surge',
-                image: 'https://storage.googleapis.com/brutal-worlds/disaster/void-surge.jpg',
+                image: ASSETS.disaster.voidSurge.image,
                 sfx: {
-                    alert: 'void-surge-alert',
-                    impact: 'void-surge-impact',
-                    aftermath: 'void-surge-aftermath',
+                    alert: ASSETS.disaster.voidSurge.sfx.alert[0],
+                    impact: ASSETS.disaster.voidSurge.sfx.impact[0],
+                    aftermath: ASSETS.disaster.voidSurge.sfx.aftermath[0],
                 },
                 vfx: {
-                    alert: 'void-surge-alert',
-                    impact: 'void-surge-impact',
-                    aftermath: 'void-surge-aftermath',
+                    alert: ASSETS.disaster.voidSurge.vfx.alert[0].url,
+                    impact: ASSETS.disaster.voidSurge.vfx.impact[0].url,
+                    aftermath: ASSETS.disaster.voidSurge.vfx.aftermath[0].url,
                 },
                 dialog: {
                     alert: [
-                        'narrator-disaster-void-surge-dialog-alert-1',
-                        'narrator-disaster-void-surge-dialog-alert-2',
-                        'narrator-disaster-void-surge-dialog-alert-3',
+                        ASSETS.disaster.voidSurge.dialog[0],
+                        ASSETS.disaster.voidSurge.dialog[1],
+                        ASSETS.disaster.voidSurge.dialog[2],
                     ],
                 }
             }

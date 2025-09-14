@@ -62,11 +62,14 @@ export const CONFIG = {
         
         //sounds
         ambient: 'https://storage.googleapis.com/brutal-worlds/ambient',
-        archetype: 'https://storage.googleapis.com/brutal-worlds/archetype'
+        archetype: 'https://storage.googleapis.com/brutal-worlds/archetype',
+        disaster: 'https://storage.googleapis.com/brutal-worlds/world',
         dialog: 'https://storage.googleapis.com/brutal-worlds/dialog',
+        gambit: 'https://storage.googleapis.com/brutal-worlds/gambit',
         music: 'https://storage.googleapis.com/brutal-worlds/music',
         sfx: 'https://storage.googleapis.com/brutal-worlds/sfx',     
         ui: 'https://storage.googleapis.com/brutal-worlds/sfx',
         vfx: 'https://storage.googleapis.com/brutal-worlds/vfx',
+        world: 'https://storage.googleapis.com/brutal-worlds/world',
     },      
 }

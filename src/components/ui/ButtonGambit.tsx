@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActiveGambit } from '@/types/game';
-import { GAMBITS } from '@/data/gambits';
+import { ARCHETYPE_PROFILES } from '@/data/gambits';
 
 interface ButtonGambitProps {
   activeGambit: ActiveGambit;
@@ -9,7 +9,7 @@ interface ButtonGambitProps {
 }
 
 const ButtonGambit: React.FC<ButtonGambitProps> = ({ activeGambit, onMouseEnter, onMouseLeave }) => {
-  const profile = GAMBITS[activeGambit.key];
+  const profile = ARCHETYPE_PROFILES[activeGambit.key];
   if (!profile) return null;
 
   let stateClasses = '';

@@ -1,6 +1,6 @@
 import { Enclave, PendingOrders, Order } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
-import { getAssistMultiplierForEnclave } from '@/data/birthrightManager.ts';
+import { getAssistMultiplierForEnclave } from '@/logic/birthrightManager.ts';
 import { cloneEnclave } from '@/logic/cloneUtils.ts';
 
 export const resolveAssists = (

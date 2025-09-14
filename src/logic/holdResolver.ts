@@ -1,7 +1,7 @@
 import { Enclave, PendingOrders, Route } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
 import { getAppliedModifiers } from '@/logic/effectProcessor.ts';
-import { getHoldingBonusForEnclave } from '@/data/birthrightManager.ts';
+import { getHoldingBonusForEnclave } from '@/logic/birthrightManager.ts';
 import { cloneEnclave } from '@/logic/cloneUtils.ts';
 
 export const resolveHolding = (

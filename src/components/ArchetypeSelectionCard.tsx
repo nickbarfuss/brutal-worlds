@@ -4,7 +4,7 @@ import { ArchetypeProfile, LegacyProfile } from '@/types/game';
 import Avatar from '@/components/ui/Avatar';
 import ChipCard from '@/components/ui/ChipCard';
 import { BIRTHRIGHTS } from '@/data/birthrights';
-import { GAMBITS } from '@/data/gambits';
+import { ARCHETYPE_PROFILES } from '@/data/gambits';
 import Chip from '@/components/ui/Chip';
 import { getAssetUrl } from '@/utils/assetUtils';
 import Card from '@/components/ui/Card';
@@ -127,7 +127,7 @@ const ArchetypeSelectionCard: React.FC<ArchetypeSelectionCardProps> = ({ archety
           <Card.Section title="Gambits">
               <div className="space-y-2">
                 {legacy.gambitKeys.map(gambitKey => {
-                    const gambit = GAMBITS[gambitKey];
+                    const gambit = ARCHETYPE_PROFILES[gambitKey];
                     if (!gambit) return null;
                     return (
                         <ChipCard 

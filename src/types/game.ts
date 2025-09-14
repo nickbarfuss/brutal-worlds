@@ -294,42 +294,7 @@ export interface StarfieldConfig {
   layer2: StarfieldLayerConfig;
 }
 
-export interface WorldProfile {
-  key: string;
-  name: string;
-  description: string;
-  illustrationUrl: string;
-  icon: string;
-  config: WorldConfig;
-  nebula: {
-    main: NebulaConfig;
-    wispy: NebulaConfig;
-  };
-  sunColor: string;
-  sunScale: number;
-  worldColor: string;
-  atmosphereColor: string;
-  worldColorTheme: WorldColorTheme;
-  neutralColorPalette: SemanticColorPalette;
-  names: {
-    domains: {
-      name: string;
-      strength: number;
-      enclaves: { name: string }[];
-    }[];
-    rifts: string[];
-    expanses: string[];
-  };
-  possibleEffects: string[];
-  disasterChance: number;
-  //starfield: StarfieldConfig; // Uncomment if starfield needed. Attempted to define and introduce concept but never completed.
-  bloom?: {
-    threshold: number;
-    strength: number;
-    radius: number;
-  };
-  tonemappingStrength?: number;
-}
+
 export interface OrderProfile {
     name: string;
     icon: string;

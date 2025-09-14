@@ -1,6 +1,7 @@
 import { EffectProfile } from '@/types/game.ts';
+import { ASSETS } from '@/data/assets.ts';
 
-export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAMBITS to ARCHETYPE
+export const ARCHETYPE_PROFILES: { [key: string]: EffectProfile } = {
     // --- First Sword Gambits ---
     'celestial-annihilation': {
         key: 'celestial-annihilation',
@@ -10,15 +11,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Call down a concentrated beam of orbital energy to obliterate a single target.',
             assets: {
                 key: 'celestial-annihilation',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/first-sword-celestial-annihilation.jpg',
+                image: ASSETS.gambit.celestialAnnihilation.image,
                 sfx: {
-                    impact: 'celestial-annihilation-impact',
+                    impact: ASSETS.gambit.celestialAnnihilation.sfx.impact, 
                 },
                 vfx: {
-                    impact: 'celestial-annihilation-impact',
+                    impact: ASSETS.gambit.celestialAnnihilation.vfx.impact,  
                 },
                 dialog: {
-                    impact: 'celestial-annihilation-impact',
+                    impact: ASSETS.gambit.celestialAnnihilation.dialog.impact,
                 }
             }
         },
@@ -54,15 +55,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Designate a single enclave as a nexus of war, supercharging its offensive capabilities for a limited time.',
             assets: {
                 key: 'war-fulcrum',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/first-sword-war-fulcrum.jpg',
+                image: ASSETS.gambit.warFulcrum.image,
                 sfx: {
-                    impact: 'war-fulcrum-impact',
+                    impact: ASSETS.gambit.warFulcrum.sfx.impact,
                 },
                 vfx: {
-                    impact: 'war-fulcrum-impact',
+                    impact: ASSETS.gambit.warFulcrum.vfx.impact,
                 },
                 dialog: {
-                    impact: 'war-fulcrum-impact',
+                    impact: ASSETS.gambit.warFulcrum.dialog.impact,
                 }
             }
         },
@@ -98,15 +99,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Exploit a critical weakness in an enemy enclave\'s defenses, causing cascading failures.',
             assets: {
                 key: 'shatterpoint-strike',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/first-sword-shatterpoint-strike.jpg',
+                image: ASSETS.gambit.shatterpointStrike.image,
                 sfx: {
-                    impact: 'shatterpoint-strike-impact',
+                    impact: ASSETS.gambit.shatterpointStrike.sfx.impact,
                 },
                 vfx: {
-                    impact: 'shatterpoint-strike-impact',
+                    impact: ASSETS.gambit.shatterpointStrike.vfx.impact,
                 },
                 dialog: {
-                    impact: 'shatterpoint-strike-impact',
+                    impact: ASSETS.gambit.shatterpointStrike.dialog.impact,
                 }
             }
         },
@@ -142,15 +143,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Open a temporary rift to an alternate reality where your forces are better equipped, bolstering all friendly enclaves.',
             assets: {
                 key: 'trans-dimensional-armory',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/first-sword-trans-dimensional-armory.jpg',
+                image: ASSETS.gambit.transDimensionalArmory.image,
                 sfx: {
-                    impact: 'trans-dimensional-armory-impact',
+                    impact: ASSETS.gambit.transDimensionalArmory.sfx.impact,
                 },
                 vfx: {
-                    impact: 'trans-dimensional-armory-impact',
+                    impact: ASSETS.gambit.transDimensionalArmory.vfx.impact,
                 },
                 dialog: {
-                    impact: 'trans-dimensional-armory-impact',
+                    impact: ASSETS.gambit.transDimensionalArmory.dialog.impact,
                 }
             }
         },
@@ -188,15 +189,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Forge a psychic link between two friendly enclaves, allowing them to instantly share forces.',
             assets: {
                 key: 'soul-forging',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/pact-whisperer-soul-forging.jpg',
+                image: ASSETS.gambit.soulForging.image,
                 sfx: {
-                    impact: 'soul-forging-impact',
+                    impact: ASSETS.gambit.soulForging.sfx.impact,
                 },
                 vfx: {
-                    impact: 'soul-forging-impact',
+                    impact: ASSETS.gambit.soulForging.vfx.impact,
                 },
                 dialog: {
-                    impact: 'soul-forging-impact',
+                    impact: ASSETS.gambit.soulForging.dialog.impact,
                 }
             }
         },
@@ -233,15 +234,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Temporarily sever an enemy enclave\'s connection to reality, cutting it off from all support.',
             assets: {
                 key: 'void-untethering',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/pact-whisperer-void-untethering.jpg',
+                image: ASSETS.gambit.voidUntethering.image,
                 sfx: {
-                    impact: 'void-untethering-impact',
+                    impact: ASSETS.gambit.voidUntethering.sfx.impact,
                 },
                 vfx: {
-                    impact: 'void-untethering-impact',
+                    impact: ASSETS.gambit.voidUntethering.vfx.impact,
                 },
                 dialog: {
-                    impact: 'void-untethering-impact',
+                    impact: ASSETS.gambit.voidUntethering.dialog.impact,
                 }
             }
         },
@@ -277,15 +278,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Broadcast a memetic plague that turns a neutral enclave against your opponent.',
             assets: {
                 key: 'whispers-from-the-void',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/pact-whisperer-whispers-from-the-void.jpg',
+                image: ASSETS.gambit.whispersFromTheVoid.image,
                 sfx: {
-                    impact: 'whispers-from-the-void-impact',
+                    impact: ASSETS.gambit.whispersFromTheVoid.sfx.impact,
                 },
                 vfx: {
-                    impact: 'whispers-from-the-void-impact',
+                    impact: ASSETS.gambit.whispersFromTheVoid.vfx.impact,
                 },
                 dialog: {
-                    impact: 'whispers-from-the-void-impact',
+                    impact: ASSETS.gambit.whispersFromTheVoid.dialog.impact,
                 }
             }
         },
@@ -321,15 +322,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Create a shroud of psychic static around your enclaves, hiding your force counts from your opponent.',
             assets: {
                 key: 'data-shroud',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/pact-whisperer-data-shroud.jpg',
+                image: ASSETS.gambit.dataShroud.image,
                 sfx: {
-                    impact: 'data-shroud-impact',
+                    impact: ASSETS.gambit.dataShroud.sfx.impact,
                 },
                 vfx: {
-                    impact: 'data-shroud-impact',
+                    impact: ASSETS.gambit.dataShroud.vfx.impact,
                 },
                 dialog: {
-                    impact: 'data-shroud-impact',
+                    impact: ASSETS.gambit.dataShroud.dialog.impact,
                 }
             }
         },
@@ -367,15 +368,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Fire a satellite weapon that creates a dead zone, preventing any enclave from holding its position.',
             assets: {
                 key: 'orbital-nullification-beam',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/resonance-warden-orbital-nullification-beam.jpg',
+                image: ASSETS.gambit.orbitalNullificationBeam.image,
                 sfx: {
-                    impact: 'orbital-nullification-beam-impact',
+                    impact: ASSETS.gambit.orbitalNullificationBeam.sfx.impact,
                 },
                 vfx: {
-                    impact: 'orbital-nullification-beam-impact',
+                    impact: ASSETS.gambit.orbitalNullificationBeam.vfx.impact,
                 },
                 dialog: {
-                    impact: 'orbital-nullification-beam-impact',
+                    impact: ASSETS.gambit.orbitalNullificationBeam.dialog
                 }
             }
         },
@@ -411,15 +412,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Initiate a resonance cascade that permanently destroys a route, reshaping the battlefield.',
             assets: {
                 key: 'world-ender-protocol',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/resonance-warden-world-ender-protocol.jpg',
+                image: ASSETS.gambit.worldEnderProtocol.image,
                 sfx: {
-                    impact: 'world-ender-protocol-impact',
+                    impact: ASSETS.gambit.worldEnderProtocol.sfx.impact,
                 },
                 vfx: {
-                    impact: 'world-ender-protocol-impact',
+                    impact: ASSETS.gambit.worldEnderProtocol.vfx.impact,
                 },
                 dialog: {
-                    impact: 'world-ender-protocol-impact',
+                    impact: ASSETS.gambit.worldEnderProtocol.dialog.impact,
                 }
             }
         },
@@ -456,15 +457,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Erect an impenetrable resonant shield around a single enclave, making it immune to all harm.',
             assets: {
                 key: 'aegis-protocol',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/resonance-warden-aegis-protocol.jpg',
+                image: ASSETS.gambit.aegisProtocol.image,
                 sfx: {
-                    impact: 'aegis-protocol-impact',
+                    impact: ASSETS.gambit.aegisProtocol.sfx.impact,
                 },
                 vfx: {
-                    impact: 'aegis-protocol-impact',
+                    impact: ASSETS.gambit.aegisProtocol.vfx.impact,
                 },
                 dialog: {
-                    impact: 'aegis-protocol-impact',
+                    impact: ASSETS.gambit.aegisProtocol.dialog.impact,
                 }
             }
         },
@@ -500,15 +501,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Create a temporary, unbreakable supply line between all your enclaves, allowing for perfect reinforcement.',
             assets: {
                 key: 'forge-links',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/resonance-warden-forge-links.jpg',
+                image: ASSETS.gambit.forgeLinks.image,
                 sfx: {
-                    impact: 'forge-links-impact',
+                    impact: ASSETS.gambit.forgeLinks.sfx.impact,
                 },
                 vfx: {
-                    impact: 'forge-links-impact',
+                    impact: ASSETS.gambit.forgeLinks.vfx.impact,
                 },
                 dialog: {
-                    impact: 'forge-links-impact',
+                    impact: ASSETS.gambit.forgeLinks.dialog.impact,
                 }
             }
         },
@@ -546,15 +547,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Insert a data-daemon into the enemy\'s command network, causing their next order to fail catastrophically.',
             assets: {
                 key: 'ghost-in-the-system',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/labyrinthine-ghost-ghost-in-the-system.jpg',
+                image: ASSETS.gambit.ghostInTheSystem.image,
                  sfx: {
-                    impact: 'ghost-in-the-system-impact',
+                    impact: ASSETS.gambit.ghostInTheSystem.sfx.impact,
                 },
                 vfx: {
-                    impact: 'ghost-in-the-system-impact',
+                    impact: ASSETS.gambit.ghostInTheSystem.vfx.impact,
                 },
                 dialog: {
-                    impact: 'ghost-in-the-system-impact',
+                    impact: ASSETS.gambit.ghostInTheSystem.dialog.impact,
                 }
             }
         },
@@ -591,15 +592,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Erect a temporary quarantine around an enemy enclave, preventing any forces from entering or leaving.',
             assets: {
                 key: 'void-cordon',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/labyrinthine-ghost-void-cordon.jpg',
+                image: ASSETS.gambit.voidCordon.image,
                  sfx: {
-                    impact: 'void-cordon-impact',
+                    impact: ASSETS.gambit.voidCordon.sfx.impact,
                 },
                 vfx: {
-                    impact: 'void-cordon-impact',
+                    impact: ASSETS.gambit.voidCordon.vfx.impact,
                 },
                 dialog: {
-                    impact: 'void-cordon-impact',
+                    impact: ASSETS.gambit.voidCordon.dialog.impact,
                 }
             }
         },
@@ -635,15 +636,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Feed false intelligence to the enemy, causing one of their attack orders to be redirected to an adjacent, random target.',
             assets: {
                 key: 'labyrinth',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/labyrinthine-ghost-labyrinth.jpg',
+                image: ASSETS.gambit.labyrinth.image,
                  sfx: {
-                    impact: 'labyrinth-impact',
+                    impact: ASSETS.gambit.labyrinth.sfx.impact,
                 },
                 vfx: {
-                    impact: 'labyrinth-impact',
+                    impact: ASSETS.gambit.labyrinth.vfx.impact,
                 },
                 dialog: {
-                    impact: 'labyrinth-impact',
+                    impact: ASSETS.gambit.labyrinth.dialog.impact,
                 }
             }
         },
@@ -679,15 +680,15 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
             description: 'Trap an enemy enclave in a time-distorting quantum loop, forcing it to repeat its last action.',
             assets: {
                 key: 'quantum-loop',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/labyrinthine-ghost-quantum-loop.jpg',
+                image: ASSETS.gambit.quantumLoop.image,
                  sfx: {
-                    impact: 'quantum-loop-impact',
+                    impact: ASSETS.gambit.quantumLoop.sfx.impact,
                 },
                 vfx: {
-                    impact: 'quantum-loop-impact',
+                    impact: ASSETS.gambit.quantumLoop.vfx.impact,
                 },
                 dialog: {
-                    impact: 'quantum-loop-impact',
+                    impact: ASSETS.gambit.quantumLoop.dialog.impact,
                 }
             }
         },
@@ -717,7 +718,7 @@ export const GAMBITS: { [key: string]: EffectProfile } = { // want to rename GAM
     },
 };
 
-export const COMMON_GAMBITS: { [key: string]: EffectProfile } = { // want to rename COMMON_GAMBITS to COMMON
+export const COMMON_PROFILES: { [key: string]: EffectProfile } = {
     'flesh-weavers-harvest': {
         key: 'flesh-weavers-harvest',
         ui: {
@@ -726,15 +727,15 @@ export const COMMON_GAMBITS: { [key: string]: EffectProfile } = { // want to ren
             description: 'A dark ritual is performed on a neutral enclave, converting its raw biological mass into a brutal, new fighting force for your cause.',
             assets: {
                 key: 'flesh-weavers-harvest',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-flesh-weavers-harvest.jpg',
+                image: ASSETS.gambit.fleshWeaversHarvest.image,
                 sfx: {
-                    impact: 'flesh-weavers-harvest-impact',
+                    impact: ASSETS.gambit.fleshWeaversHarvest.sfx.impact,
                 },
                 vfx: {
-                    impact: 'flesh-weavers-harvest-impact',
+                    impact: ASSETS.gambit.fleshWeaversHarvest.vfx.impact,
                 },
                 dialog: {
-                    impact: 'flesh-weavers-harvest-impact',
+                    impact: ASSETS.gambit.fleshWeaversHarvest.dialog.impact,
                 }
             }
         },
@@ -768,15 +769,15 @@ export const COMMON_GAMBITS: { [key: string]: EffectProfile } = { // want to ren
             description: 'The Archetype contacts nearby star-systems, leveraging their massive wealth to secure a temporary, powerful infusion of veteran off-world forces.',
             assets: {
                 key: 'off-world-mercenaries',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-off-world-mercenaries.jpg',
+                image: ASSETS.gambit.offWorldMercenaries.image,
                  sfx: {
-                    impact: 'off-world-mercenaries-impact',
+                    impact: ASSETS.gambit.offWorldMercenaries.sfx.impact,
                 },
                 vfx: {
-                    impact: 'off-world-mercenaries-impact',
+                    impact: ASSETS.gambit.offWorldMercenaries.vfx.impact,
                 },
                 dialog: {
-                    impact: 'off-world-mercenaries-impact',
+                    impact: ASSETS.gambit.offWorldMercenaries.dialog.impact,
                 }
             }
         },
@@ -810,15 +811,15 @@ export const COMMON_GAMBITS: { [key: string]: EffectProfile } = { // want to ren
             description: 'A catastrophic failure in an orbiting weapon platform sends a hail of metallic shrapnel screaming towards the planet\'s surface, striking random enclaves with devastating force.',
             assets: {
                 key: 'orbital-bombardment',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-orbital-bombardment.jpg',
+                image: ASSETS.gambit.orbitalBombardment.image,
                  sfx: {
-                    impact: 'orbital-bombardment-impact',
+                    impact: ASSETS.gambit.orbitalBombardment.sfx.impact,
                 },
                 vfx: {
-                    impact: 'orbital-bombardment-impact',
+                    impact: ASSETS.gambit.orbitalBombardment.vfx.impact,
                 },
                 dialog: {
-                    impact: 'orbital-bombardment-impact',
+                    impact: ASSETS.gambit.orbitalBombardment.dialog.impact,
                 }
             }
         },
@@ -852,15 +853,15 @@ export const COMMON_GAMBITS: { [key: string]: EffectProfile } = { // want to ren
             description: 'In a final act of defiance, all remaining forces are detonated, destroying the territory to prevent the opponent from capturing it. All routes to and from it are fused and destroyed, preventing any further use of the territory.',
             assets: {
                 key: 'scorched-earth',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-scorched-earth.jpg',
+                image: ASSETS.gambit.scorchedEarth.image,
                 sfx: {
-                    impact: 'scorched-earth-impact',
+                    impact: ASSETS.gambit.scorchedEarth.sfx.impact,
                 },
                 vfx: {
-                    impact: 'scorched-earth-impact',
+                    impact: ASSETS.gambit.scorchedEarth.vfx.impact,
                 },
                 dialog: {
-                    impact: 'scorched-earth-impact',
+                    impact: ASSETS.gambit.scorchedEarth.dialog.impact,
                 }
             }
         },
@@ -896,15 +897,15 @@ export const COMMON_GAMBITS: { [key: string]: EffectProfile } = { // want to ren
             description: 'A powerful psionic hymn is broadcast, calling a random neutral enclave to your cause as if by ancient prophecy.',
             assets: {
                 key: 'the-calling',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-the-calling.jpg',
+                image: ASSETS.gambit.theCalling.image,
                 sfx: {
-                    impact: 'the-calling-impact',
+                    impact: ASSETS.gambit.theCalling.sfx.impact,
                 },
                 vfx: {
-                    impact: 'the-calling-impact',
+                    impact: ASSETS.gambit.theCalling.vfx.impact,
                 },
                 dialog: {
-                    impact: 'the-calling-dialog-impact',
+                    impact: ASSETS.gambit.theCalling.dialog.impact,
                 }
             }
         },
@@ -938,15 +939,15 @@ export const COMMON_GAMBITS: { [key: string]: EffectProfile } = { // want to ren
             description: 'Ancient magicks, long dormant in the world\'s core, are called upon to manifest a disaster of your choosing. The chaotic forces of nature are brought to bear against a single target.',
             assets: {
                 key: 'the-witching-hour',
-                image: 'https://storage.googleapis.com/brutal-worlds/gambit/common-the-witching-hour.jpg',
+                image: ASSETS.gambit.theWitchingHour.image,
                 sfx: {
-                    impact: 'the-witching-hour-impact',
+                    impact: ASSETS.gambit.theWitchingHour.sfx.impact,
                 },
                 vfx: {
-                    impact: 'the-witching-hour-impact',
+                    impact: ASSETS.gambit.theWitchingHour.vfx.impact,
                 },
                 dialog: {
-                    impact: 'the-witching-hour-impact',
+                    impact: ASSETS.gambit.theWitchingHour.dialog.impact,
                 }
             }
         },

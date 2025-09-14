@@ -1,5 +1,5 @@
 import { Enclave, Route, PendingOrders, Order } from '@/types/game.ts';
-import { getAssistMultiplierForEnclave, getAttackBonusForEnclave } from '@/data/birthrightManager.ts';
+import { getAssistMultiplierForEnclave, getAttackBonusForEnclave } from '@/logic/birthrightManager.ts';
 import { getAppliedModifiers } from '@/logic/effectProcessor.ts';
 
 const findWeakestEnclave = (candidates: Enclave[]): Enclave | null => {
