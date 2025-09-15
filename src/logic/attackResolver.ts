@@ -1,8 +1,9 @@
-import { Enclave, PendingOrders, Player, Order, EffectQueueItem, ConquestEvent } from '@/types/game.ts';
+import { Enclave, PendingOrders, Player, Order, EffectQueueItem, ConquestEvent, Rule, GameState, Route } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
 import { getAppliedModifiers } from '@/logic/effectProcessor.ts';
 import { getAttackBonusForEnclave } from '@/logic/birthrightManager.ts';
 import { cloneEnclave } from '@/logic/cloneUtils.ts';
+import { EFFECT_PROFILES } from '@/data/effects.ts';
 
 interface Attack {
     from: number;
@@ -23,6 +24,7 @@ export const resolveAttacks = (
     playerLegacyKey: string | null,
     opponentArchetypeKey: string | null,
     opponentLegacyKey: string | null,
+    routes: Route[],
 ): { newEnclaveData: Map<number, Enclave>, newPendingOrders: PendingOrders, conquestEvents: ConquestEvent[] } => {
     const newEnclavesMap = new Map<number, Enclave>(currentEnclavesMap);
     const newPendingOrders = { ...processedOrders };
@@ -47,7 +49,14 @@ export const resolveAttacks = (
 
         if (unitsLeaving > 0 && safeForces >= unitsLeaving) {
             forcesLeaving[fromId] = unitsLeaving;
-            const { combatModifier } = getAppliedModifiers(origin);
+            const rules: Rule[] = origin.activeEffects.flatMap(effect => {
+                const profile = EFFECT_PROFILES[effect.profileKey];
+                if (!profile) return [];
+                const phaseLogic = profile.logic[effect.phase];
+                return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
+            });
+            const enclaveData = Object.fromEntries(newEnclavesMap.entries());
+            const { combatModifier } = getAppliedModifiers(origin, rules, { enclaveData, routes } as Partial<GameState> as GameState);
             const effectiveForce = Math.floor(unitsLeaving * combatModifier);
             const bonus = 1 + getAttackBonusForEnclave(origin);
             
@@ -125,7 +134,14 @@ export const resolveAttacks = (
                 meleeSurvivors.forEach(survivor => {
                     const owner = survivor.attacker.owner;
                     const originEnclave = newEnclavesMap.get(survivor.attacker.from)!;
-                    const { combatModifier } = getAppliedModifiers(originEnclave);
+                    const rules: Rule[] = originEnclave.activeEffects.flatMap(effect => {
+                        const profile = EFFECT_PROFILES[effect.profileKey];
+                        if (!profile) return [];
+                        const phaseLogic = profile.logic[effect.phase];
+                        return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
+                    });
+                    const enclaveData = Object.fromEntries(newEnclavesMap.entries());
+                    const { combatModifier } = getAppliedModifiers(originEnclave, rules, { enclaveData, routes } as Partial<GameState> as GameState);
                     const meleeForce = Math.floor(survivor.units * combatModifier);
                     const meleeBonus = 1 + getAttackBonusForEnclave(originEnclave);
                     const meleePower = meleeForce + meleeBonus;

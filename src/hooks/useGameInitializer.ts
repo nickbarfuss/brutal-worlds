@@ -76,50 +76,55 @@ const preloadAudio = (urls: string[]): Promise<void[]> => {
 export const useGameInitializer = (
     vfxManager: React.RefObject<VfxManager>,
     sfxManager: React.RefObject<SfxManager>,
-    startGame: (playerArchetypeKey: string, worldKey: string, skinIndex: number, opponentArchetypeKey?: string) => void,
+    startGame: (
+        playerArchetypeKey: string,
+        worldKey: string,
+        playerLegacyKey: string,
+        opponentArchetypeKey?: string,
+        opponentLegacyKey?: string
+    ) => void,
     setGamePhase: (phase: GamePhase) => void,
     setInitializationState: (isInitialized: boolean, message: string, error: string | null) => void
 ) => {
     useEffect(() => {
         const initialize = async () => {
             try {
-                const onProgress = (message: string) => {
-                    setInitializationState(false, message, null);
+                const updateMessage = (msg: string) => {
+                    setInitializationState(false, msg, null);
                 };
 
-                onProgress('Loading typography...');
+                updateMessage('Loading fonts...');
                 await preloadFonts();
 
-                onProgress('Extracting asset URLs...');
-                const extractedUrls = extractAssetUrls(ASSETS);
-
-                onProgress('Preloading audio...');
-                await preloadAudio(extractedUrls.audio);
-
-                onProgress('Preloading videos...');
-                await preloadVideos(extractedUrls.video);
-
-                onProgress('Preloading imagery...');
-                await preloadImages(extractedUrls.image);
+                const assetUrls = extractAssetUrls(ASSETS);
                 
-                onProgress('Initializing visual effects manager...');
+                updateMessage('Loading images...');
+                await preloadImages(assetUrls.image);
+
+                updateMessage('Loading videos...');
+                await preloadVideos(assetUrls.video);
+                
+                updateMessage('Loading sounds...');
+                await preloadAudio(assetUrls.audio);
+
+                updateMessage('Initializing VFX...');
                 const vfxProfiles = extractVfxProfiles(ASSETS);
                 await vfxManager.current?.init(vfxProfiles);
 
-                onProgress('Initializing sound effects manager...');
+                updateMessage('Initializing SFX...');
                 await sfxManager.current?.init();
-                
-                onProgress('Ready for command');
+
+                updateMessage('Ready to begin.');
                 setGamePhase('mainMenu');
                 setInitializationState(true, '', null);
-                
-            } catch (err) {
-                console.error("Failed to initialize game engine:", err);
-                const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+
+            } catch (error) {
+                console.error("Initialization failed:", error);
+                const errorMessage = error instanceof Error ? error.message : String(error);
                 setInitializationState(false, '', `Initialization Failed: ${errorMessage}`);
             }
         };
+
         initialize();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // This effect should run only once.
+    }, [vfxManager, sfxManager, setGamePhase, setInitializationState]);
 };

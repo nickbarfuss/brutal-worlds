@@ -6,6 +6,7 @@ import { Action } from '@/logic/reducers/index';
 export const handleFx = (state: GameState, action: Action): GameState => {
     switch (action.type) {
         case 'PROCESS_EFFECT_QUEUE': {
+            if (!('payload' in action) || !action.payload) return state;
             const { playedIds } = action.payload;
             if (playedIds.length === 0) return state;
             const playedIdSet = new Set(playedIds);

@@ -35,28 +35,19 @@ export const handleGameFlow = (state: GameState, action: Action, baseInitialStat
             return { ...state, isIntroComplete: true };
 
         case 'START_GAME': {
-            // FIX: Destructure 'playerLegacyIndex' instead of 'playerArchetypeSkinIndex' to match action payload.
-            const { playerArchetypeKey, worldKey, playerLegacyIndex, opponentArchetypeKey: specifiedOpponentKey, opponentLegacyIndex: specifiedOpponentLegacyIndex } = action.payload;
+            const { playerArchetypeKey, worldKey, playerLegacyKey, opponentArchetypeKey: specifiedOpponentKey, opponentLegacyKey: specifiedOpponentLegacyKey } = action.payload;
             const worldProfile = WORLD_LIBRARY.find(w => w.key === worldKey);
             if (!worldProfile) return { ...state, error: `Selected world "${worldKey}" could not be loaded.` };
 
-            const playerArchetype = ARCHETYPES[playerArchetypeKey];
-            const playerLegacy = playerArchetype.legacies[playerLegacyIndex];
-            const playerLegacyKey = playerLegacy.key;
-            
             const archetypeKeys = Object.keys(ARCHETYPES);
             const opponentArchetypeKey = specifiedOpponentKey && ARCHETYPES[specifiedOpponentKey]
                 ? specifiedOpponentKey
                 : archetypeKeys.filter(k => k !== playerArchetypeKey)[Math.floor(Math.random() * (archetypeKeys.length -1))];
             
             const opponentArchetype = ARCHETYPES[opponentArchetypeKey];
-            const opponentLegacyIndex = (typeof specifiedOpponentLegacyIndex === 'number' && specifiedOpponentLegacyIndex >= 0 && specifiedOpponentLegacyIndex < opponentArchetype.legacies.length)
-                ? specifiedOpponentLegacyIndex
-                : (opponentArchetype.legacies && opponentArchetype.legacies.length > 0)
-                    ? Math.floor(Math.random() * opponentArchetype.legacies.length)
-                    : 0;
-            const opponentLegacy = opponentArchetype.legacies[opponentLegacyIndex];
-            const opponentLegacyKey = opponentLegacy.key;
+            const opponentLegacyKey = (specifiedOpponentLegacyKey && opponentArchetype.legacies[specifiedOpponentLegacyKey])
+                ? specifiedOpponentLegacyKey
+                : Object.keys(opponentArchetype.legacies)[Math.floor(Math.random() * Object.keys(opponentArchetype.legacies).length)];
 
             const { newMapData, newEnclaveData, newDomainData, newRiftData, newExpanseData, newRoutes, planetName } = generateNewWorld(worldProfile);
             Object.values(newEnclaveData).forEach(enclave => {
@@ -94,10 +85,8 @@ export const handleGameFlow = (state: GameState, action: Action, baseInitialStat
                 gamePhase: 'playing', 
                 currentTurn: 0, // Start at "Turn 0"
                 playerArchetypeKey, 
-                playerLegacyIndex,
                 playerLegacyKey,
                 opponentArchetypeKey, 
-                opponentLegacyIndex,
                 opponentLegacyKey,
                 currentWorld: worldProfile,
                 mapData: newMapData, enclaveData: newEnclaveData, domainData: newDomainData, riftData: newRiftData,

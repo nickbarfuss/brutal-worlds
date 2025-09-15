@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActiveGambit } from '@/types/game';
-import { ARCHETYPE_PROFILES } from '@/data/gambits';
+import { GAMBITS } from '@/data/gambits';
 
 interface ButtonGambitProps {
   activeGambit: ActiveGambit;
@@ -9,7 +9,7 @@ interface ButtonGambitProps {
 }
 
 const ButtonGambit: React.FC<ButtonGambitProps> = ({ activeGambit, onMouseEnter, onMouseLeave }) => {
-  const profile = ARCHETYPE_PROFILES[activeGambit.key];
+  const profile = GAMBITS[activeGambit.key];
   if (!profile) return null;
 
   let stateClasses = '';
@@ -44,7 +44,7 @@ const ButtonGambit: React.FC<ButtonGambitProps> = ({ activeGambit, onMouseEnter,
       disabled={activeGambit.state === 'depleted' || activeGambit.state === 'locked'}
     >
       <span className={`material-symbols-outlined text-3xl ${iconColorClass}`}>
-        {profile.icon}
+        {profile.ui.icon}
       </span>
       {activeGambit.state === 'active' && activeGambit.remainingDuration && (
         <div className={`absolute -top-1 -right-1 w-5 h-5 bg-neutral-50 rounded-full flex items-center justify-center text-xs font-bold text-neutral-900 z-10 ${ringClass}`}>

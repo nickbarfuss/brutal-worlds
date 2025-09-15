@@ -1,6 +1,4 @@
-import { title } from "process";
-
-export const APP_TEXT = {
+export const TEXT = {
   common: {
     gameTitle: "Brutal Worlds",
   },
@@ -39,10 +37,10 @@ export const APP_TEXT = {
       ambientLabel: "Ambient",
       bloomToggle: "Bloom",
       bloom: {
-        thresholdLabel: "Bloom",
-        strengthLabel: "Bloom",
-        radiusLabel: "Bloom",
-        tonemappingLabel: "Tonemapping",
+        thresholdLabel: "Threshold",
+        strengthLabel: "Strength",
+        radiusLabel: "Radius",
+        tonemappingLabel: "Tone Mapping",
       },
     },
     materials: { 
@@ -59,4 +57,4 @@ export const APP_TEXT = {
   },
 };
 
-export type AppTextType = typeof APP_TEXT;
+export type AppTextType = typeof TEXT;

@@ -1,6 +1,7 @@
-import { Enclave, Route, PendingOrders, Order } from '@/types/game.ts';
+import { Enclave, Route, PendingOrders, Order, GameState, Rule } from '@/types/game.ts';
 import { getAssistMultiplierForEnclave, getAttackBonusForEnclave } from '@/logic/birthrightManager.ts';
 import { getAppliedModifiers } from '@/logic/effectProcessor.ts';
+import { EFFECT_PROFILES } from '@/data/effects.ts';
 
 const findWeakestEnclave = (candidates: Enclave[]): Enclave | null => {
     if (candidates.length === 0) return null;
@@ -16,6 +17,7 @@ const findWeakestEnclave = (candidates: Enclave[]): Enclave | null => {
 const findBestMoveForEnclave = (
     origin: Enclave,
     enclaveData: { [id: number]: Enclave },
+    routes: Route[],
     adjacencyList: Map<number, number[]>
 ): Order | null => {
     const safeOriginForces = Number.isFinite(origin.forces) ? origin.forces : 0;
@@ -40,7 +42,13 @@ const findBestMoveForEnclave = (
     const weakestAlly = findWeakestEnclave(potentialAssistTargets);
 
     if (weakestAttackTarget && safeOriginForces > 2) {
-        const { combatModifier } = getAppliedModifiers(origin);
+        const rules: Rule[] = origin.activeEffects.flatMap(effect => {
+            const profile = EFFECT_PROFILES[effect.profileKey];
+            if (!profile) return [];
+            const phaseLogic = profile.logic[effect.phase];
+            return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
+        });
+        const { combatModifier } = getAppliedModifiers(origin, rules, { enclaveData, routes } as Partial<GameState> as GameState);
         const forceToSend = Math.ceil(safeOriginForces * 0.35);
         const effectiveForce = Math.floor(forceToSend * combatModifier);
         const totalDamage = effectiveForce + 1 + getAttackBonusForEnclave(origin);
@@ -86,7 +94,7 @@ export const calculateAIOrderChanges = (
 
     opponentEnclaves.forEach(origin => {
         const existingOrder = currentAiOrders[origin.id];
-        const bestMove = findBestMoveForEnclave(origin, enclaveData, adjacencyList);
+        const bestMove = findBestMoveForEnclave(origin, enclaveData, routes, adjacencyList);
 
         if (existingOrder) {
             if (bestMove) {

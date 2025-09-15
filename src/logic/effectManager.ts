@@ -75,7 +75,8 @@ export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext
 
     chosenCells.forEach((cell, index) => {
         const alertPhase = profile.logic.alert;
-        const radiusInCells = resolveNumericRange(typeof alertPhase.radius === 'function' ? alertPhase.radius() : alertPhase.radius);
+        const resolvedRadius = typeof alertPhase.radius === 'function' ? alertPhase.radius() : alertPhase.radius;
+        const radiusInCells = resolvedRadius === 'Global' ? 9999 : resolveNumericRange(resolvedRadius);
         
         // FIX: Calculate affected enclaves and add them to marker metadata for downstream logic.
         const cellsInRadius = getCellsInRadius(cell.id, radiusInCells, mapData);
@@ -85,13 +86,14 @@ export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext
                 .filter((id): id is number => id !== null)
         )];
         
+        const resolvedDuration = alertPhase.duration === 'Permanent' ? 9999 : alertPhase.duration;
         const newMarker: ActiveEffectMarker = {
             id: `eff-site-${profile.key}-${cell.id}-${Date.now()}`,
             profileKey: profile.key,
             cellId: cell.id,
             position: cell.center.clone(),
             currentPhase: 'alert',
-            durationInPhase: resolveNumericRange(alertPhase.duration),
+            durationInPhase: resolveNumericRange(resolvedDuration),
             radius: radiusInCells,
             movement: resolveNumericRange(alertPhase.movement),
             effects: [profile.key],

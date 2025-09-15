@@ -1,13 +1,13 @@
-import { Enclave, Route, ActiveDisasterMarker, EffectQueueItem, ActiveEffect, MapCell } from '@/types/game';
-import { DISASTER_PROFILES } from '@/data/disasters';
-import { applyContinuousRules, applyInstantaneousRules } from '@/logic/effectProcessor';
+import { Enclave, Route, ActiveDisasterMarker, EffectQueueItem, ActiveEffect, MapCell, GameState } from '@/types/game';
+import { DISASTERS } from '@/data/disasters';
+import { applyContinuousEffects, applyInstantaneousRules } from '@/logic/effectProcessor';
 import { cloneEnclave } from '@/logic/cloneUtils';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
 import * as entropyWindHandler from '@/logic/disasters/entropyWind';
 
 const disasterHandlers: { [key: string]: any } = {
     default: defaultHandler,
-    'entropy-wind': entropyWindHandler,
+    entropyWind: entropyWindHandler,
 };
 
 export const processDisasterEffects = (
@@ -32,7 +32,7 @@ export const processDisasterEffects = (
 
         for (let i = modifiedEnclave.activeEffects.length - 1; i >= 0; i--) {
             const effect = modifiedEnclave.activeEffects[i];
-            const profile = DISASTER_PROFILES[effect.profileKey];
+            const profile = DISASTERS[effect.profileKey];
             if (!profile) continue;
             
             const handler = disasterHandlers[effect.profileKey] || disasterHandlers.default;
@@ -47,13 +47,12 @@ export const processDisasterEffects = (
                     allSideEffects.push(...result.sideEffects);
                 }
             } else {
-                const continuousResult = applyContinuousRules(effect.rules, modifiedEnclave, modifiedRoutes);
-                modifiedEnclave = continuousResult.enclave;
-                modifiedRoutes = continuousResult.routes;
+                const continuousResult = applyContinuousEffects(modifiedEnclave, effect.rules, {} as GameState);
+                modifiedEnclave = { ...modifiedEnclave, forces: modifiedEnclave.forces * continuousResult.combatModifier };
+                // Note: routes are not modified by applyContinuousEffects
             }
         }
         continuousUpdateMap.set(id, modifiedEnclave);
-        workingRoutes = modifiedRoutes;
     }
 
     // Batch update the main map with results from the primary continuous loop
@@ -67,7 +66,7 @@ export const processDisasterEffects = (
             let targetEnclave = workingEnclaves.get(sideEffect.targetEnclaveId);
             if (targetEnclave) {
                 const clonedTarget = cloneEnclave(targetEnclave);
-                const impactResult = applyInstantaneousRules(sideEffect.impactRules, clonedTarget, workingRoutes, sideEffect.impactDuration);
+                const impactResult = applyInstantaneousRules(sideEffect.impactRules, clonedTarget, workingRoutes);
                 
                 const newEnclaveState = impactResult.enclave;
                 workingRoutes = impactResult.routes;
@@ -88,7 +87,7 @@ export const processDisasterEffects = (
     currentMarkers.forEach(marker => {
         marker.durationInPhase--;
         if (marker.durationInPhase <= 0) {
-            const profile = DISASTER_PROFILES[marker.profileKey];
+            const profile = DISASTERS[marker.profileKey];
             if (!profile) return;
             
             const handler = disasterHandlers[marker.profileKey] || disasterHandlers.default;
@@ -109,7 +108,7 @@ export const processDisasterEffects = (
             if (effect.duration > 0) {
                 remainingEffects.push(effect);
             } else {
-                const profile = DISASTER_PROFILES[effect.profileKey];
+                const profile = DISASTERS[effect.profileKey];
                 if (!profile) continue;
                 
                 const handler = disasterHandlers[effect.profileKey] || disasterHandlers.default;

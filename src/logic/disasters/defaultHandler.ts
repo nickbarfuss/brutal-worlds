@@ -48,7 +48,8 @@ export const processMarker = (
     const impactPhase = profile.logic.impact;
 
     if (impactPhase) {
-        const radiusInCells = resolveNumericRange(typeof impactPhase.radius === 'function' ? impactPhase.radius() : impactPhase.radius);
+        const resolvedRadius = typeof impactPhase.radius === 'function' ? impactPhase.radius() : impactPhase.radius;
+        const radiusInCells = resolvedRadius === 'Global' ? 9999 : resolveNumericRange(resolvedRadius);
         const cellsInRadius = getCellsInRadius(marker.cellId, radiusInCells, mapData);
         const targetEnclaveIds = [...new Set([...cellsInRadius].map(id => {
             const cell = mapData[id];
@@ -58,8 +59,9 @@ export const processMarker = (
         targetEnclaveIds.forEach(enclaveId => {
             let enclave = workingEnclaves.get(enclaveId);
             if (enclave) {
-                const impactDuration = resolveNumericRange(impactPhase.duration);
-                const impactResult = applyInstantaneousRules(impactPhase.rules, enclave, newRoutes, impactDuration);
+                const resolvedDuration = impactPhase.duration === 'Permanent' ? 9999 : impactPhase.duration;
+                const impactDuration = resolveNumericRange(resolvedDuration);
+                const impactResult = applyInstantaneousRules(impactPhase.rules, enclave, newRoutes);
                 workingEnclaves.set(enclaveId, impactResult.enclave);
                 newRoutes = impactResult.routes;
                 
@@ -99,7 +101,7 @@ export const processEffect = (
         const aftermath = profile.logic.aftermath;
         
         const applyRule = aftermath.rules.find(r => r.type === 'applyAftermathOnChance');
-        if (applyRule && applyRule.type === 'applyAftermathOnChance' && Math.random() >= applyRule.chance) {
+        if (applyRule && applyRule.type === 'applyAftermathOnChance' && Math.random() >= applyRule.payload.chance) {
             return { effectsToAdd }; // This enclave resisted the aftermath.
         }
 
@@ -117,7 +119,8 @@ export const processEffect = (
         }).filter((id): id is number => id !== null))];
 
         targetEnclaveIds.forEach(enclaveId => {
-            const duration = resolveNumericRange(aftermath.duration);
+            const resolvedAftermathDuration = aftermath.duration === 'Permanent' ? 9999 : aftermath.duration;
+            const duration = resolveNumericRange(resolvedAftermathDuration);
             effectsToAdd.push({
                 enclaveId: enclaveId,
                 effect: {

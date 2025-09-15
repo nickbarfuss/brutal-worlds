@@ -48,6 +48,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
 }) => {
     
     const palette = getPaletteForOwner(enclave.owner, currentWorld);
+    const gameState = { enclaveData, domainData, routes, currentWorld, activeEffectMarkers, pendingOrders, gameConfig };
 
     const outgoingOrder = pendingOrders[enclave.id];
     const incomingOrders = (Object.entries(pendingOrders) as [string, Order][]).filter(([, order]) => order.to === enclave.id);
@@ -63,7 +64,13 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
     const safeCurrentForces = Number.isFinite(enclave.forces) ? enclave.forces : 0;
 
     if (outgoingOrder) {
-        const { combatModifier } = getAppliedModifiers(enclave);
+        const rules = enclave.activeEffects.flatMap(effect => {
+            const profile = EFFECT_PROFILES[effect.profileKey];
+            if (!profile) return [];
+            const phaseLogic = profile.logic[effect.phase];
+            return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
+        });
+        const { combatModifier } = getAppliedModifiers(enclave, rules, gameState as any);
         if (outgoingOrder.type === 'attack') {
             const baseForces = Math.ceil(safeCurrentForces * 0.35);
             outgoingOrderValues.base = Math.floor(baseForces * combatModifier);
@@ -74,7 +81,13 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
         }
     } else { // Holding
         if (enclave.owner) {
-            const { productionModifier } = getAppliedModifiers(enclave);
+            const rules = enclave.activeEffects.flatMap(effect => {
+                const profile = EFFECT_PROFILES[effect.profileKey];
+                if (!profile) return [];
+                const phaseLogic = profile.logic[effect.phase];
+                return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
+            });
+            const { productionModifier } = getAppliedModifiers(enclave, rules, gameState as any);
             const reinforcements = 2 + getHoldingBonusForEnclave(enclave);
             outgoingOrderValues.base = Math.floor(reinforcements * productionModifier);
             outgoingOrderValues.bonus = 0; // Bonus is now part of the base value.
@@ -97,7 +110,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
         });
         for (const neighborId of neighborIds) {
             const neighbor = enclaveData[neighborId];
-            if (neighbor && neighbor.archetypeKey === 'pact-whisperer' && !pendingOrders[neighbor.id]) {
+            if (neighbor && neighbor.archetypeKey === 'pactWhisperer' && !pendingOrders[neighbor.id]) {
                 return neighbor;
             }
         }
@@ -129,11 +142,11 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
         });
     
         if (memeticResonanceSource) {
-            const birthright = BIRTHRIGHTS['memetic-resonance'];
+            const birthright = BIRTHRIGHTS['memeticResonance'];
             const ownerTheme = memeticResonanceSource.owner === 'player-1' ? THEME_CONFIG.player1 : THEME_CONFIG.player2;
             effects.push({
-                id: 'memetic-resonance', category: 'Birthright',
-                component: <ChipCard key="memetic-resonance" icon={birthright.icon} iconColorClass={`text-${ownerTheme}-400`} title={birthright.name} subtitle="Forces being drained" briefingProps={{ type: 'birthright', key: `memetic-resonance-${memeticResonanceSource.owner}` }} />
+                id: 'memeticResonance', category: 'Birthright',
+                component: <ChipCard key="memeticResonance" icon={birthright.icon} iconColorClass={`text-${ownerTheme}-400`} title={birthright.name} subtitle="Forces being drained" briefingProps={{ type: 'birthright', key: `memeticResonance-${memeticResonanceSource.owner}` }} />
             });
         }
     
@@ -149,8 +162,8 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
 
     const turnPreview = React.useMemo(() => {
         if (!currentWorld) return null;
-        return calculateEnclaveTurnPreview(enclave, enclaveData, pendingOrders, gameConfig, activeEffectMarkers);
-    }, [enclave, enclaveData, pendingOrders, gameConfig, currentWorld, activeEffectMarkers]);
+        return calculateEnclaveTurnPreview(enclave, enclaveData, pendingOrders, gameConfig, activeEffectMarkers, routes);
+    }, [enclave, enclaveData, pendingOrders, gameConfig, currentWorld, activeEffectMarkers, routes]);
 
     const renderFooter = () => {
         if (!turnPreview || turnPreview.status === 'unchanged') {
@@ -282,7 +295,13 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                       const currentFromEnclave = enclaveData[parseInt(fromId, 10)]; // Renamed variable
                       if (!currentFromEnclave) return null; // Use renamed variable
                       
-                      const { combatModifier } = getAppliedModifiers(currentFromEnclave); // Use renamed variable
+                      const rules = currentFromEnclave.activeEffects.flatMap(effect => {
+                        const profile = EFFECT_PROFILES[effect.profileKey];
+                        if (!profile) return [];
+                        const phaseLogic = profile.logic[effect.phase];
+                        return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
+                      });
+                      const { combatModifier } = getAppliedModifiers(currentFromEnclave, rules, gameState as any);
                       const safeForces = Number.isFinite(currentFromEnclave.forces) ? currentFromEnclave.forces : 0; // Use renamed variable
 
                       let incomingValues = { base: 0, bonus: 0 };

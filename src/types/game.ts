@@ -48,6 +48,7 @@ export interface ApplyAftermathOnChanceRule {
     payload: {
         target: 'affectedEnclaves';
         chance: number;
+        effectRules: Rule[]; // Rules to apply if chance passes
     };
 }
 
@@ -137,22 +138,22 @@ export interface EffectAssets {
     key: string;
     image: string;
     sfx?: {
-        alert?: string;
-        impact?: string;
-        aftermath?: string;
-        [key: string]: string | undefined;
+        alert?: string[];
+        impact?: string[];
+        aftermath?: string[];
+        [key: string]: string[] | undefined;
     };
-    vfx?: {
-        alert?: string;
-        impact?: string;
-        aftermath?: string;
-        [key: string]: string | undefined;
+            vfx?: {
+        alert?: string[];
+        impact?: string[];
+        aftermath?: string[];
+        [key: string]: string[] | undefined;
     };
     dialog?: {
-        alert?: string;
-        impact?: string;
-        aftermath?: string;
-        [key: string]: string | undefined;
+        alert?: string[];
+        impact?: string[];
+        aftermath?: string[];
+        [key: string]: string[] | undefined;
     };
 }
 
@@ -201,6 +202,24 @@ export interface EffectProfile {
     logic: EffectLogic;
 }
 
+export interface GambitUI {
+    name: string;
+    icon: string;
+    description: string;
+    assets: EffectAssets;
+}
+
+export interface GambitLogic extends EffectLogic {
+    uses?: number;
+    restriction?: string;
+}
+
+export interface GambitProfile extends EffectProfile {
+    logic: GambitLogic; // Override logic to be GambitLogic
+}
+
+export interface DisasterProfile extends EffectProfile {}
+export type DisasterRule = Rule;
 
 export type { Vector3 };
 
@@ -272,7 +291,8 @@ export interface WorldProfile {
     rifts: string[];
     expanses: string[];
   };
-  possibleEffects: string[];
+  possibleDisasters?: string[];
+  possibleEffects?: string[];
   disasterChance: number;
   bloom?: {
     threshold: number;
@@ -323,16 +343,17 @@ export interface LegacyProfile {
     description: string;
     birthrightKey: string;
     gambitKeys: [string, string];
-    videoUrl: string;
+    movie: string;
+    avatar: string;
+    focus: string[];
 }
 
 export interface ArchetypeProfile {
     key: string;
     name: string;
-    focus: string[];
     icon: string;
     description: string;
-    legacies: [LegacyProfile, LegacyProfile];
+    legacies: { [key: string]: LegacyProfile };
 }
 
 export interface BirthrightProfile {
@@ -341,14 +362,11 @@ export interface BirthrightProfile {
     icon: string;
     description: string;
     rules: string;
+    image: string;
 }
 
 
-export interface VfxProfile {
-    url: string;
-    width?: number;
-    height?: number;
-}
+export type VfxProfile = string;
 export interface SfxProfile {
     url: string;
 }
@@ -488,6 +506,10 @@ export interface ActiveEffectMarker {
   };
 }
 
+export interface ActiveDisasterMarker extends ActiveEffectMarker {
+  disasterKey: string;
+}
+
 // VFX (Stateful)
 export interface ActiveVfx {
   key: string;
@@ -508,12 +530,21 @@ export interface ActiveGambit {
 
 export interface EffectQueueItem {
     id: string;
-    vfx?: (string | { key: string })[];
+    vfx?: string[];
     sfx?: SfxPlayback;
     position: Vector3;
 }
 
 // Briefing
+export type BriefingType = 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker' | 'disasterProfile' | 'disasterMarker';
+
+export interface BriefingState {
+    content: BriefingContent;
+    targetRect: DOMRect;
+    parentRect: DOMRect;
+    type: BriefingType;
+}
+
 export interface BriefingContent {
     icon: string;
     iconColorClass?: string;
@@ -624,3 +655,5 @@ export interface ConquestEvent {
     archetypeKey: string;
     legacyKey: string;
 }
+
+// Temporary comment to force re-evaluation

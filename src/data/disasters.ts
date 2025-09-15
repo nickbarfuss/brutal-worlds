@@ -1,32 +1,28 @@
-import { EffectProfile } from '@/types/game.ts';
+import { DisasterProfile } from '@/types/game.ts';
 import { ASSETS } from '@/data/assets.ts';
 
-export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to renamme DISASTER_PROFILES to COMMON
-    'entropy-wind': {
-        key: 'entropy-wind',
+export const DISASTERS: Record<string, DisasterProfile> = {
+    entropyWind: {
+        key: 'entropyWind',
         ui: {
             name: "Entropy Wind",
             icon: 'tornado',
             description: "A howling gale of pure chaos moves across the land, unmaking everything in its path.",
             assets: {
-                key: 'entropy-wind',
+                key: 'entropyWind',
                 image: ASSETS.disaster.entropyWind.image,
                 sfx: {
-                    alert: ASSETS.disaster.entropyWind.sfx.alert[0],
-                    impact: ASSETS.disaster.entropyWind.sfx.impact[0],
-                    aftermath: ASSETS.disaster.entropyWind.sfx.aftermath[0],
+                    alert: ASSETS.disaster.entropyWind.sfx.alert,
+                    impact: ASSETS.disaster.entropyWind.sfx.impact,
+                    aftermath: ASSETS.disaster.entropyWind.sfx.aftermath,
                 },
                 vfx: {
-                    alert: ASSETS.disaster.entropyWind.vfx.alert[0].url,
-                    impact: ASSETS.disaster.entropyWind.vfx.impact[0].url,
-                    aftermath: ASSETS.disaster.entropyWind.vfx.aftermath[0].url,
+                    alert: ASSETS.disaster.entropyWind.vfx.alert,
+                    impact: ASSETS.disaster.entropyWind.vfx.impact,
+                    aftermath: ASSETS.disaster.entropyWind.vfx.aftermath,
                 },
                 dialog: {
-                    alert: [
-                        ASSETS.disaster.entropyWind.dialog[0],
-                        ASSETS.disaster.entropyWind.dialog[1],
-                        ASSETS.disaster.entropyWind.dialog[2],
-                    ],
+                    alert: ASSETS.disaster.entropyWind.dialog.alert,
                 }
             },
         },
@@ -49,7 +45,9 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 duration: 1,
                 radius: 1,
                 movement: [1, 5],
-                rules: [{ type: 'forceDamage', target: 'occupyingEnclave', damageType: 'percentage', value: 0.5 }],
+                rules: [
+                    { type: 'forceDamage', payload: { target: 'occupyingEnclave', damageType: 'percentage', value: 0.5 } },
+                ],
             },
             aftermath: {
                 name: "Lingering Chaos",
@@ -59,37 +57,33 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 radius: 1,
                 movement: [1, 5],
                 rules: [
-                    { type: 'forceDamage', target: 'affectedEnclaves', damageType: 'percentage', value: 0.25 },
+                    { type: 'forceDamage', payload: { target: 'affectedEnclaves', damageType: 'percentage', value: 0.25 } },
                     { type: 'dissipateOnNoMoveTarget' }
                 ],
             }
         }
     },
-    'ion-tempest': {
-        key: 'ion-tempest',
+    ionTempest: {
+        key: 'ionTempest',
         ui: {
             name: "Ion Tempest",
             icon: 'cyclone',
             description: "A storm of charged particles sweeps across the world, disrupting supply lines.",
             assets: {
-                key: 'ion-tempest',
+                key: 'ionTempest',
                 image: ASSETS.disaster.ionTempest.image,
                 sfx: {
-                    alert: ASSETS.disaster.ionTempest.sfx.alert[0],
-                    impact: ASSETS.disaster.ionTempest.sfx.impact[0],
-                    aftermath: ASSETS.disaster.ionTempest.sfx.aftermath[0],
+                    alert: ASSETS.disaster.ionTempest.sfx.alert,
+                    impact: ASSETS.disaster.ionTempest.sfx.impact,
+                    aftermath: ASSETS.disaster.ionTempest.sfx.aftermath,
                 },
                 vfx: {
-                    alert: ASSETS.disaster.ionTempest.vfx.alert[0].url,
-                    impact: ASSETS.disaster.ionTempest.vfx.impact[0].url,
-                    aftermath: ASSETS.disaster.ionTempest.vfx.aftermath[0].url,
+                    alert: ASSETS.disaster.ionTempest.vfx.alert,
+                    impact: ASSETS.disaster.ionTempest.vfx.impact,
+                    aftermath: ASSETS.disaster.ionTempest.vfx.aftermath,
                 },
                 dialog: {
-                    alert: [
-                        ASSETS.disaster.ionTempest.dialog[0],
-                        ASSETS.disaster.ionTempest.dialog[1],
-                        ASSETS.disaster.ionTempest.dialog[2],
-                    ],
+                    alert: ASSETS.disaster.ionTempest.dialog.alert,
                 }
             }
         },
@@ -112,7 +106,9 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 duration: 1,
                 radius: [2, 10],
                 movement: 0,
-                rules: [{ type: 'routeDisable', target: 'affectedEnclaves', duration: 2 }],
+                rules: [
+                    { type: 'routeDisable', payload: { target: 'affectedEnclaves', duration: 2 } },
+                ],
             },
             aftermath: {
                 name: "System Malfunctions",
@@ -122,13 +118,13 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 radius: [2, 10],
                 movement: 0,
                 rules: [
-                    { type: 'statModifier', target: 'affectedEnclaves', stat: 'combat', value: 0.25, duration: 'permanent' },
-                    { type: 'routeDisable', target: 'affectedEnclaves', duration: 1, chance: 0.25 }
+                    { type: 'statModifier', payload: { target: 'affectedEnclaves', stat: 'combat', value: 0.25, duration: 'permanent' } },
+                    { type: 'routeDisable', payload: { target: 'affectedEnclaves', duration: 1, chance: 0.25 } }
                 ],
             }
         }
     },
-    'pyroclasm': {
+    pyroclasm: {
         key: 'pyroclasm',
         ui: {
             name: "Pyroclasm",
@@ -138,21 +134,17 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 key: 'pyroclasm',
                 image: ASSETS.disaster.pyroclasm.image,
                 sfx: {
-                    alert: ASSETS.disaster.pyroclasm.sfx.alert[0],
-                    impact: ASSETS.disaster.pyroclasm.sfx.impact[0],
-                    aftermath: ASSETS.disaster.pyroclasm.sfx.aftermath[0],
+                    alert: ASSETS.disaster.pyroclasm.sfx.alert,
+                    impact: ASSETS.disaster.pyroclasm.sfx.impact,
+                    aftermath: ASSETS.disaster.pyroclasm.sfx.aftermath,
                 },
                 vfx: {
-                    alert: ASSETS.disaster.pyroclasm.vfx.alert[0].url,
-                    impact: ASSETS.disaster.pyroclasm.vfx.impact[0].url,
-                    aftermath: ASSETS.disaster.pyroclasm.vfx.aftermath[0].url,
+                    alert: ASSETS.disaster.pyroclasm.vfx.alert,
+                    impact: ASSETS.disaster.pyroclasm.vfx.impact,
+                    aftermath: ASSETS.disaster.pyroclasm.vfx.aftermath,
                 },
                 dialog: {
-                    alert: [
-                        ASSETS.disaster.pyroclasm.dialog[0],
-                        ASSETS.disaster.pyroclasm.dialog[1],
-                        ASSETS.disaster.pyroclasm.dialog[2],
-                    ],
+                    alert: ASSETS.disaster.pyroclasm.dialog.alert,
                 }
             }
         },
@@ -176,8 +168,8 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 radius: [3, 5],
                 movement: 0,
                 rules: [
-                    { type: 'forceDamage', target: 'affectedEnclaves', damageType: 'percentage', value: 0.33 },
-                    { type: 'routeDestroy', target: 'affectedEnclaves', chance: 0.50 }
+                    { type: 'forceDamage', payload: { target: 'affectedEnclaves', damageType: 'percentage', value: 0.3 } },
+                    { type: 'routeDestroy', payload: { target: 'affectedEnclaves', chance: 0.50 } },
                 ],
             },
             aftermath: {
@@ -187,35 +179,33 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 duration: [3, 4],
                 radius: [6, 10],
                 movement: 0,
-                rules: [{ type: 'statModifier', target: 'affectedEnclaves', stat: 'production', value: 0.75, duration: 'permanent' }],
+                rules: [
+                    { type: 'statModifier', payload: { target: 'affectedEnclaves', stat: 'production', value: 0.75, duration: 'permanent' } }
+                ],
             }
         }
     },
-    'resonance-cascade': {
-        key: 'resonance-cascade',
+    resonanceCascade: {
+        key: 'resonanceCascade',
         ui: {
             name: "Resonance Cascade",
             icon: 'earthquake',
             description: "The planetary core resonates violently, causing the ground to liquefy and shatter.",
             assets: {
-                key: 'resonance-cascade',
+                key: 'resonanceCascade',
                 image: ASSETS.disaster.resonanceCascade.image,
                 sfx: {
-                    alert: ASSETS.disaster.resonanceCascade.sfx.alert[0],
-                    impact: ASSETS.disaster.resonanceCascade.sfx.impact[0],
-                    aftermath: ASSETS.disaster.resonanceCascade.sfx.aftermath[0],
+                    alert: ASSETS.disaster.resonanceCascade.sfx.alert,
+                    impact: ASSETS.disaster.resonanceCascade.sfx.impact,
+                    aftermath: ASSETS.disaster.resonanceCascade.sfx.aftermath,
                 },
                 vfx: {
-                    alert: ASSETS.disaster.resonanceCascade.vfx.alert[0].url,
-                    impact: ASSETS.disaster.resonanceCascade.vfx.impact[0].url,
-                    aftermath: ASSETS.disaster.resonanceCascade.vfx.aftermath[0].url,
+                    alert: ASSETS.disaster.resonanceCascade.vfx.alert,
+                    impact: ASSETS.disaster.resonanceCascade.vfx.impact,
+                    aftermath: ASSETS.disaster.resonanceCascade.vfx.aftermath,
                 },
                 dialog: {
-                    alert: [
-                        ASSETS.disaster.resonanceCascade.dialog[0],
-                        ASSETS.disaster.resonanceCascade.dialog[1],
-                        ASSETS.disaster.resonanceCascade.dialog[2],
-                    ],
+                    alert: ASSETS.disaster.resonanceCascade.dialog.alert,
                 }
             }
         },
@@ -243,7 +233,9 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                     return 9;
                 },
                 movement: 0,
-                rules: [{ type: 'forceDamage', target: 'affectedEnclaves', damageType: 'percentage', value: 0.25 }],
+                rules: [
+                    { type: 'forceDamage', payload: { target: 'affectedEnclaves', damageType: 'percentage', value: 0.25 } },
+                ],
             },
             aftermath: {
                 name: "Seismic Instability",
@@ -253,37 +245,33 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 radius: 0, // This will be set to match the impact radius dynamically
                 movement: 0,
                 rules: [
-                    { type: 'statModifier', target: 'affectedEnclaves', stat: 'production', value: 0.5, duration: 'permanent' },
-                    { type: 'statModifier', target: 'affectedEnclaves', stat: 'combat', value: 0.5, duration: 'permanent' }
+                    { type: 'statModifier', payload: { target: 'affectedEnclaves', stat: 'production', value: 0.5, duration: 'permanent' } },
+                    { type: 'statModifier', payload: { target: 'affectedEnclaves', stat: 'combat', value: 0.5, duration: 'permanent' } }
                 ],
             }
         }
     },
-    'skyfall-shards': {
-        key: 'skyfall-shards',
+    skyfallShards: {
+        key: 'skyfallShards',
         ui: {
             name: "Skyfall Shards",
             icon: 'motion_blur',
             description: "Crystalline fragments rain down from orbit, impacting multiple locations at once.",
             assets: {
-                key: 'skyfall-shards',
+                key: 'skyfallShards',
                 image: ASSETS.disaster.skyfallShards.image,
                 sfx: {
-                    alert: ASSETS.disaster.skyfallShards.sfx.alert[0],
-                    impact: ASSETS.disaster.skyfallShards.sfx.impact[0],
-                    aftermath: ASSETS.disaster.skyfallShards.sfx.aftermath[0],
+                    alert: ASSETS.disaster.skyfallShards.sfx.alert,
+                    impact: ASSETS.disaster.skyfallShards.sfx.impact,
+                    aftermath: ASSETS.disaster.skyfallShards.sfx.aftermath,
                 },
                 vfx: {
-                    alert: ASSETS.disaster.skyfallShards.vfx.alert[0].url,
-                    impact: ASSETS.disaster.skyfallShards.vfx.impact[0].url,
-                    aftermath: ASSETS.disaster.skyfallShards.vfx.aftermath[0].url,
+                    alert: ASSETS.disaster.skyfallShards.vfx.alert,
+                    impact: ASSETS.disaster.skyfallShards.vfx.impact,
+                    aftermath: ASSETS.disaster.skyfallShards.vfx.aftermath,
                 },
                 dialog: {
-                    alert: [
-                        ASSETS.disaster.skyfallShards.dialog[0],
-                        ASSETS.disaster.skyfallShards.dialog[1],
-                        ASSETS.disaster.skyfallShards.dialog[2],
-                    ],
+                    alert: ASSETS.disaster.skyfallShards.dialog.alert,
                 }
             }
         },
@@ -306,7 +294,9 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 duration: 1,
                 radius: 1, // per site
                 movement: 0,
-                rules: [{ type: 'forceDamage', payload: { target: 'occupyingEnclave', damageType: 'flat', value: [5, 20] } }],
+                rules: [
+                    { type: 'forceDamage', payload: { target: 'occupyingEnclave', damageType: 'flat', value: [5, 20] } },
+                ],
             },
             aftermath: {
                 name: "Radiation Sickness",
@@ -316,37 +306,32 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 radius: 1, // per site
                 movement: 0,
                 rules: [
-                    { type: 'applyAftermathOnChance', target: 'affectedEnclaves', chance: 0.50 },
-                    { type: 'forceDamage', target: 'affectedEnclaves', damageType: 'flat', value: 1 }
+                    { type: 'applyAftermathOnChance', payload: { target: 'affectedEnclaves', chance: 0.50, effectRules: [{ type: 'forceDamage', payload: { target: 'affectedEnclaves', damageType: 'flat', value: 1 } }] } },
                 ],
             }
         }
     },
-    'void-surge': {
-        key: 'void-surge',
+    voidSurge: {
+        key: 'voidSurge',
         ui: {
             name: "Void Surge",
             icon: 'tsunami',
             description: "A tear in reality unleashes a scouring wave of void energy.",
             assets: {
-                key: 'void-surge',
+                key: 'voidSurge',
                 image: ASSETS.disaster.voidSurge.image,
                 sfx: {
-                    alert: ASSETS.disaster.voidSurge.sfx.alert[0],
-                    impact: ASSETS.disaster.voidSurge.sfx.impact[0],
-                    aftermath: ASSETS.disaster.voidSurge.sfx.aftermath[0],
+                    alert: ASSETS.disaster.voidSurge.sfx.alert,
+                    impact: ASSETS.disaster.voidSurge.sfx.impact,
+                    aftermath: ASSETS.disaster.voidSurge.sfx.aftermath,
                 },
                 vfx: {
-                    alert: ASSETS.disaster.voidSurge.vfx.alert[0].url,
-                    impact: ASSETS.disaster.voidSurge.vfx.impact[0].url,
-                    aftermath: ASSETS.disaster.voidSurge.vfx.aftermath[0].url,
+                    alert: ASSETS.disaster.voidSurge.vfx.alert,
+                    impact: ASSETS.disaster.voidSurge.vfx.impact,
+                    aftermath: ASSETS.disaster.voidSurge.vfx.aftermath,
                 },
                 dialog: {
-                    alert: [
-                        ASSETS.disaster.voidSurge.dialog[0],
-                        ASSETS.disaster.voidSurge.dialog[1],
-                        ASSETS.disaster.voidSurge.dialog[2],
-                    ],
+                    alert: ASSETS.disaster.voidSurge.dialog.alert,
                 }
             }
         },
@@ -369,7 +354,9 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 duration: 1,
                 radius: 3,
                 movement: 0,
-                rules: [{ type: 'forceDamage', target: 'affectedEnclaves', damageType: 'percentage', value: 0.5 }],
+                rules: [
+                    { type: 'forceDamage', payload: { target: 'affectedEnclaves', damageType: 'percentage', value: 0.5 } },
+                ],
             },
             aftermath: {
                 name: "Void Contamination",
@@ -378,7 +365,9 @@ export const DISASTER_PROFILES: { [key: string]: EffectProfile } = { // want to 
                 duration: [2, 3],
                 radius: 3,
                 movement: 0,
-                rules: [{ type: 'routeDisable', target: 'affectedEnclaves', duration: 99 }], // Duration is handled by effect lifetime
+                rules: [
+                    { type: 'routeDisable', payload: { target: 'affectedEnclaves', duration: 99 } },
+                ], // Duration is handled by effect lifetime
             }
         }
     }

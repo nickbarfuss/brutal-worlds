@@ -18,7 +18,7 @@ import TurnDisplay from '@/components/TurnDisplay';
 import WorldDisplay from '@/components/WorldDisplay';
 import { PLAYER_THREE_COLORS, THEME_CONFIG } from '@/data/theme';
 import { useWorldHighlights } from '@/hooks/useWorldHighlights';
-import { BriefingContent, GameOverState, OrderType, Owner, WorldProfile, Enclave, Domain, IntroPhase, Vector3, EffectQueueItem, PlayerIdentifier, InspectedMapEntity } from '@/types/game'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import { BriefingContent, BriefingState, GameOverState, OrderType, Owner, WorldProfile, Enclave, Domain, IntroPhase, Vector3, EffectQueueItem, PlayerIdentifier, InspectedMapEntity, BriefingType } from '@/types/game'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import Backdrop from '@/components/ui/Backdrop';
 import LegendDisplay from '@/components/LegendDisplay';
 import VignetteOverlay from '@/components/VignetteOverlay';
@@ -35,13 +35,6 @@ import ErrorBoundary from '@/components/ErrorBoundary'; // Added ErrorBoundary i
 
 declare const gsap: any;
 
-export type BriefingData = {
-    content: BriefingContent;
-    targetRect: DOMRect;
-    parentRect: DOMRect;
-    type: 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker';
-};
-
 interface GameScreenProps {
     engine: ReturnType<typeof useGameEngine>;
 }
@@ -49,8 +42,8 @@ interface GameScreenProps {
 const MemoizedSettingsDrawer = React.memo(SettingsDrawer);
 
 const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
-    const [briefing, setBriefing] = useState<BriefingData | null>(null);
-    const [briefingTarget, setBriefingTarget] = useState<{ type: 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker', key: string } | null>(null);
+    const [briefing, setBriefing] = useState<BriefingState | null>(null);
+    const [briefingTarget, setBriefingTarget] = useState<{ type: BriefingType, key: string } | null>(null);
     const [isClosingGameOver, setIsClosingGameOver] = useState(false);
     const [isClosingArchetypeInspector, setIsClosingArchetypeInspector] = useState(false);
     const [isClosingMapInspector, setIsClosingMapInspector] = useState(false);
@@ -109,9 +102,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             const genericKey = 'cinematic-arrival-dialog';
             let legacyKey: string | undefined;
             if (playerArchetypeKey && playerLegacyKey) {
-                const camelPlayerArchetypeKey = toCamelCase(playerArchetypeKey);
-                const camelPlayerLegacyKey = toCamelCase(playerLegacyKey);
-                legacyKey = `archetype-${camelPlayerArchetypeKey}-${camelPlayerLegacyKey}-dialog-arrival`;
+                legacyKey = `archetype-${playerArchetypeKey}-${playerLegacyKey}-dialog-arrival`;
             }
 
             let selectedKey: string | undefined;
@@ -272,7 +263,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         isIntroComplete: engine.isIntroComplete,
     });
 
-    const showBriefing = useCallback((type: 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker', contentKey: string) => {
+    const showBriefing = useCallback((type: BriefingType, contentKey: string) => {
         setBriefingTarget({ type, key: contentKey });
     }, []);
 
@@ -290,7 +281,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         };
     };
 
-    const getBriefingContent = useCallback((type: 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker', contentKey: string): BriefingContent | null => {
+    const getBriefingContent = useCallback((type: BriefingType, contentKey: string): BriefingContent | null => {
         if (type === 'order') {
             const parts = contentKey.split('-');
             const orderType = parts[1] as OrderType | 'holding';
@@ -324,21 +315,27 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 };
                 
                 if (orderType === 'attack') {
-                    const { combatModifier } = getAppliedModifiers(fromEnclave);
+                    const rules = fromEnclave.activeEffects.flatMap(effect => {
+                        const profile = EFFECT_PROFILES[effect.profileKey];
+                        if (!profile) return [];
+                        const phaseLogic = profile.logic[effect.phase];
+                        return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
+                    });
+                    const { combatModifier } = getAppliedModifiers(fromEnclave, rules, engine);
                     const baseForces = Math.ceil(safeForces * 0.35);
                     content.baseValue = Math.floor(baseForces * combatModifier);
                     content.bonusValue = 1 + getAttackBonusForEnclave(fromEnclave);
                     
-                    if (fromArchetype?.key === 'first-sword') {
-                        let legacyIndex: number | null = null;
+                    if (fromArchetype && fromEnclave.archetypeKey === 'firstSword') {
+                        let legacyKey: string | null = null;
                         if (fromEnclave.owner === 'player-1') {
-                            legacyIndex = engine.playerLegacyIndex;
+                            legacyKey = engine.playerLegacyKey;
                         } else if (fromEnclave.owner === 'player-2') {
-                            legacyIndex = engine.opponentLegacyIndex;
+                            legacyKey = engine.opponentLegacyKey;
                         }
                 
-                        if (legacyIndex !== null) {
-                            const legacy = fromArchetype.legacies[legacyIndex];
+                        if (legacyKey) {
+                            const legacy = fromArchetype.legacies[legacyKey];
                             const birthright = BIRTHRIGHTS[legacy.birthrightKey];
                             content.birthright = {
                                 name: birthright.name,
@@ -352,16 +349,17 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     content.baseValue = Math.ceil(safeForces * assistMultiplier);
                     content.bonusValue = 0;
 
-                    if (fromArchetype?.key === 'labyrinthine-ghost') {
-                        let legacyIndex: number | null = null;
+                    if (fromArchetype && fromEnclave.archetypeKey === 'labyrinthineGhost') {
+                        let legacyKey: string | null = null;
                         if (fromEnclave.owner === 'player-1') {
-                            legacyIndex = engine.playerLegacyIndex;
-                        } else if (fromEnclave.owner === 'player-2') {
-                            legacyIndex = engine.opponentLegacyIndex;
+                            legacyKey = engine.playerLegacyKey;
+                        }
+                        else if (fromEnclave.owner === 'player-2') {
+                            legacyKey = engine.opponentLegacyKey;
                         }
                 
-                        if (legacyIndex !== null) {
-                            const legacy = fromArchetype.legacies[legacyIndex];
+                        if (legacyKey) {
+                            const legacy = fromArchetype.legacies[legacyKey];
                             const birthright = BIRTHRIGHTS[legacy.birthrightKey];
                             content.birthright = {
                                 name: birthright.name,
@@ -388,7 +386,13 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 };
     
                 if (fromEnclave.owner) {
-                    const { productionModifier } = getAppliedModifiers(fromEnclave);
+                    const rules = fromEnclave.activeEffects.flatMap(effect => {
+                        const profile = EFFECT_PROFILES[effect.profileKey];
+                        if (!profile) return [];
+                        const phaseLogic = profile.logic[effect.phase];
+                        return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
+                    });
+                    const { productionModifier } = getAppliedModifiers(fromEnclave, rules, engine);
                     const baseReinforcements = 2;
                     const bonusReinforcements = getHoldingBonusForEnclave(fromEnclave);
                     const totalReinforcements = baseReinforcements + bonusReinforcements;
@@ -396,16 +400,16 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     content.bonusValue = 0; // Bonus is part of base value
                 }
     
-                if (fromArchetype?.key === 'resonance-warden' || fromArchetype?.key === 'pact-whisperer') {
-                    let legacyIndex: number | null = null;
+                if (fromArchetype && (fromEnclave.archetypeKey === 'resonanceWarden' || fromEnclave.archetypeKey === 'pactWhisperer')) {
+                    let legacyKey: string | null = null;
                     if (fromEnclave.owner === 'player-1') {
-                        legacyIndex = engine.playerLegacyIndex;
+                        legacyKey = engine.playerLegacyKey;
                     } else if (fromEnclave.owner === 'player-2') {
-                        legacyIndex = engine.opponentLegacyIndex;
+                        legacyKey = engine.opponentLegacyKey;
                     }
             
-                    if (legacyIndex !== null) {
-                        const legacy = fromArchetype.legacies[legacyIndex];
+                    if (legacyKey) {
+                        const legacy = fromArchetype.legacies[legacyKey];
                         const birthright = BIRTHRIGHTS[legacy.birthrightKey];
                         content.birthright = {
                             name: birthright.name,
@@ -504,10 +508,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             let owner: Owner = null;
         
             // Special handling for Memetic Resonance, which includes the source owner in its key
-            if (contentKey.startsWith('memetic-resonance-')) {
+            if (contentKey.startsWith('memeticResonance-')) {
                 const parts = contentKey.split('-');
-                birthrightKey = parts.slice(0, 2).join('-'); // Reconstruct 'memetic-resonance'
-                owner = parts[2] as Owner; // 'player-1' or 'player-2'
+                birthrightKey = parts[0]; // Reconstruct 'memeticResonance'
+                owner = parts[1] as Owner; // 'player-1' or 'player-2'
             }
         
             const profile = BIRTHRIGHTS[birthrightKey];
@@ -601,7 +605,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             };
         }
         return null;
-    }, [engine.enclaveData, engine.domainData, engine.routes, engine.activeEffectMarkers, engine.currentWorld, engine.playerLegacyIndex, engine.opponentLegacyIndex]);
+    }, [engine]);
 
     useEffect(() => {
         const parentEl = engine.inspectedArchetypeOwner ? archetypeInspectorRef.current : mapInspectorRef.current;
@@ -803,8 +807,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         <div className={`w-full h-full bg-black relative overflow-hidden ${cursorClass}`}>
             {engine.isResolvingTurn && <CustomCursor />}
             
-            <video ref={videoEnterRef} src={getAssetUrl(ASSETS.cinematic.intro.vfx[0].url)} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'entry' ? 'block' : 'none' }} />
-            <video ref={videoExitRef} src={getAssetUrl(ASSETS.cinematic.arrival.vfx[0].url)} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'exit' ? 'block' : 'none' }} />
+            <video ref={videoEnterRef} src={getAssetUrl(ASSETS.cinematic.intro.vfx[0])} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'entry' ? 'block' : 'none' }} />
+            <video ref={videoExitRef} src={getAssetUrl(ASSETS.cinematic.arrival.vfx[0])} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'exit' ? 'block' : 'none' }} />
             <WarpStarsCanvas phase={warpPhase} className="absolute inset-0 z-0" />
             
             {engine.currentWorld && (
@@ -867,8 +871,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             
             <div className={`absolute top-0 left-0 right-0 p-8 flex justify-between items-start pointer-events-none z-20 ${uiAnimationClass}`}>
                 <div className="flex flex-col gap-4 pointer-events-auto">
-                    <PlayerDisplay owner="player-1" archetypeKey={engine.playerArchetypeKey} legacyIndex={engine.playerLegacyIndex} onClick={() => engine.setInspectedArchetypeOwner('player-1')} />
-                    <PlayerDisplay owner="player-2" archetypeKey={engine.opponentArchetypeKey} legacyIndex={engine.opponentLegacyIndex} onClick={() => engine.setInspectedArchetypeOwner('player-2')} />
+                    <PlayerDisplay owner="player-1" archetypeKey={engine.playerArchetypeKey} legacyKey={engine.playerLegacyKey} onClick={() => engine.setInspectedArchetypeOwner('player-1')} />
+                    <PlayerDisplay owner="player-2" archetypeKey={engine.opponentArchetypeKey} legacyKey={engine.opponentLegacyKey} onClick={() => engine.setInspectedArchetypeOwner('player-2')} />
                 </div>
 
                 <div className="absolute top-8 left-1/2 -translate-x-1/2 pointer-events-auto">
@@ -944,9 +948,9 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 onHideBriefing={hideBriefing}
                 onTriggerEffect={engine.triggerEffect}
                 playerArchetypeKey={engine.playerArchetypeKey}
-                playerLegacyIndex={engine.playerLegacyIndex}
+                playerLegacyKey={engine.playerLegacyKey}
                 opponentArchetypeKey={engine.opponentArchetypeKey}
-                opponentLegacyIndex={engine.opponentLegacyIndex}
+                opponentLegacyKey={engine.opponentLegacyKey}
             />
             
             <InspectorCard
@@ -971,9 +975,9 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 onHideBriefing={hideBriefing}
                 onTriggerEffect={engine.triggerEffect}
                 playerArchetypeKey={engine.playerArchetypeKey}
-                playerLegacyIndex={engine.playerLegacyIndex}
+                playerLegacyKey={engine.playerLegacyKey}
                 opponentArchetypeKey={engine.opponentArchetypeKey}
-                opponentLegacyIndex={engine.opponentLegacyIndex}
+                opponentLegacyKey={engine.opponentLegacyKey}
             />
 
             <BriefingCard briefing={briefing} world={engine.currentWorld} />

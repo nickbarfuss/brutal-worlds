@@ -18,7 +18,7 @@ import { Enclave, Route } from '@/types/game.ts';
  * @returns The numerical combat bonus (e.g., 1 for First Sword).
  */
 export const getAttackBonusForEnclave = (_enclave: Enclave): number => {
-    // if (enclave.archetypeKey === 'first-sword') {
+    // if (enclave.archetypeKey === 'firstSword') {
     //     return 1; // Kinetic Onslaught bonus
     // }
     return 0;
@@ -30,7 +30,7 @@ export const getAttackBonusForEnclave = (_enclave: Enclave): number => {
  * @returns The force multiplier (e.g., 0.50 for Labyrinthine Ghost, 0.25 otherwise).
  */
 export const getAssistMultiplierForEnclave = (_enclave: Enclave): number => {
-    // if (enclave.archetypeKey === 'labyrinthine-ghost') {
+    // if (enclave.archetypeKey === 'labyrinthineGhost') {
     //     return 0.50; // Panopticon Web bonus
     // }
     return 0.25; // Standard assist
@@ -53,7 +53,7 @@ export const applyHoldingBirthrightEffects = (
     // // --- BIRTHRIGHT: Memetic Resonance (Pact Whisperer) ---
     // const holdingPactWhispererIds = holdingEnclaveIds.filter(id => {
     //     const enclave = newEnclaveStates[id];
-    //     return enclave.archetypeKey === 'pact-whisperer';
+    //     return enclave.archetypeKey === 'pactWhisperer';
     // });
 
     // if (holdingPactWhispererIds.length > 0) {
@@ -95,7 +95,7 @@ export const applyHoldingBirthrightEffects = (
  * @returns The numerical bonus to reinforcements (e.g., 1 for Genesis Forge).
  */
 export const getHoldingBonusForEnclave = (_enclave: Enclave): number => {
-    // if (enclave.archetypeKey === 'resonance-warden') {
+    // if (enclave.archetypeKey === 'resonanceWarden') {
     //     return 1; // Genesis Forge bonus
     // }
     return 0;

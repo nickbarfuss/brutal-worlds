@@ -12,7 +12,7 @@ export type Action =
     | { type: 'SET_INITIALIZATION_STATE'; payload: { isInitialized: boolean; message: string; error: string | null } }
     | { type: 'SET_GAME_PHASE'; payload: GamePhase }
     // FIX: Changed payload property from 'playerArchetypeSkinIndex' to 'playerLegacyIndex' to match state shape.
-    | { type: 'START_GAME'; payload: { playerArchetypeKey: string; worldKey: string; playerLegacyIndex: number; opponentArchetypeKey?: string; opponentLegacyIndex?: number; } }
+    | { type: 'START_GAME'; payload: { playerArchetypeKey: string; worldKey: string; playerLegacyKey: string; opponentArchetypeKey?: string; opponentLegacyKey?: string; } }
     | { type: 'COMPLETE_INTRO' }
     | { type: 'RESET_GAME' }
     | { type: 'TOGGLE_PAUSE' }
@@ -33,6 +33,7 @@ export type Action =
     | { type: 'AI_CLEAR_ORDERS' }
     | { type: 'TRIGGER_EFFECT'; payload: string }
     | { type: 'CLEAR_LATEST_EFFECT' }
+    | { type: 'PROCESS_EFFECT_QUEUE'; payload: { playedIds: string[] } }
     | { type: 'ADD_EFFECTS_TO_QUEUE'; payload: EffectQueueItem[] } // New action
     | { type: 'CLEAR_EFFECT_QUEUE' }
     | { type: 'GO_TO_MAIN_MENU' }

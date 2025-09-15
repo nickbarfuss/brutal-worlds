@@ -18,7 +18,8 @@ const worldData: WorldDataObject[] = [
         illustrationUrl: ASSETS.world.xylosPrime.image, 
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 101 },
         disasterChance: 0.15,
-        possibleEffects: ['skyfall-shards', 'resonance-cascade'],
+        possibleDisasters: ['skyfall-shards', 'resonance-cascade'],
+        possibleEffects: [],
         nebula: {
             main: { color: '#14532d', density: 0.45, falloff: 3.8 },
             wispy: { color: '#0d9488', density: 0.4, falloff: 4.2 }
@@ -50,7 +51,7 @@ const worldData: WorldDataObject[] = [
         illustrationUrl: ASSETS.world.aetheriaTor.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 202, DOMAIN_TOUCH_CHANCE: 0.6 },
         disasterChance: 0.15,
-        possibleEffects: ['entropy-wind', 'resonance-cascade'],
+        possibleDisasters: ['entropy-wind', 'resonance-cascade'],
         nebula: {
             main: { color: '#1e3a8a', density: 0.38, falloff: 4.0 },
             wispy: { color: '#f59e0b', density: 0.4, falloff: 4.5 }
@@ -78,7 +79,7 @@ const worldData: WorldDataObject[] = [
         illustrationUrl: ASSETS.world.magentron.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 303, ISLAND_DOMAINS_MIN: 3, ISLAND_DOMAINS_MAX: 5 },
         disasterChance: 0.20,
-        possibleEffects: ['ion-tempest', 'skyfall-shards'],
+        possibleDisasters: ['ion-tempest', 'skyfall-shards'],
         nebula: {
             main: { color: '#86198f', density: 0.4, falloff: 5.0 },
             wispy: { color: '#22d3ee', density: 0.35, falloff: 3.8 }
@@ -107,7 +108,7 @@ const worldData: WorldDataObject[] = [
         illustrationUrl: ASSETS.world.warWorld.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 505, NUM_POINTS: 2200, LAND_COVERAGE_MIN: 0.5, LAND_COVERAGE_MAX: 0.6, ISLAND_DOMAINS_MIN: 0, ISLAND_DOMAINS_MAX: 1, ENCLAVE_SIZE_MIN: 12, ENCLAVE_SIZE_MAX: 20, DOMAIN_TOUCH_CHANCE: 0.8 },
         disasterChance: 0.25,
-        possibleEffects: ['skyfall-shards', 'pyroclasm', 'resonance-cascade'],
+        possibleDisasters: ['skyfall-shards', 'pyroclasm', 'resonance-cascade'],
         nebula: {
             main: { color: '#7f1d1d', density: 0.55, falloff: 3.5 },
             wispy: { color: '#451a03', density: 0.45, falloff: 4.0 }
@@ -139,7 +140,7 @@ const worldData: WorldDataObject[] = [
         },
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 606, NUM_POINTS: 2000, LAND_COVERAGE_MIN: 0.45, LAND_COVERAGE_MAX: 0.55, ISLAND_DOMAINS_MIN: 0, ISLAND_DOMAINS_MAX: 0, ENCLAVE_SIZE_MIN: 15, ENCLAVE_SIZE_MAX: 25 },
         disasterChance: 0.22,
-        possibleEffects: ['pyroclasm', 'resonance-cascade'],
+        possibleDisasters: ['pyroclasm', 'resonance-cascade'],
         nebula: {
             main: { color: '#4a044e', density: 0.5, falloff: 3.0 },
             wispy: { color: '#737373', density: 0.6, falloff: 4.5 }
@@ -168,7 +169,7 @@ const worldData: WorldDataObject[] = [
         },
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 808, NUM_POINTS: 2100, LAND_COVERAGE_MIN: 0.20, LAND_COVERAGE_MAX: 0.30 },
         disasterChance: 0.18,
-        possibleEffects: ['entropy-wind', 'skyfall-shards'],
+        possibleDisasters: ['entropy-wind', 'skyfall-shards'],
         nebula: {
             main: { color: '#78350f', density: 0.3, falloff: 4.8 },
             wispy: { color: '#a16207', density: 0.35, falloff: 5.0 }
@@ -197,7 +198,7 @@ const worldData: WorldDataObject[] = [
         illustrationUrl: ASSETS.world.graveStar.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 909, NUM_POINTS: 800, LAND_COVERAGE_MIN: 0.15, LAND_COVERAGE_MAX: 0.25, ISLAND_DOMAINS_MIN: 4, ISLAND_DOMAINS_MAX: 6 },
         disasterChance: 0.10,
-        possibleEffects: ['void-surge', 'entropy-wind'],
+        possibleDisasters: ['void-surge', 'entropy-wind'],
         nebula: {
             main: { color: '#1f2937', density: 0.25, falloff: 3.2 },
             wispy: { color: '#e5e7eb', density: 0.3, falloff: 4.0 }
@@ -229,7 +230,8 @@ const worldData: WorldDataObject[] = [
         },
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1010, NUM_POINTS: 750, LAND_COVERAGE_MIN: 0.4, LAND_COVERAGE_MAX: 0.5, ISLAND_DOMAINS_MIN: 0, ISLAND_DOMAINS_MAX: 1, ENCLAVE_SIZE_MIN: 10, ENCLAVE_SIZE_MAX: 18 },
         disasterChance: 0.25,
-        possibleEffects: ['skyfall-shards', 'resonance-cascade'],
+        possibleDisasters: ['skyfall-shards', 'resonance-cascade'],
+        possibleEffects: [],
         nebula: {
             main: { color: '#450a0a', density: 0.48, falloff: 4.5 },
             wispy: { color: '#4b5563', density: 0.4, falloff: 3.8 }
@@ -254,7 +256,7 @@ const worldData: WorldDataObject[] = [
         illustrationUrl: ASSETS.world.cygnusX1.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1212, NUM_POINTS: 850, LAND_COVERAGE_MIN: 0.25, LAND_COVERAGE_MAX: 0.35, ISLAND_DOMAINS_MIN: 6, ISLAND_DOMAINS_MAX: 10 },
         disasterChance: 0.20,
-        possibleEffects: ['void-surge', 'ion-tempest', 'skyfall-shards'],
+        possibleDisasters: ['void-surge', 'ion-tempest', 'skyfall-shards'],
         nebula: {
             main: { color: '#164e63', density: 0.42, falloff: 3.9 },
             wispy: { color: '#0891b2', density: 0.35, falloff: 4.1 }
@@ -283,7 +285,7 @@ const worldData: WorldDataObject[] = [
         illustrationUrl: ASSETS.world.magmaTor.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1313, LAND_COVERAGE_MIN: 0.10, LAND_COVERAGE_MAX: 0.18, ISLAND_DOMAINS_MIN: 10, ISLAND_DOMAINS_MAX: 15 },
         disasterChance: 0.30,
-        possibleEffects: ['pyroclasm'],
+        possibleDisasters: ['pyroclasm'],
         nebula: {
             main: { color: '#7f1d1d', density: 0.5, falloff: 3.7 },
             wispy: { color: '#1f2937', density: 0.35, falloff: 4.4 }
@@ -310,7 +312,7 @@ const worldData: WorldDataObject[] = [
         illustrationUrl: ASSETS.world.shatterSpire.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1414, NUM_POINTS: 1800, ENCLAVE_SIZE_MIN: 4, ENCLAVE_SIZE_MAX: 8 },
         disasterChance: 0.28,
-        possibleEffects: ['resonance-cascade', 'entropy-wind'],
+        possibleDisasters: ['resonance-cascade', 'entropy-wind'],
         nebula: {
             main: { color: '#4c1d95', density: 0.35, falloff: 5.5 },
             wispy: { color: '#e0e7ff', density: 0.45, falloff: 4.8 }
@@ -337,7 +339,7 @@ const worldData: WorldDataObject[] = [
         illustrationUrl: ASSETS.world.steelSpine.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1616, NUM_POINTS: 1600, LAND_COVERAGE_MIN: 0.35, LAND_COVERAGE_MAX: 0.45, PENINSULA_CHANCE: 0.8, DOMAIN_TOUCH_CHANCE: 0.1 },
         disasterChance: 0.18,
-        possibleEffects: ['ion-tempest', 'resonance-cascade'],
+        possibleDisasters: ['ion-tempest', 'resonance-cascade'],
         nebula: {
             main: { color: '#111827', density: 0.6, falloff: 3.3 },
             wispy: { color: '#374151', density: 0.3, falloff: 4.0 }

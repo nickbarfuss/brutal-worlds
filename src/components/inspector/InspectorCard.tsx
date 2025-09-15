@@ -35,15 +35,15 @@ interface InspectorCardProps {
   onTriggerEffect: (key: string) => void;
   onClose: () => void;
   playerArchetypeKey: string | null;
-  playerLegacyIndex: number | null;
+  playerLegacyKey: string | null;
   opponentArchetypeKey: string | null;
-  opponentLegacyIndex: number | null;
+  opponentLegacyKey: string | null;
 }
 
 const InspectorCard = React.memo(React.forwardRef<HTMLDivElement, InspectorCardProps>(({
   isVisible, isClosing, inspectedEntity, selectedEnclaveId, onTriggerEffect,
   onShowBriefing, onHideBriefing, onClose, onFocusVector, 
-  playerArchetypeKey, playerLegacyIndex, opponentArchetypeKey, opponentLegacyIndex,
+  playerArchetypeKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey,
   ...rest
 }, ref) => {
   const hoveredBriefingRef = useRef<string | null>(null);
@@ -140,8 +140,8 @@ const InspectorCard = React.memo(React.forwardRef<HTMLDivElement, InspectorCardP
       if (type === 'archetype') {
           const owner = (inspectedEntity as { owner: PlayerIdentifier }).owner;
           const archetypeKey = owner === 'player-1' ? playerArchetypeKey : opponentArchetypeKey;
-          const legacyIndex = owner === 'player-1' ? playerLegacyIndex : opponentLegacyIndex;
-          return <ArchetypeInspector owner={owner} archetypeKey={archetypeKey} legacyIndex={legacyIndex} onClose={onClose} />
+          const legacyKey = owner === 'player-1' ? playerLegacyKey : opponentLegacyKey;
+          return <ArchetypeInspector owner={owner} archetypeKey={archetypeKey} legacyKey={legacyKey} onClose={onClose} />
       }
       if (type === 'enclave') {
           const enclave = enclaveData[inspectedEntity.id];

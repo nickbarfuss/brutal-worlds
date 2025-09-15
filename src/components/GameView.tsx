@@ -38,7 +38,7 @@ const GameView: React.FC = () => {
         }, 300); // Animation duration should match backdrop
     };
 
-    const handleConfirmStartDialog = (archetypeKey: string, worldKey: string, archetypeSkinIndex: number) => {
+    const handleConfirmStartDialog = (archetypeKey: string, worldKey: string, selectedLegacyKey: string) => {
         // Engage the lock to prevent interruptions.
         isStartingGameRef.current = true;
         
@@ -54,7 +54,7 @@ const GameView: React.FC = () => {
         setIsClosingStartDialog(false);
 
         engine.sfxManager.playSound('ui-common-buttonDialogComplete', 'ui');
-        engine.startGame(archetypeKey, worldKey, archetypeSkinIndex);
+        engine.startGame(archetypeKey, worldKey, selectedLegacyKey);
     };
     
     const handleBegin = async () => {
@@ -65,7 +65,6 @@ const GameView: React.FC = () => {
         // Gemini note: these sounds shoud not be hardcoded here.
         // they should be loaded from assets
         engine.sfxManager.playSound('ui-common-buttonGameStart', 'ui');
-        engine.sfxManager.playLoopIfNotPlaying('music-main-menu', 'music');
     
         // Open the dialog.
         if (CONFIG.QUICK_START.enabled) {
@@ -87,20 +86,36 @@ const GameView: React.FC = () => {
                 : worldKeys[Math.floor(Math.random() * worldKeys.length)];
 
             const p1ArchetypeData = ARCHETYPES[finalP1Archetype];
-            let p1LegacyIndex = 0;
-            if (p1ArchetypeData.legacies && p1ArchetypeData.legacies.length > 0) {
-                const legacyIndex = p1ArchetypeData.legacies.findIndex(l => l.key === player1Legacy);
-                p1LegacyIndex = legacyIndex !== -1 ? legacyIndex : Math.floor(Math.random() * p1ArchetypeData.legacies.length);
+            let p1LegacyKey = '';
+            if (p1ArchetypeData.legacies) {
+                const legacies = Object.values(p1ArchetypeData.legacies);
+                if (legacies.length > 0) {
+                    const legacy = legacies.find(l => l.key === player1Legacy);
+                    if (legacy) {
+                        p1LegacyKey = legacy.key;
+                    } else {
+                        const randomIndex = Math.floor(Math.random() * legacies.length);
+                        p1LegacyKey = legacies[randomIndex].key;
+                    }
+                }
             }
 
             const p2ArchetypeData = ARCHETYPES[finalP2Archetype];
-            let p2LegacyIndex = 0;
-            if (p2ArchetypeData.legacies && p2ArchetypeData.legacies.length > 0) {
-                const legacyIndex = p2ArchetypeData.legacies.findIndex(l => l.key === player2Legacy);
-                p2LegacyIndex = legacyIndex !== -1 ? legacyIndex : Math.floor(Math.random() * p2ArchetypeData.legacies.length);
+            let p2LegacyKey = '';
+            if (p2ArchetypeData.legacies) {
+                const legacies = Object.values(p2ArchetypeData.legacies);
+                if (legacies.length > 0) {
+                    const legacy = legacies.find(l => l.key === player2Legacy);
+                    if (legacy) {
+                        p2LegacyKey = legacy.key;
+                    } else {
+                        const randomIndex = Math.floor(Math.random() * legacies.length);
+                        p2LegacyKey = legacies[randomIndex].key;
+                    }
+                }
             }
             
-            engine.startGame(finalP1Archetype, finalWorldKey, p1LegacyIndex, finalP2Archetype, p2LegacyIndex);
+            engine.startGame(finalP1Archetype, finalWorldKey, p1LegacyKey, finalP2Archetype, p2LegacyKey);
         } else {
             // Normal flow: open the archetype selection dialog.
             isStartingGameRef.current = false;

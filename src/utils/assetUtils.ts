@@ -80,14 +80,6 @@ export const extractAssetUrls = (assets: any): AssetUrls => {
                             } else if (item.endsWith('.jpg') || item.endsWith('.png')) {
                                 urls.image.push(item);
                             }
-                        } else if (typeof item === 'object' && item !== null && 'url' in item) {
-                            if (item.url.endsWith('.mp3')) {
-                                urls.audio.push(item.url);
-                            } else if (item.url.endsWith('.webm')) {
-                                urls.video.push(item.url);
-                            } else if (item.url.endsWith('.jpg') || item.url.endsWith('.png')) {
-                                urls.image.push(item.url);
-                            }
                         }
                     });
                 } else if (typeof value === 'object' && value !== null) {
@@ -149,8 +141,8 @@ export const flattenAssetUrls = (assets: any): Map<string, string[]> => {
     return flattenedMap;
 };
 
-export const extractVfxProfiles = (assets: any): Record<string, VfxProfile> => {
-    const vfxProfiles: Record<string, VfxProfile> = {};
+export const extractVfxProfiles = (assets: any): Record<string, string> => {
+    const vfxProfiles: Record<string, string> = {};
 
     const traverse = (obj: any, path: string[]) => {
         for (const key in obj) {
@@ -160,9 +152,9 @@ export const extractVfxProfiles = (assets: any): Record<string, VfxProfile> => {
 
                 if (key === 'vfx' && Array.isArray(value)) {
                     value.forEach((item, index) => {
-                        if (typeof item === 'object' && item !== null && 'url' in item) {
+                        if (typeof item === 'string') { // Now expecting string directly
                             const profileKey = currentPath.slice(0, -1).join('-') + (value.length > 1 ? `-${index}` : '');
-                            vfxProfiles[profileKey] = item as VfxProfile;
+                            vfxProfiles[profileKey] = item; // Assign the string directly
                         }
                     });
                 } else if (typeof value === 'object' && value !== null) {

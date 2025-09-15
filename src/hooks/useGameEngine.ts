@@ -69,9 +69,9 @@ export const useGameEngine = () => {
     }, []);
 
     const setGamePhase = useCallback((phase: GamePhase) => dispatch({ type: 'SET_GAME_PHASE', payload: phase }), []);
-    const startGame = useCallback((playerArchetypeKey: string, worldKey: string, playerLegacyIndex: number, opponentArchetypeKey?: string, opponentLegacyIndex?: number) => {
+    const startGame = useCallback((playerArchetypeKey: string, worldKey: string, playerLegacyKey: string, opponentArchetypeKey?: string, opponentLegacyKey?: string) => {
         vfxManager.current.reset();
-        dispatch({ type: 'START_GAME', payload: { playerArchetypeKey, worldKey, playerLegacyIndex, opponentArchetypeKey, opponentLegacyIndex } });
+        dispatch({ type: 'START_GAME', payload: { playerArchetypeKey, worldKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey } });
     }, []);
 
     const completeIntro = useCallback(() => dispatch({ type: 'COMPLETE_INTRO' }), []);
@@ -91,13 +91,14 @@ export const useGameEngine = () => {
         // Now that the audio context is confirmed to be ready, immediately apply the
         // current volume and mute state to prevent race conditions on startup.
         if (sfxManager.current) {
-            (Object.keys(state.volumes) as AudioChannel[]).forEach(channel => {
-                const isMuted = state.isGloballyMuted || state.mutedChannels[channel];
-                const volume = state.volumes[channel];
+            const latestState = stateRef.current;
+            (Object.keys(latestState.volumes) as AudioChannel[]).forEach(channel => {
+                const isMuted = latestState.isGloballyMuted || latestState.mutedChannels[channel];
+                const volume = latestState.volumes[channel];
                 sfxManager.current.setVolume(channel, isMuted ? 0 : volume);
             });
         }
-    }, [state.volumes, state.mutedChannels, state.isGloballyMuted]);
+    }, []);
 
     // Effect to schedule AI actions for the current turn with human-like delays.
     useEffect(() => {
@@ -348,7 +349,7 @@ export const useGameEngine = () => {
                 if (effect.vfx && effect.position) {
                     // FIX: The vfx property can be an array of strings or an array of objects with a `key` property.
                     // This ensures we always pass a string key to the playEffect method.
-                    const vfxKeys = effect.vfx.map(v => (typeof v === 'string' ? v : v.key)).flat();
+                    const vfxKeys = (effect.vfx || []).map(v => (typeof v === 'string' ? v : (v as { key: string }).key)).flat();
                     vfxKeys.forEach(vfxKey => {
                         vfxManager.current.playEffect(vfxKey, effect.position);
                     });
@@ -384,19 +385,13 @@ export const useGameEngine = () => {
     
         const shouldPlayMusic = (
             phase === 'mainMenu' || 
-            phase === 'archetypeSelection'
-        );
-
-        const shouldPlayGameMusic = (
+            phase === 'archetypeSelection' ||
             phase === 'playing'
-        )
+        );
     
-        if (shouldPlayMusic) {
-            musicManager.playLoopIfNotPlaying('music-main-menu', 'music');
-        } else if (shouldPlayGameMusic) {
-            musicManager.playLoopIfNotPlaying('music-gameplay', 'music');
-        }
-        else {
+        if (shouldPlayMusic && musicManager.isReady() && !musicManager.hasLoop('music')) {
+            musicManager.playRandomLoop('music');
+        } else if (!shouldPlayMusic) {
             musicManager.stopLoop('music');
         }
     }, [state.gamePhase]);

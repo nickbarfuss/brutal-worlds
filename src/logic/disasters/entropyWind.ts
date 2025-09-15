@@ -1,5 +1,5 @@
-import { Enclave, ActiveEffect, DisasterProfile, Route, DisasterRule, MapCell } from '@/types/game';
-import { applyContinuousRules, applyInstantaneousRules } from '@/logic/effectProcessor';
+import { Enclave, ActiveEffect, DisasterProfile, Route, DisasterRule, MapCell, GameState } from '@/types/game';
+import { applyContinuousEffects, applyInstantaneousRules, applyOneTimeEffects } from '@/logic/effectProcessor';
 export { processMarker, processEffect } from '@/logic/disasters/defaultHandler';
 import { queueEffectAssets } from '@/logic/turnResolver';
 
@@ -90,9 +90,8 @@ export const handleContinuous = (
             removeEffect = true;
         }
     } else {
-        const continuousResult = applyContinuousRules(effect.rules, enclave, modifiedRoutes);
-        modifiedEnclave = continuousResult.enclave;
-        modifiedRoutes = continuousResult.routes;
+        const continuousResult = applyContinuousEffects(enclave, effect.rules, {} as GameState);
+        modifiedEnclave = { ...modifiedEnclave, forces: modifiedEnclave.forces * continuousResult.combatModifier };
     }
 
     return { enclave: modifiedEnclave, newRoutes: modifiedRoutes, removeEffect, sideEffects };

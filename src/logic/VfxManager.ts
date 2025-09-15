@@ -43,7 +43,7 @@ export class VfxManager {
     private loadVideo(key: string, profile: VfxProfile): Promise<void> {
         return new Promise((resolve) => {
             const video = document.createElement('video');
-            video.src = getAssetUrl(profile.url);
+            video.src = getAssetUrl(profile);
             video.muted = true;
             video.loop = false;
             video.playsInline = true;
@@ -71,7 +71,7 @@ export class VfxManager {
             const onError = () => {
                 if (!resolved) {
                     resolved = true;
-                    console.error(`Failed to load VFX video for "${key}" from ${getAssetUrl(profile.url)}`);
+                    console.error(`Failed to load VFX video for "${key}" from ${getAssetUrl(profile)}`);
                     cleanup();
                     resolve(); // Resolve even on error to not block the game
                 }
@@ -124,8 +124,8 @@ export class VfxManager {
         
         const profile = preloadedAsset.profile;
         // Provide default values if profile or its dimensions are undefined
-        const width = profile?.width || 256;
-        const height = profile?.height || 256;
+        const width = 256;
+        const height = 256;
         
         this.activeEffects.push({
             key: selectedKey,

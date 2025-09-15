@@ -1,8 +1,9 @@
-import { Enclave, PendingOrders, Route } from '@/types/game.ts';
+import { Enclave, PendingOrders, Route, Rule, GameState } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
 import { getAppliedModifiers } from '@/logic/effectProcessor.ts';
 import { getHoldingBonusForEnclave } from '@/logic/birthrightManager.ts';
 import { cloneEnclave } from '@/logic/cloneUtils.ts';
+import { EFFECT_PROFILES } from '@/data/effects.ts';
 
 export const resolveHolding = (
     currentEnclavesMap: Map<number, Enclave>,
@@ -19,7 +20,14 @@ export const resolveHolding = (
             let reinforcements = 2; // Standard holding value
             reinforcements += getHoldingBonusForEnclave(enclave);
 
-            const { productionModifier } = getAppliedModifiers(enclave);
+            const rules: Rule[] = enclave.activeEffects.flatMap(effect => {
+                const profile = EFFECT_PROFILES[effect.profileKey];
+                if (!profile) return [];
+                const phaseLogic = profile.logic[effect.phase];
+                return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
+            });
+            const enclaveData = Object.fromEntries(currentEnclavesMap.entries());
+            const { productionModifier } = getAppliedModifiers(enclave, rules, { enclaveData, routes: currentRoutes } as Partial<GameState> as GameState);
             const finalReinforcements = Math.floor(reinforcements * productionModifier);
             
             if (finalReinforcements > 0) {

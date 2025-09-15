@@ -72,6 +72,14 @@ export class SfxManager {
         }
     }
 
+    public isReady(): boolean {
+        return this.isInitialized && this.hasUserInteracted;
+    }
+
+    public hasLoop(loopId: string): boolean {
+        return this.activeLoops.has(loopId);
+    }
+
     // Preload and decode audio files
     private async preloadSounds(urls: string[]): Promise<void> {
         const decodingContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -270,6 +278,28 @@ export class SfxManager {
 
         if (!this.activeLoops.has(channel)) {
             this.playLoop(key, channel);
+        }
+    }
+
+    public playRandomLoop(channel: AudioChannel): void {
+        if (!this.hasUserInteracted) return;
+    
+        let availableTracks = this.musicTrackKeys;
+        if (this.currentMusicKey) {
+            availableTracks = availableTracks.filter(key => key !== this.currentMusicKey);
+        }
+    
+        if (availableTracks.length === 0) {
+            // If all tracks have been played or there's only one, reset to the full list
+            availableTracks = this.musicTrackKeys;
+        }
+    
+        if (availableTracks.length > 0) {
+            const randomKey = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+            this.currentMusicKey = randomKey;
+            this.playLoop(randomKey, channel);
+        } else {
+            console.warn(`[SfxManager] No music tracks found to play on channel: ${channel}`);
         }
     }
 

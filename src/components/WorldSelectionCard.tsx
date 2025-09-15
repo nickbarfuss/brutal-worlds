@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { WorldProfile } from '@/types/game';
 import Avatar from '@/components/ui/Avatar';
 import ChipCard from '@/components/ui/ChipCard';
-import { DISASTER_PROFILES } from '@/data/disasters';
+import { DISASTERS } from '@/data/disasters';
 import { getIconForEntityType } from '@/utils/entityUtils';
 import { getAssetUrl } from '@/utils/assetUtils';
 import Card from '@/components/ui/Card';
@@ -81,7 +81,7 @@ const WorldSelectionCard: React.FC<WorldSelectionCardProps> = ({ world, isSelect
                     <Card.Section title="Possible Disasters">
                         <div className="space-y-2">
                             {world.possibleDisasters.map(disasterKey => {
-                                const disaster = DISASTER_PROFILES[disasterKey];
+                                const disaster = DISASTERS[disasterKey];
                                 if (!disaster) return null;
                                 return (
                                     <ChipCard 

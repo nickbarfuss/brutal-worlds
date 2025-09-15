@@ -4,13 +4,13 @@
   orders, battles), and posts the new state back to the main thread.
 */
 
-import { Enclave, PendingOrders, EffectQueueItem, ActiveEffectMarker, Route, MapCell, ActiveEffect, EffectProfile, GameConfig } from '@/types/game.ts';
+import { Enclave, PendingOrders, EffectQueueItem, ActiveEffectMarker, Route, MapCell, ActiveEffect, EffectProfile, GameConfig, GameState } from '@/types/game.ts';
 import { resolveHolding } from '@/logic/holdResolver';
 import { resolveAssists } from '@/logic/assistResolver';
 import { resolveAttacks } from '@/logic/attackResolver';
 import * as THREE from 'three';
 import { EFFECT_PROFILES } from '@/data/effects';
-import { applyContinuousRules } from '@/logic/effectProcessor';
+import { applyContinuousEffects } from '@/logic/effectProcessor';
 import { cloneEnclave } from '@/logic/cloneUtils';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
 import * as entropyWindHandler from '@/logic/disasters/entropyWind';
@@ -35,9 +35,9 @@ export const queueEffectAssets = (
     position: THREE.Vector3,
     effectsToPlay: EffectQueueItem[]
 ) => {
-    const sfxKey = profile.ui.assets.sfx?.[phase];
-    const vfx = profile.ui.assets.vfx?.[phase];
-    const dialogKey = profile.ui.assets.dialog?.[phase];
+    const sfxKey = profile.ui.assets.sfx?.[phase]?.[0];
+    const vfx = profile.ui.assets.vfx?.[phase]?.[0];
+    const dialogKey = profile.ui.assets.dialog?.[phase]?.[0];
 
     if (vfx) {
         effectsToPlay.push({
@@ -104,13 +104,12 @@ export const processEffectMarkers = (
                     allSideEffects.push(...result.sideEffects);
                 }
             } else {
-                const continuousResult = applyContinuousRules(effect.rules, modifiedEnclave, modifiedRoutes);
-                modifiedEnclave = continuousResult.enclave;
-                modifiedRoutes = continuousResult.routes;
+                const continuousResult = applyContinuousEffects(modifiedEnclave, effect.rules, {} as GameState);
+                modifiedEnclave = { ...modifiedEnclave, forces: modifiedEnclave.forces * continuousResult.combatModifier };
+                // Note: routes are not modified by applyContinuousEffects
             }
         }
         continuousUpdateMap.set(id, modifiedEnclave);
-        workingRoutes = modifiedRoutes;
     }
 
     // Batch update the main map with results from the primary continuous loop
@@ -155,7 +154,8 @@ export const processEffectMarkers = (
 
             if (nextPhase && nextPhaseLogic) {
                 marker.currentPhase = nextPhase;
-                marker.durationInPhase = resolveNumericRange(nextPhaseLogic.duration);
+                const resolvedDuration = nextPhaseLogic.duration === 'Permanent' ? 9999 : nextPhaseLogic.duration;
+                marker.durationInPhase = resolveNumericRange(resolvedDuration);
                 // Re-queue assets for the new phase
                 queueEffectAssets(profile, nextPhase, marker.position, effectsToPlay);
                 remainingEffectMarkers.push(marker); // Keep marker if it transitions to next phase
@@ -313,7 +313,7 @@ export const resolveTurn = (
         const enclavesAfterHolding = resolveHolding(enclavesAfterEffects, allValidOrders, routesAfterEffects, gameConfig);
         const enclavesAfterAssists = resolveAssists(enclavesAfterHolding, allValidOrders, gameConfig);
         const { newEnclaveData: enclavesAfterAttacks, conquestEvents } = resolveAttacks(
-            enclavesAfterAssists, allValidOrders, gameConfig, effectsToPlay, playerArchetypeKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey,
+            enclavesAfterAssists, allValidOrders, gameConfig, effectsToPlay, playerArchetypeKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey, routesAfterEffects,
         );
         
         let finalEnclavesMap = enclavesAfterAttacks;

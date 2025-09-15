@@ -9,13 +9,13 @@ import { toCamelCase } from '@/utils/stringUtils';
 interface ArchetypeAvatarProps {
   owner: PlayerIdentifier;
   archetypeKey: string | null;
-  legacyIndex: number | null;
+  legacyKey: string | null;
 }
 
-const ArchetypeAvatar: React.FC<ArchetypeAvatarProps> = ({ owner, archetypeKey, legacyIndex }) => {
+const ArchetypeAvatar: React.FC<ArchetypeAvatarProps> = ({ owner, archetypeKey, legacyKey }) => {
   const isPlayer1 = owner === 'player-1';
   const archetype = archetypeKey ? ARCHETYPES[archetypeKey] : null;
-  const legacy = archetype && legacyIndex !== null ? archetype.legacies[legacyIndex] : null;
+  const legacy = archetype && legacyKey ? archetype.legacies[legacyKey] : null;
 
   // Dynamic class names based on player
   const playerTheme = isPlayer1 ? THEME_CONFIG.player1 : THEME_CONFIG.player2;
@@ -35,9 +35,6 @@ const ArchetypeAvatar: React.FC<ArchetypeAvatarProps> = ({ owner, archetypeKey, 
         )
       : null;
     
-  // Fallback and legacy icons
-  const defaultArchetypeIcon = isPlayer1 ? 'neurology' : 'psychology';
-
   return (
     <div className="relative w-[100px] h-[100px] flex-shrink-0">
       <div className={`w-full h-full rounded-full border-2 ${mainBorderColorClass} ${mainBgColorClass} flex items-center justify-center overflow-hidden shadow-lg`}>
@@ -49,7 +46,7 @@ const ArchetypeAvatar: React.FC<ArchetypeAvatarProps> = ({ owner, archetypeKey, 
           />
         ) : (
           <span className={`material-symbols-outlined text-6xl text-${playerTheme}-400`}>
-            {archetype?.icon || defaultArchetypeIcon}
+            {archetype?.icon}
           </span>
         )}
       </div>

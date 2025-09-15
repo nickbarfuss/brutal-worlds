@@ -1,5 +1,5 @@
 import React, { useRef, useState, useLayoutEffect } from 'react';
-import { BriefingContent, WorldProfile } from '@/types/game';
+import { BriefingContent, WorldProfile, BriefingType } from '@/types/game';
 import Card from '@/components/ui/Card';
 import OrderBriefing from '@/components/briefing/OrderBriefing';
 import EffectBriefing from '@/components/briefing/EffectBriefing';
@@ -7,8 +7,6 @@ import RouteBriefing from '@/components/briefing/RouteBriefing';
 import DomainBriefing from '@/components/briefing/DomainBriefing';
 import DisasterBriefing from '@/components/briefing/DisasterBriefing';
 import BirthrightBriefing from '@/components/briefing/BirthrightBriefing';
-
-type BriefingType = 'order' | 'effect' | 'route' | 'domain' | 'disasterProfile' | 'birthright' | 'disasterMarker';
 
 interface BriefingCardProps {
     briefing: {
@@ -79,6 +77,8 @@ const BriefingCard: React.FC<BriefingCardProps> = ({ briefing, world }) => {
                 return <OrderBriefing content={content} />;
             case 'effect':
             case 'disasterMarker':
+            case 'effectMarker':
+            case 'effectProfile':
                 return <EffectBriefing content={content} />;
             case 'route':
                 return <RouteBriefing content={content} />;

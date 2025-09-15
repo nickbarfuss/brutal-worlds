@@ -8,10 +8,9 @@ import { AudioChannel } from '@/types/game';
 import { ASSETS } from '@/data/assets';
 
 interface GameStartDialogProps {
-    onConfirm: (archetypeKey: string, worldKey: string, legacyIndex: number) => void;
+    onConfirm: (archetypeKey: string, worldKey: string, legacyKey: string) => void;
     onClose: () => void;
     isClosing: boolean;
-    //Gemini note: need to alloe playsound to to be a key from ASSETS
     playSound: (key: string, channel?: AudioChannel) => void;
 }
 
@@ -20,7 +19,7 @@ type DialogStep = 'archetype' | 'world';
 const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, isClosing, playSound }) => {
     const [step, setStep] = useState<DialogStep>('archetype');
     const [selectedArchetypeKey, setSelectedArchetypeKey] = useState<string | null>(null);
-    const [selectedLegacyIndex, setSelectedLegacyIndex] = useState<number | null>(null);
+    const [selectedLegacyKey, setSelectedLegacyKey] = useState<string | null>(null);
     const [selectedWorldKey, setSelectedWorldKey] = useState<string | null>(null);
 
     const sliderRef = useRef<HTMLDivElement>(null);
@@ -28,12 +27,13 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
     const worldCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
     const allLegacies = useMemo(() => {
-        return Object.values(ARCHETYPES)
-            .flatMap(archetype => 
-                archetype.legacies.map((legacy, index) => ({
+        return Object.entries(ARCHETYPES)
+            .flatMap(([archetypeKey, archetype]) => 
+                Object.entries(archetype.legacies).map(([legacyKey, legacy]) => ({
+                    archetypeKey,
                     archetype,
-                    legacy,
-                    legacyIndex: index
+                    legacyKey,
+                    legacy
                 }))
             )
             .sort((a, b) => {
@@ -58,26 +58,24 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
         };
     }, [onClose]);
 
-    const handleSelectLegacy = (archetypeKey: string, legacyIndex: number) => {
-        playSound(ASSETS.ui.common.buttonDialogNav, 'ui');
+    const handleSelectLegacy = (archetypeKey: string, legacyKey: string) => {
+        playSound(ASSETS.ui.common.buttonDialogNav[0], 'ui');
 
-        const isAlreadySelected = selectedArchetypeKey === archetypeKey && selectedLegacyIndex === legacyIndex;
+        const isAlreadySelected = selectedArchetypeKey === archetypeKey && selectedLegacyKey === legacyKey;
 
         if (isAlreadySelected) {
             setSelectedArchetypeKey(null);
-            setSelectedLegacyIndex(null);
+            setSelectedLegacyKey(null);
         } else {
             setSelectedArchetypeKey(archetypeKey);
-            setSelectedLegacyIndex(legacyIndex);
+            setSelectedLegacyKey(legacyKey);
             
-            // Gemini note: these sounds shoud not be hardcoded here.
-            // they should be loaded from assets
             let soundKeys: string[] = [];
             switch (archetypeKey) {
-                case 'first-sword': soundKeys = ['archetype-first-sword-1', 'archetype-first-sword-2', 'archetype-first-sword-3', 'archetype-first-sword-4']; break;
-                case 'pact-whisperer': soundKeys = ['archetype-pact-whisperer-1', 'archetype-pact-whisperer-2', 'archetype-pact-whisperer-3', 'archetype-pact-whisperer-4']; break;
-                case 'labyrinthine-ghost': soundKeys = ['archetype-labyrinthine-ghost-1', 'archetype-labyrinthine-ghost-2', 'archetype-labyrinthine-ghost-3', 'archetype-labyrinthine-ghost-4']; break;
-                case 'resonance-warden': soundKeys = ['archetype-resonance-warden-1', 'archetype-resonance-warden-2', 'archetype-resonance-warden-3', 'archetype-resonance-warden-4', 'archetype-resonance-warden-5']; break;
+                case 'firstSword': soundKeys = ['archetype-first-sword-1', 'archetype-first-sword-2', 'archetype-first-sword-3', 'archetype-first-sword-4']; break;
+                case 'pactWhisperer': soundKeys = ['archetype-pact-whisperer-1', 'archetype-pact-whisperer-2', 'archetype-pact-whisperer-3', 'archetype-pact-whisperer-4']; break;
+                case 'labyrinthineGhost': soundKeys = ['archetype-labyrinthine-ghost-1', 'archetype-labyrinthine-ghost-2', 'archetype-labyrinthine-ghost-3', 'archetype-labyrinthine-ghost-4']; break;
+                case 'resonanceWarden': soundKeys = ['archetype-resonance-warden-1', 'archetype-resonance-warden-2', 'archetype-resonance-warden-3', 'archetype-resonance-warden-4', 'archetype-resonance-warden-5']; break;
             }
             if (soundKeys.length > 0) {
                 const randomKey = soundKeys[Math.floor(Math.random() * soundKeys.length)];
@@ -126,10 +124,9 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
 
     useEffect(() => {
         if (step === 'archetype') {
-            const selectedLegacy = allLegacies.find(item => item.archetype.key === selectedArchetypeKey && item.legacyIndex === selectedLegacyIndex);
-            scrollToCard(selectedLegacy?.legacy.key ?? null, archetypeCardRefs);
+            scrollToCard(selectedLegacyKey, archetypeCardRefs);
         }
-    }, [selectedArchetypeKey, selectedLegacyIndex, step, allLegacies]);
+    }, [selectedLegacyKey, step]);
     
     useEffect(() => {
         if (step === 'world') {
@@ -140,19 +137,19 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
 
     const handleNext = () => {
         if (selectedArchetypeKey) {
-            playSound(ASSETS.ui.common.buttonDialogComplete, 'ui');
+            playSound(ASSETS.ui.common.buttonDialogComplete[0], 'ui');
             setStep('world');
         }
     };
 
     const handleBack = () => {
-        playSound(ASSETS.ui.common.buttonDialogComplete, 'ui');
+        playSound(ASSETS.ui.common.buttonDialogComplete[0], 'ui');
         setStep('archetype');
     };
 
     const handleConfirm = () => {
-        if (selectedArchetypeKey && selectedLegacyIndex !== null && selectedWorldKey) {
-            onConfirm(selectedArchetypeKey, selectedWorldKey, selectedLegacyIndex);
+        if (selectedArchetypeKey && selectedLegacyKey && selectedWorldKey) {
+            onConfirm(selectedArchetypeKey, selectedWorldKey, selectedLegacyKey);
         }
     };
     
@@ -202,13 +199,17 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
                     onWheel={handleWheel}
                 >
                     <div className="flex flex-row items-stretch gap-6 h-full">
-                        {step === 'archetype' && allLegacies.map(({ archetype, legacy, legacyIndex }) => (
-                            <div key={legacy.key} ref={el => { archetypeCardRefs.current[legacy.key] = el; }}>
+                        {step === 'archetype' && allLegacies.map(({ archetypeKey, archetype, legacyKey, legacy }) => (
+                            <div key={`${archetypeKey}-${legacyKey}`} ref={el => { 
+                                if (legacyKey) {
+                                    archetypeCardRefs.current[legacyKey] = el; 
+                                }
+                            }}>
                                 <ArchetypeSelectionCard
                                     archetype={archetype}
                                     legacy={legacy}
-                                    isSelected={selectedArchetypeKey === archetype.key && selectedLegacyIndex === legacyIndex}
-                                    onClick={() => handleSelectLegacy(archetype.key, legacyIndex)}
+                                    isSelected={selectedArchetypeKey === archetypeKey && selectedLegacyKey === legacyKey}
+                                    onClick={() => handleSelectLegacy(archetypeKey, legacyKey)}
                                 />
                             </div>
                         ))}

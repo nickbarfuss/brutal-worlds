@@ -1,5 +1,5 @@
 // allows us to use CDN links in the config
-const CDN = ''; // https://storage.googleapis.com/brutal-worlds
+const CDN = ''; // '' if local, 'https://storage.googleapis.com/brutal-worlds' if remote
 
 
 export const CONFIG = {
@@ -14,7 +14,7 @@ export const CONFIG = {
     
     //testing and debugging features
     QUICK_START: {
-        enabled: false,
+        enabled: true,
         player1Archetype: '',
         player1Legacy: '',
         player2Archetype: '',

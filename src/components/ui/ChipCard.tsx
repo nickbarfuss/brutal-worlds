@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Owner, SemanticColorPalette } from '@/types/game';
+import { Owner, SemanticColorPalette, BriefingType } from '@/types/game';
 import { PLAYER_THREE_COLORS } from '@/data/theme';
 import ValueDisplay from '@/components/ui/ValueDisplay';
 
@@ -15,7 +15,7 @@ interface CommonChipCardProps {
   iconColorClass?: string;
   iconColorHex?: string;
   briefingProps?: {
-    type: 'order' | 'effect' | 'route' | 'domain' | 'disasterProfile' | 'birthright' | 'disasterMarker';
+    type: BriefingType;
     key: string;
   };
   align?: 'center' | 'start';
@@ -23,13 +23,15 @@ interface CommonChipCardProps {
 }
 
 // Props when ChipCard is interactive (a button)
-interface InteractiveChipCardProps extends CommonChipCardProps, React.ComponentPropsWithoutRef<'button'> {
+interface InteractiveChipCardProps extends CommonChipCardProps, Omit<React.ComponentPropsWithoutRef<'button'>, 'title'> {
   onClick: () => void; // onClick is required for interactive
+  title: string;
 }
 
 // Props when ChipCard is not interactive (a div)
-interface NonInteractiveChipCardProps extends CommonChipCardProps, React.ComponentPropsWithoutRef<'div'> {
+interface NonInteractiveChipCardProps extends CommonChipCardProps, Omit<React.ComponentPropsWithoutRef<'div'>, 'title'> {
   onClick?: never; // onClick should not be present for non-interactive
+  title: string;
 }
 
 // Union type for ChipCardProps

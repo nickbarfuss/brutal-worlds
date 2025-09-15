@@ -1,7 +1,7 @@
 import React from 'react';
 import { ARCHETYPES } from '@/data/archetypes';
 import { BIRTHRIGHTS } from '@/data/birthrights';
-import { ARCHETYPE_PROFILES } from '@/data/gambits';
+import { GAMBITS } from '@/data/gambits';
 import ChipCard from '@/components/ui/ChipCard';
 import Card from '@/components/ui/Card';
 import { PlayerIdentifier } from '@/types/game';
@@ -11,14 +11,14 @@ import { getAssetUrl } from '@/utils/assetUtils';
 interface ArchetypeInspectorProps {
   owner: PlayerIdentifier;
   archetypeKey: string | null;
-  legacyIndex: number | null;
+  legacyKey: string | null;
   onClose: () => void;
 }
 
-const ArchetypeInspector: React.FC<ArchetypeInspectorProps> = ({ owner, archetypeKey, legacyIndex, onClose }) => {
+const ArchetypeInspector: React.FC<ArchetypeInspectorProps> = ({ owner, archetypeKey, legacyKey, onClose }) => {
   const isPlayer1 = owner === 'player-1';
   const archetype = archetypeKey ? ARCHETYPES[archetypeKey] : null;
-  const legacy = archetype && legacyIndex !== null ? archetype.legacies[legacyIndex] : null;
+  const legacy = archetype && legacyKey && archetype.legacies ? (archetype.legacies as any)[legacyKey] : null;
   const birthright = legacy ? BIRTHRIGHTS[legacy.birthrightKey] : null;
 
   const playerTheme = isPlayer1 ? THEME_CONFIG.player1 : THEME_CONFIG.player2;
@@ -34,7 +34,7 @@ const ArchetypeInspector: React.FC<ArchetypeInspectorProps> = ({ owner, archetyp
     );
   }
 
-  const legacyVideo = legacy.videoUrl;
+  const legacyVideo = legacy.movie;
 
   return (
     <>
@@ -52,8 +52,8 @@ const ArchetypeInspector: React.FC<ArchetypeInspectorProps> = ({ owner, archetyp
         {legacyVideo && (
           <div className="w-full aspect-video bg-black flex-shrink-0">
               <video
-                  key={getAssetUrl(legacyVideo)}
-                  src={getAssetUrl(legacyVideo)} 
+                  key={getAssetUrl(legacy.movie)}
+                  src={getAssetUrl(legacy.movie)} 
                   autoPlay
                   loop
                   muted
@@ -77,15 +77,15 @@ const ArchetypeInspector: React.FC<ArchetypeInspectorProps> = ({ owner, archetyp
         <Card.Section title="Gambits">
           <div className="space-y-2">
             {legacy.gambitKeys.map(key => {
-              const gambit = ARCHETYPE_PROFILES[key];
+              const gambit = GAMBITS[key];
               if (!gambit) return null;
               return (
                 <ChipCard
                   key={key}
-                  icon={gambit.icon}
+                  icon={gambit.ui.icon}
                   iconColorClass={iconColorClass}
-                  title={gambit.name}
-                  subtitle={gambit.description}
+                  title={gambit.ui.name}
+                  subtitle={gambit.ui.description}
                 />
               );
             })}

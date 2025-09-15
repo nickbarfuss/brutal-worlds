@@ -1,7 +1,7 @@
 
 import { useCallback, useMemo } from 'react';
 import * as THREE from 'three';
-import { MapCell, Owner, ActiveHighlight, Enclave, Rift, WorldProfile } from '@/types/game';
+import { MapCell, Owner, ActiveHighlight, Enclave, Rift, WorldProfile, Expanse, Domain } from '@/types/game';
 import { useHighlightZone } from '@/hooks/useHighlightZone';
 import { convertLatLonToVector3 as convertLatLonToVector3Util } from '@/utils/geo';
 import { PLAYER_THREE_COLORS } from '@/data/theme';
@@ -10,7 +10,9 @@ import { getDomainOwner } from '@/utils/entityUtils';
 interface UseWorldHighlightsProps {
     mapData: MapCell[];
     enclaveData: { [id: number]: Enclave };
+    domainData: { [id: number]: Domain };
     riftData: { [id: number]: Rift };
+    expanseData: { [id: number]: Expanse };
     currentWorld: WorldProfile | null;
     activeHighlight: ActiveHighlight | null;
     isIntroComplete: boolean;

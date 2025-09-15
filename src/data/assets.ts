@@ -20,9 +20,9 @@ export const ASSETS = {
         aftermath: [`${CONFIG.CDN.sfx}/entropy-wind-aftermath.mp3`],
       },
       vfx: {
-        alert: [{ url: `${CONFIG.CDN.vfx}/entropy-wind-alert.webm`, width: 256, height: 256 }],
-        impact: [{ url: `${CONFIG.CDN.vfx}/entropy-wind-impact.webm`, width: 256, height: 256 }],
-        aftermath: [{ url: `${CONFIG.CDN.vfx}/entropy-wind-aftermath.webm`, width: 256, height: 256 }],
+        alert: [`${CONFIG.CDN.vfx}/entropy-wind-alert.webm`],
+        impact: [`${CONFIG.CDN.vfx}/entropy-wind-impact.webm`],
+        aftermath: [`${CONFIG.CDN.vfx}/entropy-wind-aftermath.webm`],
       },
       dialog: {
         alert: [  
@@ -40,9 +40,9 @@ export const ASSETS = {
         aftermath: [`${CONFIG.CDN.sfx}/ion-tempest-aftermath.mp3`],
       },
       vfx: {
-        alert: [{ url: `${CONFIG.CDN.vfx}/ion-tempest-alert.webm`, width: 256, height: 256 }],
-        impact: [{ url: `${CONFIG.CDN.vfx}/ion-tempest-impact.webm`, width: 256, height: 256 }],
-        aftermath: [{ url: `${CONFIG.CDN.vfx}/ion-tempest-aftermath.webm`, width: 256, height: 256 }],
+        alert: [`${CONFIG.CDN.vfx}/ion-tempest-alert.webm`],
+        impact: [`${CONFIG.CDN.vfx}/ion-tempest-impact.webm`],
+        aftermath: [`${CONFIG.CDN.vfx}/ion-tempest-aftermath.webm`],
       },
       dialog: {
         alert: [
@@ -60,9 +60,9 @@ export const ASSETS = {
         aftermath: [`${CONFIG.CDN.sfx}/pyroclasm-aftermath.mp3`],
       },
       vfx: {
-        alert: [{ url: `${CONFIG.CDN.vfx}/pyroclasm-alert.webm`, width: 256, height: 256 }],
-        impact: [{ url: `${CONFIG.CDN.vfx}/pyroclasm-impact.webm`, width: 256, height: 256 }],
-        aftermath: [{ url: `${CONFIG.CDN.vfx}/pyroclasm-aftermath.webm`, width: 256, height: 256 }],
+        alert: [`${CONFIG.CDN.vfx}/pyroclasm-alert.webm`],
+        impact: [`${CONFIG.CDN.vfx}/pyroclasm-impact.webm`],
+        aftermath: [`${CONFIG.CDN.vfx}/pyroclasm-aftermath.webm`],
       },
       dialog: {
         alert: [
@@ -80,9 +80,9 @@ export const ASSETS = {
         aftermath: [`${CONFIG.CDN.sfx}/resonance-cascade-aftermath.mp3`],
       },
       vfx: {
-        alert: [{ url: `${CONFIG.CDN.vfx}/resonance-cascade-alert.webm`, width: 256, height: 256 }],
-        impact: [{ url: `${CONFIG.CDN.vfx}/resonance-cascade-impact.webm`, width: 256, height: 256 }],
-        aftermath: [{ url: `${CONFIG.CDN.vfx}/resonance-cascade-aftermath.webm`, width: 256, height: 256 }],
+        alert: [`${CONFIG.CDN.vfx}/resonance-cascade-alert.webm`],
+        impact: [`${CONFIG.CDN.vfx}/resonance-cascade-impact.webm`],
+        aftermath: [`${CONFIG.CDN.vfx}/resonance-cascade-aftermath.webm`],
       },
       dialog: {
         alert: [
@@ -100,9 +100,9 @@ export const ASSETS = {
         aftermath: [`${CONFIG.CDN.sfx}/skyfall-shards-aftermath.mp3`],
       },
       vfx: {
-        alert: [{ url: `${CONFIG.CDN.vfx}/skyfall-shards-alert.webm`, width: 256, height: 256 }],
-        impact: [{ url: `${CONFIG.CDN.vfx}/skyfall-shards-impact.webm`, width: 256, height: 256 }],
-        aftermath: [{ url: `${CONFIG.CDN.vfx}/skyfall-shards-aftermath.webm`, width: 256, height: 256 }],
+        alert: [`${CONFIG.CDN.vfx}/skyfall-shards-alert.webm`],
+        impact: [`${CONFIG.CDN.vfx}/skyfall-shards-impact.webm`],
+        aftermath: [`${CONFIG.CDN.vfx}/skyfall-shards-aftermath.webm`],
       },
       dialog: {
         alert: [
@@ -120,9 +120,9 @@ export const ASSETS = {
         aftermath: [`${CONFIG.CDN.sfx}/void-surge-aftermath.mp3`],
       },
       vfx: {
-        alert: [{ url: `${CONFIG.CDN.vfx}/void-surge-alert.webm`, width: 256, height: 256 }],
-        impact: [{ url: `${CONFIG.CDN.vfx}/void-surge-impact.webm`, width: 256, height: 256 }],
-        aftermath: [{ url: `${CONFIG.CDN.vfx}/void-surge-aftermath.webm`, width: 256, height: 256 }],
+        alert: [`${CONFIG.CDN.vfx}/void-surge-alert.webm`],
+        impact: [`${CONFIG.CDN.vfx}/void-surge-impact.webm`],
+        aftermath: [`${CONFIG.CDN.vfx}/void-surge-aftermath.webm`],
       },
       dialog: { 
         alert: [
@@ -199,8 +199,8 @@ export const ASSETS = {
         `${CONFIG.CDN.dialog}/narrator-world-intro-3.mp3`,
         `${CONFIG.CDN.dialog}/narrator-world-intro-4.mp3`,
       ],
-      sfx: [`${CONFIG.CDN.sfx}/warp-engage-1.mp3`],
-      vfx: [{ url: `${CONFIG.CDN.vfx}/warp-enter.webm` }],
+      sfx: [`${CONFIG.CDN.sfx}/warp-enter-1.mp3`],
+      vfx: [`${CONFIG.CDN.vfx}/warp-enter.webm`],
     },
     arrival: {  
       dialog: [
@@ -215,9 +215,7 @@ export const ASSETS = {
         `${CONFIG.CDN.sfx}/warp-exit-3.mp3`,
         `${CONFIG.CDN.sfx}/warp-exit-4.mp3`,
       ],
-      vfx: [
-        { url: `${CONFIG.CDN.vfx}/warp-exit.webm` }
-      ],
+      vfx: [`${CONFIG.CDN.vfx}/warp-exit.webm`],
     }, 
   },
 
@@ -225,7 +223,10 @@ export const ASSETS = {
   order: {
     commandMode: {
       sfx: {
-        enter: [`${CONFIG.CDN.sfx}/command-mode-enter-1.mp3`, `${CONFIG.CDN.sfx}/command-mode-enter-2.mp3`],
+        enter: [
+          `${CONFIG.CDN.sfx}/command-mode-enter-1.mp3`,
+          `${CONFIG.CDN.sfx}/command-mode-enter-2.mp3`
+        ],
         exit: [`${CONFIG.CDN.sfx}/command-mode-exit.mp3`],
       },
     },
@@ -237,7 +238,7 @@ export const ASSETS = {
         `${CONFIG.CDN.sfx}/order-assist-4.mp3`,
       ],
       vfx: [
-        { url: `${CONFIG.CDN.vfx}/order-assist.webm`, width: 256, height: 256 }
+        `${CONFIG.CDN.vfx}/order-assist.webm`
       ],
     },
     attack: {
@@ -247,7 +248,7 @@ export const ASSETS = {
         `${CONFIG.CDN.sfx}/order-attack-3.mp3`,
         `${CONFIG.CDN.sfx}/order-attack-4.mp3`,
       ],
-      vfx: [{ url: `${CONFIG.CDN.vfx}/order-attack.webm`, width: 256, height: 256 }],
+      vfx: [`${CONFIG.CDN.vfx}/order-attack.webm`],
     },
     hold: {
       sfx: [
@@ -258,9 +259,7 @@ export const ASSETS = {
         `${CONFIG.CDN.sfx}/order-hold-5.mp3`,
         `${CONFIG.CDN.sfx}/order-hold-6.mp3`,
       ],
-      vfx: [
-        { url: `${CONFIG.CDN.vfx}/order-hold.webm`, width: 256, height: 256 }
-      ],
+      vfx: [`${CONFIG.CDN.vfx}/order-hold.webm`],
     },
   },
 
@@ -272,16 +271,42 @@ export const ASSETS = {
         `${CONFIG.CDN.sfx}/conquest-player-explosion-2.mp3`,
         `${CONFIG.CDN.sfx}/conquest-player-explosion-3.mp3`,
       ],
-      vfx: [{ url: `${CONFIG.CDN.vfx}/conquest-player.webm`, width: 256, height: 256 }],
+      vfx: [`${CONFIG.CDN.vfx}/conquest-player.webm`],
     },
     opponent: {
       sfx: [
         `${CONFIG.CDN.sfx}/conquest-opponent-explosion-1.mp3`,
         `${CONFIG.CDN.sfx}/conquest-opponent-explosion-2.mp3`,
       ],
-      vfx: [
-        { url: `${CONFIG.CDN.vfx}/conquest-opponent.webm`, width: 256, height: 256 }
-      ],
+      vfx: [`${CONFIG.CDN.vfx}/conquest-opponent.webm`],
+    },
+  },
+
+  //birthright
+  birthright: {
+    kineticOnslaught: {
+      image: `${CONFIG.CDN.birthright}/kinetic-onslaught.jpg`,
+    },
+    imperialDecree: {
+      image: `${CONFIG.CDN.birthright}/placeholder.jpg`,
+    },
+    psychicWarfare: {
+      image: `${CONFIG.CDN.birthright}/placeholder.jpg`,
+    },
+    memeticResonance: {
+      image: `${CONFIG.CDN.birthright}/memetic-resonance.jpg`,
+    },
+    dissonantField: {
+      image: `${CONFIG.CDN.birthright}/placeholder.jpg`,
+    },
+    genesisForge: {
+      image: `${CONFIG.CDN.birthright}/genesis-forge.jpg`,
+    },
+    systemGlitch: {
+      image: `${CONFIG.CDN.birthright}/placeholder.jpg`,
+    },
+    panopticonWeb: {
+      image: `${CONFIG.CDN.birthright}/panopticon-web.jpg`,
     },
   },
 
@@ -290,133 +315,133 @@ export const ASSETS = {
     celestialAnnihilation: {
       image: `${CONFIG.CDN.gambit}/celestial-annihilation.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     shatterpointStrike: {
       image: `${CONFIG.CDN.gambit}/shatterpoint-strike.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     transDimensionalArmory: {
       image: `${CONFIG.CDN.gambit}/trans-dimensional-armory.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },  
     },
     warFulcrum: {
       image: `${CONFIG.CDN.gambit}/war-fulcrum.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     dataShroud: {
       image: `${CONFIG.CDN.gambit}/data-shroud.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     soulForging: {
       image: `${CONFIG.CDN.gambit}/soul-forging.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     voidUntethering: {
       image: `${CONFIG.CDN.gambit}/void-untethering.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     whispersFromTheVoid: {
       image: `${CONFIG.CDN.gambit}/whispers-from-the-void.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     aegisProtocol: {
       image: `${CONFIG.CDN.gambit}/aegis-protocol.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     forgeGate: {
       image: `${CONFIG.CDN.gambit}/forge-gate.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     orbitalNullificationBeam: {
       image: `${CONFIG.CDN.gambit}/orbital-nullification-beam.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     worldEnderProtocol: {
       image: `${CONFIG.CDN.gambit}/world-ender-protocol.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     ghostInTheSystem: {
       image: `${CONFIG.CDN.gambit}/ghost-in-the-system.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     labyrinth: {
       image: `${CONFIG.CDN.gambit}/labyrinth.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     quantumLoop: {
       image: `${CONFIG.CDN.gambit}/placeholder.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     voidCordon: {
       image: `${CONFIG.CDN.gambit}/placeholder.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     fleshWeaversHarvest: {
       image: `${CONFIG.CDN.gambit}/placeholder.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     offWorldMercenaries: {
       image: `${CONFIG.CDN.gambit}/placeholder.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     orbitalBombardment: {
       image: `${CONFIG.CDN.gambit}/placeholder.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     scorchedEarth: {
       image: `${CONFIG.CDN.gambit}/placeholder.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     theCalling: {
       image: `${CONFIG.CDN.gambit}/the-calling.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
     theWitchingHour: {
       image: `${CONFIG.CDN.gambit}/placeholder.jpg`,
       sfx: { impact: [`${CONFIG.CDN.sfx}/placeholder.mp3`] },
-      vfx: { impact: [{ url: `${CONFIG.CDN.vfx}/placeholder.webm` }] },
+      vfx: { impact: [`${CONFIG.CDN.vfx}/placeholder.webm`] },
       dialog: { impact: [`${CONFIG.CDN.dialog}/placeholder.mp3`] },
     },
   },

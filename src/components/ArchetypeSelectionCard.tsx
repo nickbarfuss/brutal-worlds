@@ -1,10 +1,9 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { ArchetypeProfile, LegacyProfile } from '@/types/game';
 import Avatar from '@/components/ui/Avatar';
 import ChipCard from '@/components/ui/ChipCard';
 import { BIRTHRIGHTS } from '@/data/birthrights';
-import { ARCHETYPE_PROFILES } from '@/data/gambits';
+import { GAMBITS } from '@/data/gambits';
 import Chip from '@/components/ui/Chip';
 import { getAssetUrl } from '@/utils/assetUtils';
 import Card from '@/components/ui/Card';
@@ -62,10 +61,10 @@ const ArchetypeSelectionCard: React.FC<ArchetypeSelectionCardProps> = ({ archety
       className={`relative group flex h-full flex-shrink-0 bg-neutral-900 rounded-xl border-2 shadow-lg overflow-hidden transition-all duration-500 ease-in-out ${borderAndShadowClasses}`}
     >
       <div className="relative w-[28rem] h-full flex-shrink-0 overflow-hidden">
-          {legacy.videoUrl && (
+          {legacy.movie && (
             <video
               ref={videoRef}
-              key={legacy.videoUrl}
+              key={legacy.movie}
               loop
               muted
               playsInline
@@ -73,7 +72,7 @@ const ArchetypeSelectionCard: React.FC<ArchetypeSelectionCardProps> = ({ archety
               aria-hidden="true"
               onLoadedData={() => setIsVideoLoaded(true)}
             >
-              <source src={getAssetUrl(legacy.videoUrl)} type="video/webm" />
+              <source src={getAssetUrl(legacy.movie)} type="video/webm" />
             </video>
           )}
           
@@ -93,7 +92,7 @@ const ArchetypeSelectionCard: React.FC<ArchetypeSelectionCardProps> = ({ archety
                   <p className="text-lg font-medium text-[var(--color-accent-300)] leading-tight">{legacy.name}</p>
               </div>
               <div className="flex flex-wrap justify-center gap-2">
-                {archetype.focus.map(f => (
+                {legacy.focus.map(f => (
                   <Chip
                     key={f}
                     value={f}
@@ -127,15 +126,15 @@ const ArchetypeSelectionCard: React.FC<ArchetypeSelectionCardProps> = ({ archety
           <Card.Section title="Gambits">
               <div className="space-y-2">
                 {legacy.gambitKeys.map(gambitKey => {
-                    const gambit = ARCHETYPE_PROFILES[gambitKey];
+                    const gambit = GAMBITS[gambitKey];
                     if (!gambit) return null;
                     return (
                         <ChipCard 
-                            key={gambit.key}
-                            icon={gambit.icon}
+                            key={gambitKey}
+                            icon={gambit.ui.icon}
                             iconColorClass="text-[var(--color-accent-400)]"
-                            title={gambit.name}
-                            subtitle={gambit.description}
+                            title={gambit.ui.name}
+                            subtitle={gambit.ui.description}
                         />
                     );
                 })}

@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useLayoutEffect } from 'react';
 import { ActiveGambit, GambitProfile } from '@/types/game';
 import Card from '@/components/ui/Card';
@@ -71,12 +70,12 @@ const GambitCard: React.FC<GambitCardProps> = ({ gambit }) => {
   switch (active.state) {
     case 'locked':
       statusLabel = 'Available';
-      statusValue = `Turn ${profile.availabilityTurn}`;
+      statusValue = `Turn ${profile.logic.availability}`;
       break;
     case 'available':
       statusLabel = 'Uses';
       // FIX: Add a fallback for profile.uses to prevent rendering 'undefined' and resolve a type error.
-      statusValue = `${active.remainingUses} / ${profile.uses || 1}`;
+      statusValue = `${active.remainingUses} / ${profile.logic.uses || 1}`;
       break;
     case 'active':
       statusLabel = 'Duration';
@@ -89,8 +88,8 @@ const GambitCard: React.FC<GambitCardProps> = ({ gambit }) => {
   }
 
   const details = [
-    { label: 'Target', value: profile.target },
-    { label: 'Restriction', value: profile.restriction },
+    { label: 'Target', value: profile.logic.targeting?.targetType },
+    { label: 'Restriction', value: profile.logic.restriction },
     { label: statusLabel, value: statusValue },
   ].filter(d => d.value !== 'None' && d.label !== '');
 
@@ -101,16 +100,16 @@ const GambitCard: React.FC<GambitCardProps> = ({ gambit }) => {
       style={style}
     >
         <Card.Header 
-            icon={profile.icon}
+            icon={profile.ui.icon}
             iconColorClass="text-[var(--color-accent-400)]"
-            title={profile.name}
+            title={profile.ui.name}
         />
         <div className="flex-grow overflow-y-auto no-scrollbar">
           <Card.Section title="Description">
-              <p className="text-base text-neutral-300">{profile.description}</p>
+              <p className="text-base text-neutral-300">{profile.ui.description}</p>
           </Card.Section>
           <Card.Section title="Effect">
-              <p className="text-base text-neutral-300">{profile.effect}</p>
+              <p className="text-base text-neutral-300">{profile.logic.impact.effect}</p>
           </Card.Section>
           {details.length > 0 && (
               <Card.Section title="Details">
