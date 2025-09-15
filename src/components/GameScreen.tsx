@@ -23,7 +23,7 @@ import Backdrop from '@/components/ui/Backdrop';
 import LegendDisplay from '@/components/LegendDisplay';
 import VignetteOverlay from '@/components/VignetteOverlay';
 import { getAppliedModifiers } from '@/logic/effectProcessor';
-import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldingBonusForEnclave } from '@/logic/birthrightManager';
+import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrightManager';
 import CustomCursor from '@/components/ui/CustomCursor';
 import SettingsDrawer from '@/components/SettingsDrawer';
 import SurrenderConfirmDialog from '@/components/SurrenderConfirmDialog';
@@ -284,7 +284,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
     const getBriefingContent = useCallback((type: BriefingType, contentKey: string): BriefingContent | null => {
         if (type === 'order') {
             const parts = contentKey.split('-');
-            const orderType = parts[1] as OrderType | 'holding';
+            const orderType = parts[1] as OrderType | 'hold';
             const fromId = parseInt(parts[2], 10);
             const toId = parts.length > 3 ? parseInt(parts[3], 10) : null;
             
@@ -371,8 +371,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 }
                 return content;
     
-            } else if (orderType === 'holding') {
-                const profile = ORDER_PROFILES.holding;
+            } else if (orderType === 'hold') {
+                const profile = ORDER_PROFILES.hold;
                 const content: BriefingContent = {
                     icon: profile.icon,
                     iconColorHex: palette.icon,
@@ -394,7 +394,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     });
                     const { productionModifier } = getAppliedModifiers(fromEnclave, rules, engine);
                     const baseReinforcements = 2;
-                    const bonusReinforcements = getHoldingBonusForEnclave(fromEnclave);
+                    const bonusReinforcements = getHoldBonusForEnclave(fromEnclave);
                     const totalReinforcements = baseReinforcements + bonusReinforcements;
                     content.baseValue = Math.floor(totalReinforcements * productionModifier);
                     content.bonusValue = 0; // Bonus is part of base value

@@ -35,21 +35,23 @@ export const queueEffectAssets = (
     position: THREE.Vector3,
     effectsToPlay: EffectQueueItem[]
 ) => {
-    const sfxKey = profile.ui.assets.sfx?.[phase];
-    const vfx = profile.ui.assets.vfx?.[phase];
-    const dialogKey = profile.ui.assets.dialog?.[phase];
+    const sfxAssets = profile.ui.assets.sfx?.[phase];
+    const vfxAssets = profile.ui.assets.vfx?.[phase];
+    const dialogAssets = profile.ui.assets.dialog?.[phase];
 
-    if (vfx) {
+    // Construct the base key, converting profile key from kebab-case to camelCase for asset matching
+    // e.g., 'entropy-wind' -> 'entropyWind'
+    const camelCaseKey = profile.key.replace(/-./g, x => x.toUpperCase()[1]);
+
+    const sfxKey = sfxAssets ? `disaster-${camelCaseKey}-sfx-${phase}` : undefined;
+    const vfxKey = vfxAssets ? `disaster-${camelCaseKey}-vfx-${phase}` : undefined;
+    const dialogKey = dialogAssets ? getRandomAssetKey(dialogAssets) : undefined;
+
+    if (vfxKey || sfxKey) {
         effectsToPlay.push({
-            id: `eff-${profile.key}-${phase}-vfx-${position.x}-${position.y}-${position.z}-${Date.now()}`,
-            vfx: vfx,
-            sfx: sfxKey ? { key: sfxKey[0], channel: 'fx', position: position } : undefined,
-            position: position,
-        });
-    } else if (sfxKey) {
-        effectsToPlay.push({
-            id: `eff-${profile.key}-${phase}-sfx-${position.x}-${position.y}-${position.z}-${Date.now()}`,
-            sfx: { key: sfxKey[0], channel: 'fx', position: position },
+            id: `eff-${profile.key}-${phase}-vfx-sfx-${position.x}-${position.y}-${position.z}-${Date.now()}`,
+            vfx: vfxKey ? [vfxKey] : undefined,
+            sfx: sfxKey ? { key: sfxKey, channel: 'fx', position: position } : undefined,
             position: position,
         });
     }
@@ -57,7 +59,7 @@ export const queueEffectAssets = (
     if (dialogKey) {
         effectsToPlay.push({
             id: `eff-${profile.key}-${phase}-dialog-${position.x}-${position.y}-${position.z}-${Date.now()}`,
-            sfx: { key: dialogKey[0], channel: 'dialog', position: position },
+            sfx: { key: dialogKey, channel: 'dialog', position: position },
             position: position,
         });
     }

@@ -258,15 +258,10 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             const effectsToQueue: EffectQueueItem[] = [];
 
             const sfxKey = `order-hold-sfx`;
+            const vfxKey = 'order-hold-vfx';
             effectsToQueue.push({
                 id: uuidv4(),
                 sfx: { key: sfxKey, channel: 'fx', position: fromEnclave.center },
-                position: fromEnclave.center,
-            });
-
-            const vfxKey = 'order-holding-vfx';
-            effectsToQueue.push({
-                id: uuidv4(),
                 vfx: [vfxKey],
                 position: fromEnclave.center,
             });

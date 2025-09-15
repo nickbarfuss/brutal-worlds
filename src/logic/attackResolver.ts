@@ -193,13 +193,9 @@ export const resolveAttacks = (
 
             effectsToPlay.push({
                 id: '', // This will be populated in useGameEngine
-                sfx: { key: sfxKey, channel: 'fx' },
-                position: target.position,
-            });
-            effectsToPlay.push({
-                id: '', // This will be populated in useGameEngine
+                sfx: { key: sfxKey, channel: 'fx', position: target.center },
                 vfx: [vfxKey],
-                position: target.position,
+                position: target.center,
             });
 
             const conqueringArchetypeKey = target.archetypeKey;

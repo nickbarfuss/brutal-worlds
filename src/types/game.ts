@@ -316,6 +316,7 @@ export interface StarfieldConfig {
 
 
 export interface OrderProfile {
+    key: string;
     name: string;
     icon: string;
     description: string;
@@ -470,7 +471,7 @@ export interface Route {
 }
 
 // Orders & Commands
-export type OrderType = 'attack' | 'assist' | 'holding';
+export type OrderType = 'attack' | 'assist' | 'hold';
 
 export interface Order {
   to: number;

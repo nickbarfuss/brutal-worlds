@@ -44,11 +44,34 @@ export const getAssistMultiplierForEnclave = (_enclave: Enclave): number => {
  * @param routes - The list of all routes.
  * @returns The updated enclave states.
  */
-export const applyHoldingBirthrightEffects = (
-    newEnclaveStates: { [id: number]: Enclave },
-    _holdingEnclaveIds: number[],
-    _routes: Route[]
-): { [id: number]: Enclave } => {
+/**
+ * Applies Birthright effects related to the 'Hold' order that do not grant forces.
+ * This function is currently a placeholder for future logic.
+ * @param holdEnclaveIds - A list of IDs for enclaves that are holding this turn.
+ * @param _enclaveData - The map of all enclaves.
+ */
+export const applyHoldBirthrightEffects = (
+    _holdEnclaveIds: number[],
+    _enclaveData: { [id: number]: Enclave }
+) => {
+    // Example of future logic:
+    // const holdingPactWhispererIds = holdEnclaveIds.filter(id => {
+    //     const enclave = _enclaveData[id];
+    //     return enclave && enclave.archetypeKey === 'pactWhisperer';
+    // });
+
+    // if (holdingPactWhispererIds.length > 0) {
+    //     // Apply some effect based on the number of holding Pact Whisperers
+    //     holdingPactWhispererIds.forEach(enclaveId => {
+    //         // ... logic to apply effect
+    //     });
+    // }
+
+    // This function currently does not modify state, but it could in the future.
+    return {
+        // Return any state changes here, e.g., updated enclaves or new effects.
+    };
+};
 
     // // --- BIRTHRIGHT: Memetic Resonance (Pact Whisperer) ---
     // const holdingPactWhispererIds = holdingEnclaveIds.filter(id => {
@@ -86,15 +109,15 @@ export const applyHoldingBirthrightEffects = (
     //     });
     // }
 
-    return newEnclaveStates;
-};
+    //return newEnclaveStates;
+//};
 
 /**
  * Gets the bonus reinforcements for a holding enclave based on its Birthright.
  * @param enclave - The holding enclave.
  * @returns The numerical bonus to reinforcements (e.g., 1 for Genesis Forge).
  */
-export const getHoldingBonusForEnclave = (_enclave: Enclave): number => {
+export const getHoldBonusForEnclave = (_enclave: Enclave): number => {
     // if (enclave.archetypeKey === 'resonanceWarden') {
     //     return 1; // Genesis Forge bonus
     // }

@@ -9,7 +9,7 @@ import Card from '../ui/Card';
 import ChipCard from '../ui/ChipCard';
 import { getIconForEntityType, getIconForRouteStatus } from '../../utils/entityUtils';
 import { getAppliedModifiers } from '../../logic/effectProcessor';
-import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldingBonusForEnclave } from '../../logic/birthrightManager';
+import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '../../logic/birthrightManager';
 import { calculateEnclaveTurnPreview, TurnPreview } from '../../logic/previewManager'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { getAssetUrl } from '../../utils/assetUtils';
 import { CONFIG as GameConfig } from '../../data/config';
@@ -88,7 +88,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                 return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
             });
             const { productionModifier } = getAppliedModifiers(enclave, rules, gameState as any);
-            const reinforcements = 2 + getHoldingBonusForEnclave(enclave);
+            const reinforcements = 2 + getHoldBonusForEnclave(enclave);
             outgoingOrderValues.base = Math.floor(reinforcements * productionModifier);
             outgoingOrderValues.bonus = 0; // Bonus is now part of the base value.
         }
@@ -271,14 +271,14 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                             />
                         ) : (
                             <ChipCard
-                                icon={ORDER_PROFILES.holding.icon}
+                                icon={ORDER_PROFILES.hold.icon}
                                 iconColorHex={palette.icon}
                                 baseValue={outgoingOrderValues.base}
                                 bonusValue={outgoingOrderValues.bonus}
                                 valueType="force"
                                 owner={enclave.owner}
                                 worldPalette={currentWorld ? currentWorld.neutralColorPalette : undefined}
-                                briefingProps={{ type: 'order', key: `order-holding-${enclave.id}` }}
+                                briefingProps={{ type: 'order', key: `order-hold-${enclave.id}` }}
                                 title="Holding"
                                 subtitle={enclave.name}
                             />

@@ -1,6 +1,6 @@
 import { Enclave, PendingOrders, GameState, Player, Rule, ActiveEffectMarker, Route } from '@/types/game';
 import { getAppliedModifiers } from '@/logic/effectProcessor';
-import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldingBonusForEnclave } from '@/logic/birthrightManager';
+import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrightManager';
 import { DISASTERS } from '@/data/disasters';
 import { EFFECT_PROFILES } from '@/data/effects';
 
@@ -92,7 +92,7 @@ export const calculateEnclaveTurnPreview = (
             return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
         });
         const { productionModifier } = getAppliedModifiers(enclave, rules, { enclaveData, routes } as Partial<GameState> as GameState);
-        let reinforcements = 2 + getHoldingBonusForEnclave(enclave);
+        let reinforcements = 2 + getHoldBonusForEnclave(enclave);
         predictedForces += Math.floor(reinforcements * productionModifier);
     }
 

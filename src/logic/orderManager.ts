@@ -36,8 +36,7 @@ export const handleSingleClick = (
     const clickedEnclave = enclaveData[clickedEnclaveId];
     if (!clickedEnclave) return { newSelectedEnclaveId: null, newInspectedEnclaveId: null, isCardVisible: false, updatedOrders: playerPendingOrders, vfxToPlay: null, sfxToPlay: null };
 
-    // 2. HIGHEST PRIORITY: Handle Ctrl+Click to enter/switch command mode. This fixes the bug where
-    // issuing an order could take precedence over switching selection.
+    // 2. HIGHEST PRIORITY: Handle Ctrl+Click to enter/switch command mode.
     if (isCtrlPressed && clickedEnclave.owner === 'player-1') {
         const newSelectedId = selectedEnclaveId === clickedEnclaveId ? null : clickedEnclaveId;
         const sfxKey = newSelectedId !== null
@@ -77,20 +76,18 @@ export const handleSingleClick = (
             const newOrders = { ...playerPendingOrders };
             if (newOrders[selectedEnclaveId]) {
                 delete newOrders[selectedEnclaveId];
-                const vfx = ORDER_PROFILES.holding.assets.vfx;
-                const sfxKey = `order-hold-sfx`;
-                if (vfx) {
+                const profile = ORDER_PROFILES.hold; // Use 'hold'
+                const vfxKey = `order-${profile.key}-vfx`;
+                const sfxKey = `order-${profile.key}-sfx`;
+
+                if (profile.assets.vfx || profile.assets.sfx) {
                     effectsToQueue.push({
                         id: uuidv4(),
-                        vfx: vfx,
+                        vfx: profile.assets.vfx ? [vfxKey] : undefined,
+                        sfx: profile.assets.sfx ? { key: sfxKey, channel: 'fx', position: clickedEnclave.center } : undefined,
                         position: clickedEnclave.center,
                     });
                 }
-                effectsToQueue.push({
-                    id: uuidv4(),
-                    sfx: { key: sfxKey, channel: 'fx', position: clickedEnclave.center },
-                    position: clickedEnclave.center,
-                });
                 return {
                     newSelectedEnclaveId: null, // Exit command mode
                     newInspectedEnclaveId: clickedEnclaveId,
@@ -99,7 +96,6 @@ export const handleSingleClick = (
                     effectsToQueue,
                 };
             }
-            // If already holding, fall through to deselect/inspect.
         }
 
         // 3b. Click on a valid route target: Issue an Attack or Assist order.
@@ -124,36 +120,34 @@ export const handleSingleClick = (
                 }
 
                 if (safeForces - forceToSend > 0) { // Valid order condition
-                    const vfx = ORDER_PROFILES[orderType].assets.vfx;
-                    const sfxKey = `order-${orderType}-sfx`;
+                    const profile = ORDER_PROFILES[orderType];
+                    const vfxKey = `order-${profile.key}-vfx`;
+                    const sfxKey = `order-${profile.key}-sfx`;
                     const updatedOrders = { ...playerPendingOrders, [selectedEnclaveId]: { to: clickedEnclaveId, type: orderType }};
-                    if (vfx) {
+                    
+                    if (profile.assets.vfx || profile.assets.sfx) {
                         effectsToQueue.push({
                             id: uuidv4(),
-                            vfx: vfx,
-                            position: clickedEnclave.center,
+                            vfx: profile.assets.vfx ? [vfxKey] : undefined,
+                            sfx: profile.assets.sfx ? { key: sfxKey, channel: 'fx', position: originEnclave.center } : undefined,
+                            position: originEnclave.center,
                         });
                     }
-                    effectsToQueue.push({
-                        id: uuidv4(),
-                        sfx: { key: sfxKey, channel: 'fx', position: originEnclave.center },
-                        position: originEnclave.center,
-                    });
                     return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders, effectsToQueue };
                 } else {
-                    // Invalid order due to insufficient forces: Stay in command mode, no SFX/VFX as requested
+                    // Invalid order due to insufficient forces
                     return {
-                        newSelectedEnclaveId: selectedEnclaveId, // Stay in command mode
+                        newSelectedEnclaveId: selectedEnclaveId,
                         newInspectedEnclaveId: clickedEnclaveId,
                         isCardVisible: true,
-                        updatedOrders: playerPendingOrders, // Do not update orders
-                        effectsToQueue, // No new effects
+                        updatedOrders: playerPendingOrders,
+                        effectsToQueue,
                     };
                 }
             }
         }
         
-        // 3c. Click on anything else (invalid target, self while holding, etc.): Deselect and inspect the new target.
+        // 3c. Click on anything else (invalid target, etc.): Deselect.
         effectsToQueue.push({
             id: uuidv4(),
             sfx: { key: 'order-commandMode-sfx-exit', channel: 'fx', position: originEnclave.center },
@@ -162,7 +156,7 @@ export const handleSingleClick = (
         return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders, effectsToQueue };
 
     } else {
-        // 4. Default action: Not in command mode, so just inspect the clicked entity.
+        // 4. Default action: Not in command mode, so just inspect.
         return {
             newSelectedEnclaveId: null,
             newInspectedEnclaveId: clickedEnclaveId,
