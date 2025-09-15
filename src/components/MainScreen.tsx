@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import ButtonBasic from '@/components/ui/ButtonBasic';
+import Button from '@/components/ui/Button';
 import { WORLD_LIBRARY } from '@/data/worlds';
 import { getAssetUrl } from '@/utils/assetUtils';
 import ProductInfo from '@/components/ProductInfo';
@@ -31,9 +31,9 @@ const MainScreen: React.FC<MainScreenProps> = ({ onBegin }) => {
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                 <ProductInfo className="" />
                 <div className="mt-8 pointer-events-auto">
-                    <ButtonBasic onClick={onBegin}>
+                    <Button onClick={onBegin}>
                        {TEXT.main.buttonStart}
-                    </ButtonBasic>
+                    </Button>
                 </div>
             </div>
         </div>

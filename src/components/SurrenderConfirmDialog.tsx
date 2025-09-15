@@ -1,5 +1,5 @@
 import React from 'react';
-import ButtonBasic from '@/components/ui/ButtonBasic';
+import Button from '@/components/ui/Button';
 
 interface SurrenderConfirmDialogProps {
   onConfirm: () => void;
@@ -23,12 +23,12 @@ const SurrenderConfirmDialog: React.FC<SurrenderConfirmDialogProps> = ({ onConfi
             >
                 Cancel
             </button>
-            <ButtonBasic
+            <Button
                 onClick={onConfirm}
                 className={`bg-red-600 hover:bg-red-500`}
             >
                 Surrender
-            </ButtonBasic>
+            </Button>
         </div>
       </div>
     </div>

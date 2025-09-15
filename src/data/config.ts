@@ -14,7 +14,7 @@ export const CONFIG = {
     
     //testing and debugging features
     QUICK_START: {
-        enabled: true,
+        enabled: false,
         player1Archetype: '',
         player1Legacy: '',
         player2Archetype: '',

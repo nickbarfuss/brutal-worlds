@@ -5,6 +5,16 @@ export const TEXT = {
   main: {
     buttonStart: "Begin",
   },
+  gameStartDialog: {
+    title: "Begin Your Conquest",
+    step: {
+      legacy: "Choose Your Legacy",
+      world: "Choose Your World",
+    },
+    buttonBack: "Back",
+    buttonContinue: "Continue",    
+    buttonFinish: "Begin Conquest",
+  },
   settings: {
     title: "Settings",
     sound: {

@@ -13,6 +13,7 @@ interface CommonChipCardProps {
   owner?: Owner;
   worldPalette?: SemanticColorPalette;
   iconColorClass?: string;
+  iconBgColorClass?: string;
   iconColorHex?: string;
   briefingProps?: {
     type: BriefingType;
@@ -41,7 +42,7 @@ type ChipCardProps = InteractiveChipCardProps | NonInteractiveChipCardProps;
 // This is a common fix for subtle type inference issues where props can be unintentionally widened.
 const ChipCard = ({ 
   icon, title, subtitle, baseValue, bonusValue, valueType = 'text',
-  owner, worldPalette, iconColorClass, 
+  owner, worldPalette, iconColorClass, iconBgColorClass,
   iconColorHex, briefingProps, onClick, align = 'start',
   ownerForces
 }: ChipCardProps) => {
@@ -54,7 +55,6 @@ const ChipCard = ({
 
   const effectiveAlign = !subtitle ? 'center' : align;
   const alignmentClass = effectiveAlign === 'center' ? 'items-center' : 'items-start';
-  const iconMarginClass = effectiveAlign === 'start' ? 'mt-1' : '';
   const isInteractive = briefingProps || onClick; // Determine interactivity
 
   // Use React.ComponentPropsWithoutRef for the actual element props
@@ -92,7 +92,9 @@ const ChipCard = ({
       {...briefingDataAttributes}
       title={title} // Pass title here
     >
-      <span className={`material-symbols-outlined text-2xl ${effectiveIconColorClass} ${iconMarginClass}`} style={iconStyle}>{icon}</span>
+      <div className={`w-10 h-10 rounded-md flex items-center justify-center flex-shrink-0 ${iconBgColorClass || 'bg-transparent'}`}>
+        <span className={`material-symbols-outlined text-2xl ${effectiveIconColorClass}`} style={iconStyle}>{icon}</span>
+      </div>
       <div className="flex-grow min-w-0">
         <p className="font-semibold text-gray-200 text-lg" title={title}>{title}</p>
         {subtitle && <p className="text-base text-neutral-500" title={subtitle}>{subtitle}</p>}

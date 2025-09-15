@@ -5,9 +5,6 @@ import {
     Rule,
     EffectProfile,
     SfxPlayback,
-    EffectQueueItem,
-    MapCell,
-    Domain,
     Vector3,
     Route,
 } from '../types/game.ts';
@@ -44,7 +41,7 @@ export function applyInstantaneousRules(
 export function applyContinuousEffects(
     enclave: Enclave,
     rules: Rule[],
-    gameState: GameState
+    _gameState: GameState
 ): { productionModifier: number; combatModifier: number } {
     let productionModifier = 1;
     let combatModifier = 1;

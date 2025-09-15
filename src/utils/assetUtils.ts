@@ -1,5 +1,5 @@
 
-import { VfxProfile } from '@/types/game';
+
 
 /**
  * Returns the asset URL. It can be a full URL or a relative path.
@@ -112,23 +112,17 @@ export const flattenAssetUrls = (assets: any): Map<string, string[]> => {
             if (Object.prototype.hasOwnProperty.call(obj, key)) {
                 const value = obj[key];
                 const currentPath = [...path, key];
-                const flattenedKey = currentPath.join('-');
 
-                if (typeof value === 'string') {
-                    if (value.endsWith('.mp3')) {
-                        flattenedMap.set(flattenedKey, [value]);
-                    }
-                } else if (Array.isArray(value)) {
-                    const urls: string[] = [];
-                    value.forEach(item => {
-                        if (typeof item === 'string' && item.endsWith('.mp3')) {
-                            urls.push(item);
-                        } else if (typeof item === 'object' && item !== null && 'url' in item && item.url.endsWith('.mp3')) {
-                            urls.push(item.url);
-                        }
-                    });
+                if (Array.isArray(value)) {
+                    const urls = value.filter(item => typeof item === 'string' && item.endsWith('.mp3'));
                     if (urls.length > 0) {
+                        const flattenedKey = currentPath.join('-');
                         flattenedMap.set(flattenedKey, urls);
+                    }
+                } else if (typeof value === 'string') {
+                    if (value.endsWith('.mp3')) {
+                        const flattenedKey = currentPath.join('-');
+                        flattenedMap.set(flattenedKey, [value]);
                     }
                 } else if (typeof value === 'object' && value !== null) {
                     traverse(value, currentPath);

@@ -24,11 +24,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             },
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'First Sword',
-            legacy: 'Annihilation Doctrine',
+            archetypeKey: 'firstSword',
+            legacyKey: 'annihilationDoctrine',
             availability: 5,
-            playstyle: 'Offensive',
             targeting: {
                 targetType: 'Friendly Enclave',
                 siteCount: 1,
@@ -66,11 +64,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'First Sword',
-            legacy: 'Annihilation Doctrine',
+            archetypeKey: 'firstSword',
+            legacyKey: 'annihilationDoctrine',
             availability: 3,
-            playstyle: 'Offensive',
             targeting: {
                 targetType: 'Friendly Enclave',
                 siteCount: 1,
@@ -92,7 +88,7 @@ export const GAMBITS: Record<string, GambitProfile> = {
         ui: {
             name: 'Shatterpoint Strike',
             icon: 'bolt',
-            description: 'Exploit a critical weakness in an enemy enclave\'s defenses, causing cascading failures.',
+            description: `Exploit a critical weakness in an enemy enclave's defenses, causing cascading failures.`,
             assets: {
                 key: 'shatterpointStrike',
                 image: ASSETS.gambit.shatterpointStrike.image,
@@ -108,11 +104,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'First Sword',
-            legacy: 'Warlord\'s Ascendancy',
+            archetypeKey: 'firstSword',
+            legacyKey: 'warlordsAscendancy',
             availability: 4,
-            playstyle: 'Offensive',
             targeting: {
                 targetType: 'Friendly Enclave with an active Attack order.',
                 siteCount: 1,
@@ -150,11 +144,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'First Sword',
-            legacy: 'Warlord\'s Ascendancy',
+            archetypeKey: 'firstSword',
+            legacyKey: 'warlordsAscendancy',
             availability: 6,
-            playstyle: 'Utility',
             targeting: {
                 targetType: 'Friendly Enclave',
                 siteCount: 1,
@@ -194,11 +186,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'Pact Whisperer',
-            legacy: 'Voidsworn Covenant',
+            archetypeKey: 'pactWhisperer',
+            legacyKey: 'voidswornCovenant',
             availability: 4,
-            playstyle: 'Utility',
             targeting: {
                 targetType: 'Two Enclaves',
                 siteCount: 1,
@@ -221,7 +211,7 @@ export const GAMBITS: Record<string, GambitProfile> = {
         ui: {
             name: 'Void Untethering',
             icon: 'hub',
-            description: 'Temporarily sever an enemy enclave\'s connection to reality, cutting it off from all support.',
+            description: `Temporarily sever an enemy enclave's connection to reality, cutting it off from all support.`,
             assets: {
                 key: 'voidUntethering',
                 image: ASSETS.gambit.voidUntethering.image,
@@ -237,11 +227,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             },
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'Pact Whisperer',
-            legacy: 'Voidsworn Covenant',
+            archetypeKey: 'pactWhisperer',
+            legacyKey: 'voidswornCovenant',
             availability: 5,
-            playstyle: 'Utility',
             targeting: {
                 targetType: 'Single Enclave',
                 siteCount: 1,
@@ -279,11 +267,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             },
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'Pact Whisperer',
-            legacy: 'Whispering Covenant',
+            archetypeKey: 'pactWhisperer',
+            legacyKey: 'whisperingCovenant',
             availability: 3,
-            playstyle: 'Offensive',
             targeting: {
                 targetType: 'Single Enclave',
                 siteCount: 1,
@@ -321,11 +307,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'Pact Whisperer',
-            legacy: 'Whispering Covenant',
+            archetypeKey: 'pactWhisperer',
+            legacyKey: 'whisperingCovenant',
             availability: 2,
-            playstyle: 'Defensive',
             targeting: {
                 targetType: 'All Enclaves',
                 siteCount: 1,
@@ -365,11 +349,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'Resonance-Warden',
-            legacy: 'Shatter-Wave Mandate',
+            archetypeKey: 'resonanceWarden',
+            legacyKey: 'shatterWaveMandate',
             availability: 5,
-            playstyle: 'Utility',
             targeting: {
                 targetType: 'Single Enclave',
                 siteCount: 1,
@@ -407,11 +389,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'Resonance-Warden',
-            legacy: 'Shatter-Wave Mandate',
+            archetypeKey: 'resonanceWarden',
+            legacyKey: 'shatterWaveMandate',
             availability: 8,
-            playstyle: 'Utility',
             targeting: {
                 targetType: 'Single Route',
                 siteCount: 1,
@@ -450,11 +430,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'Resonance-Warden',
-            legacy: 'Genesis Forge Mandate',
+            archetypeKey: 'resonanceWarden',
+            legacyKey: 'genesisForgeMandate',
             availability: 6,
-            playstyle: 'Defensive',
             targeting: {
                 targetType: 'Single Enclave',
                 siteCount: 1,
@@ -492,11 +470,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'Resonance-Warden',
-            legacy: 'Genesis Forge Mandate',
+            archetypeKey: 'resonanceWarden',
+            legacyKey: 'genesisForgeMandate',
             availability: 7,
-            playstyle: 'Utility',
             targeting: {
                 targetType: 'All Enclaves',
                 siteCount: 1,
@@ -520,7 +496,7 @@ export const GAMBITS: Record<string, GambitProfile> = {
         ui: {
             name: 'Ghost in the System',
             icon: 'bug_report',
-            description: 'Insert a data-daemon into the enemy\'s command network, causing their next order to fail catastrophically.',
+            description: `Insert a data-daemon into the enemy's command network, causing their next order to fail catastrophically.`,
             assets: {
                 key: 'ghostInTheSystem',
                 image: ASSETS.gambit.ghostInTheSystem.image,
@@ -536,11 +512,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'Labyrinthine Ghost',
-            legacy: 'Void Walker',
+            archetypeKey: 'labyrinthineGhost',
+            legacyKey: 'voidWalker',
             availability: 4,
-            playstyle: 'Utility',
             targeting: {
                 targetType: 'Single Enclave',
                 siteCount: 1,
@@ -579,11 +553,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'Labyrinthine Ghost',
-            legacy: 'Void Walker',
+            archetypeKey: 'labyrinthineGhost',
+            legacyKey: 'voidWalker',
             availability: 6,
-            playstyle: 'Defensive',
             targeting: {
                 targetType: 'Single Enclave',
                 siteCount: 1,
@@ -621,11 +593,9 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'Labyrinthine Ghost',
-            legacy: 'Karthian Oracle',
+            archetypeKey: 'labyrinthineGhost',
+            legacyKey: 'karthianOracle',
             availability: 5,
-            playstyle: 'Utility',
             targeting: {
                 targetType: 'Single Order',
                 siteCount: 1,
@@ -663,18 +633,16 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Archetype',
-            archetype: 'Labyrinthine Ghost',
-            legacy: 'Karthian Oracle',
+            archetypeKey: 'labyrinthineGhost',
+            legacyKey: 'karthianOracle',
             availability: 7,
-            playstyle: 'Utility',
             targeting: {
                 targetType: 'Single Enclave',
                 siteCount: 1,
             },
             impact: {
                 name: 'Locked Order',
-                description: "The enemy\'s attack is trapped in a repeating time loop, forcing them to commit to the assault.",
+                description: "The enemy's attack is trapped in a repeating time loop, forcing them to commit to the assault.",
                 effect: "Locks the attacking enclave's order for 3 turns, preventing it from being changed.",
                 duration: 3,
                 radius: 0,
@@ -705,9 +673,7 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Common',
             availability: 5,
-            playstyle: 'Offensive',
             targeting: {
                 targetType: 'Neutral Enclave',
                 siteCount: 1,
@@ -745,9 +711,7 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Common',
             availability: 11,
-            playstyle: 'Defensive',
             targeting: {
                 targetType: 'Friendly Enclave',
                 siteCount: 1,
@@ -769,7 +733,7 @@ export const GAMBITS: Record<string, GambitProfile> = {
         ui: {
             name: 'Orbital Bombardment',
             icon: 'scatter_plot',
-            description: 'A catastrophic failure in an orbiting weapon platform sends a hail of metallic shrapnel screaming towards the planet\'s surface, striking random enclaves with devastating force.',
+            description: `A catastrophic failure in an orbiting weapon platform sends a hail of metallic shrapnel screaming towards the planet's surface, striking random enclaves with devastating force.`,
             assets: {
                 key: 'orbitalBombardment',
                 image: ASSETS.gambit.orbitalBombardment.image,
@@ -785,9 +749,7 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Common',
             availability: 8,
-            playstyle: 'Offensive',
             targeting: {
                 targetType: 'Self',
                 siteCount: 5,
@@ -825,9 +787,7 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Common',
             availability: 5,
-            playstyle: 'Defensive',
             targeting: {
                 targetType: 'Friendly Enclave',
                 siteCount: 1,
@@ -867,9 +827,7 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Common',
             availability: 4,
-            playstyle: 'Utility',
             targeting: {
                 targetType: 'Self',
                 siteCount: 1,
@@ -891,7 +849,7 @@ export const GAMBITS: Record<string, GambitProfile> = {
         ui: {
             name: 'The Witching Hour',
             icon: 'magic_button',
-            description: 'Ancient magicks, long dormant in the world\'s core, are called upon to manifest a disaster of your choosing. The chaotic forces of nature are brought to bear against a single target.',
+            description: `Ancient magicks, long dormant in the world's core, are called upon to manifest a disaster of your choosing. The chaotic forces of nature are brought to bear against a single target.`,
             assets: {
                 key: 'theWitchingHour',
                 image: ASSETS.gambit.theWitchingHour.image,
@@ -907,9 +865,7 @@ export const GAMBITS: Record<string, GambitProfile> = {
             }
         },
         logic: {
-            category: 'Common',
             availability: 8,
-            playstyle: 'Offensive',
             targeting: {
                 targetType: 'Enemy Enclave',
                 siteCount: 1,

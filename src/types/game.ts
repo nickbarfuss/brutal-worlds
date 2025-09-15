@@ -187,8 +187,6 @@ export interface EffectLogic {
     originCellType?: 'Area' | 'Void' | 'Area or Void';
     siteCount?: number | [number, number];
 
-    archetype?: string;
-    legacy?: string;
     availability?: number;
 
     alert?: EffectPhase;
@@ -212,6 +210,8 @@ export interface GambitUI {
 export interface GambitLogic extends EffectLogic {
     uses?: number;
     restriction?: string;
+    archetypeKey?: string;
+    legacyKey?: string;
 }
 
 export interface GambitProfile extends EffectProfile {

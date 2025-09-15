@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { GameOverState } from '@/types/game';
-import ButtonBasic from '@/components/ui/ButtonBasic';
+import Button from '@/components/ui/Button';
 import { THEME_CONFIG } from '@/data/theme';
 
 interface GameOverDialogProps {
@@ -28,12 +28,12 @@ const GameOverDialog: React.FC<GameOverDialogProps> = ({ gameOverState, onNewGam
       <div className="bg-neutral-900 text-center flex flex-col w-full max-w-md rounded-lg border border-neutral-700 p-8">
         <h1 className={`text-6xl font-bold tracking-widest ${titleColorClass}`}>{title}</h1>
         <p className="text-neutral-300 mt-4 text-lg">{message}</p>
-        <ButtonBasic
+        <Button
           onClick={onNewGame}
           className="mt-8 self-center"
         >
           New Game
-        </ButtonBasic>
+        </Button>
       </div>
     </div>
   );

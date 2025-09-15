@@ -6,7 +6,7 @@ export const BIRTHRIGHTS: { [key: string]: BirthrightProfile } = {
     kineticOnslaught: {
         key: 'kineticOnslaught',
         name: "Kinetic Onslaught",
-        icon: "waves",
+        icon: "motion_blur",
         description: "By mastering the physics of force projection, these forces strike with a relentless rhythm, conserving energy to maintain a constant, overwhelming offensive.",
         rules: "When issuing an \"Attack\" order, the originating enclave sends 1/4 of its forces, instead of the standard 1/3.",
         image: ASSETS.birthright.kineticOnslaught.image,

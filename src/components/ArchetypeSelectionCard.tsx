@@ -6,7 +6,7 @@ import { BIRTHRIGHTS } from '@/data/birthrights';
 import { GAMBITS } from '@/data/gambits';
 import Chip from '@/components/ui/Chip';
 import { getAssetUrl } from '@/utils/assetUtils';
-import Card from '@/components/ui/Card';
+
 
 interface ArchetypeSelectionCardProps {
   archetype: ArchetypeProfile;
@@ -20,7 +20,8 @@ const ArchetypeSelectionCard: React.FC<ArchetypeSelectionCardProps> = ({ archety
   const videoRef = useRef<HTMLVideoElement>(null);
   
   const birthright = BIRTHRIGHTS[legacy.birthrightKey];
-  
+  const startingGambits = legacy.gambitKeys.map(key => GAMBITS[key]).filter(Boolean);
+
   useEffect(() => {
     if (videoRef.current) {
       if (isSelected) {
@@ -103,45 +104,41 @@ const ArchetypeSelectionCard: React.FC<ArchetypeSelectionCardProps> = ({ archety
               </div>
           </div>
       </div>
-      
-      <div 
-        className="w-[32rem] flex-shrink-0 bg-neutral-900/95 backdrop-blur-sm overflow-y-auto no-scrollbar text-left flex flex-col"
-        onWheel={(e) => e.stopPropagation()}
-      >
-          <Card.Section title="Legacy">
-            <p className="text-base text-neutral-300">{legacy.description}</p>
-          </Card.Section>
+      <div className="flex-grow p-6 overflow-y-auto no-scrollbar" onWheel={(e) => e.stopPropagation()}>
+        <div className="w-[30rem] h-full flex flex-col space-y-4">
+          <div>
+            <h4 className="font-title text-2xl text-accent-300 mb-2">Description</h4>
+            <p className="text-neutral-400">{legacy.description}</p>
+          </div>
+          
+          <div>
+            <h4 className="font-title text-2xl text-accent-300 mb-2">Birthright</h4>
+            <ChipCard
+              icon={birthright.icon}
+              title={birthright.name}
+              subtitle={birthright.description}
+              iconBgColorClass="bg-[var(--color-accent-800)]"
+              iconColorClass="text-[var(--color-accent-300)]"
+            />
+          </div>
 
-          {birthright && (
-            <Card.Section title="Birthright">
-                <ChipCard 
-                    icon={birthright.icon}
-                    iconColorClass="text-[var(--color-accent-400)]"
-                    title={birthright.name}
-                    subtitle={birthright.rules}
+          <div>
+            <h4 className="font-title text-2xl text-accent-300 mb-2">Starting Gambits</h4>
+            <div className="flex flex-col gap-2">
+              {startingGambits.map(gambit => (
+                <ChipCard
+                  key={gambit.key}
+                  icon={gambit.ui.icon}
+                  title={gambit.ui.name}
+                  subtitle={gambit.ui.description}
+                  iconBgColorClass="bg-[var(--color-accent-800)]"
+                  iconColorClass="text-[var(--color-accent-300)]"
                 />
-            </Card.Section>
-          )}
-
-          <Card.Section title="Gambits">
-              <div className="space-y-2">
-                {legacy.gambitKeys.map(gambitKey => {
-                    const gambit = GAMBITS[gambitKey];
-                    if (!gambit) return null;
-                    return (
-                        <ChipCard 
-                            key={gambitKey}
-                            icon={gambit.ui.icon}
-                            iconColorClass="text-[var(--color-accent-400)]"
-                            title={gambit.ui.name}
-                            subtitle={gambit.ui.description}
-                        />
-                    );
-                })}
-              </div>
-          </Card.Section>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-
     </div>
   );
 };

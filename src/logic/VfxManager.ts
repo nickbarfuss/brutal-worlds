@@ -122,7 +122,6 @@ export class VfxManager {
             
         }).catch(e => console.error(`[VfxManager] VFX play error for ${selectedKey}:`, e));
         
-        const profile = preloadedAsset.profile;
         // Provide default values if profile or its dimensions are undefined
         const width = 256;
         const height = 256;

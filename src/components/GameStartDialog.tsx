@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { ARCHETYPES } from '@/data/archetypes';
 import { WORLD_LIBRARY } from '@/data/worlds';
-import ButtonBasic from '@/components/ui/ButtonBasic';
+import Button from '@/components/ui/Button';
 import ArchetypeSelectionCard from '@/components/ArchetypeSelectionCard';
 import WorldSelectionCard from '@/components/WorldSelectionCard';
 import { AudioChannel } from '@/types/game';
-import { ASSETS } from '@/data/assets';
+import { TEXT } from '@/data/text';
 
 interface GameStartDialogProps {
     onConfirm: (archetypeKey: string, worldKey: string, legacyKey: string) => void;
@@ -59,7 +59,7 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
     }, [onClose]);
 
     const handleSelectLegacy = (archetypeKey: string, legacyKey: string) => {
-        playSound(ASSETS.ui.common.buttonDialogNav[0], 'ui');
+        playSound('ui-common-buttonDialogNav', 'ui');
 
         const isAlreadySelected = selectedArchetypeKey === archetypeKey && selectedLegacyKey === legacyKey;
 
@@ -70,22 +70,13 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
             setSelectedArchetypeKey(archetypeKey);
             setSelectedLegacyKey(legacyKey);
             
-            let soundKeys: string[] = [];
-            switch (archetypeKey) {
-                case 'firstSword': soundKeys = ['archetype-first-sword-1', 'archetype-first-sword-2', 'archetype-first-sword-3', 'archetype-first-sword-4']; break;
-                case 'pactWhisperer': soundKeys = ['archetype-pact-whisperer-1', 'archetype-pact-whisperer-2', 'archetype-pact-whisperer-3', 'archetype-pact-whisperer-4']; break;
-                case 'labyrinthineGhost': soundKeys = ['archetype-labyrinthine-ghost-1', 'archetype-labyrinthine-ghost-2', 'archetype-labyrinthine-ghost-3', 'archetype-labyrinthine-ghost-4']; break;
-                case 'resonanceWarden': soundKeys = ['archetype-resonance-warden-1', 'archetype-resonance-warden-2', 'archetype-resonance-warden-3', 'archetype-resonance-warden-4', 'archetype-resonance-warden-5']; break;
-            }
-            if (soundKeys.length > 0) {
-                const randomKey = soundKeys[Math.floor(Math.random() * soundKeys.length)];
-                playSound(randomKey, 'fx');
-            }
+            const soundKey = `archetype-${archetypeKey}-${legacyKey}-ui-select`;
+            playSound(soundKey, 'ui');
         }
     };
 
     const handleSelectWorld = (key: string) => {
-        playSound('ui-button-dialog-nav', 'ui');
+        playSound('ui-common-buttonDialogNav', 'ui');
         const newKey = selectedWorldKey === key ? null : key;
         setSelectedWorldKey(newKey);
     };
@@ -137,13 +128,13 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
 
     const handleNext = () => {
         if (selectedArchetypeKey) {
-            playSound(ASSETS.ui.common.buttonDialogComplete[0], 'ui');
+            playSound('ui-common-buttonDialogComplete', 'ui');
             setStep('world');
         }
     };
 
     const handleBack = () => {
-        playSound(ASSETS.ui.common.buttonDialogComplete[0], 'ui');
+        playSound('ui-common-buttonDialogComplete', 'ui');
         setStep('archetype');
     };
 
@@ -157,7 +148,7 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
         if (step === 'archetype') {
             return (
                 <>
-                    <h2 className="text-3xl font-bold">Choose Your Legacy</h2>
+                    <h2 className="text-3xl font-bold">{TEXT.gameStartDialog.step.legacy}</h2>
                     <p className="text-lg text-neutral-400">Step 1 of 2</p>
                 </>
             );
@@ -165,7 +156,7 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
         if (step === 'world') {
             return (
                 <>
-                    <h2 className="text-3xl font-bold">Select a World</h2>
+                    <h2 className="text-3xl font-bold">{TEXT.gameStartDialog.step.world}</h2>
                     <p className="text-lg text-neutral-400">Step 2 of 2</p>
                 </>
             );
@@ -229,20 +220,20 @@ const GameStartDialog: React.FC<GameStartDialogProps> = ({ onConfirm, onClose, i
                 <div className="px-8 py-4 mt-auto border-t border-neutral-700 flex justify-between items-center flex-shrink-0">
                     {step === 'world' ? (
                         <button onClick={handleBack} className="text-neutral-400 hover:text-white font-semibold px-4 py-3 rounded-full transition">
-                            Back
+                            {TEXT.gameStartDialog.buttonBack}
                         </button>
                     ) : (
                         <div /> // Placeholder
                     )}
                     
                     {step === 'archetype' ? (
-                         <ButtonBasic onClick={handleNext} disabled={!selectedArchetypeKey}>
-                            Continue
-                        </ButtonBasic>
+                         <Button onClick={handleNext} disabled={!selectedArchetypeKey}>
+                            {TEXT.gameStartDialog.buttonContinue}
+                        </Button>
                     ) : (
-                         <ButtonBasic onClick={handleConfirm} disabled={!selectedWorldKey}>
-                            Begin Conquest
-                        </ButtonBasic>
+                         <Button onClick={handleConfirm} disabled={!selectedArchetypeKey || !selectedLegacyKey || !selectedWorldKey}>
+                            {TEXT.gameStartDialog.buttonFinish}
+                        </Button>
                     )}
                 </div>
             </div>

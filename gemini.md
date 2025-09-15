@@ -1,92 +1,54 @@
-This file contains notes and observations about the project.
-This file should activeley be mainteined and updated.
+# Brutal Worlds: AI Engineer Notes
 
-## Feature Development
+This document outlines the core architectural principles and development patterns for the Brutal Worlds project. Adhering to these guidelines is crucial for maintaining code quality, preventing bugs, and ensuring smooth feature development.
 
-Feaures notes and will be kept here as we desing and work on features we will log `Progress`, `Objective`, and `Actions` forthe feature. 
+## Core Technologies
 
+- **Frontend:** React with TypeScript
+- **State Management:** `useReducer` for centralized state, React Hooks for component logic.
+- **3D Rendering:** Three.js
+- **Build Tool:** Vite
+- **Testing:** Vitest
 
-## Architectural Principles: State Management & Race Conditions
+## Architectural Principles
 
-To ensure application stability and prevent difficult-to-trace bugs, we must adhere to the following React-centric architectural principles.
+### 1. State Management: The Reducer is King
 
-### 1. Managers Must Be Stateless
+All global application state is managed within the `useReducer` hook in `useGameEngine.ts`. This provides a single source of truth and predictable state transitions.
 
-Any class or "manager" (e.g., `SfxManager`, `VfxManager`) that is instantiated and managed within a React hook (`useRef(new ...())`) should be treated as a stateless "engine." These classes should **not** maintain their own internal state (e.g., `this.isMuted`, `this.volume`). They should only contain methods that perform actions.
+- **Stateless Managers:** Classes like `SfxManager` and `VfxManager` should be stateless. They are "engines" that perform actions based on data passed to them from the React state. They should not hold their own state (e.g., `this.volume`).
+- **Data Flow:** State flows from the central reducer down to components and managers. UI interactions dispatch actions to the reducer to update the state.
 
-### 2. The Reducer is the Single Source of Truth
+### 2. Web Worker for Turn Resolution
 
-All application state must reside within the central `useReducer` hook (e.g., in `useGameEngine`'s state). This includes UI state, game logic state, and settings like volumes or mute status. When a manager needs to know whether to perform an action (e.g., play a sound silently), that information must be passed down from the React state at the time the action is called.
+Game turn logic is computationally intensive and is therefore handled by a Web Worker (`src/logic/turnResolver.ts`) to keep the UI responsive.
 
-### 3. Avoiding Initialization Race Conditions
+- **Communication:** The main thread sends the current game state to the worker. The worker processes the turn and sends the resolved state back.
+- **Serialization:** All data passed to and from the worker must be serializable. Complex objects (like `THREE.Vector3`) are serialized before sending and deserialized upon receipt. See `serializeGameStateForWorker` and `deserializeResolvedTurn` in `src/utils/threeUtils.ts`.
+- **Debugging:** When debugging turn-related issues, inspect the data being passed to and from the worker at each stage of the serialization/deserialization process.
 
-We have encountered race conditions where a `useEffect` to play a sound runs before the `useEffect` that sets its initial volume/mute state. This is especially problematic for browser APIs that require user interaction to initialize (like Web Audio).
+### 3. Asynchronous Operations and Race Conditions
 
-**The Solution Pattern:**
+- **Audio Initialization:** The Web Audio API requires user interaction to initialize. The `handleUserInteraction` function in `useGameEngine.ts` centralizes this initialization. It ensures that the audio context is ready and then immediately applies the current volume and mute settings from the state, preventing race conditions.
+- **AI Actions:** AI orders are scheduled with `setTimeout` to simulate human-like delays. These timeouts are managed in `useGameEngine.ts` and are cleared when the game state changes (e.g., paused, new turn).
 
-1.  **Centralize Initialization:** Create a single function within the main game engine hook (`useGameEngine`) to handle the first user interaction (e.g., `handleUserInteraction`).
-2.  **Synchronous State Push:** This function is responsible for two things, in order:
-    a. Calling the manager's one-time initialization method (e.g., `sfxManager.handleUserInteraction()`).
-    b. **Immediately after** the initialization `await`s, it must read the current, correct state from the reducer and push it to the manager (e.g., loop through `state.mutedChannels` and call `sfxManager.setVolume()` for each).
-3.  **Update UI:** All UI components (e.g., the "Begin Game" button) must call this single, centralized function from the engine hook, rather than interacting with the manager directly.
+### 4. Effect Handling (`VFX` and `SFX`)
 
-This pattern makes the data flow explicit and guarantees that the manager's configuration is synchronized with the application state at the exact moment it becomes ready.
+- **`effectQueue`:** The `turnResolver` worker generates a queue of visual and sound effects (`effectsToPlay`).
+- **Direct Playback:** The `useGameEngine` hook processes this `effectQueue` and directly calls the `vfxManager` and `sfxManager` to play the effects. This avoids intermediate state updates and potential race conditions.
+- **Real-time vs. Turn-based:**
+    - **Turn-based effects** (from the `effectQueue`) are played after a turn is resolved.
+    - **Real-time effects** (e.g., UI button clicks) are triggered directly by the component interacting with the user.
 
-### 4. Direct Effect Playback from `effectQueue`
+## Development Workflow
 
-To ensure timely and singular playback of sound (SFX) and visual effects (VFX) and to prevent issues like duplicate plays or timing discrepancies, effects originating from the `effectQueue` (populated by the web worker) should directly trigger the `SfxManager` and `VfxManager`.
+1.  **Understand the Data Flow:** Before implementing a new feature, trace the data flow from the UI, through the `useGameEngine` hook, to the `turnResolver` worker, and back.
+2.  **Update the Reducer:** For new state variables, add them to the `GameState` type and update the reducer in `src/logic/reducers/`.
+3.  **Modify the Worker:** If the turn logic needs to be changed, modify the `turnResolver.ts` worker. Ensure any new data is correctly passed to and from the worker.
+4.  **Create Components:** Build new UI components in `src/components/` and connect them to the `useGameEngine` hook for state and dispatch functions.
+5.  **Add Effects:** For new visual or sound effects, add the assets to the `public/` directory and define their behavior in the appropriate manager or data file.
 
-**The Anti-Pattern to Avoid:**
-Do not dispatch intermediate Redux actions (e.g., `PLAY_VFX`, `PLAY_SFX`) that then update state variables (e.g., `state.vfxToPlay`, `state.sfxToPlay`) which are subsequently listened to by `useEffect` hooks to call the managers. This creates unnecessary indirection, potential for race conditions, and can lead to duplicate playback if the `useEffect` triggers multiple times before the state is cleared.
+By following these principles, we can build a robust and maintainable application.
 
-**The Solution Pattern:**
-When processing the `effectQueue` within `useGameEngine`, directly call `sfxManager.current.playSound()` and `vfxManager.current.playEffect()` with the appropriate effect data. This ensures that effects are played immediately upon being processed from the queue, simplifying the data flow and reducing potential timing issues.
-
-
-### 5. Real-time vs. Turn-based Sound Playback
-
-It is crucial to distinguish between sound effects triggered by real-time user interactions and those generated as a result of turn resolution from the `effectQueue`.
-
-*   **Turn-based Effects (from `effectQueue`):** For sound and visual effects originating from the `effectQueue` (populated by the web worker after turn resolution), the `useGameEngine` hook should directly call `sfxManager.current.playSound()` and `vfxManager.current.playEffect()`. This ensures timely and singular playback for effects processed asynchronously after a turn.
-
-*   **Real-time User Interaction Effects:** Sound effects triggered by immediate user actions (e.g., clicking a button to issue an order, UI navigation) should be played directly by the relevant UI component or React hook that handles the interaction. These calls should also use `sfxManager.current.playSound()` (or `vfxManager.current.playEffect()` for visual feedback) at the point of interaction, bypassing the `effectQueue` mechanism to provide immediate feedback.
-
-This distinction ensures that turn-based effects are processed correctly within the game loop's asynchronous nature, while real-time interactions provide instant auditory feedback to the player.
-
-
-## Web Worker Communication
-
-The game uses a web worker to resolve turns in the background. The main thread sends the game state to the worker, and the worker sends back the new state.
-
-It is crucial to ensure that the data sent to and from the worker is correctly serialized and deserialized. Any discrepancies in the data can lead to subtle bugs that are hard to track down.
-
-When debugging issues related to turn resolution, it's important to inspect the data that is being passed to and from the worker.
-
-## Web Worker Data Flow
-
-When debugging issues related to data being unavailable in the `turnResolver` web worker, it's important to trace the data's path from its origin to the worker.
-
-1.  **State Initialization (`/src/logic/reducers/gameFlowReducer.ts`):** The `START_GAME` action handler in this reducer is responsible for setting the initial game state. Any data that needs to be available from the start of the game (like `playerArchetypeKey`, `playerLegacyKey`, etc.) must be correctly placed into the state object here.
-
-2.  **Engine Hook (`/src/hooks/useGameEngine.ts`):** This hook holds the main game state via `useReducer`. The `resolveTurn` function is responsible for gathering all necessary data from the current state and preparing it to be sent to the worker. All data required by the worker must be included in the object passed to `serializeGameStateForWorker` and also added to the `useCallback` dependency array for `resolveTurn`.
-
-3.  **Serialization (`/src/utils/threeUtils.ts`):** The `serializeGameStateForWorker` function acts as a gatekeeper. It takes the state from `useGameEngine` and creates a new, sanitized object to be sent to the worker. **Crucially, any property not explicitly included in the object returned by this function will not reach the worker.** If data is missing in the worker, verify it is being passed through here.
-
-4.  **Worker (`/src/logic/turnResolver.ts`):** The worker receives the serialized state. From here, it passes the data to other resolvers like `attackResolver.ts`.
-
-By checking these files in order, you can trace why data might be missing in the web worker.
-
-## Turn Timing and Web Workers
-
-When implementing features that rely on specific timing within a turn (e.g., playing sounds at the start or end of a turn), it's crucial to understand the asynchronous nature of web workers.
-
-The turn resolution logic runs in a web worker. This means that the main thread continues to run while the worker is processing the turn. When the worker finishes, it sends a message back to the main thread, and the main thread then updates the game state.
-
-This asynchronous behavior can lead to timing issues if not handled carefully. For example, if a sound is triggered at the "end" of a turn in the worker, but the main thread has already advanced to the next turn, the sound might not play or might play at an unexpected time.
-
-To ensure proper timing, consider:
-
-*   **Where effects are generated**: Effects (like sounds or VFX) should be generated in the worker and returned as part of the resolved turn state.
-*   **When effects are processed**: The main thread should process these effects immediately after receiving the resolved turn state from the worker, before advancing the game to the next logical step (e.g., incrementing the turn counter).
-*   **State synchronization**: Ensure that all relevant state is correctly passed to and from the worker to maintain consistency.
-
+## Developer's Note
+When implementing UI changes, always prioritize consistency with the existing design language (fonts, spacing, colors, etc.). If a new component or a significant style modification is required, propose the change to the user for approval before implementation. For minor adjustments, clearly explain the rationale behind the change. This ensures design integrity while still allowing for proactive problem-solving. 
