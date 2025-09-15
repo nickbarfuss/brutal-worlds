@@ -2,9 +2,6 @@ import { useMemo } from 'react';
 import * as THREE from 'three';
 import { PLAYER_THREE_COLORS } from '@/data/theme';
 import { useHighlightZone } from '@/hooks/useHighlightZone';
-import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
-import { Line2 } from 'three/examples/jsm/lines/Line2.js';
-import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { Enclave, MapCell, Route, PendingOrders } from '@/types/game';
 
 interface CommandZoneProps {
@@ -16,7 +13,7 @@ interface CommandZoneProps {
     convertLatLonToVector3: (lat: number, lon: number) => THREE.Vector3;
 }
 
-export const useCommandZone = ({ selectedEnclaveId, enclaveData, mapData, routes, aiPendingOrders, convertLatLonToVector3 }: CommandZoneProps) => {
+export const useCommandZone = ({ selectedEnclaveId, enclaveData, mapData, routes, convertLatLonToVector3 }: CommandZoneProps) => {
 
     const commandZoneCellIds = useMemo(() => {
         const cellIds = new Set<number>();
@@ -71,47 +68,9 @@ export const useCommandZone = ({ selectedEnclaveId, enclaveData, mapData, routes
         scale: 1.0015,
     });
 
-    const aiOrderMeshes = useMemo(() => {
-        const meshes: Line2[] = [];
-        for (const fromIdStr in aiPendingOrders) {
-            const fromId = parseInt(fromIdStr, 10);
-            const order = aiPendingOrders[fromId];
-            const fromEnclave = enclaveData[fromId];
-            const toEnclave = enclaveData[order.to];
-
-            if (fromEnclave && toEnclave) {
-                const points: number[] = [];
-                points.push(fromEnclave.center.x, fromEnclave.center.y, fromEnclave.center.z);
-                points.push(toEnclave.center.x, toEnclave.center.y, toEnclave.center.z);
-
-                const geometry = new LineGeometry();
-                geometry.setPositions(points);
-
-                const line = new Line2(geometry, new LineMaterial({
-                    color: 0xff0000, // Red for AI orders
-                    linewidth: 3, // px
-                    dashed: true,
-                    dashSize: 0.05,
-                    gapSize: 0.03,
-                    resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
-                }));
-                line.computeLineDistances();
-                line.renderOrder = 5; // Render above command zone
-                meshes.push(line);
-            }
-        }
-        return meshes;
-    }, [aiPendingOrders, enclaveData]);
-
-    const aiOrderMaterials = useMemo(() => {
-        return aiOrderMeshes.map(mesh => mesh.material as LineMaterial);
-    }, [aiOrderMeshes]);
-
     return {
         commandBorderMeshes: borderMeshes,
         commandBorderMaterials: borderMaterials,
         commandFillMesh: fillMesh,
-        aiOrderMeshes,
-        aiOrderMaterials,
     };
 };

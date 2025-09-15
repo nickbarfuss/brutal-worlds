@@ -1,5 +1,5 @@
 import { useCallback, useRef, useEffect, useReducer } from 'react';
-import * as THREE from 'three'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import * as THREE from 'three';
 import {
     Enclave, PendingOrders, GamePhase, GameState, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, EffectQueueItem, PlayerIdentifier, InspectedMapEntity
 } from '@/types/game';
@@ -351,7 +351,7 @@ export const useGameEngine = () => {
                     // This ensures we always pass a string key to the playEffect method.
                     const vfxKeys = (effect.vfx || []).map(v => (typeof v === 'string' ? v : (v as { key: string }).key)).flat();
                     vfxKeys.forEach(vfxKey => {
-                        vfxManager.current.playEffect(vfxKey, effect.position);
+                        vfxManager.current.playEffect(vfxKey, effect.position as THREE.Vector3);
                     });
                 }
                 if (effect.sfx) {
@@ -374,8 +374,13 @@ export const useGameEngine = () => {
     }, [state.isIntroComplete, state.gamePhase, state.currentTurn]);
 
     useEffect(() => {
-        if (state.gamePhase === 'playing' && state.currentTurn === 1 && !state.isPaused) {
-            sfxManager.current.playLoopIfNotPlaying('ambient-space-drift', 'ambient');
+        const sfx = sfxManager.current;
+        if (state.gamePhase === 'playing' && state.currentTurn >= 1 && !state.isPaused) {
+            if (sfx.isReady() && !sfx.hasLoop('ambient')) {
+                sfx.playRandomLoop('ambient');
+            }
+        } else {
+            sfx.stopLoop('ambient');
         }
     }, [state.gamePhase, state.currentTurn, state.isPaused]);
     

@@ -56,8 +56,6 @@ interface MapRendererProps {
     commandFillMesh: THREE.Mesh | null;
     commandFillOpacity: number;
     commandBorderOpacity: number;
-    aiOrderMeshes: Line2[];
-    aiOrderMaterials: LineMaterial[];
     highlightBorderMeshes: Line2[];
     highlightBorderMaterials: LineMaterial[];
     highlightFillMesh: THREE.Mesh | null;
@@ -104,7 +102,6 @@ const handleHighlightMeshes = (
         commandFillMesh: newCommandFill, commandBorderMeshes: newCommandBorders,
         highlightFillMesh: newHighlightFill, highlightBorderMeshes: newHighlightBorders,
         permanentBorderMeshes: newPermanentBorders,
-        aiOrderMeshes: newAiOrders, // Add this line
     } = dynamicProps;
 
     if (newPermanentBorders !== currentMeshes.permanent) {
@@ -138,12 +135,6 @@ const handleHighlightMeshes = (
         if (currentMeshes.highlightBorders) currentMeshes.highlightBorders.forEach((m: THREE.Object3D) => mapContainer.add(m));
     }
 
-    // Handle AI Order Meshes
-    if (newAiOrders !== currentMeshes.aiOrders) {
-        if (currentMeshes.aiOrders) currentMeshes.aiOrders.forEach((m: THREE.Object3D) => mapContainer.remove(m));
-        currentMeshes.aiOrders = newAiOrders;
-        if (currentMeshes.aiOrders) currentMeshes.aiOrders.forEach((m: THREE.Object3D) => mapContainer.add(m));
-    }
 };
 
 export const useWorldRenderer = (props: MapRendererProps) => {
@@ -683,5 +674,5 @@ export const useWorldRenderer = (props: MapRendererProps) => {
             if (currentMount) currentMount.removeChild(renderer.domElement);
             if (uiCanvas.parentElement) uiCanvas.parentElement.removeChild(uiCanvas);
         };
-    }, [props.gameSessionId, props.currentWorld, cameraRef, controlsRef, mapContainerRef, mountRef, opacityController.world, props.ambientLightIntensity, props.initialCameraTarget, sceneElementsRef]);
+    }, [props.gameSessionId, props.currentWorld, cameraRef, controlsRef, mapContainerRef, mountRef, props.ambientLightIntensity, props.initialCameraTarget, sceneElementsRef]);
 };

@@ -284,22 +284,38 @@ export class SfxManager {
     public playRandomLoop(channel: AudioChannel): void {
         if (!this.hasUserInteracted) return;
     
-        let availableTracks = this.musicTrackKeys;
-        if (this.currentMusicKey) {
-            availableTracks = availableTracks.filter(key => key !== this.currentMusicKey);
+        let trackKeys: string[];
+        let currentKey: string | null;
+        let setCurrentKey: (key: string | null) => void;
+    
+        if (channel === 'music') {
+            trackKeys = this.musicTrackKeys;
+            currentKey = this.currentMusicKey;
+            setCurrentKey = (key) => { this.currentMusicKey = key; };
+        } else if (channel === 'ambient') {
+            trackKeys = this.ambientTrackKeys;
+            currentKey = this.currentAmbientKey;
+            setCurrentKey = (key) => { this.currentAmbientKey = key; };
+        } else {
+            console.warn(`[SfxManager] Random loop not supported for channel: ${channel}`);
+            return;
+        }
+    
+        let availableTracks = trackKeys;
+        if (currentKey) {
+            availableTracks = availableTracks.filter(key => key !== currentKey);
         }
     
         if (availableTracks.length === 0) {
-            // If all tracks have been played or there's only one, reset to the full list
-            availableTracks = this.musicTrackKeys;
+            availableTracks = trackKeys;
         }
     
         if (availableTracks.length > 0) {
             const randomKey = availableTracks[Math.floor(Math.random() * availableTracks.length)];
-            this.currentMusicKey = randomKey;
+            setCurrentKey(randomKey);
             this.playLoop(randomKey, channel);
         } else {
-            console.warn(`[SfxManager] No music tracks found to play on channel: ${channel}`);
+            console.warn(`[SfxManager] No tracks found to play on channel: ${channel}`);
         }
     }
 
@@ -348,6 +364,8 @@ export class SfxManager {
         this.activeSpatialSounds = [];
         this.activeSpatialLoops.forEach(l => l.source.stop());
         this.activeSpatialLoops.clear();
+        this.currentMusicKey = null;
+        this.currentAmbientKey = null;
     }
     
     // Set volume for a specific channel (0.0 to 1.0)

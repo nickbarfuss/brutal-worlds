@@ -282,7 +282,7 @@ const WorldCanvas = React.memo(forwardRef<WorldCanvasHandle, WorldCanvasProps>((
         convertLatLonToVector3,
     });
 
-    const { commandBorderMeshes, commandBorderMaterials, commandFillMesh, aiOrderMeshes, aiOrderMaterials } = useCommandZone({
+    const { commandBorderMeshes, commandBorderMaterials, commandFillMesh } = useCommandZone({
         selectedEnclaveId: props.selectedEnclaveId,
         enclaveData: props.enclaveData,
         mapData: props.mapData,
@@ -314,8 +314,6 @@ const WorldCanvas = React.memo(forwardRef<WorldCanvasHandle, WorldCanvasProps>((
         highlightFillOpacity: 0,
         colorPalette,
         activeEffectMarkers: props.activeEffectMarkers,
-        aiOrderMeshes,
-        aiOrderMaterials,
     });
 
     return <div ref={mountRef} data-testid="world-canvas" className="w-full h-full" />;

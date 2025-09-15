@@ -15,11 +15,11 @@ export const CONFIG = {
     //testing and debugging features
     QUICK_START: {
         enabled: false,
-        player1Archetype: '',
-        player1Legacy: '',
-        player2Archetype: '',
-        player2Legacy: '',
-        worldKey: '',
+        player1Archetype: 'firstSword',
+        player1Legacy: 'annihilationDoctrine',
+        player2Archetype: 'pactWhisperer',
+        player2Legacy: 'whisperingCovenant',
+        worldKey: 'skull-sands',
     },
     DISASTER_TESTING: {
         enabled: true,

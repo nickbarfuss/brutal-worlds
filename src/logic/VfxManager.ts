@@ -99,9 +99,21 @@ export class VfxManager {
         
         let selectedKey: string;
         if (Array.isArray(key)) {
+            // If key is an array of strings, pick one at random.
             selectedKey = key[Math.floor(Math.random() * key.length)];
         } else {
             selectedKey = key;
+        }
+
+        // If the selected key is a full path, we need to find the corresponding preloaded key.
+        if (selectedKey.startsWith('/')) {
+            const foundKey = Object.keys(this.preloadedVideos).find(k => getAssetUrl(this.preloadedVideos[k].profile) === selectedKey);
+            if (foundKey) {
+                selectedKey = foundKey;
+            } else {
+                console.warn(`[VfxManager] No preloaded VFX found for path: ${selectedKey}. Playback aborted.`);
+                return;
+            }
         }
 
         // Validate worldPosition before proceeding

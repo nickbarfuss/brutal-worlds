@@ -171,7 +171,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     setIntroPhase('entry');
                     videoEnter.currentTime = 0;
                     videoEnter.play();
-                    sfxManager.playSound(ASSETS.cinematic.intro.sfx[0], 'fx');
+                    sfxManager.playSound('cinematic-intro-sfx', 'fx');
                 })
                 .call(playWorldSounds, [], "+=1.0")
                 .to({}, { duration: enterDuration / 2 - 1.0 })
@@ -896,8 +896,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                             className="w-16 h-16 rounded-full grid place-items-center flex-shrink-0 bg-neutral-800 hover:bg-neutral-700 transition-colors"
                             aria-label="Toggle World Inspector"
                         >
-                            <span className="material-symbols-outlined">{effectTestProfile.ui.icon}</span>
-                            public
+                            <span className="material-symbols-outlined">public</span>
                         </button>
                     )}
                 </div>

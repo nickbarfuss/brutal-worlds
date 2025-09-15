@@ -48,7 +48,7 @@ const WorldInspector: React.FC<WorldInspectorProps> = ({ world, domainData, encl
                     <p className="text-base text-neutral-300">{world.description}</p>
                 </Card.Section>
 
-                {world.possibleEffects.length > 0 && (
+                {world.possibleEffects && world.possibleEffects.length > 0 && (
                     <Card.Section title="Possible Effects">
                         <div className="space-y-2">
                             {world.possibleEffects.map(effectKey => {
