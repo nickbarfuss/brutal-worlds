@@ -411,10 +411,10 @@ export const useGameEngine = () => {
         if (state.selectedEnclaveId !== prevSelectedEnclaveId.current) {
             if (state.selectedEnclaveId !== null) {
                 // Entering command mode
-                sfx.playSound('command-mode-enter-sfx', 'ui');
+                sfx.playSound('order-commandMode-sfx-enter', 'ui');
             } else if (prevSelectedEnclaveId.current !== null) {
                 // Exiting command mode
-                sfx.playSound('command-mode-exit-sfx', 'ui');
+                sfx.playSound('order-commandMode-sfx-exit', 'ui');
             }
             prevSelectedEnclaveId.current = state.selectedEnclaveId;
         }

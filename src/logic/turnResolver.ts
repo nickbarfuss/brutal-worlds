@@ -289,8 +289,6 @@ export const resolveTurn = (
     playerLegacyKey: string | null,
     opponentArchetypeKey: string | null,
     opponentLegacyKey: string | null,
-    playerHasHadFirstConquestDialog: boolean,
-    opponentHasHadFirstConquestDialog: boolean,
 ) => {
     try {
         const effectsToPlay: EffectQueueItem[] = [];
@@ -344,8 +342,7 @@ export const resolveTurn = (
             gameSessionId,
             playerConquestsThisTurn,
             opponentConquestsThisTurn,
-            playerHasHadFirstConquestDialog,
-            opponentHasHadFirstConquestDialog,
+            conquestEvents,
         };
 
     } catch (e) {

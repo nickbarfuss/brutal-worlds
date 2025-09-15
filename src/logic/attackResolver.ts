@@ -187,8 +187,9 @@ export const resolveAttacks = (
         newEnclavesMap.set(targetId, target);
 
         if (originalOwner !== target.owner && target.owner) {
-            const vfxKey = target.owner === 'player-1' ? 'conquest-player-vfx' : 'conquest-opponent-vfx';
-            const sfxKey = target.owner === 'player-1' ? 'conquest-player-sfx' : 'conquest-opponent-sfx';
+            const ownerKey = target.owner === 'player-1' ? 'player' : 'opponent';
+            const vfxKey = `conquest-${ownerKey}`;
+            const sfxKey = `conquest-${ownerKey}-sfx`;
 
             effectsToPlay.push({
                 id: `eff-conquest-${target.id}-${Date.now()}`,
@@ -196,7 +197,6 @@ export const resolveAttacks = (
                 sfx: { key: sfxKey, channel: 'fx', position: target.center },
                 position: target.center,
             });
-            console.log('Attack Resolver: Queued Conquest Effect', { id: `eff-conquest-${target.id}-${Date.now()}`, vfx: [vfxKey], sfx: { key: sfxKey, channel: 'fx', position: target.center }, position: target.center });
 
             const conqueringArchetypeKey = target.archetypeKey;
             const conqueringLegacyKey = target.owner === 'player-1' ? playerLegacyKey : opponentLegacyKey;

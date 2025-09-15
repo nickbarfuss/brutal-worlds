@@ -20,7 +20,7 @@ export const handleSingleClick = (
         if (deselectedEnclave) {
             effectsToQueue.push({
                 id: uuidv4(),
-                sfx: { key: 'command-mode-exit-sfx', channel: 'fx', position: deselectedEnclave.center },
+                sfx: { key: 'order-commandMode-sfx-exit', channel: 'fx', position: deselectedEnclave.center },
                 position: deselectedEnclave.center,
             });
         }
@@ -41,8 +41,8 @@ export const handleSingleClick = (
     if (isCtrlPressed && clickedEnclave.owner === 'player-1') {
         const newSelectedId = selectedEnclaveId === clickedEnclaveId ? null : clickedEnclaveId;
         const sfxKey = newSelectedId !== null
-            ? `command-mode-enter-sfx`
-            : 'command-mode-exit-sfx';
+            ? `order-commandMode-sfx-enter`
+            : 'order-commandMode-sfx-exit';
         effectsToQueue.push({
             id: uuidv4(),
             sfx: { key: sfxKey, channel: 'fx', position: clickedEnclave.center },
@@ -65,7 +65,7 @@ export const handleSingleClick = (
              if (deselectedEnclave) {
                 effectsToQueue.push({
                     id: uuidv4(),
-                    sfx: { key: 'command-mode-exit-sfx', channel: 'fx', position: deselectedEnclave.center },
+                    sfx: { key: 'order-commandMode-sfx-exit', channel: 'fx', position: deselectedEnclave.center },
                     position: deselectedEnclave.center,
                 });
             }
@@ -156,7 +156,7 @@ export const handleSingleClick = (
         // 3c. Click on anything else (invalid target, self while holding, etc.): Deselect and inspect the new target.
         effectsToQueue.push({
             id: uuidv4(),
-            sfx: { key: 'command-mode-exit-sfx', channel: 'fx', position: originEnclave.center },
+            sfx: { key: 'order-commandMode-sfx-exit', channel: 'fx', position: originEnclave.center },
             position: originEnclave.center,
         });
         return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders, effectsToQueue };
@@ -190,7 +190,7 @@ export const handleDoubleClick = (
     }
     // A double click on a player-owned enclave always enters command mode.
     // The logic to cancel an order has been moved to a self-click in handleSingleClick.
-    const sfxKey = `command-mode-enter-sfx`;
+    const sfxKey = `order-commandMode-sfx-enter`;
     effectsToQueue.push({
         id: uuidv4(),
         sfx: { key: sfxKey, channel: 'fx', position: clickedEnclave.center },

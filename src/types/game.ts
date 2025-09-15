@@ -435,6 +435,8 @@ export interface Enclave {
   imageUrl: string;
   vfxToPlayThisTurn?: { key: string; center: Vector3 }[];
   sfxToPlayThisTurn?: SfxPlayback[];
+  position: Vector3; // Added to match usage in attackResolver
+  loyalty?: number; // Added to match usage in attackResolver
 }
 
 export interface Domain {
@@ -529,9 +531,8 @@ export interface ActiveGambit {
 }
 
 export interface EffectQueueItem {
-    id: string;
-    vfx?: string[];
-    sfx?: SfxPlayback;
+    key: string;
+    type: 'sfx' | 'vfx';
     position: Vector3;
 }
 
@@ -651,9 +652,8 @@ export interface GameState {
 
 export interface ConquestEvent {
     enclaveId: number;
-    conqueror: Player;
-    archetypeKey: string;
-    legacyKey: string;
+    newOwner: Player;
+    previousOwner: Owner;
 }
 
 // Temporary comment to force re-evaluation

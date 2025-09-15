@@ -58,10 +58,55 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 effectsToPlay, 
                 playerConquestsThisTurn, 
                 opponentConquestsThisTurn,
-                playerHasHadFirstConquestDialog,
-                opponentHasHadFirstConquestDialog,
+                conquestEvents,
             } = action.payload;
             
+            const newEffectsToQueue: EffectQueueItem[] = [];
+            let playerHasHadFirstConquestDialog = state.playerHasHadFirstConquestDialog;
+            let opponentHasHadFirstConquestDialog = state.opponentHasHadFirstConquestDialog;
+
+            if (conquestEvents && conquestEvents.length > 0) {
+                const playerConquests = conquestEvents.filter((e: any) => e.conqueror === 'player-1');
+                const opponentConquests = conquestEvents.filter((e: any) => e.conqueror === 'player-2');
+
+                const playerHasFirst = playerConquests.length > 0 && !playerHasHadFirstConquestDialog;
+                const opponentHasFirst = opponentConquests.length > 0 && !opponentHasHadFirstConquestDialog;
+
+                const queueDialog = (event: any) => {
+                    const sfxKey = `archetype-${event.archetypeKey}-${event.legacyKey}-dialog-conquest`;
+                    newEffectsToQueue.push({
+                        id: uuidv4(),
+                        sfx: { key: sfxKey, channel: 'dialog' }, // No position for global dialog
+                        position: newEnclaveData[event.enclaveId].center, // Position for camera focus if needed later
+                    });
+                };
+
+                // 1. Handle first conquests
+                if (playerHasFirst) {
+                    queueDialog(playerConquests[0]);
+                    playerHasHadFirstConquestDialog = true;
+                }
+                if (opponentHasFirst) {
+                    queueDialog(opponentConquests[0]);
+                    opponentHasHadFirstConquestDialog = true;
+                }
+
+                // 2. Handle subsequent random conquests if no "firsts" happened this turn
+                if (!playerHasFirst && !opponentHasFirst) {
+                    const playerRoll = playerConquests.length > 0 && Math.random() < 0.5;
+                    const opponentRoll = opponentConquests.length > 0 && Math.random() < 0.5;
+
+                    if (playerConquests.length > opponentConquests.length) {
+                        if (playerRoll) queueDialog(playerConquests[0]);
+                    } else if (opponentConquests.length > playerConquests.length) {
+                        if (opponentRoll) queueDialog(opponentConquests[0]);
+                    } else { // Tie in number of conquests
+                        if (playerRoll) queueDialog(playerConquests[0]);
+                        else if (opponentRoll) queueDialog(opponentConquests[0]);
+                    }
+                }
+            }
+
             Object.values(newEnclaveData).forEach((enclave: Enclave) => {
                 if (enclave.activeEffects) {
                     enclave.activeEffects.forEach(effect => {
@@ -98,13 +143,16 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 return cell;
             });
             
-            let finalEffectsToPlay = effectsToPlay;
-            if (!state.stackVfx && effectsToPlay.length > 0) {
+            let finalEffectsToPlay = [...effectsToPlay, ...newEffectsToQueue];
+            if (!state.stackVfx && finalEffectsToPlay.length > 0) {
                 const seenPositions = new Set<string>();
                 const uniqueEffects: EffectQueueItem[] = [];
-                for (let i = effectsToPlay.length - 1; i >= 0; i--) {
-                    const effect = effectsToPlay[i];
-                    const posKey = `${effect.position.x.toFixed(3)},${effect.position.y.toFixed(3)},${effect.position.z.toFixed(3)}`;
+                for (let i = finalEffectsToPlay.length - 1; i >= 0; i--) {
+                    const effect = finalEffectsToPlay[i];
+                    // For dialogs, which don't have a position in their sfx object, we can use their ID to ensure uniqueness
+                    const posKey = effect.sfx?.position 
+                        ? `${effect.position.x.toFixed(3)},${effect.position.y.toFixed(3)},${effect.position.z.toFixed(3)}`
+                        : effect.id;
                     if (!seenPositions.has(posKey)) {
                         seenPositions.add(posKey);
                         uniqueEffects.unshift(effect);
