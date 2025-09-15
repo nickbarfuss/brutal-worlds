@@ -20,7 +20,7 @@ export const handleSingleClick = (
         if (deselectedEnclave) {
             effectsToQueue.push({
                 id: uuidv4(),
-                sfx: { key: 'sfx-command-mode-exit', channel: 'fx', position: deselectedEnclave.center },
+                sfx: { key: 'command-mode-exit-sfx', channel: 'fx', position: deselectedEnclave.center },
                 position: deselectedEnclave.center,
             });
         }
@@ -40,9 +40,9 @@ export const handleSingleClick = (
     // issuing an order could take precedence over switching selection.
     if (isCtrlPressed && clickedEnclave.owner === 'player-1') {
         const newSelectedId = selectedEnclaveId === clickedEnclaveId ? null : clickedEnclaveId;
-        const sfxKey = newSelectedId !== null 
-            ? `sfx-command-mode-enter-${Math.floor(Math.random() * 2) + 1}` 
-            : 'sfx-command-mode-exit';
+        const sfxKey = newSelectedId !== null
+            ? `command-mode-enter-sfx`
+            : 'command-mode-exit-sfx';
         effectsToQueue.push({
             id: uuidv4(),
             sfx: { key: sfxKey, channel: 'fx', position: clickedEnclave.center },
@@ -65,7 +65,7 @@ export const handleSingleClick = (
              if (deselectedEnclave) {
                 effectsToQueue.push({
                     id: uuidv4(),
-                    sfx: { key: 'sfx-command-mode-exit', channel: 'fx', position: deselectedEnclave.center },
+                    sfx: { key: 'command-mode-exit-sfx', channel: 'fx', position: deselectedEnclave.center },
                     position: deselectedEnclave.center,
                 });
             }
@@ -78,7 +78,7 @@ export const handleSingleClick = (
             if (newOrders[selectedEnclaveId]) {
                 delete newOrders[selectedEnclaveId];
                 const vfx = ORDER_PROFILES.holding.assets.vfx;
-                const sfxKey = `sfx-order-hold-${Math.floor(Math.random() * 6) + 1}`;
+                const sfxKey = `order-hold-sfx`;
                 if (vfx) {
                     effectsToQueue.push({
                         id: uuidv4(),
@@ -125,7 +125,7 @@ export const handleSingleClick = (
 
                 if (safeForces - forceToSend > 0) { // Valid order condition
                     const vfx = ORDER_PROFILES[orderType].assets.vfx;
-                    const sfxKey = `sfx-order-${orderType}-${Math.floor(Math.random() * 4) + 1}`;
+                    const sfxKey = `order-${orderType}-sfx`;
                     const updatedOrders = { ...playerPendingOrders, [selectedEnclaveId]: { to: clickedEnclaveId, type: orderType }};
                     if (vfx) {
                         effectsToQueue.push({
@@ -156,7 +156,7 @@ export const handleSingleClick = (
         // 3c. Click on anything else (invalid target, self while holding, etc.): Deselect and inspect the new target.
         effectsToQueue.push({
             id: uuidv4(),
-            sfx: { key: 'sfx-command-mode-exit', channel: 'fx', position: originEnclave.center },
+            sfx: { key: 'command-mode-exit-sfx', channel: 'fx', position: originEnclave.center },
             position: originEnclave.center,
         });
         return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders, effectsToQueue };
@@ -190,7 +190,7 @@ export const handleDoubleClick = (
     }
     // A double click on a player-owned enclave always enters command mode.
     // The logic to cancel an order has been moved to a self-click in handleSingleClick.
-    const sfxKey = `sfx-command-mode-enter-${Math.floor(Math.random() * 2) + 1}`;
+    const sfxKey = `command-mode-enter-sfx`;
     effectsToQueue.push({
         id: uuidv4(),
         sfx: { key: sfxKey, channel: 'fx', position: clickedEnclave.center },

@@ -125,7 +125,8 @@ export const reducer = (state: GameState, action: Action): GameState => {
 
         // VFX/SFX
         case 'PROCESS_EFFECT_QUEUE':
-        case 'ADD_EFFECTS_TO_QUEUE': // New action
+        case 'ADD_EFFECTS_TO_QUEUE':
+        case 'CLEAR_EFFECT_QUEUE':
             return handleFx(state, action);
 
         // UI

@@ -177,7 +177,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             });
         
             if (ordersWereCancelled) {
-                const sfxKey = `sfx-order-hold-${Math.floor(Math.random() * 6) + 1}`;
+                const sfxKey = `order-hold-sfx`;
                 // Changed to add to effectQueue
                 const effectsToQueue: EffectQueueItem[] = [];
                 // Assuming the first cancelled order's enclave is representative for position
@@ -210,7 +210,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
 
             const effectsToQueue: EffectQueueItem[] = [];
 
-            const sfxKey = `sfx-order-hold-${Math.floor(Math.random() * 6) + 1}`;
+            const sfxKey = `order-hold-sfx`;
             effectsToQueue.push({
                 id: uuidv4(),
                 sfx: { key: sfxKey, channel: 'fx', position: fromEnclave.center },
@@ -244,7 +244,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             const orderType = order.type;
 
             const vfx = ORDER_PROFILES[orderType]?.assets.vfx;
-            const sfxKey = `sfx-order-${orderType}-${Math.floor(Math.random() * 4) + 1}`;
+            const sfxKey = `order-${orderType}-sfx`;
 
             if (vfx) {
                 effectsToQueue.push({

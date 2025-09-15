@@ -360,7 +360,9 @@ export const useGameEngine = () => {
                 playedEffectIds.push(effect.id); // Collect IDs of played effects
             });
             // Dispatch action to remove played effects from the queue
-            dispatch({ type: 'CLEAR_EFFECT_QUEUE' });
+            if (playedEffectIds.length > 0) {
+                dispatch({ type: 'PROCESS_EFFECT_QUEUE', payload: { playedIds: playedEffectIds } });
+            }
         }
     }, [state.effectQueue, dispatch]);
 
@@ -409,10 +411,10 @@ export const useGameEngine = () => {
         if (state.selectedEnclaveId !== prevSelectedEnclaveId.current) {
             if (state.selectedEnclaveId !== null) {
                 // Entering command mode
-                sfx.playSound('order-commandMode-sfx-enter', 'ui');
+                sfx.playSound('command-mode-enter-sfx', 'ui');
             } else if (prevSelectedEnclaveId.current !== null) {
                 // Exiting command mode
-                sfx.playSound('order-commandMode-sfx-exit', 'ui');
+                sfx.playSound('command-mode-exit-sfx', 'ui');
             }
             prevSelectedEnclaveId.current = state.selectedEnclaveId;
         }

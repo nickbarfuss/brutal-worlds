@@ -187,10 +187,8 @@ export const resolveAttacks = (
         newEnclavesMap.set(targetId, target);
 
         if (originalOwner !== target.owner && target.owner) {
-            const vfxKey = target.owner === 'player-1' ? 'conquest-player' : 'conquest-opponent';
-            const sfxKey = target.owner === 'player-1'
-                ? `sfx-conquest-player-${Math.floor(Math.random() * 3) + 1}`
-                : `sfx-conquest-opponent-${Math.floor(Math.random() * 2) + 1}`;
+            const vfxKey = target.owner === 'player-1' ? 'conquest-player-vfx' : 'conquest-opponent-vfx';
+            const sfxKey = target.owner === 'player-1' ? 'conquest-player-sfx' : 'conquest-opponent-sfx';
 
             effectsToPlay.push({
                 id: `eff-conquest-${target.id}-${Date.now()}`,

@@ -35,21 +35,21 @@ export const queueEffectAssets = (
     position: THREE.Vector3,
     effectsToPlay: EffectQueueItem[]
 ) => {
-    const sfxKey = profile.ui.assets.sfx?.[phase]?.[0];
-    const vfx = profile.ui.assets.vfx?.[phase]?.[0];
-    const dialogKey = profile.ui.assets.dialog?.[phase]?.[0];
+    const sfxKey = profile.ui.assets.sfx?.[phase];
+    const vfx = profile.ui.assets.vfx?.[phase];
+    const dialogKey = profile.ui.assets.dialog?.[phase];
 
     if (vfx) {
         effectsToPlay.push({
             id: `eff-${profile.key}-${phase}-vfx-${position.x}-${position.y}-${position.z}-${Date.now()}`,
-            vfx: [vfx],
-            sfx: sfxKey ? { key: sfxKey, channel: 'fx', position: position } : undefined,
+            vfx: vfx,
+            sfx: sfxKey ? { key: sfxKey[0], channel: 'fx', position: position } : undefined,
             position: position,
         });
     } else if (sfxKey) {
         effectsToPlay.push({
             id: `eff-${profile.key}-${phase}-sfx-${position.x}-${position.y}-${position.z}-${Date.now()}`,
-            sfx: { key: sfxKey, channel: 'fx', position: position },
+            sfx: { key: sfxKey[0], channel: 'fx', position: position },
             position: position,
         });
     }
@@ -57,7 +57,7 @@ export const queueEffectAssets = (
     if (dialogKey) {
         effectsToPlay.push({
             id: `eff-${profile.key}-${phase}-dialog-${position.x}-${position.y}-${position.z}-${Date.now()}`,
-            sfx: { key: dialogKey, channel: 'dialog', position: position },
+            sfx: { key: dialogKey[0], channel: 'dialog', position: position },
             position: position,
         });
     }
@@ -123,7 +123,7 @@ export const processEffectMarkers = (
             // Push the side effect directly to effectsToPlay for the main thread to handle VFX/SFX
             effectsToPlay.push({
                 id: `vfx-sfx-${Date.now()}-${Math.random()}`,
-                vfx: [sideEffect.vfxKey],
+                vfx: sideEffect.vfxKey ? [sideEffect.vfxKey] : undefined,
                 sfx: sideEffect.sfx,
                 position: sideEffect.position,
             });
