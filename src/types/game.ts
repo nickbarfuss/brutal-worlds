@@ -531,9 +531,10 @@ export interface ActiveGambit {
 }
 
 export interface EffectQueueItem {
-    key: string;
-    type: 'sfx' | 'vfx';
+    id: string;
     position: Vector3;
+    sfx?: SfxPlayback;
+    vfx?: { key: string }[] | string[];
 }
 
 // Briefing
@@ -652,8 +653,9 @@ export interface GameState {
 
 export interface ConquestEvent {
     enclaveId: number;
-    newOwner: Player;
-    previousOwner: Owner;
+    conqueror: Player;
+    archetypeKey: string;
+    legacyKey: string;
 }
 
 // Temporary comment to force re-evaluation

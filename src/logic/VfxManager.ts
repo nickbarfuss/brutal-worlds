@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { VfxProfile } from '../types/game';
-import { getAssetUrl } from '../utils/assetUtils';
+import { ASSETS } from '@/data/assets';
+import { flattenAssetUrls } from '@/utils/assetUtils';
 
 interface ActiveEffect {
     key: string;
@@ -12,73 +12,57 @@ interface ActiveEffect {
 
 export class VfxManager {
     private isInitialized: boolean = false;
-    private preloadedVideos: { [key: string]: { video: HTMLVideoElement; profile: VfxProfile } } = {};
+    private preloadedVideos: Map<string, HTMLVideoElement[]> = new Map();
     private activeEffects: ActiveEffect[] = [];
 
-    // Constructor can be used for dependency injection if needed
     constructor() {}
 
-    public async init(profiles: { [key: string]: VfxProfile }): Promise<void> {
+    public async init(): Promise<void> {
         if (this.isInitialized) return;
 
+        const vfxAssets = flattenAssetUrls(ASSETS, ['.webm', '.mp4']);
         const assetPromises: Promise<void>[] = [];
-        
-        for (const [key, profile] of Object.entries(profiles)) {
-            // The cinematic videos are handled separately as <video> elements in GameScreen.tsx
-            if (key !== 'warp-enter' && key !== 'warp-exit') {
-                assetPromises.push(this.loadVideo(key, profile));
-            }
-        }
+
+        vfxAssets.forEach((urls, key) => {
+            urls.forEach(url => {
+                assetPromises.push(this.loadVideo(key, url));
+            });
+        });
 
         try {
             await Promise.all(assetPromises);
             this.isInitialized = true;
-            
         } catch (error) {
             console.error("Error initializing VFX Manager:", error);
             throw new Error("Failed to load one or more VFX assets.");
         }
     }
 
-    private loadVideo(key: string, profile: VfxProfile): Promise<void> {
-        return new Promise((resolve) => {
+    private loadVideo(key: string, url: string): Promise<void> {
+        return new Promise((resolve, reject) => {
             const video = document.createElement('video');
-            video.src = getAssetUrl(profile);
+            video.src = url;
             video.muted = true;
             video.loop = false;
             video.playsInline = true;
             video.preload = 'auto';
-            let resolved = false;
-
-            const timeout = setTimeout(() => {
-                if (!resolved) {
-                    resolved = true;
-                    console.warn(`VFX video loading timed out for "${key}".`);
-                    cleanup();
-                    resolve();
-                }
-            }, 8000); // 8-second timeout
 
             const onCanPlayThrough = () => {
-                if (!resolved) {
-                    resolved = true;
-                    this.preloadedVideos[key] = { video, profile };
-                    cleanup();
-                    resolve();
+                if (!this.preloadedVideos.has(key)) {
+                    this.preloadedVideos.set(key, []);
                 }
+                this.preloadedVideos.get(key)?.push(video);
+                cleanup();
+                resolve();
             };
 
             const onError = () => {
-                if (!resolved) {
-                    resolved = true;
-                    console.error(`Failed to load VFX video for "${key}" from ${getAssetUrl(profile)}`);
-                    cleanup();
-                    resolve(); // Resolve even on error to not block the game
-                }
+                console.error(`Failed to load VFX video for "${key}" from ${url}`);
+                cleanup();
+                reject(new Error(`Failed to load ${url}`));
             };
 
             const cleanup = () => {
-                clearTimeout(timeout);
                 video.removeEventListener('canplaythrough', onCanPlayThrough);
                 video.removeEventListener('error', onError);
             };
@@ -88,70 +72,45 @@ export class VfxManager {
             video.load();
         });
     }
-    
+
     public reset(): void {
-        // Stop any currently playing videos to prevent them from continuing in the background.
-        this.activeEffects.forEach(effect => effect.video.pause());
+        this.activeEffects.forEach(effect => {
+            effect.video.pause();
+            effect.video.currentTime = 0;
+        });
         this.activeEffects = [];
     }
 
-    public playEffect(key: string | string[], worldPosition: THREE.Vector3): void {
-        
-        let selectedKey: string;
-        if (Array.isArray(key)) {
-            // If key is an array of strings, pick one at random.
-            selectedKey = key[Math.floor(Math.random() * key.length)];
-        } else {
-            selectedKey = key;
-        }
-
-        // If the selected key is a full path, we need to find the corresponding preloaded key.
-        if (selectedKey.startsWith('/')) {
-            const foundKey = Object.keys(this.preloadedVideos).find(k => getAssetUrl(this.preloadedVideos[k].profile) === selectedKey);
-            if (foundKey) {
-                selectedKey = foundKey;
-            } else {
-                console.warn(`[VfxManager] No preloaded VFX found for path: ${selectedKey}. Playback aborted.`);
-                return;
-            }
-        }
-
-        // Validate worldPosition before proceeding
-        if (!(worldPosition instanceof THREE.Vector3)) {
-            console.error(`[VfxManager] Invalid worldPosition provided for effect "${selectedKey}". Expected THREE.Vector3, got:`, worldPosition);
+    public playEffect(key: string, worldPosition: THREE.Vector3, width: number, height: number): void {
+        const videos = this.preloadedVideos.get(key);
+        if (!videos || videos.length === 0) {
+            console.warn(`No VFX found for key: ${key}`);
             return;
         }
 
-        const preloadedAsset = this.preloadedVideos[selectedKey];
-        if (!preloadedAsset) {
-            console.warn(`[VfxManager] VFX video "${selectedKey}" not found or not preloaded. Playback aborted.`);
-            return;
-        }
-
-        const video = preloadedAsset.video.cloneNode(true) as HTMLVideoElement;
+        const video = videos[Math.floor(Math.random() * videos.length)];
         video.currentTime = 0;
-        video.play().then(() => {
-            
-        }).catch(e => console.error(`[VfxManager] VFX play error for ${selectedKey}:`, e));
-        
-        // Provide default values if profile or its dimensions are undefined
-        const width = 256;
-        const height = 256;
-        
-        this.activeEffects.push({
-            key: selectedKey,
-            video,
-            worldPosition: worldPosition.clone(),
-            width,
-            height,
-        });
+        video.play().catch(e => console.error(`Error playing VFX for ${key}:`, e));
+
+        this.activeEffects.push({ key, video, worldPosition, width, height });
+
+        video.onended = () => {
+            this.activeEffects = this.activeEffects.filter(effect => effect.video !== video);
+        };
+    }
+
+    public getActiveEffects(): ActiveEffect[] {
+        return this.activeEffects;
+    }
+
+    public isInitializedStatus(): boolean {
+        return this.isInitialized;
     }
 
     public updateAndDraw(
         ctx: CanvasRenderingContext2D, 
         mapContainer: THREE.Object3D, 
         camera: THREE.PerspectiveCamera, 
-        _sphereRadius: number // No longer used, but kept for signature compatibility
     ): void {
         if (!this.isInitialized) return;
 
@@ -162,7 +121,6 @@ export class VfxManager {
         for (let i = this.activeEffects.length - 1; i >= 0; i--) {
             const effect = this.activeEffects[i];
             
-            // Remove the effect if the video has finished playing.
             if (effect.video.ended) {
                 this.activeEffects.splice(i, 1);
                 continue;
@@ -170,19 +128,16 @@ export class VfxManager {
 
             const worldPos = effect.worldPosition.clone().applyMatrix4(mapContainer.matrixWorld);
             
-            // Culling: check if the surface normal is facing the camera.
             const viewVector = new THREE.Vector3().subVectors(camera.position, worldPos);
-            const normal = worldPos.clone().normalize(); // Assumes sphere is at origin
+            const normal = worldPos.clone().normalize();
 
-            if (viewVector.dot(normal) > 0) { // If the point is on the visible hemisphere
+            if (viewVector.dot(normal) > 0) {
                 const screenPos = worldPos.clone().project(camera);
                 
-                // Check if the effect is within the screen bounds (in front of camera)
                 if (screenPos.z < 1) {
                     const x = (screenPos.x * 0.5 + 0.5) * canvasWidth;
                     const y = (-screenPos.y * 0.5 + 0.5) * canvasHeight;
 
-                    // Draw the current frame of the video onto the canvas.
                     ctx.drawImage(
                         effect.video,
                         x - effect.width / 2,

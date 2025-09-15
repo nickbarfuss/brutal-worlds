@@ -100,32 +100,49 @@ export const extractAssetUrls = (assets: any): AssetUrls => {
 };
 
 /**
- * Flattens the nested ASSETS object into a map of logical keys to arrays of URLs.
+ * Flattens a nested asset object into a map of logical keys to arrays of URLs,
+ * filtering by the specified file extensions.
  * @param assets The nested ASSETS object.
- * @returns A Map where keys are flattened strings (e.g., "ui-common-buttonGameStart") and values are arrays of URLs.
+ * @param extensions An array of file extensions to include (e.g., ['.mp3', '.wav']).
+ * @returns A Map where keys are flattened strings (e.g., "ui-common-buttonGameStart")
+ *          and values are arrays of matching asset URLs.
  */
-export const flattenAssetUrls = (assets: any): Map<string, string[]> => {
+export const flattenAssetUrls = (assets: any, extensions: string[]): Map<string, string[]> => {
     const flattenedMap = new Map<string, string[]>();
 
     const traverse = (obj: any, path: string[]) => {
-        for (const key in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                const value = obj[key];
-                const currentPath = [...path, key];
+        if (obj === null || typeof obj !== 'object') {
+            return;
+        }
 
-                if (Array.isArray(value)) {
-                    const urls = value.filter(item => typeof item === 'string' && item.endsWith('.mp3'));
-                    if (urls.length > 0) {
-                        const flattenedKey = currentPath.join('-');
-                        flattenedMap.set(flattenedKey, urls);
-                    }
-                } else if (typeof value === 'string') {
-                    if (value.endsWith('.mp3')) {
-                        const flattenedKey = currentPath.join('-');
-                        flattenedMap.set(flattenedKey, [value]);
-                    }
-                } else if (typeof value === 'object' && value !== null) {
-                    traverse(value, currentPath);
+        const isLeafNode = (value: any): boolean => {
+            if (Array.isArray(value)) {
+                return value.every(item => typeof item === 'string' && extensions.some(ext => item.endsWith(ext)));
+            }
+            if (typeof value === 'string') {
+                return extensions.some(ext => value.endsWith(ext));
+            }
+            return false;
+        };
+
+        if (isLeafNode(obj)) {
+            const urls = Array.isArray(obj) ? obj : [obj];
+            const key = path.join('-');
+            if (flattenedMap.has(key)) {
+                flattenedMap.get(key)!.push(...urls);
+            } else {
+                flattenedMap.set(key, urls);
+            }
+        } else if (Array.isArray(obj)) {
+            // This handles arrays that are not leaf nodes, i.e., arrays of objects.
+            obj.forEach((item) => {
+                // We don't append index to path for arrays of objects to keep keys clean
+                traverse(item, path);
+            });
+        } else {
+            for (const key in obj) {
+                if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                    traverse(obj[key], [...path, key]);
                 }
             }
         }

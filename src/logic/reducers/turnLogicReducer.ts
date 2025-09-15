@@ -2,7 +2,6 @@ import { GameState, Enclave, EffectQueueItem } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
 import { v4 as uuidv4 } from 'uuid';
 import { EFFECT_PROFILES } from '@/data/effects';
-import { ORDER_PROFILES } from '@/data/orders';
 import { triggerNewEffect as triggerEffectLogic } from "@/logic/effectManager";
 
 export const handleTurnLogic = (state: GameState, action: Action): GameState => {
@@ -265,14 +264,12 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 position: fromEnclave.center,
             });
 
-            const vfx = ORDER_PROFILES.holding.assets.vfx;
-            if (vfx) {
-                effectsToQueue.push({
-                    id: uuidv4(),
-                    vfx: vfx,
-                    position: fromEnclave.center,
-                });
-            }
+            const vfxKey = 'order-holding-vfx';
+            effectsToQueue.push({
+                id: uuidv4(),
+                vfx: [vfxKey],
+                position: fromEnclave.center,
+            });
 
             return {
                 ...state,
@@ -291,16 +288,14 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             const effectsToQueue: EffectQueueItem[] = [];
             const orderType = order.type;
 
-            const vfx = ORDER_PROFILES[orderType]?.assets.vfx;
+            const vfxKey = `order-${orderType}-vfx`;
             const sfxKey = `order-${orderType}-sfx`;
 
-            if (vfx) {
-                effectsToQueue.push({
-                    id: uuidv4(),
-                    vfx: vfx,
-                    position: toEnclave.center, // VFX at target
-                });
-            }
+            effectsToQueue.push({
+                id: uuidv4(),
+                vfx: [vfxKey],
+                position: toEnclave.center, // VFX at target
+            });
 
             effectsToQueue.push({
                 id: uuidv4(),

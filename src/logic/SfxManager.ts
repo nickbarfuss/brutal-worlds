@@ -38,9 +38,8 @@ export class SfxManager {
     public async init(): Promise<void> {
         if (this.isInitialized) return Promise.resolve();
         
-        this.flattenedAudioAssets = flattenAssetUrls(ASSETS);
+        this.flattenedAudioAssets = flattenAssetUrls(ASSETS, ['.mp3']);
 
-        // Populate music and ambient track keys
         this.musicTrackKeys = Array.from(this.flattenedAudioAssets.keys()).filter(key => key.startsWith('music-'));
         this.ambientTrackKeys = Array.from(this.flattenedAudioAssets.keys()).filter(key => key.startsWith('ambient-'));
         

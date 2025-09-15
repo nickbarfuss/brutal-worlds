@@ -188,14 +188,18 @@ export const resolveAttacks = (
 
         if (originalOwner !== target.owner && target.owner) {
             const ownerKey = target.owner === 'player-1' ? 'player' : 'opponent';
-            const vfxKey = `conquest-${ownerKey}`;
             const sfxKey = `conquest-${ownerKey}-sfx`;
+            const vfxKey = `conquest-${ownerKey}-vfx`;
 
             effectsToPlay.push({
-                id: `eff-conquest-${target.id}-${Date.now()}`,
+                id: '', // This will be populated in useGameEngine
+                sfx: { key: sfxKey, channel: 'fx' },
+                position: target.position,
+            });
+            effectsToPlay.push({
+                id: '', // This will be populated in useGameEngine
                 vfx: [vfxKey],
-                sfx: { key: sfxKey, channel: 'fx', position: target.center },
-                position: target.center,
+                position: target.position,
             });
 
             const conqueringArchetypeKey = target.archetypeKey;

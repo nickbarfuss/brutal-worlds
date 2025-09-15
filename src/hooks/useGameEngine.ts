@@ -195,7 +195,8 @@ export const useGameEngine = () => {
                         const newEffectQueueItems: EffectQueueItem[] = deserializedResult.effectsToPlay.map(effect => {
                             const newEffect: EffectQueueItem = { id: uuidv4(), position: effect.position };
                             if (effect.vfx) {
-                                newEffect.vfx = effect.vfx;
+                                // Ensure vfx is always an array of strings
+                                newEffect.vfx = Array.isArray(effect.vfx) ? effect.vfx.map(v => (typeof v === 'string' ? v : v.key)) : [(typeof effect.vfx === 'string' ? effect.vfx : effect.vfx.key)];
                             }
                             if (effect.sfx) {
                                 newEffect.sfx = effect.sfx;
@@ -347,11 +348,12 @@ export const useGameEngine = () => {
             const playedEffectIds: string[] = [];
             state.effectQueue.forEach(effect => {
                 if (effect.vfx && effect.position) {
-                    // FIX: The vfx property can be an array of strings or an array of objects with a `key` property.
-                    // This ensures we always pass a string key to the playEffect method.
-                    const vfxKeys = (effect.vfx || []).map(v => (typeof v === 'string' ? v : (v as { key: string }).key)).flat();
-                    vfxKeys.forEach(vfxKey => {
-                        vfxManager.current.playEffect(vfxKey, effect.position as THREE.Vector3);
+                    const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];
+                    vfxItems.forEach(v => {
+                        const key = typeof v === 'string' ? v : v.key;
+                        if (key) {
+                            vfxManager.current.playEffect(key, effect.position as THREE.Vector3, 2, 2);
+                        }
                     });
                 }
                 if (effect.sfx) {
