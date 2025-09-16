@@ -128,6 +128,7 @@ export const reducer = (state: GameState, action: Action): GameState => {
         case 'ADD_EFFECTS_TO_QUEUE':
         case 'CLEAR_EFFECT_QUEUE':
         case 'SET_PENDING_EFFECTS':
+        case 'REMOVE_PENDING_EFFECTS':
             return handleFx(state, action);
 
         // UI
