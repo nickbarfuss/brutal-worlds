@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { VfxManager } from '@/logic/VfxManager';
-import { extractVfxProfiles } from '@/utils/assetUtils';
 import { SfxManager } from '@/logic/SfxManager';
 import { GamePhase } from '@/types/game';
 import { getAssetUrl, extractAssetUrls } from '@/utils/assetUtils';
@@ -108,8 +107,7 @@ export const useGameInitializer = (
                 await preloadAudio(assetUrls.audio);
 
                 updateMessage('Initializing VFX...');
-                const vfxProfiles = extractVfxProfiles(ASSETS);
-                await vfxManager.current?.init(vfxProfiles);
+                await vfxManager.current?.init();
 
                 updateMessage('Initializing SFX...');
                 await sfxManager.current?.init();

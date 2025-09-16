@@ -402,6 +402,7 @@ export const generateNewWorld = (worldProfile: WorldProfile): {
             owner: null,
             forces: 5,
             center: closestCell.center.clone(),
+            position: closestCell.center.clone(),
             mainCellId: closestCell.id,
             domainId,
             activeEffects: [],

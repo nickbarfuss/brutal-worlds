@@ -1,12 +1,12 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useGameEngine } from '@/hooks/useGameEngine';
-import WorldCanvas, { WorldCanvasHandle } from '@/components/WorldCanvas';
-import PlayerDisplay from '@/components/PlayerDisplay';
-import InspectorCard from '@/components/inspector/InspectorCard';
+import WorldCanvas, { WorldCanvasHandle } from '@/features/world/WorldCanvas';
+import PlayerDisplay from '@/components/features/display/PlayerDisplay';
+import InspectorCard from '@/components/features/inspector/InspectorCard';
 import Snackbar from '@/components/ui/Snackbar';
-import BriefingCard from '@/components/briefing/BriefingCard';
-import GameOverDialog from '@/components/GameOverDialog';
+import BriefingCard from '@/components/features/briefing/BriefingCard';
+import GameOverDialog from '@/components/features/game-over/GameOverDialog';
 
 import { ORDER_PROFILES } from '@/data/orders';
 import { ASSETS } from '@/data/assets';
@@ -14,24 +14,24 @@ import { EFFECT_PROFILES } from '@/data/effects';
 import { ARCHETYPES } from '@/data/archetypes';
 import { BIRTHRIGHTS } from '@/data/birthrights';
 import { getIconForRouteStatus, getIconForEntityType, getDomainOwner } from '@/utils/entityUtils';
-import TurnDisplay from '@/components/TurnDisplay';
-import WorldDisplay from '@/components/WorldDisplay';
+import TurnDisplay from '@/components/features/display/TurnDisplay';
+import WorldDisplay from '@/components/features/display/WorldDisplay';
 import { PLAYER_THREE_COLORS, THEME_CONFIG } from '@/data/theme';
 import { useWorldHighlights } from '@/hooks/useWorldHighlights';
 import { BriefingContent, BriefingState, GameOverState, OrderType, Owner, WorldProfile, Enclave, Domain, IntroPhase, Vector3, EffectQueueItem, PlayerIdentifier, InspectedMapEntity, BriefingType } from '@/types/game'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import Backdrop from '@/components/ui/Backdrop';
-import LegendDisplay from '@/components/LegendDisplay';
-import VignetteOverlay from '@/components/VignetteOverlay';
+import LegendDisplay from '@/components/features/display/LegendDisplay';
+import VignetteOverlay from '@/components/ui/VignetteOverlay';
 import { getAppliedModifiers } from '@/logic/effectProcessor';
 import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrightManager';
 import CustomCursor from '@/components/ui/CustomCursor';
-import SettingsDrawer from '@/components/SettingsDrawer';
-import SurrenderConfirmDialog from '@/components/SurrenderConfirmDialog';
+import SettingsDrawer from '@/components/features/settings/SettingsDrawer';
+import SurrenderConfirmDialog from '@/components/features/surrender/SurrenderConfirmDialog';
 import { getAssetUrl } from '@/utils/assetUtils';
 import { toCamelCase } from '@/utils/stringUtils';
-import WarpStarsCanvas from '@/components/WarpStarsCanvas';
+import WarpStarsCanvas from '@/features/background/WarpStarsCanvas';
 
-import ErrorBoundary from '@/components/ErrorBoundary'; // Added ErrorBoundary import
+import ErrorBoundary from '@/components/features/system/ErrorBoundary'; // Added ErrorBoundary import
 
 declare const gsap: any;
 

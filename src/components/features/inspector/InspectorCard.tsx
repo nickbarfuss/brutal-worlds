@@ -2,14 +2,14 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import { Enclave, Domain, PendingOrders, InspectedEntity, Rift, Expanse, ActiveEffectMarker, Route, WorldProfile, Vector3, PlayerIdentifier } from '@/types/game';
 import Card from '@/components/ui/Card';
-import EnclaveInspector from '@/components/inspector/EnclaveInspector';
-import WorldInspector from '@/components/inspector/WorldInspector';
-import DomainInspector from '@/components/inspector/DomainInspector';
-import RiftInspector from '@/components/inspector/RiftInspector';
-import ExpanseInspector from '@/components/inspector/ExpanseInspector';
+import EnclaveInspector from '@/components/features/inspector/EnclaveInspector';
+import WorldInspector from '@/components/features/inspector/WorldInspector';
+import DomainInspector from '@/components/features/inspector/DomainInspector';
+import RiftInspector from '@/components/features/inspector/RiftInspector';
+import ExpanseInspector from '@/components/features/inspector/ExpanseInspector';
 import { CONFIG as GameConfig } from '@/data/config';
-import EffectInspector from '@/components/inspector/EffectInspector';
-import ArchetypeInspector from '@/components/inspector/ArchetypeInspector';
+import EffectInspector from '@/components/features/inspector/EffectInspector';
+import ArchetypeInspector from '@/components/features/inspector/ArchetypeInspector';
 
 // GSAP is loaded globally via script tag in index.html
 declare const gsap: any;

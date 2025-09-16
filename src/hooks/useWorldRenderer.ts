@@ -159,7 +159,6 @@ export const useWorldRenderer = (props: MapRendererProps) => {
         opacityControllerRef.current = opacityController;
     }, [opacityController, opacityControllerRef]);
 
-
     useEffect(() => {
         const state = stateRef.current;
         
@@ -674,5 +673,5 @@ export const useWorldRenderer = (props: MapRendererProps) => {
             if (currentMount) currentMount.removeChild(renderer.domElement);
             if (uiCanvas.parentElement) uiCanvas.parentElement.removeChild(uiCanvas);
         };
-    }, [props.gameSessionId, props.currentWorld, cameraRef, controlsRef, mapContainerRef, mountRef, props.ambientLightIntensity, props.initialCameraTarget, sceneElementsRef]);
+    }, [props.gameSessionId, props.currentWorld, cameraRef, controlsRef, mapContainerRef, mountRef, props.ambientLightIntensity, props.initialCameraTarget, sceneElementsRef, opacityController]);
 };

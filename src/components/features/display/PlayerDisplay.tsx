@@ -1,5 +1,5 @@
 import React from 'react';
-import ArchetypeAvatar from '@/components/ArchetypeAvatar';
+import ArchetypeAvatar from '@/components/ui/ArchetypeAvatar';
 import { PlayerIdentifier } from '@/types/game';
 
 interface PlayerDisplayProps {

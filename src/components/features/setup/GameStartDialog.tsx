@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { ARCHETYPES } from '@/data/archetypes';
 import { WORLD_LIBRARY } from '@/data/worlds';
 import Button from '@/components/ui/Button';
-import ArchetypeSelectionCard from '@/components/ArchetypeSelectionCard';
-import WorldSelectionCard from '@/components/WorldSelectionCard';
+import ArchetypeSelectionCard from '@/components/features/setup/ArchetypeSelectionCard';
+import WorldSelectionCard from '@/components/features/setup/WorldSelectionCard';
 import { AudioChannel } from '@/types/game';
 import { TEXT } from '@/data/text';
 

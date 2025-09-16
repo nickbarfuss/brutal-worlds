@@ -1,3 +1,5 @@
+//throw new Error('Simulating worker crash');
+
 /*
   This is a web worker script for resolving game turns in the background.
   It receives the game state, processes all game logic for a turn (disasters,
@@ -14,6 +16,7 @@ import { applyContinuousEffects } from '@/logic/effectProcessor';
 import { cloneEnclave } from '@/logic/cloneUtils';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
 import * as entropyWindHandler from '@/logic/disasters/entropyWind';
+import { getRandomAssetKey } from '@/utils/assetUtils';
 
 
 const resolveNumericRange = (value: number | [number, number]): number => {
@@ -386,8 +389,6 @@ self.onmessage = (e: MessageEvent) => {
             state.playerLegacyKey,
             state.opponentArchetypeKey,
             state.opponentLegacyKey,
-            state.playerHasHadFirstConquestDialog,
-            state.opponentHasHadFirstConquestDialog,
         );
         
         

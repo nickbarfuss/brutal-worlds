@@ -4,7 +4,7 @@ import { AudioChannel, GameState, MaterialProperties } from '@/types/game';
 import SliderCard from '@/components/ui/SliderCard';
 import SwitchCard from '@/components/ui/SwitchCard';
 import { SfxManager } from '@/logic/SfxManager';
-import { WorldCanvasHandle } from '@/components/WorldCanvas';
+import { WorldCanvasHandle } from '@/features/world/WorldCanvas';
 import { TEXT } from '@/data/text';
 
 interface SettingsDrawerProps {

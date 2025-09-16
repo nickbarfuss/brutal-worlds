@@ -1,12 +1,12 @@
 import React, { useRef, useState, useLayoutEffect } from 'react';
 import { BriefingContent, WorldProfile, BriefingType } from '@/types/game';
 import Card from '@/components/ui/Card';
-import OrderBriefing from '@/components/briefing/OrderBriefing';
-import EffectBriefing from '@/components/briefing/EffectBriefing';
-import RouteBriefing from '@/components/briefing/RouteBriefing';
-import DomainBriefing from '@/components/briefing/DomainBriefing';
-import DisasterBriefing from '@/components/briefing/DisasterBriefing';
-import BirthrightBriefing from '@/components/briefing/BirthrightBriefing';
+import OrderBriefing from '@/components/features/briefing/OrderBriefing';
+import EffectBriefing from '@/components/features/briefing/EffectBriefing';
+import RouteBriefing from '@/components/features/briefing/RouteBriefing';
+import DomainBriefing from '@/components/features/briefing/DomainBriefing';
+import DisasterBriefing from '@/components/features/briefing/DisasterBriefing';
+import BirthrightBriefing from '@/components/features/briefing/BirthrightBriefing';
 
 interface BriefingCardProps {
     briefing: {

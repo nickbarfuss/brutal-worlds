@@ -12,6 +12,7 @@ import { deserializeResolvedTurn, serializeGameStateForWorker } from '@/utils/th
 import { calculateAIOrderChanges } from '@/logic/ai';
 import { getAssistMultiplierForEnclave } from '@/logic/birthrightManager.ts';
 import { v4 as uuidv4 } from 'uuid';
+import { useConnection } from '@/hooks/useConnection';
 
 
 
@@ -42,6 +43,7 @@ const getInvalidPlayerAssistOrders = (
 };
 
 export const useGameEngine = () => {
+    const { setOnline } = useConnection();
     const vfxManager = useRef(new VfxManager());
     const sfxManager = useRef(new SfxManager());
     const [state, dispatch] = useReducer(gameReducer, initialState);
@@ -216,6 +218,7 @@ export const useGameEngine = () => {
             
             worker.onerror = (e: ErrorEvent) => {
                 console.error("A fatal worker error occurred:", e);
+                setOnline(false);
                 let errorMessage = 'A fatal error occurred in the background process.';
                 if (e && e.message) {
                     errorMessage = `${e.message} (at ${e.filename}:${e.lineno})`;
@@ -234,12 +237,13 @@ export const useGameEngine = () => {
             };
         } catch (error) {
             console.error("Failed to create Web Worker:", error);
+            setOnline(false);
             dispatch({
                 type: 'SET_INITIALIZATION_STATE',
                 payload: { isInitialized: true, message: '', error: `Failed to initialize game: ${error instanceof Error ? error.message : 'Unknown error'}` },
             });
         }
-      }, []);
+      }, [setOnline]);
 
     useEffect(() => {
         if (state.latestEffect) {

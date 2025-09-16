@@ -1,17 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGameEngine } from '@/hooks/useGameEngine';
-import Loader from '@/components/Loader';
-import GameStartDialog from '@/components/GameStartDialog';
-import MainScreen from '@/components/MainScreen';
+import { useConnection } from '@/hooks/useConnection';
+import Loader from '@/components/features/system/Loader';
+import GameStartDialog from '@/components/features/setup/GameStartDialog';
+import MainMenuScreen from '@/screens/MainMenuScreen';
 // Re-enable GameScreen to test the rendering pipeline.
-import GameScreen from '@/components/GameScreen';
+import GameScreen from '@/screens/GameScreen';
 import Backdrop from '@/components/ui/Backdrop';
+import OfflineOverlay from '@/components/features/system/OfflineOverlay';
 import { AudioChannel } from '@/types/game';
 import { CONFIG } from '@/data/config';
 import { ARCHETYPES } from '@/data/archetypes';
 import { WORLD_LIBRARY } from '@/data/worlds';
 
-const GameView: React.FC = () => {
+const App: React.FC = () => {
+    const { isOnline } = useConnection();
     const engine = useGameEngine();
     const [isClosingStartDialog, setIsClosingStartDialog] = useState(false);
     const closeDialogTimeoutRef = useRef<number | null>(null);
@@ -142,7 +145,8 @@ const GameView: React.FC = () => {
     if (engine.gamePhase === 'mainMenu' || showStartDialog) {
         return (
             <>
-                <MainScreen onBegin={handleBegin} />
+                {!isOnline && <OfflineOverlay />}
+                <MainMenuScreen onBegin={handleBegin} />
                 {showStartDialog && (
                     <>
                         <Backdrop isClosing={isClosingStartDialog} />
@@ -168,4 +172,4 @@ const GameView: React.FC = () => {
     return null; // Fallback for any unhandled game phase
 };
 
-export default GameView;
+export default App;

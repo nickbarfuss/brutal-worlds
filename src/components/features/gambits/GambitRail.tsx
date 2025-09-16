@@ -2,14 +2,13 @@
 /* ================================================================== */
 /* NOTE FOR FUTURE REFACTORING: GAMBIT SYSTEM DISABLED                */
 /* This component and the associated Gambit system are temporarily    */
-/* disabled and commented out from GameScreen.tsx. Do not reintroduce */
-/* this functionality until specifically instructed to do so.         */
+/* disabled Do not reintroduce until specifically instructed.         */
 /* ================================================================== */
 
 import React, { useState, useCallback } from 'react';
 import { ActiveGambit, GambitProfile } from '@/types/game';
 import { GAMBITS } from '@/data/gambits';
-import GambitCard from '@/components/GambitCard';
+import GambitCard from './GambitCard';
 import ButtonGambit from '@/components/ui/ButtonGambit';
 
 interface GambitRailProps {

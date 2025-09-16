@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import GameView from '@/components/GameView';
-import ThemeInjector from '@/components/ThemeInjector';
+import { ConnectionProvider } from '@/hooks/useConnection';
+import App from '@/app/App';
+import ThemeInjector from '@/theme/ThemeInjector';
 import '@/index.css';
 
 const rootElement = document.getElementById('root');
@@ -12,7 +13,9 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <ThemeInjector />
-    <GameView />
+    <ConnectionProvider>
+      <ThemeInjector />
+      <App />
+    </ConnectionProvider>
   </React.StrictMode>
 );

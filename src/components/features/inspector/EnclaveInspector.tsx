@@ -1,18 +1,18 @@
 import React from 'react';
-import { Enclave, Domain, PendingOrders, WorldProfile, ActiveEffectMarker, Route, Owner, Order } from '../../types/game';
-import { ORDER_PROFILES } from '../../data/orders';
-import { PLAYER_THREE_COLORS, THEME_CONFIG } from '../../data/theme';
-import { EFFECT_PROFILES } from '../../data/effects';
-import { BIRTHRIGHTS } from '../../data/birthrights';
-import { ARCHETYPES } from '../../data/archetypes';
-import Card from '../ui/Card';
-import ChipCard from '../ui/ChipCard';
-import { getIconForEntityType, getIconForRouteStatus } from '../../utils/entityUtils';
-import { getAppliedModifiers } from '../../logic/effectProcessor';
-import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '../../logic/birthrightManager';
-import { calculateEnclaveTurnPreview, TurnPreview } from '../../logic/previewManager'; // eslint-disable-line @typescript-eslint/no-unused-vars
-import { getAssetUrl } from '../../utils/assetUtils';
-import { CONFIG as GameConfig } from '../../data/config';
+import { Enclave, Domain, PendingOrders, WorldProfile, ActiveEffectMarker, Route, Owner, Order } from '@/types/game';
+import { ORDER_PROFILES } from '@/data/orders';
+import { PLAYER_THREE_COLORS, THEME_CONFIG } from '@/data/theme';
+import { EFFECT_PROFILES } from '@/data/effects';
+import { BIRTHRIGHTS } from '@/data/birthrights';
+import { ARCHETYPES } from '@/data/archetypes';
+import Card from '@/components/ui/Card';
+import ChipCard from '@/components/ui/ChipCard';
+import { getIconForEntityType, getIconForRouteStatus } from '@/utils/entityUtils';
+import { getAppliedModifiers } from '@/logic/effectProcessor';
+import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrightManager';
+import { calculateEnclaveTurnPreview, TurnPreview } from '@/logic/previewManager'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import { getAssetUrl } from '@/utils/assetUtils';
+import { CONFIG as GameConfig } from '@/data/config';
 
 interface EnclaveInspectorProps {
     enclave: Enclave;
