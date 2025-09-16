@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ConnectionProvider } from '@/hooks/useConnection';
+import { ConnectionProvider } from '@/components/providers/ConnectionProvider';
 import App from '@/app/App';
 import ThemeInjector from '@/theme/ThemeInjector';
 import '@/index.css';

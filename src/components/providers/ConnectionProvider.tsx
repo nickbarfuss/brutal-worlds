@@ -1,11 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
-
-interface ConnectionContextType {
-  isOnline: boolean;
-  setOnline: (isOnline: boolean) => void;
-}
-
-const ConnectionContext = createContext<ConnectionContextType | undefined>(undefined);
+import React, { useState, ReactNode, useMemo } from 'react';
+import { ConnectionContext } from '../../contexts/ConnectionContext';
 
 export const ConnectionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isOnline, setOnline] = useState(true);
@@ -16,12 +10,4 @@ export const ConnectionProvider: React.FC<{ children: ReactNode }> = ({ children
       {children}
     </ConnectionContext.Provider>
   );
-};
-
-export const useConnection = () => {
-  const context = useContext(ConnectionContext);
-  if (context === undefined) {
-    throw new Error('useConnection must be used within a ConnectionProvider');
-  }
-  return context;
 };
