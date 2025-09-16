@@ -129,8 +129,8 @@ export const handleSingleClick = (
                         effectsToQueue.push({
                             id: uuidv4(),
                             vfx: profile.assets.vfx ? [vfxKey] : undefined,
-                            sfx: profile.assets.sfx ? { key: sfxKey, channel: 'fx', position: originEnclave.center } : undefined,
-                            position: originEnclave.center,
+                            sfx: profile.assets.sfx ? { key: sfxKey, channel: 'fx', position: clickedEnclave.center } : undefined,
+                            position: clickedEnclave.center,
                         });
                     }
                     return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders, effectsToQueue };

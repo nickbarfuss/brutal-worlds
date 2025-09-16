@@ -47,8 +47,7 @@ export type Action =
     | { type: 'SET_MATERIAL_VALUE'; payload: { type: keyof GameState['materialSettings'], key: keyof MaterialProperties, value: number } }
     | { type: 'SET_AMBIENT_LIGHT_INTENSITY'; payload: number }
     | { type: 'SET_TONEMAPPING_STRENGTH'; payload: number }
-    | { type: 'SET_PLAY_VFX_FROM_PREVIOUS_TURNS'; payload: boolean }
-    | { type: 'SET_STACK_VFX'; payload: boolean };
+    | { type: 'SET_PENDING_EFFECTS'; payload: EffectQueueItem[] };
 
 export const initialState: GameState = {
     mapData: [], enclaveData: {}, domainData: {}, riftData: {}, expanseData: {}, routes: [],
@@ -80,8 +79,8 @@ export const initialState: GameState = {
     materialSettings: CONFIG.VISUAL_DEFAULTS.materialSettings,
     ambientLightIntensity: CONFIG.VISUAL_DEFAULTS.ambientLightIntensity,
     tonemappingStrength: CONFIG.VISUAL_DEFAULTS.tonemappingStrength,
-    playVfxFromPreviousTurns: CONFIG.VISUAL_DEFAULTS.playVfxFromPreviousTurns,
-    stackVfx: CONFIG.VISUAL_DEFAULTS.stackVfx,
+    pendingEffects: [],
+    
 };
 
 export const reducer = (state: GameState, action: Action): GameState => {
@@ -127,6 +126,7 @@ export const reducer = (state: GameState, action: Action): GameState => {
         case 'PROCESS_EFFECT_QUEUE':
         case 'ADD_EFFECTS_TO_QUEUE':
         case 'CLEAR_EFFECT_QUEUE':
+        case 'SET_PENDING_EFFECTS':
             return handleFx(state, action);
 
         // UI
@@ -142,8 +142,7 @@ export const reducer = (state: GameState, action: Action): GameState => {
         case 'SET_MATERIAL_VALUE':
         case 'SET_AMBIENT_LIGHT_INTENSITY':
         case 'SET_TONEMAPPING_STRENGTH':
-        case 'SET_PLAY_VFX_FROM_PREVIOUS_TURNS':
-        case 'SET_STACK_VFX':
+        
             return handleUi(state, action);
 
         default:

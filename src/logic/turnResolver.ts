@@ -48,7 +48,7 @@ export const queueEffectAssets = (
 
     const sfxKey = sfxAssets ? `disaster-${camelCaseKey}-sfx-${phase}` : undefined;
     const vfxKey = vfxAssets ? `disaster-${camelCaseKey}-vfx-${phase}` : undefined;
-    const dialogKey = dialogAssets ? getRandomAssetKey(dialogAssets) : undefined;
+    const selectedAlertDialogKey = dialogAssets ? getRandomAssetKey(dialogAssets.map(asset => asset.src)) : undefined;
 
     if (vfxKey || sfxKey) {
         effectsToPlay.push({
@@ -59,10 +59,10 @@ export const queueEffectAssets = (
         });
     }
 
-    if (dialogKey) {
+    if (selectedAlertDialogKey) {
         effectsToPlay.push({
             id: `eff-${profile.key}-${phase}-dialog-${position.x}-${position.y}-${position.z}-${Date.now()}`,
-            sfx: { key: dialogKey, channel: 'dialog', position: position },
+            sfx: { key: selectedAlertDialogKey, channel: 'dialog', position: position },
             position: position,
         });
     }

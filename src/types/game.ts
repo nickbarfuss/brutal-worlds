@@ -134,26 +134,36 @@ export type Rule =
     | SummonDisasterRule
     | LockOrderRule;
 
+export interface SfxAsset {
+    src: string;
+}
+
+export interface VfxAsset {
+    src: string;
+    width?: number;
+    height?: number;
+}
+
 export interface EffectAssets {
     key: string;
     image: string;
     sfx?: {
-        alert?: string[];
-        impact?: string[];
-        aftermath?: string[];
-        [key: string]: string[] | undefined;
+        alert?: SfxAsset[];
+        impact?: SfxAsset[];
+        aftermath?: SfxAsset[];
+        [key: string]: SfxAsset[] | undefined;
     };
-            vfx?: {
-        alert?: string[];
-        impact?: string[];
-        aftermath?: string[];
-        [key: string]: string[] | undefined;
+    vfx?: {
+        alert?: VfxAsset[];
+        impact?: VfxAsset[];
+        aftermath?: VfxAsset[];
+        [key: string]: VfxAsset[] | undefined;
     };
     dialog?: {
-        alert?: string[];
-        impact?: string[];
-        aftermath?: string[];
-        [key: string]: string[] | undefined;
+        alert?: SfxAsset[];
+        impact?: SfxAsset[];
+        aftermath?: SfxAsset[];
+        [key: string]: SfxAsset[] | undefined;
     };
 }
 
@@ -322,8 +332,8 @@ export interface OrderProfile {
     description: string;
     effect: string;
     assets: {
-        sfx?: string[];
-        vfx?: string[];
+        sfx?: SfxAsset[];
+        vfx?: VfxAsset[];
     };
 }
 export interface SfxPlayback {
@@ -643,8 +653,7 @@ export interface GameState {
     };
     ambientLightIntensity: number;
     tonemappingStrength: number;
-    playVfxFromPreviousTurns: boolean;
-    stackVfx: boolean;
+    pendingEffects: EffectQueueItem[];
 
     // New state for concurrent inspectors
     inspectedArchetypeOwner: PlayerIdentifier | null;

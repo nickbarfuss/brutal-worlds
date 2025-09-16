@@ -31,10 +31,7 @@ interface SettingsDrawerProps {
   onAmbientLightIntensityChange: (value: number) => void;
   tonemappingStrength: number;
   onTonemappingStrengthChange: (value: number) => void;
-  playVfxFromPreviousTurns: boolean;
-  onSetPlayVfxFromPreviousTurns: (enabled: boolean) => void;
-  stackVfx: boolean;
-  onSetStackVfx: (enabled: boolean) => void;
+  
   sfxManager: SfxManager | null;
   worldCanvasHandle: React.RefObject<WorldCanvasHandle | null>;
   camera: THREE.PerspectiveCamera | null;
@@ -54,7 +51,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
     mutedChannels, onToggleMute, isBloomEnabled, onToggleBloom,
     bloomSettings, onBloomSettingChange, materialSettings, onMaterialSettingChange,
     ambientLightIntensity, onAmbientLightIntensityChange, tonemappingStrength, onTonemappingStrengthChange,
-    playVfxFromPreviousTurns, onSetPlayVfxFromPreviousTurns, stackVfx, onSetStackVfx,
+    
     sfxManager, worldCanvasHandle, camera,
 }) => {
   const [fps, setFps] = useState(0);
@@ -143,25 +140,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
           </div>
         </div>
         
-        <div>
-            <h3 className="font-medium text-base text-neutral-600 uppercase tracking-wider mb-3 px-1">FX</h3>
-            <div className="space-y-2">
-                <SwitchCard
-                    icon="replay"
-                    label={TEXT.settings.fx.previousFXLabel}
-                    description={TEXT.settings.fx.previouosFXDescription}
-                    checked={playVfxFromPreviousTurns}
-                    onChange={onSetPlayVfxFromPreviousTurns}
-                />
-                <SwitchCard
-                    icon="layers"
-                    label={TEXT.settings.fx.stackFXLabel}
-                    description={TEXT.settings.fx.stackFXDescription}
-                    checked={stackVfx}
-                    onChange={onSetStackVfx}
-                />
-            </div>
-        </div>
+        
 
         <div>
           <h3 className="font-medium text-base text-neutral-600 uppercase tracking-wider mb-3 px-1">{TEXT.settings.camera.title} - {fps} FPS</h3>

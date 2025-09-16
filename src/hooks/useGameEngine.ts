@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import {
     Enclave, PendingOrders, GamePhase, GameState, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, EffectQueueItem, PlayerIdentifier, InspectedMapEntity
 } from '@/types/game';
+import { WorldCanvasHandle } from '@/features/world/WorldCanvas';
 import { VfxManager } from '@/logic/VfxManager';
 import { SfxManager } from '@/logic/SfxManager';
 import { useGameInitializer } from '@/hooks/useGameInitializer';
@@ -15,10 +16,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { useConnection } from '@/hooks/useConnection';
 
 
-
-// DEV NOTE: Remember to update metadata.json version for new features/fixes.
-
-// Logic from missing file `orderValidator.ts` is inlined here.
 const getInvalidPlayerAssistOrders = (
     playerPendingOrders: PendingOrders,
     enclaveData: { [id: number]: Enclave }
@@ -42,7 +39,7 @@ const getInvalidPlayerAssistOrders = (
     return ordersToCancel;
 };
 
-export const useGameEngine = () => {
+export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHandle | null>) => {
     const { setOnline } = useConnection();
     const vfxManager = useRef(new VfxManager());
     const sfxManager = useRef(new SfxManager());
@@ -50,6 +47,7 @@ export const useGameEngine = () => {
     const workerRef = useRef<Worker | null>(null);
     const aiActionTimeoutsRef = useRef<number[]>([]);
     const stateRef = useRef<GameState>(state); // New: Ref to hold the latest state
+    const playedEffectIdsRef = useRef<Set<string>>(new Set()); // New: To track played effects per turn
     
     // Update stateRef on every render
     useEffect(() => {
@@ -63,6 +61,13 @@ export const useGameEngine = () => {
     gamePhaseRef.current = state.gamePhase;
 
     const getState = useCallback(() => state, [state]); // New: Function to get the latest state
+
+    // Reset playedEffectIdsRef when a new turn starts
+    useEffect(() => {
+        playedEffectIdsRef.current.clear();
+    }, [state.currentTurn]);
+
+    
 
 
     // --- State-dispatching callbacks ---
@@ -193,20 +198,7 @@ export const useGameEngine = () => {
                     
                     dispatch({ type: 'APPLY_RESOLVED_TURN', payload: deserializedResult });
 
-                    if (deserializedResult.effectsToPlay && deserializedResult.effectsToPlay.length > 0) {
-                        const newEffectQueueItems: EffectQueueItem[] = deserializedResult.effectsToPlay.map(effect => {
-                            const newEffect: EffectQueueItem = { id: uuidv4(), position: effect.position };
-                            if (effect.vfx) {
-                                // Ensure vfx is always an array of strings
-                                newEffect.vfx = Array.isArray(effect.vfx) ? effect.vfx.map(v => (typeof v === 'string' ? v : v.key)) : [(typeof effect.vfx === 'string' ? effect.vfx : effect.vfx.key)];
-                            }
-                            if (effect.sfx) {
-                                newEffect.sfx = effect.sfx;
-                            }
-                            return newEffect;
-                        });
-                        dispatch({ type: 'ADD_EFFECTS_TO_QUEUE', payload: newEffectQueueItems });
-                    }
+                    
                 } catch (error) {
                     console.error("Error processing message from worker:", error, "Data:", e.data);
                     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred while processing the turn.";
@@ -328,10 +320,47 @@ export const useGameEngine = () => {
     const setTonemappingStrength = useCallback((value: number) => {
         dispatch({ type: 'SET_TONEMAPPING_STRENGTH', payload: value });
     }, []);
-    const setPlayVfxFromPreviousTurns = useCallback((enabled: boolean) => dispatch({ type: 'SET_PLAY_VFX_FROM_PREVIOUS_TURNS', payload: enabled }), []);
-    const setStackVfx = useCallback((enabled: boolean) => dispatch({ type: 'SET_STACK_VFX', payload: enabled }), []);
     
-    useGameLoop(state.isPaused, state.gamePhase, state.isResolvingTurn, state.currentWorld, state.currentTurn, resolveTurn, state.isIntroComplete);
+    
+    const playPendingEffects = useCallback(() => {
+        if (!worldCanvasHandle.current || !worldCanvasHandle.current.camera || stateRef.current.pendingEffects.length === 0) return;
+
+        const camera = worldCanvasHandle.current.camera;
+        const frustum = new THREE.Frustum();
+        const matrix = new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+        frustum.setFromProjectionMatrix(matrix);
+
+        const effectsToPlayThisFrame: EffectQueueItem[] = [];
+
+        stateRef.current.pendingEffects.forEach(effect => {
+            if (!playedEffectIdsRef.current.has(effect.id) && effect.position && frustum.containsPoint(effect.position)) {
+                effectsToPlayThisFrame.push(effect);
+                playedEffectIdsRef.current.add(effect.id);
+            }
+        });
+
+        if (effectsToPlayThisFrame.length > 0) {
+            // Staggered audio playback
+            effectsToPlayThisFrame.forEach((effect, index) => {
+                setTimeout(() => {
+                    if (effect.vfx && effect.position) {
+                        const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];
+                        vfxItems.forEach(v => {
+                            const key = typeof v === 'string' ? v : v.key;
+                            if (key) {
+                                vfxManager.current.playEffect(key, effect.position as THREE.Vector3);
+                            }
+                        });
+                    }
+                    if (effect.sfx) {
+                        sfxManager.current.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
+                    }
+                }, index * 100); // 100ms delay between each effect's audio
+            });
+        }
+    }, [worldCanvasHandle, vfxManager, sfxManager]);
+
+    useGameLoop(state.isPaused, state.gamePhase, state.isResolvingTurn, state.currentWorld, state.currentTurn, resolveTurn, state.isIntroComplete, playPendingEffects);
     useGameInitializer(vfxManager, sfxManager, startGame, setGamePhase, setInitializationState);
     
     useEffect(() => {
@@ -463,8 +492,7 @@ export const useGameEngine = () => {
         setMaterialValue,
         setAmbientLightIntensity,
         setTonemappingStrength,
-        setPlayVfxFromPreviousTurns,
-        setStackVfx,
+        
         getState, // New: Export getState
     };
 };

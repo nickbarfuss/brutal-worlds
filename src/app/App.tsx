@@ -12,10 +12,12 @@ import { AudioChannel } from '@/types/game';
 import { CONFIG } from '@/data/config';
 import { ARCHETYPES } from '@/data/archetypes';
 import { WORLD_LIBRARY } from '@/data/worlds';
+import { WorldCanvasHandle } from '@/features/world/WorldCanvas';
 
 const App: React.FC = () => {
     const { isOnline } = useConnection();
-    const engine = useGameEngine();
+    const worldCanvasHandle = useRef<WorldCanvasHandle | null>(null);
+    const engine = useGameEngine(worldCanvasHandle);
     const [isClosingStartDialog, setIsClosingStartDialog] = useState(false);
     const closeDialogTimeoutRef = useRef<number | null>(null);
     const isStartingGameRef = useRef(false); // State lock to prevent race conditions
@@ -166,7 +168,7 @@ const App: React.FC = () => {
     // The background worker remains disabled, so the game will not be interactive.
     // For 'playing' and 'gameOver' phases
     if (engine.gamePhase === 'playing' || engine.gamePhase === 'gameOver') {
-        return <GameScreen key={engine.gameSessionId} engine={engine} />;
+        return <GameScreen key={engine.gameSessionId} engine={engine} worldCanvasHandle={worldCanvasHandle} />;
     }
 
     return null; // Fallback for any unhandled game phase

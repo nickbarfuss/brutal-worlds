@@ -9,7 +9,8 @@ export const useGameLoop = (
     currentWorld: WorldProfile | null,
     currentTurn: number,
     resolveTurn: () => void,
-    isIntroComplete: boolean
+    isIntroComplete: boolean,
+    onFrame?: (timestamp: number) => void
 ) => {
     const turnStartTimeRef = useRef<number | null>(null);
     const pauseStartRef = useRef<number | null>(null);
@@ -18,6 +19,8 @@ export const useGameLoop = (
         let animationFrameId: number;
         const loop = (timestamp: number) => {
             animationFrameId = requestAnimationFrame(loop);
+
+            onFrame?.(timestamp);
             
             // If a turn is resolving, the timer is effectively paused. This prevents
             // the timer from restarting if the component re-renders while waiting for the worker.
@@ -74,7 +77,7 @@ export const useGameLoop = (
 
         animationFrameId = requestAnimationFrame(loop);
         return () => cancelAnimationFrame(animationFrameId);
-    }, [isPaused, gamePhase, isResolvingTurn, currentTurn, currentWorld, resolveTurn, isIntroComplete]);
+    }, [isPaused, gamePhase, isResolvingTurn, currentTurn, currentWorld, resolveTurn, isIntroComplete, onFrame]);
 
     return { turnStartTimeRef, pauseStartRef };
 };

@@ -30,6 +30,14 @@ export const handleFx = (state: GameState, action: Action): GameState => {
                 effectQueue: [],
             };
         }
+
+        case 'SET_PENDING_EFFECTS': {
+            return {
+                ...state,
+                pendingEffects: action.payload,
+                effectQueue: [], // Clear the immediate effect queue when new pending effects are set
+            };
+        }
             
         default:
             return state;

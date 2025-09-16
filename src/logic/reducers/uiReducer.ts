@@ -70,10 +70,7 @@ export const handleUi = (state: GameState, action: Action): GameState => {
                 ...state,
                 tonemappingStrength: action.payload,
             };
-        case 'SET_PLAY_VFX_FROM_PREVIOUS_TURNS':
-            return { ...state, playVfxFromPreviousTurns: action.payload };
-        case 'SET_STACK_VFX':
-            return { ...state, stackVfx: action.payload };
+        
         default:
             return state;
     }

@@ -142,23 +142,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 return cell;
             });
             
-            let finalEffectsToPlay = [...effectsToPlay, ...newEffectsToQueue];
-            if (!state.stackVfx && finalEffectsToPlay.length > 0) {
-                const seenPositions = new Set<string>();
-                const uniqueEffects: EffectQueueItem[] = [];
-                for (let i = finalEffectsToPlay.length - 1; i >= 0; i--) {
-                    const effect = finalEffectsToPlay[i];
-                    // For dialogs, which don't have a position in their sfx object, we can use their ID to ensure uniqueness
-                    const posKey = effect.sfx?.position 
-                        ? `${effect.position.x.toFixed(3)},${effect.position.y.toFixed(3)},${effect.position.z.toFixed(3)}`
-                        : effect.id;
-                    if (!seenPositions.has(posKey)) {
-                        seenPositions.add(posKey);
-                        uniqueEffects.unshift(effect);
-                    }
-                }
-                finalEffectsToPlay = uniqueEffects;
-            }
+            const finalEffectsToPlay = [...effectsToPlay, ...newEffectsToQueue].map(effect => ({ ...effect, id: effect.id || uuidv4() }));
 
             const intermediateState: GameState = {
                 ...state,
@@ -173,7 +157,8 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 gameOverState: gameOverState,
                 isPaused: gameOverState !== 'none' ? true : state.isPaused,
                 isResolvingTurn: false,
-                effectQueue: [...state.effectQueue, ...finalEffectsToPlay],
+                pendingEffects: finalEffectsToPlay, // Use pendingEffects instead of effectQueue
+                effectQueue: [], // Clear the old queue
                 playerConquestsThisTurn,
                 opponentConquestsThisTurn,
                 playerHasHadFirstConquestDialog,

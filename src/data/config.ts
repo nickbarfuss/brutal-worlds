@@ -44,8 +44,6 @@ export const CONFIG = {
         },
         ambientLightIntensity: 1.0,
         tonemappingStrength: 1.0,
-        playVfxFromPreviousTurns: true,
-        stackVfx: false,
     },
     
     // Standard world generation config used as a base for all worlds

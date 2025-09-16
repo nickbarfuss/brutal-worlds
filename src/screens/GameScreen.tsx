@@ -7,7 +7,6 @@ import InspectorCard from '@/components/features/inspector/InspectorCard';
 import Snackbar from '@/components/ui/Snackbar';
 import BriefingCard from '@/components/features/briefing/BriefingCard';
 import GameOverDialog from '@/components/features/game-over/GameOverDialog';
-
 import { ORDER_PROFILES } from '@/data/orders';
 import { ASSETS } from '@/data/assets';
 import { EFFECT_PROFILES } from '@/data/effects';
@@ -38,11 +37,12 @@ declare const gsap: any;
 
 interface GameScreenProps {
     engine: ReturnType<typeof useGameEngine>;
+    worldCanvasHandle: React.RefObject<WorldCanvasHandle | null>;
 }
 
 const MemoizedSettingsDrawer = React.memo(SettingsDrawer);
 
-const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
+const GameScreen: React.FC<GameScreenProps> = ({ engine, worldCanvasHandle }) => {
     const [briefing, setBriefing] = useState<BriefingState | null>(null);
     const [briefingTarget, setBriefingTarget] = useState<{ type: BriefingType, key: string } | null>(null);
     const [isClosingGameOver, setIsClosingGameOver] = useState(false);
@@ -1025,12 +1025,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                         onAmbientLightIntensityChange={engine.setAmbientLightIntensity}
                         onTonemappingStrengthChange={engine.setTonemappingStrength}
                         tonemappingStrength={engine.tonemappingStrength}
-                        playVfxFromPreviousTurns={engine.playVfxFromPreviousTurns}
-                        onSetPlayVfxFromPreviousTurns={engine.setPlayVfxFromPreviousTurns}
-                        stackVfx={engine.stackVfx}
-                        onSetStackVfx={engine.setStackVfx}
                         sfxManager={sfxManager}
-                        worldCanvasHandle={worldCanvasRef}
+                        worldCanvasHandle={worldCanvasHandle}
                         // FIX: Pass the 'debugCamera' state variable instead of the undefined 'camera' variable.
                         camera={debugCamera}
                     />
