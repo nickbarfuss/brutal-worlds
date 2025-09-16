@@ -1,4 +1,4 @@
-import { Enclave, PendingOrders, Order } from '@/types/game.ts';
+import { Enclave, PendingOrders, Order, EffectQueueItem } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
 import { getAssistMultiplierForEnclave } from '@/logic/birthrightManager.ts';
 import { cloneEnclave } from '@/logic/cloneUtils.ts';
@@ -6,7 +6,8 @@ import { cloneEnclave } from '@/logic/cloneUtils.ts';
 export const resolveAssists = (
     currentEnclavesMap: Map<number, Enclave>,
     processedOrders: PendingOrders,
-    gameConfig: GameConfig
+    gameConfig: GameConfig,
+    effectsToPlay: EffectQueueItem[],
 ): Map<number, Enclave> => {
     const { FORCE_SUPPLY_CAP } = gameConfig;
     const forceDeltas = new Map<number, number>();
@@ -23,6 +24,14 @@ export const resolveAssists = (
         const destination = currentEnclavesMap.get(order.to);
 
         if (!origin || !destination) return;
+
+        // Queue the VFX/SFX on the destination enclave
+        effectsToPlay.push({
+            id: `vfx-assist-${fromId}-${order.to}`,
+            sfx: { key: 'order-assist-sfx', channel: 'fx', position: destination.center },
+            vfx: ['order-assist-vfx'],
+            position: destination.center,
+        });
 
         const assistMultiplier = getAssistMultiplierForEnclave(origin);
         const safeForces = Number.isFinite(origin.forces) ? origin.forces : 0;

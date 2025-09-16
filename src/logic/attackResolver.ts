@@ -42,7 +42,17 @@ export const resolveAttacks = (
 
         const fromId = parseInt(fromIdStr, 10);
         const origin = newEnclavesMap.get(fromId);
-        if (!origin || !origin.owner) return;
+        const target = newEnclavesMap.get(order.to); // Get target for VFX
+
+        if (!origin || !origin.owner || !target) return;
+
+        // Queue the VFX/SFX on the target enclave
+        effectsToPlay.push({
+            id: `vfx-attack-${fromId}-${order.to}`, // Unique enough for this context
+            sfx: { key: 'order-attack-sfx', channel: 'fx', position: target.center },
+            vfx: ['order-attack-vfx'],
+            position: target.center,
+        });
 
         const safeForces = Number.isFinite(origin.forces) ? origin.forces : 0;
         const unitsLeaving = Math.ceil(safeForces * gameConfig.ATTACK_RATE);

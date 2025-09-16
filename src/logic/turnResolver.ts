@@ -313,8 +313,8 @@ export const resolveTurn = (
         const allValidOrders = { ...validPlayerOrders, ...validAiOrders };
 
         // Order Resolution Pipeline
-        const enclavesAfterHolding = resolveHolding(enclavesAfterEffects, allValidOrders, routesAfterEffects, gameConfig);
-        const enclavesAfterAssists = resolveAssists(enclavesAfterHolding, allValidOrders, gameConfig);
+        const enclavesAfterHolding = resolveHolding(enclavesAfterEffects, allValidOrders, routesAfterEffects, gameConfig, effectsToPlay);
+        const enclavesAfterAssists = resolveAssists(enclavesAfterHolding, allValidOrders, gameConfig, effectsToPlay);
         const { newEnclaveData: enclavesAfterAttacks, conquestEvents } = resolveAttacks(
             enclavesAfterAssists, allValidOrders, gameConfig, effectsToPlay, playerArchetypeKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey, routesAfterEffects,
         );

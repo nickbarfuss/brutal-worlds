@@ -1,4 +1,4 @@
-import { Enclave, PendingOrders, Route, Rule, GameState } from '@/types/game.ts';
+import { Enclave, PendingOrders, Route, Rule, GameState, EffectQueueItem } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
 import { getAppliedModifiers } from '@/logic/effectProcessor.ts';
 import { getHoldBonusForEnclave } from '@/logic/birthrightManager.ts';
@@ -9,7 +9,8 @@ export const resolveHolding = (
     currentEnclavesMap: Map<number, Enclave>,
     processedOrders: PendingOrders,
     currentRoutes: Route[],
-    gameConfig: GameConfig
+    gameConfig: GameConfig,
+    effectsToPlay: EffectQueueItem[],
 ): Map<number, Enclave> => {
     const { FORCE_SUPPLY_CAP } = gameConfig;
     const reinforcementDeltas = new Map<number, number>();
@@ -17,6 +18,14 @@ export const resolveHolding = (
     // --- PASS 1: Determine which enclaves are holding and calculate their reinforcements ---
     for (const enclave of currentEnclavesMap.values()) {
         if ((enclave.owner === 'player-1' || enclave.owner === 'player-2') && !processedOrders[enclave.id]) {
+            // Queue the VFX/SFX on the holding enclave
+            effectsToPlay.push({
+                id: `vfx-hold-${enclave.id}`,
+                sfx: { key: 'order-hold-sfx', channel: 'fx', position: enclave.center },
+                vfx: ['order-hold-vfx'],
+                position: enclave.center,
+            });
+
             let reinforcements = 2; // Standard holding value
             reinforcements += getHoldBonusForEnclave(enclave);
 
