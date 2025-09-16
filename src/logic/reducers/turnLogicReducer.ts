@@ -52,18 +52,6 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
 
     events.forEach(event => {
         switch (event.type) {
-            case 'attack': {
-                const toEnclave = newEnclaveData[event.toEnclaveId];
-                if (toEnclave) {
-                    effects.push({
-                        id: uuidv4(),
-                        sfx: { key: 'order-attack-sfx', channel: 'fx', position: toEnclave.center },
-                        vfx: ['order-attack-vfx'],
-                        position: toEnclave.center,
-                    });
-                }
-                break;
-            }
             case 'conquest': {
                 const enclave = newEnclaveData[event.enclaveId];
                 if (enclave) {
@@ -75,30 +63,6 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
                         sfx: { key: sfxKey, channel: 'fx', position: enclave.center },
                         vfx: [vfxKey],
                         position: enclave.center,
-                    });
-                }
-                break;
-            }
-            case 'hold': {
-                const enclave = newEnclaveData[event.enclaveId];
-                if (enclave) {
-                    effects.push({
-                        id: uuidv4(),
-                        sfx: { key: 'order-hold-sfx', channel: 'fx', position: enclave.center },
-                        vfx: ['order-hold-vfx'],
-                        position: enclave.center,
-                    });
-                }
-                break;
-            }
-            case 'assist': {
-                const toEnclave = newEnclaveData[event.toEnclaveId];
-                if (toEnclave) {
-                    effects.push({
-                        id: uuidv4(),
-                        sfx: { key: 'order-assist-sfx', channel: 'fx', position: toEnclave.center },
-                        vfx: ['order-assist-vfx'],
-                        position: toEnclave.center,
                     });
                 }
                 break;

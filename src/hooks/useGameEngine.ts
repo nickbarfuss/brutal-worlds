@@ -99,7 +99,7 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
                     if (effect.sfx) {
                         sfxManager.current.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
                     }
-                }, index * 100);
+                }, index * 200);
             });
 
             dispatch({ type: 'REMOVE_PENDING_EFFECTS', payload: playedIds });

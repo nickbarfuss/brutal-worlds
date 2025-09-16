@@ -125,12 +125,18 @@ export const handleSingleClick = (
                     const sfxKey = `order-${profile.key}-sfx`;
                     const updatedOrders = { ...playerPendingOrders, [selectedEnclaveId]: { to: clickedEnclaveId, type: orderType }};
                     
-                    if (profile.assets.vfx || profile.assets.sfx) {
+                    if (profile.assets.vfx) {
                         effectsToQueue.push({
                             id: uuidv4(),
-                            vfx: profile.assets.vfx ? [vfxKey] : undefined,
-                            sfx: profile.assets.sfx ? { key: sfxKey, channel: 'fx', position: clickedEnclave.center } : undefined,
-                            position: clickedEnclave.center,
+                            vfx: [vfxKey],
+                            position: clickedEnclave.center, // VFX at target
+                        });
+                    }
+                    if (profile.assets.sfx) {
+                        effectsToQueue.push({
+                            id: uuidv4(),
+                            sfx: { key: sfxKey, channel: 'fx', position: originEnclave.center }, // SFX at origin
+                            position: originEnclave.center,
                         });
                     }
                     return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders, effectsToQueue };
