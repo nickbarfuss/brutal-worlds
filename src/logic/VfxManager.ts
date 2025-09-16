@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { ASSETS } from '@/data/assets';
-import { flattenAssetUrls } from '@/utils/assetUtils';
+import { flattenAssetUrls, VFXAsset } from '@/utils/assetUtils';
 
 interface ActiveEffect {
     key: string;
@@ -12,7 +12,7 @@ interface ActiveEffect {
 
 export class VfxManager {
     private isInitialized: boolean = false;
-    private preloadedVideos: Map<string, HTMLVideoElement[]> = new Map();
+    private preloadedVideos: Map<string, VFXAsset[]> = new Map();
     private activeEffects: ActiveEffect[] = [];
 
     constructor() {}
@@ -20,12 +20,12 @@ export class VfxManager {
     public async init(): Promise<void> {
         if (this.isInitialized) return;
 
-        const vfxAssets = flattenAssetUrls(ASSETS, ['.webm', '.mp4']);
+        const vfxAssets = flattenAssetUrls<VFXAsset>(ASSETS, ['.webm', '.mp4']);
         const assetPromises: Promise<void>[] = [];
 
-        vfxAssets.forEach((urls, key) => {
-            urls.forEach(url => {
-                assetPromises.push(this.loadVideo(key, url));
+        vfxAssets.forEach((assets, key) => {
+            assets.forEach(asset => {
+                assetPromises.push(this.loadVideo(key, asset));
             });
         });
 
@@ -38,20 +38,22 @@ export class VfxManager {
         }
     }
 
-    private loadVideo(key: string, url: string): Promise<void> {
+    private loadVideo(key: string, asset: VFXAsset): Promise<void> {
         return new Promise((resolve) => {
             const video = document.createElement('video');
-            video.src = url;
+            video.src = asset.src;
             video.muted = true;
             video.loop = false;
             video.playsInline = true;
             video.preload = 'auto';
             video.load();
 
+            const assetWithVideo = { ...asset, video };
+
             if (!this.preloadedVideos.has(key)) {
                 this.preloadedVideos.set(key, []);
             }
-            this.preloadedVideos.get(key)?.push(video);
+            this.preloadedVideos.get(key)?.push(assetWithVideo);
             resolve();
         });
     }
@@ -64,20 +66,21 @@ export class VfxManager {
         this.activeEffects = [];
     }
 
-    public playEffect(key: string, worldPosition: THREE.Vector3, width: number, height: number): void {
+    public playEffect(key: string, worldPosition: THREE.Vector3): void {
         const videos = this.preloadedVideos.get(key);
         if (!videos || videos.length === 0) {
             console.warn(`No VFX found for key: ${key}`);
             return;
         }
 
-        const video = videos[Math.floor(Math.random() * videos.length)];
+        const videoAsset = videos[Math.floor(Math.random() * videos.length)];
+        const video = (videoAsset as any).video as HTMLVideoElement;
         
         const playVideo = () => {
             video.currentTime = 0;
             video.play().catch(e => console.error(`Error playing VFX for ${key}:`, e));
 
-            this.activeEffects.push({ key, video, worldPosition, width, height });
+            this.activeEffects.push({ key, video, worldPosition, width: videoAsset.width, height: videoAsset.height });
 
             video.onended = () => {
                 this.activeEffects = this.activeEffects.filter(effect => effect.video !== video);

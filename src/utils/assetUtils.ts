@@ -1,5 +1,14 @@
+export interface SFXAsset {
+    src: string;
+}
 
+export interface VFXAsset {
+    src: string;
+    width: number;
+    height: number;
+}
 
+export type Asset = SFXAsset | VFXAsset;
 
 /**
  * Returns the asset URL. It can be a full URL or a relative path.
@@ -80,6 +89,12 @@ export const extractAssetUrls = (assets: any): AssetUrls => {
                             } else if (item.endsWith('.jpg') || item.endsWith('.png')) {
                                 urls.image.push(item);
                             }
+                        } else if (typeof item === 'object' && item !== null && typeof item.src === 'string') {
+                            if (item.src.endsWith('.mp3')) {
+                                urls.audio.push(item.src);
+                            } else if (item.src.endsWith('.webm')) {
+                                urls.video.push(item.src);
+                            }
                         }
                     });
                 } else if (typeof value === 'object' && value !== null) {
@@ -107,8 +122,8 @@ export const extractAssetUrls = (assets: any): AssetUrls => {
  * @returns A Map where keys are flattened strings (e.g., "ui-common-buttonGameStart")
  *          and values are arrays of matching asset URLs.
  */
-export const flattenAssetUrls = (assets: any, extensions: string[]): Map<string, string[]> => {
-    const flattenedMap = new Map<string, string[]>();
+export const flattenAssetUrls = <T extends Asset>(assets: any, extensions: string[]): Map<string, T[]> => {
+    const flattenedMap = new Map<string, T[]>();
 
     const traverse = (obj: any, path: string[]) => {
         if (obj === null || typeof obj !== 'object') {
@@ -117,7 +132,12 @@ export const flattenAssetUrls = (assets: any, extensions: string[]): Map<string,
 
         const isLeafNode = (value: any): boolean => {
             if (Array.isArray(value)) {
-                return value.every(item => typeof item === 'string' && extensions.some(ext => item.endsWith(ext)));
+                return value.every(item =>
+                    (typeof item === 'object' &&
+                    item !== null &&
+                    typeof item.src === 'string' &&
+                    extensions.some(ext => item.src.endsWith(ext))) || (typeof item === 'string' && extensions.some(ext => item.endsWith(ext)))
+                );
             }
             if (typeof value === 'string') {
                 return extensions.some(ext => value.endsWith(ext));
@@ -126,12 +146,17 @@ export const flattenAssetUrls = (assets: any, extensions: string[]): Map<string,
         };
 
         if (isLeafNode(obj)) {
-            const urls = Array.isArray(obj) ? obj : [obj];
+            const items = (Array.isArray(obj) ? obj : [obj]).map(item => {
+                if (typeof item === 'string') {
+                    return { src: item } as T;
+                }
+                return item as T;
+            });
             const key = path.join('-');
             if (flattenedMap.has(key)) {
-                flattenedMap.get(key)!.push(...urls);
+                flattenedMap.get(key)!.push(...items);
             } else {
-                flattenedMap.set(key, urls);
+                flattenedMap.set(key, items);
             }
         } else if (Array.isArray(obj)) {
             // This handles arrays that are not leaf nodes, i.e., arrays of objects.
@@ -163,9 +188,9 @@ export const extractVfxProfiles = (assets: any): Record<string, string> => {
 
                 if (key === 'vfx' && Array.isArray(value)) {
                     value.forEach((item, index) => {
-                        if (typeof item === 'string') { // Now expecting string directly
+                        if (typeof item === 'object' && item !== null && typeof item.src === 'string') { // Now expecting object
                             const profileKey = currentPath.slice(0, -1).join('-') + (value.length > 1 ? `-${index}` : '');
-                            vfxProfiles[profileKey] = item; // Assign the string directly
+                            vfxProfiles[profileKey] = item.src; // Assign the src property
                         }
                     });
                 } else if (typeof value === 'object' && value !== null) {

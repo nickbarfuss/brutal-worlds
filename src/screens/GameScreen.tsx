@@ -808,8 +808,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         <div className={`w-full h-full bg-black relative overflow-hidden ${cursorClass}`}>
             {engine.isResolvingTurn && <CustomCursor />}
             
-            <video ref={videoEnterRef} src={getAssetUrl(ASSETS.cinematic.intro.vfx[0])} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'entry' ? 'block' : 'none' }} />
-            <video ref={videoExitRef} src={getAssetUrl(ASSETS.cinematic.arrival.vfx[0])} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'exit' ? 'block' : 'none' }} />
+            <video ref={videoEnterRef} src={getAssetUrl(ASSETS.cinematic.intro.vfx[0].src)} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'entry' ? 'block' : 'none' }} />
+            <video ref={videoExitRef} src={getAssetUrl(ASSETS.cinematic.arrival.vfx[0].src)} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'exit' ? 'block' : 'none' }} />
             <WarpStarsCanvas phase={warpPhase} className="absolute inset-0 z-0" />
             
             {engine.currentWorld && (

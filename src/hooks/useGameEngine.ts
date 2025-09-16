@@ -356,7 +356,7 @@ export const useGameEngine = () => {
                     vfxItems.forEach(v => {
                         const key = typeof v === 'string' ? v : v.key;
                         if (key) {
-                            vfxManager.current.playEffect(key, effect.position as THREE.Vector3, 2, 2);
+                            vfxManager.current.playEffect(key, effect.position as THREE.Vector3);
                         }
                     });
                 }
