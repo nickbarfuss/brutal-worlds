@@ -187,7 +187,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             const wasTestDisasterTurn = disasterConfig?.enabled && turnThatJustEnded === disasterConfig.triggerOnTurn;
 
             if (!wasTestDisasterTurn && world && turnThatJustEnded > 0 && world.disasterChance > 0 && Math.random() < world.disasterChance) {
-                if (world.possibleEffects.length > 0) {
+                if (world.possibleEffects && world.possibleEffects.length > 0) {
                     const disasterKey = world.possibleEffects[Math.floor(Math.random() * world.possibleEffects.length)];
                     const disasterProfile = EFFECT_PROFILES[disasterKey];
                     if (!disasterProfile) {

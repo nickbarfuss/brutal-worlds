@@ -19,7 +19,7 @@ const worldData: WorldDataObject[] = [
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 101 },
         disasterChance: 0.15,
         possibleDisasters: ['skyfall-shards', 'resonance-cascade'],
-        possibleEffects: [],
+        // possibleEffects: [],  //might not be a thing for worlds
         nebula: {
             main: { color: '#14532d', density: 0.45, falloff: 3.8 },
             wispy: { color: '#0d9488', density: 0.4, falloff: 4.2 }
@@ -231,7 +231,6 @@ const worldData: WorldDataObject[] = [
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1010, NUM_POINTS: 750, LAND_COVERAGE_MIN: 0.4, LAND_COVERAGE_MAX: 0.5, ISLAND_DOMAINS_MIN: 0, ISLAND_DOMAINS_MAX: 1, ENCLAVE_SIZE_MIN: 10, ENCLAVE_SIZE_MAX: 18 },
         disasterChance: 0.25,
         possibleDisasters: ['skyfall-shards', 'resonance-cascade'],
-        possibleEffects: [],
         nebula: {
             main: { color: '#450a0a', density: 0.48, falloff: 4.5 },
             wispy: { color: '#4b5563', density: 0.4, falloff: 3.8 }

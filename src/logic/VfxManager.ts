@@ -39,37 +39,20 @@ export class VfxManager {
     }
 
     private loadVideo(key: string, url: string): Promise<void> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const video = document.createElement('video');
             video.src = url;
             video.muted = true;
             video.loop = false;
             video.playsInline = true;
             video.preload = 'auto';
-
-            const onCanPlayThrough = () => {
-                if (!this.preloadedVideos.has(key)) {
-                    this.preloadedVideos.set(key, []);
-                }
-                this.preloadedVideos.get(key)?.push(video);
-                cleanup();
-                resolve();
-            };
-
-            const onError = () => {
-                console.error(`Failed to load VFX video for "${key}" from ${url}`);
-                cleanup();
-                reject(new Error(`Failed to load ${url}`));
-            };
-
-            const cleanup = () => {
-                video.removeEventListener('canplaythrough', onCanPlayThrough);
-                video.removeEventListener('error', onError);
-            };
-
-            video.addEventListener('canplaythrough', onCanPlayThrough);
-            video.addEventListener('error', onError);
             video.load();
+
+            if (!this.preloadedVideos.has(key)) {
+                this.preloadedVideos.set(key, []);
+            }
+            this.preloadedVideos.get(key)?.push(video);
+            resolve();
         });
     }
 
@@ -89,14 +72,23 @@ export class VfxManager {
         }
 
         const video = videos[Math.floor(Math.random() * videos.length)];
-        video.currentTime = 0;
-        video.play().catch(e => console.error(`Error playing VFX for ${key}:`, e));
+        
+        const playVideo = () => {
+            video.currentTime = 0;
+            video.play().catch(e => console.error(`Error playing VFX for ${key}:`, e));
 
-        this.activeEffects.push({ key, video, worldPosition, width, height });
+            this.activeEffects.push({ key, video, worldPosition, width, height });
 
-        video.onended = () => {
-            this.activeEffects = this.activeEffects.filter(effect => effect.video !== video);
+            video.onended = () => {
+                this.activeEffects = this.activeEffects.filter(effect => effect.video !== video);
+            };
         };
+
+        if (video.readyState >= 3) { // HAVE_FUTURE_DATA
+            playVideo();
+        } else {
+            video.addEventListener('canplaythrough', playVideo, { once: true });
+        }
     }
 
     public getActiveEffects(): ActiveEffect[] {
