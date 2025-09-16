@@ -69,6 +69,7 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
         if (!worldCanvasHandle.current || !worldCanvasHandle.current.camera || stateRef.current.pendingEffects.length === 0) return;
 
         const camera = worldCanvasHandle.current.camera;
+        camera.updateMatrixWorld(); // Ensure camera matrices are up-to-date
         const frustum = new THREE.Frustum();
         const matrix = new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
         frustum.setFromProjectionMatrix(matrix);
@@ -311,7 +312,6 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
 
     useEffect(() => {
         if (state.effectQueue.length > 0) {
-            const playedEffectIds: string[] = [];
             state.effectQueue.forEach(effect => {
                 if (effect.vfx && effect.position) {
                     const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];
@@ -325,11 +325,8 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
                 if (effect.sfx) {
                     sfxManager.current.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
                 }
-                playedEffectIds.push(effect.id);
             });
-            if (playedEffectIds.length > 0) {
-                dispatch({ type: 'PROCESS_EFFECT_QUEUE', payload: { playedIds: playedEffectIds } });
-            }
+            dispatch({ type: 'CLEAR_EFFECT_QUEUE' });
         }
     }, [state.effectQueue, dispatch]);
 

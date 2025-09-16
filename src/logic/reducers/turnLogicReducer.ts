@@ -6,67 +6,66 @@ import { triggerNewEffect as triggerEffectLogic } from "@/logic/effectManager";
 
 const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveData: { [id: number]: Enclave }): EffectQueueItem[] => {
     const effects: EffectQueueItem[] = [];
-    let playerHasHadFirstConquestDialog = state.playerHasHadFirstConquestDialog;
-    let opponentHasHadFirstConquestDialog = state.opponentHasHadFirstConquestDialog;
 
     const conquestEvents = events.filter(e => e.type === 'conquest') as ConquestEvent[];
     const playerConquests = conquestEvents.filter(e => e.conqueror === 'player-1');
     const opponentConquests = conquestEvents.filter(e => e.conqueror === 'player-2');
 
-    // First Conquest Dialog Logic
-    if (playerConquests.length > 0 && !playerHasHadFirstConquestDialog) {
-        const event = playerConquests[0];
-        const sfxKey = `archetype-${event.archetypeKey}-${event.legacyKey}-dialog-conquest`;
-        effects.push({
-            id: uuidv4(),
-            sfx: { key: sfxKey, channel: 'dialog' },
-            position: newEnclaveData[event.enclaveId].center,
-        });
-    }
-    if (opponentConquests.length > 0 && !opponentHasHadFirstConquestDialog) {
-        const event = opponentConquests[0];
-        const sfxKey = `archetype-${event.archetypeKey}-${event.legacyKey}-dialog-conquest`;
-        effects.push({
-            id: uuidv4(),
-            sfx: { key: sfxKey, channel: 'dialog' },
-            position: newEnclaveData[event.enclaveId].center,
-        });
-    }
-
-    // Subsequent Random Conquest Dialog Logic
-    const nonFirstConquests = conquestEvents.filter(event => {
-        if (event.conqueror === 'player-1') return playerHasHadFirstConquestDialog;
-        if (event.conqueror === 'player-2') return opponentHasHadFirstConquestDialog;
-        return true;
-    });
-
-    if (nonFirstConquests.length > 0 && Math.random() < state.gameConfig.CONQUEST_DIALOG_CHANCE) {
-        const randomConquest = nonFirstConquests[Math.floor(Math.random() * nonFirstConquests.length)];
-        const sfxKey = `archetype-${randomConquest.archetypeKey}-${randomConquest.legacyKey}-dialog-conquest`;
-        effects.push({
-            id: uuidv4(),
-            sfx: { key: sfxKey, channel: 'dialog' },
-            position: newEnclaveData[randomConquest.enclaveId].center,
-        });
+    // Player Dialog Logic
+    if (playerConquests.length > 0) {
+        if (!state.playerHasHadFirstConquestDialog) {
+            const event = playerConquests[0];
+            const sfxKey = `archetype-${event.archetypeKey}-${event.legacyKey}-dialog-conquest`;
+            effects.push({
+                id: uuidv4(),
+                sfx: { key: sfxKey, channel: 'dialog' },
+                position: newEnclaveData[event.enclaveId].center,
+            });
+        } else if (Math.random() < state.gameConfig.CONQUEST_DIALOG_CHANCE) {
+            const randomConquest = playerConquests[Math.floor(Math.random() * playerConquests.length)];
+            const sfxKey = `archetype-${randomConquest.archetypeKey}-${randomConquest.legacyKey}-dialog-conquest`;
+            effects.push({
+                id: uuidv4(),
+                sfx: { key: sfxKey, channel: 'dialog' },
+                position: newEnclaveData[randomConquest.enclaveId].center,
+            });
+        }
     }
 
-    events.forEach(event => {
-        switch (event.type) {
-            case 'conquest': {
-                const enclave = newEnclaveData[event.enclaveId];
-                if (enclave) {
-                    const ownerKey = event.conqueror === 'player-1' ? 'player' : 'opponent';
-                    const sfxKey = `conquest-${ownerKey}-sfx`;
-                    const vfxKey = `conquest-${ownerKey}-vfx`;
-                    effects.push({
-                        id: uuidv4(),
-                        sfx: { key: sfxKey, channel: 'fx', position: enclave.center },
-                        vfx: [vfxKey],
-                        position: enclave.center,
-                    });
-                }
-                break;
-            }
+    // Opponent Dialog Logic
+    if (opponentConquests.length > 0) {
+        if (!state.opponentHasHadFirstConquestDialog) {
+            const event = opponentConquests[0];
+            const sfxKey = `archetype-${event.archetypeKey}-${event.legacyKey}-dialog-conquest`;
+            effects.push({
+                id: uuidv4(),
+                sfx: { key: sfxKey, channel: 'dialog' },
+                position: newEnclaveData[event.enclaveId].center,
+            });
+        } else if (Math.random() < state.gameConfig.CONQUEST_DIALOG_CHANCE) {
+            const randomConquest = opponentConquests[Math.floor(Math.random() * opponentConquests.length)];
+            const sfxKey = `archetype-${randomConquest.archetypeKey}-${randomConquest.legacyKey}-dialog-conquest`;
+            effects.push({
+                id: uuidv4(),
+                sfx: { key: sfxKey, channel: 'dialog' },
+                position: newEnclaveData[randomConquest.enclaveId].center,
+            });
+        }
+    }
+
+    // Generic Conquest Effects (VFX/SFX)
+    conquestEvents.forEach(event => {
+        const enclave = newEnclaveData[event.enclaveId];
+        if (enclave) {
+            const ownerKey = event.conqueror === 'player-1' ? 'player' : 'opponent';
+            const sfxKey = `conquest-${ownerKey}-sfx`;
+            const vfxKey = `conquest-${ownerKey}-vfx`;
+            effects.push({
+                id: uuidv4(),
+                sfx: { key: sfxKey, channel: 'fx', position: enclave.center },
+                vfx: [vfxKey],
+                position: enclave.center,
+            });
         }
     });
 
@@ -185,7 +184,6 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 isPaused: gameOverState !== 'none' ? true : state.isPaused,
                 isResolvingTurn: false,
                 pendingEffects: allEffects,
-                effectQueue: [], // Clear the old queue
                 playerConquestsThisTurn,
                 opponentConquestsThisTurn,
                 playerHasHadFirstConquestDialog,

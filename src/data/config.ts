@@ -14,7 +14,7 @@ export const CONFIG = {
     
     //testing and debugging features
     QUICK_START: {
-        enabled: false,
+        enabled: true,
         player1Archetype: 'firstSword',
         player1Legacy: 'annihilationDoctrine',
         player2Archetype: 'pactWhisperer',
