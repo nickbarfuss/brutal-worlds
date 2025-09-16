@@ -1,7 +1,7 @@
 import * as THREE from 'three'; // eslint-disable-line @typescript-eslint/no-unused-vars
 // Fix: Import SemanticColorPalette directly from the types definition file.
 import { Route, PendingOrders, Enclave, WorldProfile, SemanticColorPalette } from '@/types/game';
-import { getIconForRouteStatus } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
 import { getPaletteForOwner } from '@/canvas/draw/drawUtils';
 import { PLAYER_THREE_COLORS } from '@/data/theme';
 
@@ -20,11 +20,11 @@ const drawRouteMarker = (ctx: CanvasRenderingContext2D, type: string, pos: {x: n
         bgColor = palette ? palette.selected : PLAYER_THREE_COLORS['player-1'].selected;
         iconColor = palette ? palette.light : PLAYER_THREE_COLORS['player-1'].light;
     } else if (type === 'disabled') {
-        icon = getIconForRouteStatus('disabled');
+        icon = ICONS.route.disabled;
         bgColor = '#27272a'; // neutral-800
         iconColor = '#f59e0b'; // amber-400 (semantic warning)
     } else if (type === 'destroyed') {
-        icon = getIconForRouteStatus('destroyed');
+        icon = ICONS.route.destroyed;
         bgColor = '#27272a'; // neutral-800
         iconColor = '#ef4444'; // red-500 (semantic danger)
     }

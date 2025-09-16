@@ -13,7 +13,8 @@ import { ASSETS } from '@/data/assets';
 import { EFFECT_PROFILES } from '@/data/effects';
 import { ARCHETYPES } from '@/data/archetypes';
 import { BIRTHRIGHTS } from '@/data/birthrights';
-import { getIconForRouteStatus, getIconForEntityType, getDomainOwner } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
+import { getDomainOwner } from '@/logic/domainLogic';
 import TurnDisplay from '@/components/features/display/TurnDisplay';
 import WorldDisplay from '@/components/features/display/WorldDisplay';
 import { PLAYER_THREE_COLORS, THEME_CONFIG } from '@/data/theme';
@@ -542,7 +543,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
 
             const isDestroyed = route.isDestroyed;
             const subtitle = isDestroyed ? 'Destroyed' : 'Disabled';
-            const icon = getIconForRouteStatus(isDestroyed ? 'destroyed' : 'disabled');
+            const icon = ICONS.route[isDestroyed ? 'destroyed' : 'disabled'];
             const iconColorClass = isDestroyed ? `text-${THEME_CONFIG.danger}-500` : `text-${THEME_CONFIG.warning}-400`;
 
             return {
@@ -590,7 +591,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             }
     
             return {
-                icon: getIconForEntityType('domain'),
+                icon: ICONS.entity.domain,
                 iconColorHex: engine.currentWorld.neutralColorPalette.icon,
                 title: domain.name,
                 subtitle: subtitle,

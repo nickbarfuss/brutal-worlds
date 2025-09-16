@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Owner } from '@/types/game';
-import { getIconForEntityType } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
 import { PLAYER_THREE_COLORS } from '@/data/theme';
 
 interface WorldDisplayProps {
@@ -34,7 +34,7 @@ const WorldDisplay: React.FC<WorldDisplayProps> = ({
 
       return (
         <div className="flex items-center justify-start gap-2 transition-opacity duration-200">
-          <span className={`material-symbols-outlined`} style={style}>{getIconForEntityType(hoveredEntity.type)}</span>
+          <span className={`material-symbols-outlined`} style={style}>{ICONS.entity[hoveredEntity.type as keyof typeof ICONS.entity]}</span>
           <p className={`text-xl ${fontWeight}`} style={style}>{hoveredEntity.name}</p>
         </div>
       );

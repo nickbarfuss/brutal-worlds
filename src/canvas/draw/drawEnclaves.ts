@@ -1,6 +1,6 @@
 import { Enclave, WorldProfile, ActiveHighlight, ActiveEffectMarker } from '@/types/game';
 import { getPaletteForOwner } from '@/canvas/draw/drawUtils';
-import { getIconForEntityType } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
 import { EFFECT_PROFILES } from '@/data/effects';
 
 const canvasStyles = {
@@ -100,7 +100,7 @@ const drawEnclaveChip = (
         currentX += chipStyle.paddingInner;
         ctx.font = labelStyle.iconFont; ctx.fillStyle = labelIconColor;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(getIconForEntityType('enclave'), currentX + labelStyle.iconSize / 2, pos.y);
+        ctx.fillText(ICONS.entity.enclave, currentX + labelStyle.iconSize / 2, pos.y);
         currentX += labelStyle.iconSize + chipStyle.paddingInner;
         ctx.font = labelStyle.textFont; ctx.fillStyle = labelTextColor;
         ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
@@ -138,7 +138,7 @@ const drawEnclaveChip = (
         if (!profile) return;
         
         const isCrisis = marker.effects.length > 1;
-        const icon = isCrisis ? getIconForEntityType('disaster') : profile.ui.icon;
+        const icon = isCrisis ? ICONS.disaster : profile.ui.icon;
         const durationText = String(marker.durationInPhase);
 
         ctx.font = "700 10px 'Open Sans'";

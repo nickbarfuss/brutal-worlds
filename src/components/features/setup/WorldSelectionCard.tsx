@@ -3,7 +3,7 @@ import { WorldProfile } from '@/types/game';
 import Avatar from '@/components/ui/Avatar';
 import ChipCard from '@/components/ui/ChipCard';
 import { DISASTERS } from '@/data/disasters';
-import { getIconForEntityType } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
 import { getAssetUrl } from '@/utils/assetUtils';
 import Card from '@/components/ui/Card';
 
@@ -60,10 +60,10 @@ const WorldSelectionCard: React.FC<WorldSelectionCardProps> = ({ world, isSelect
                     />
                     <h3 className="text-4xl font-bold text-white mb-2 font-title">{world.name}</h3>
                     <div className="flex flex-wrap justify-center items-center gap-2 mt-2">
-                        {domainCount > 0 && <StatChip icon={getIconForEntityType('domain')} value={domainCount} />}
-                        {enclaveCount > 0 && <StatChip icon={getIconForEntityType('enclave')} value={enclaveCount} />}
-                        {expanseCount > 0 && <StatChip icon={getIconForEntityType('expanse')} value={expanseCount} />}
-                        {riftCount > 0 && <StatChip icon={getIconForEntityType('rift')} value={riftCount} />}
+                        {domainCount > 0 && <StatChip icon={ICONS.entity.domain} value={domainCount} />}
+                        {enclaveCount > 0 && <StatChip icon={ICONS.entity.enclave} value={enclaveCount} />}
+                        {expanseCount > 0 && <StatChip icon={ICONS.entity.expanse} value={expanseCount} />}
+                        {riftCount > 0 && <StatChip icon={ICONS.entity.rift} value={riftCount} />}
                     </div>
                 </div>
             </div>
@@ -102,7 +102,7 @@ const WorldSelectionCard: React.FC<WorldSelectionCardProps> = ({ world, isSelect
                             {domain.enclaves.map(enclave => (
                                 <ChipCard
                                     key={enclave.name}
-                                    icon={getIconForEntityType('enclave')}
+                                    icon={ICONS.entity.enclave}
                                     title={enclave.name}
                                     baseValue={5}
                                     valueType="force"
@@ -119,7 +119,7 @@ const WorldSelectionCard: React.FC<WorldSelectionCardProps> = ({ world, isSelect
                             {world.names.expanses.map(expanseName => (
                                 <ChipCard
                                     key={expanseName}
-                                    icon={getIconForEntityType('expanse')}
+                                    icon={ICONS.entity.expanse}
                                     title={expanseName}
                                     worldPalette={world.neutralColorPalette}
                                 />
@@ -133,7 +133,7 @@ const WorldSelectionCard: React.FC<WorldSelectionCardProps> = ({ world, isSelect
                             {world.names.rifts.map(riftName => (
                                 <ChipCard
                                     key={riftName}
-                                    icon={getIconForEntityType('rift')}
+                                    icon={ICONS.entity.rift}
                                     title={riftName}
                                     worldPalette={world.neutralColorPalette}
                                 />

@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Owner, Enclave, Domain, Rift, Expanse, HighlightType, ActiveHighlight, WorldProfile } from '@/types/game';
-import { getIconForEntityType, getDomainOwner } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
+import { getDomainOwner } from '@/logic/domainLogic';
 import { PLAYER_THREE_COLORS } from '@/data/theme';
 import ChipGroup from '@/components/ui/ChipGroup';
 
@@ -83,10 +84,10 @@ const LegendDisplay: React.FC<LegendDisplayProps> = ({
   };
 
   const chipData = [
-      { type: 'domains' as HighlightType, label: 'Domains', segments: [ { id: 'player-1' as Owner, icon: getIconForEntityType('domain'), color: ownerColors['player-1'], count: counts.domains['player-1'] }, { id: 'player-2' as Owner, icon: getIconForEntityType('domain'), color: ownerColors['player-2'], count: counts.domains['player-2'] }, { id: null as Owner, icon: getIconForEntityType('domain'), color: ownerColors.null, count: counts.domains.null } ] },
-      { type: 'enclaves' as HighlightType, label: 'Enclaves', segments: [ { id: 'player-1' as Owner, icon: getIconForEntityType('enclave'), color: ownerColors['player-1'], count: counts.enclaves['player-1'] }, { id: 'player-2' as Owner, icon: getIconForEntityType('enclave'), color: ownerColors['player-2'], count: counts.enclaves['player-2'] }, { id: null as Owner, icon: getIconForEntityType('enclave'), color: ownerColors.null, count: counts.enclaves.null } ] },
-      { type: 'expanses' as HighlightType, label: 'Expanses', segments: [{ id: null as Owner, icon: getIconForEntityType('expanse'), color: ownerColors.null, count: counts.expanses.null, }] },
-      { type: 'rifts' as HighlightType, label: 'Rifts', segments: [{ id: null as Owner, icon: getIconForEntityType('rift'), color: ownerColors.null, count: counts.rifts.null, }] }
+            { type: 'domains' as HighlightType, label: 'Domains', segments: [ { id: 'player-1' as Owner, icon: ICONS.entity.domain, color: ownerColors['player-1'], count: counts.domains['player-1'] }, { id: 'player-2' as Owner, icon: ICONS.entity.domain, color: ownerColors['player-2'], count: counts.domains['player-2'] }, { id: null as Owner, icon: ICONS.entity.domain, color: ownerColors.null, count: counts.domains.null } ] },
+      { type: 'enclaves' as HighlightType, label: 'Enclaves', segments: [ { id: 'player-1' as Owner, icon: ICONS.entity.enclave, color: ownerColors['player-1'], count: counts.enclaves['player-1'] }, { id: 'player-2' as Owner, icon: ICONS.entity.enclave, color: ownerColors['player-2'], count: counts.enclaves['player-2'] }, { id: null as Owner, icon: ICONS.entity.enclave, color: ownerColors.null, count: counts.enclaves.null } ] },
+      { type: 'expanses' as HighlightType, label: 'Expanses', segments: [{ id: null as Owner, icon: ICONS.entity.expanse, color: ownerColors.null, count: counts.expanses.null, }] },
+      { type: 'rifts' as HighlightType, label: 'Rifts', segments: [{ id: null as Owner, icon: ICONS.entity.rift, color: ownerColors.null, count: counts.rifts.null, }] }
   ];
 
   return (

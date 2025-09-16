@@ -2,7 +2,7 @@ import React from 'react';
 import { BriefingContent, WorldProfile } from '@/types/game';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
-import { getIconForEntityType } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
 
 interface DomainBriefingProps {
     content: BriefingContent;
@@ -36,7 +36,7 @@ const DomainBriefing: React.FC<DomainBriefingProps> = ({ content, world }) => {
                                 {enclaves.map(enclave => (
                                     <ChipCard
                                         key={enclave.id}
-                                        icon={getIconForEntityType('enclave')}
+                                        icon={ICONS.entity.enclave}
                                         title={enclave.name}
                                         baseValue={enclave.forces}
                                         valueType="force"
@@ -53,7 +53,7 @@ const DomainBriefing: React.FC<DomainBriefingProps> = ({ content, world }) => {
                     {content.enclaves.map(enclave => (
                         <ChipCard
                             key={enclave.id}
-                            icon={getIconForEntityType('enclave')}
+                            icon={ICONS.entity.enclave}
                             title={enclave.name}
                             baseValue={enclave.forces}
                             valueType="force"

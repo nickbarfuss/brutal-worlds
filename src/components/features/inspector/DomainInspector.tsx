@@ -2,7 +2,8 @@ import React from 'react';
 import { Domain, Enclave, WorldProfile, Owner } from '@/types/game';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
-import { getIconForEntityType, getDomainOwner } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
+import { getDomainOwner } from '@/logic/domainLogic';
 import { PLAYER_THREE_COLORS } from '@/data/theme';
 
 interface DomainInspectorProps {
@@ -46,7 +47,7 @@ const DomainInspector: React.FC<DomainInspectorProps> = ({ domain, enclaveData, 
         <>
             <div className="sticky top-0 bg-neutral-900/80 backdrop-blur-sm z-10 flex-shrink-0">
                 <Card.Header 
-                    icon={getIconForEntityType('domain')}
+                    icon={ICONS.entity.domain}
                     iconColorHex={palette.icon}
                     title={domain.name}
                     subtitle={subtitle}
@@ -63,7 +64,7 @@ const DomainInspector: React.FC<DomainInspectorProps> = ({ domain, enclaveData, 
                         {enclavesInDomain.map(enclave => (
                             <ChipCard
                                 key={enclave.id}
-                                icon={getIconForEntityType('enclave')}
+                                icon={ICONS.entity.enclave}
                                 title={enclave.name}
                                 baseValue={enclave.forces}
                                 valueType="force"

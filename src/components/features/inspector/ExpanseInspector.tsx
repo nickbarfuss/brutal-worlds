@@ -4,7 +4,7 @@ import { Expanse, ActiveEffectMarker, Enclave } from '@/types/game';
 import { EFFECT_PROFILES } from '@/data/effects';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
-import { getIconForEntityType } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
 
 interface ExpanseInspectorProps {
     entity: Expanse;
@@ -28,7 +28,7 @@ const ExpanseInspector: React.FC<ExpanseInspectorProps> = ({ entity, activeEffec
         <>
           <div className="sticky top-0 bg-neutral-900/80 backdrop-blur-sm z-10 flex-shrink-0">
                <Card.Header
-                  icon={getIconForEntityType('expanse')}
+                  icon={ICONS.entity.expanse}
                   iconColorClass="text-neutral-500"
                   title={entity.name}
                   subtitle={'Expanse'}

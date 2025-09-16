@@ -4,7 +4,7 @@ import { WorldProfile, Domain, Enclave, Rift, Expanse, Vector3 } from '@/types/g
 import { EFFECT_PROFILES } from '@/data/effects';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
-import { getIconForEntityType } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
 import { getAssetUrl } from '@/utils/assetUtils';
 
 interface WorldInspectorProps {
@@ -29,7 +29,7 @@ const WorldInspector: React.FC<WorldInspectorProps> = ({ world, domainData, encl
         <>
              <div className="sticky top-0 bg-neutral-900/80 backdrop-blur-sm z-10 flex-shrink-0">
                 <Card.Header 
-                    icon={getIconForEntityType('world')}
+                    icon={ICONS.entity.world}
                     iconColorHex={world.neutralColorPalette.base}
                     title={world.name}
                     onClose={onClose}
@@ -113,7 +113,7 @@ const WorldInspector: React.FC<WorldInspectorProps> = ({ world, domainData, encl
                                                             {enclaves.map(enclave => (
                                                                 <ChipCard
                                                                     key={enclave.id}
-                                                                    icon={getIconForEntityType('enclave')}
+                                                                    icon={ICONS.entity.enclave}
                                                                     title={enclave.name}
                                                                     baseValue={enclave.forces}
                                                                     valueType="force"
@@ -134,7 +134,7 @@ const WorldInspector: React.FC<WorldInspectorProps> = ({ world, domainData, encl
                                     {enclavesInDomain.map(enclave => (
                                         <ChipCard
                                             key={enclave.id}
-                                            icon={getIconForEntityType('enclave')}
+                                            icon={ICONS.entity.enclave}
                                             title={enclave.name}
                                             baseValue={enclave.forces}
                                             valueType="force"
@@ -156,7 +156,7 @@ const WorldInspector: React.FC<WorldInspectorProps> = ({ world, domainData, encl
                             {expanses.map(expanse => (
                                 <ChipCard
                                     key={expanse.id}
-                                    icon={getIconForEntityType('expanse')}
+                                    icon={ICONS.entity.expanse}
                                     title={expanse.name}
                                     worldPalette={world.neutralColorPalette}
                                     onClick={() => onFocusVector(expanse.center)}
@@ -172,7 +172,7 @@ const WorldInspector: React.FC<WorldInspectorProps> = ({ world, domainData, encl
                             {rifts.map(rift => (
                                 <ChipCard
                                     key={rift.id}
-                                    icon={getIconForEntityType('rift')}
+                                    icon={ICONS.entity.rift}
                                     title={rift.name}
                                     worldPalette={world.neutralColorPalette}
                                     onClick={() => onFocusVector(rift.center)}

@@ -7,7 +7,7 @@ import { BIRTHRIGHTS } from '@/data/birthrights';
 import { ARCHETYPES } from '@/data/archetypes';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
-import { getIconForEntityType, getIconForRouteStatus } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
 import { getAppliedModifiers } from '@/logic/effectProcessor';
 import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrightManager';
 import { calculateEnclaveTurnPreview, TurnPreview } from '@/logic/previewManager'; // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -233,7 +233,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                 )}
                 <div role="button" onClick={() => onFocusEnclave(enclave.id)}>
                     <Card.Header 
-                        icon={getIconForEntityType('enclave')}
+                        icon={ICONS.entity.enclave}
                         iconColorHex={palette.icon}
                         title={enclave.name}
                         subtitle={domainData[enclave.domainId] ? domainData[enclave.domainId].name : 'Unknown Domain'}
@@ -363,7 +363,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                         return (
                             <ChipCard
                                 key={`${route.from}-${route.to}`}
-                                icon={getIconForRouteStatus(statusType)}
+                                icon={ICONS.route[statusType]}
                                 iconColorClass={iconColorClass}
                                 title={otherEnclave.name}
                                 subtitle={subtitle}

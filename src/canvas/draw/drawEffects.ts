@@ -1,6 +1,6 @@
 import { ActiveEffectMarker, Enclave } from '@/types/game';
 import { EFFECT_PROFILES } from '@/data/effects';
-import { getIconForEntityType } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
 
 const canvasStyles = {
     effectIcon: { radius: 12, iconFont: "16px 'Material Symbols Outlined'" },
@@ -12,7 +12,7 @@ const drawEffectMarker = (ctx: CanvasRenderingContext2D, marker: ActiveEffectMar
     const iconStyle = canvasStyles.effectIcon;
     
     const isCrisis = marker.effects.length > 1;
-    let icon = getIconForEntityType('disaster'); // Default crisis icon
+    let icon = ICONS.disaster; // Default crisis icon
 
     if (!isCrisis) {
         const profile = EFFECT_PROFILES[marker.profileKey];

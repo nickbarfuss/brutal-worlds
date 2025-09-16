@@ -3,7 +3,8 @@
 import * as THREE from 'three';
 import { ActiveHighlight, Owner, WorldProfile, GameState } from '@/types/game';
 import { getPaletteForOwner, getScreenPosition } from '@/canvas/draw/drawUtils';
-import { getIconForEntityType } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
+import { getDomainOwner } from '@/logic/domainLogic';
 
 const canvasStyles = {
     enclaveMarker: { radius: 14 },
@@ -85,20 +86,15 @@ export const drawHighlightLabels = (ctx: CanvasRenderingContext2D, props: DrawHi
 
     if (!activeHighlight || !currentWorld) return;
 
-    const getDomainOwner = (domainId: number): Owner => {
-        const enclavesInDomain = Object.values(enclaveData).filter(e => e.domainId === domainId);
-        if (enclavesInDomain.length === 0) return null;
-        const firstOwner = enclavesInDomain[0].owner;
-        return enclavesInDomain.every(e => e.owner === firstOwner) ? firstOwner : null;
-    };
+
 
     if (activeHighlight.type === 'domains') {
         Object.values(domainData).forEach(domain => {
-            const owner = getDomainOwner(domain.id);
+            const owner = getDomainOwner(domain.id, enclaveData);
             if (activeHighlight.owners.has(owner)) {
                 const pos = getScreenPosition(domain.center, mapContainer, camera, canvas);
                 if (pos.visible) {
-                    drawDynamicLabelChip(ctx, pos, getIconForEntityType('domain'), domain.name, currentWorld, owner);
+                    drawDynamicLabelChip(ctx, pos, ICONS.entity.domain, domain.name, currentWorld, owner);
                 }
             }
         });
@@ -107,7 +103,7 @@ export const drawHighlightLabels = (ctx: CanvasRenderingContext2D, props: DrawHi
             Object.values(expanseData).forEach(expanse => {
                 const pos = getScreenPosition(expanse.center, mapContainer, camera, canvas);
                 if (pos.visible) {
-                    drawDynamicLabelChip(ctx, pos, getIconForEntityType('expanse'), expanse.name, currentWorld, null);
+                    drawDynamicLabelChip(ctx, pos, ICONS.entity.expanse, expanse.name, currentWorld, null);
                 }
             });
         }
@@ -116,7 +112,7 @@ export const drawHighlightLabels = (ctx: CanvasRenderingContext2D, props: DrawHi
             Object.values(riftData).forEach(rift => {
                 const pos = getScreenPosition(rift.center, mapContainer, camera, canvas);
                 if (pos.visible) {
-                    drawDynamicLabelChip(ctx, pos, getIconForEntityType('rift'), rift.name, currentWorld, null);
+                    drawDynamicLabelChip(ctx, pos, ICONS.entity.rift, rift.name, currentWorld, null);
                 }
             });
         }

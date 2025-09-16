@@ -3,7 +3,7 @@ import { ActiveEffectMarker } from '@/types/game';
 import { EFFECT_PROFILES } from '@/data/effects';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
-import { getIconForEntityType } from '@/utils/entityUtils';
+import { ICONS } from '@/data/icons';
 
 interface EffectInspectorProps {
     marker: ActiveEffectMarker;
@@ -20,7 +20,7 @@ const EffectInspector: React.FC<EffectInspectorProps> = ({ marker, onPointerMove
     if (!phaseProfile) return null;
 
     const isCrisis = marker.effects.length > 1;
-    const icon = isCrisis ? getIconForEntityType('disaster') : primaryProfile.ui.icon;
+    const icon = isCrisis ? ICONS.disaster : primaryProfile.ui.icon;
     
     // For briefing cards, show phase-specific info for a single effect.
     const briefingProps = { type: 'effectMarker' as const, key: marker.id };
