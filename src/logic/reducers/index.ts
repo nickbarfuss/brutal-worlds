@@ -47,7 +47,8 @@ export type Action =
     | { type: 'SET_MATERIAL_VALUE'; payload: { type: keyof GameState['materialSettings'], key: keyof MaterialProperties, value: number } }
     | { type: 'SET_AMBIENT_LIGHT_INTENSITY'; payload: number }
     | { type: 'SET_TONEMAPPING_STRENGTH'; payload: number }
-    | { type: 'SET_PENDING_EFFECTS'; payload: EffectQueueItem[] };
+    | { type: 'SET_PENDING_EFFECTS'; payload: EffectQueueItem[] }
+    | { type: 'REMOVE_PENDING_EFFECTS'; payload: string[] };
 
 export const initialState: GameState = {
     mapData: [], enclaveData: {}, domainData: {}, riftData: {}, expanseData: {}, routes: [],

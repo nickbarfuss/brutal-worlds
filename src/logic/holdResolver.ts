@@ -10,21 +10,15 @@ export const resolveHolding = (
     processedOrders: PendingOrders,
     currentRoutes: Route[],
     gameConfig: GameConfig,
-    effectsToPlay: EffectQueueItem[],
-): Map<number, Enclave> => {
+): { newEnclaveData: Map<number, Enclave>, events: TurnEvent[] } => {
     const { FORCE_SUPPLY_CAP } = gameConfig;
     const reinforcementDeltas = new Map<number, number>();
+    const events: TurnEvent[] = [];
 
     // --- PASS 1: Determine which enclaves are holding and calculate their reinforcements ---
     for (const enclave of currentEnclavesMap.values()) {
         if ((enclave.owner === 'player-1' || enclave.owner === 'player-2') && !processedOrders[enclave.id]) {
-            // Queue the VFX/SFX on the holding enclave
-            effectsToPlay.push({
-                id: `vfx-hold-${enclave.id}`,
-                sfx: { key: 'order-hold-sfx', channel: 'fx', position: enclave.center },
-                vfx: ['order-hold-vfx'],
-                position: enclave.center,
-            });
+            events.push({ type: 'hold', enclaveId: enclave.id });
 
             let reinforcements = 2; // Standard holding value
             reinforcements += getHoldBonusForEnclave(enclave);
@@ -51,7 +45,7 @@ export const resolveHolding = (
     // birthrightDeltas.forEach((delta, id) => reinforcementDeltas.set(id, (reinforcementDeltas.get(id) || 0) + delta));
 
     if (reinforcementDeltas.size === 0) {
-        return currentEnclavesMap;
+        return { newEnclaveData: currentEnclavesMap, events };
     }
 
     // --- PASS 2: Apply all reinforcements using a copy-on-write strategy ---
@@ -64,5 +58,5 @@ export const resolveHolding = (
         newEnclavesMap.set(id, newEnclave);
     }
 
-    return newEnclavesMap;
+    return { newEnclaveData: newEnclavesMap, events };
 };

@@ -1,4 +1,4 @@
-import { Enclave, PendingOrders, Player, Order, EffectQueueItem, ConquestEvent, Rule, GameState, Route } from '@/types/game.ts';
+import { Enclave, PendingOrders, Player, Order, TurnEvent, Rule, GameState, Route } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
 import { getAppliedModifiers } from '@/logic/effectProcessor.ts';
 import { getAttackBonusForEnclave } from '@/logic/birthrightManager.ts';
@@ -19,17 +19,16 @@ export const resolveAttacks = (
     currentEnclavesMap: Map<number, Enclave>,
     processedOrders: PendingOrders,
     gameConfig: GameConfig,
-    effectsToPlay: EffectQueueItem[],
     playerArchetypeKey: string | null,
     playerLegacyKey: string | null,
     opponentArchetypeKey: string | null,
     opponentLegacyKey: string | null,
     routes: Route[],
-): { newEnclaveData: Map<number, Enclave>, newPendingOrders: PendingOrders, conquestEvents: ConquestEvent[] } => {
+): { newEnclaveData: Map<number, Enclave>, newPendingOrders: PendingOrders, events: TurnEvent[] } => {
     const newEnclavesMap = new Map<number, Enclave>(currentEnclavesMap);
     const newPendingOrders = { ...processedOrders };
     const { FORCE_SUPPLY_CAP } = gameConfig;
-    const conquestEvents: ConquestEvent[] = [];
+    const events: TurnEvent[] = [];
 
     const attackOrders = new Map<number, Attack[]>();
     const forcesLeaving: { [fromId: number]: number } = {};
@@ -42,16 +41,15 @@ export const resolveAttacks = (
 
         const fromId = parseInt(fromIdStr, 10);
         const origin = newEnclavesMap.get(fromId);
-        const target = newEnclavesMap.get(order.to); // Get target for VFX
+        const target = newEnclavesMap.get(order.to);
 
         if (!origin || !origin.owner || !target) return;
 
-        // Queue the VFX/SFX on the target enclave
-        effectsToPlay.push({
-            id: `vfx-attack-${fromId}-${order.to}`, // Unique enough for this context
-            sfx: { key: 'order-attack-sfx', channel: 'fx', position: target.center },
-            vfx: ['order-attack-vfx'],
-            position: target.center,
+        events.push({ 
+            type: 'attack', 
+            fromEnclaveId: fromId, 
+            toEnclaveId: order.to, 
+            owner: origin.owner 
         });
 
         const safeForces = Number.isFinite(origin.forces) ? origin.forces : 0;
@@ -197,22 +195,12 @@ export const resolveAttacks = (
         newEnclavesMap.set(targetId, target);
 
         if (originalOwner !== target.owner && target.owner) {
-            const ownerKey = target.owner === 'player-1' ? 'player' : 'opponent';
-            const sfxKey = `conquest-${ownerKey}-sfx`;
-            const vfxKey = `conquest-${ownerKey}-vfx`;
-
-            effectsToPlay.push({
-                id: '', // This will be populated in useGameEngine
-                sfx: { key: sfxKey, channel: 'fx', position: target.center },
-                vfx: [vfxKey],
-                position: target.center,
-            });
-
             const conqueringArchetypeKey = target.archetypeKey;
             const conqueringLegacyKey = target.owner === 'player-1' ? playerLegacyKey : opponentLegacyKey;
 
             if (conqueringArchetypeKey && conqueringLegacyKey) {
-                conquestEvents.push({
+                events.push({
+                    type: 'conquest',
                     enclaveId: target.id,
                     conqueror: target.owner,
                     archetypeKey: conqueringArchetypeKey,
@@ -222,5 +210,5 @@ export const resolveAttacks = (
         }
     });
 
-    return { newEnclaveData: newEnclavesMap, newPendingOrders, conquestEvents };
+    return { newEnclaveData: newEnclavesMap, newPendingOrders, events };
 };

@@ -58,7 +58,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine, worldCanvasHandle }) =>
     const wasPausedBeforeSurrender = useRef(false);
     const archetypeInspectorRef = useRef<HTMLDivElement>(null);
     const mapInspectorRef = useRef<HTMLDivElement>(null);
-    const worldCanvasRef = useRef<WorldCanvasHandle>(null);
+    
     const videoEnterRef = useRef<HTMLVideoElement>(null);
     const videoExitRef = useRef<HTMLVideoElement>(null);
     const titleRef = useRef<HTMLDivElement>(null);
@@ -121,7 +121,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine, worldCanvasHandle }) =>
         };
     
         const startTimeline = () => {
-            const handle = worldCanvasRef.current;
+            const handle = worldCanvasHandle.current;
             if (!handle || !handle.camera || !handle.mapContainer || !handle.opacityController) return;
             
             setDebugCamera(handle.camera);
@@ -219,7 +219,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine, worldCanvasHandle }) =>
     
         readyCheckInterval = window.setInterval(() => {
             if (
-                worldCanvasRef.current?.camera && 
+                worldCanvasHandle.current?.camera && 
                 videoEnterRef.current?.readyState === 4 && 
                 videoExitRef.current?.readyState === 4 &&
                 titleRef.current
@@ -814,7 +814,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine, worldCanvasHandle }) =>
             
             {engine.currentWorld && (
                 <WorldCanvas
-                    ref={worldCanvasRef}
+                    ref={worldCanvasHandle}
                     sfxManager={sfxManager}
                     effectQueue={engine.effectQueue}
                     vfxManager={engine.vfxManager}

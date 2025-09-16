@@ -662,10 +662,31 @@ export interface GameState {
 }
 
 export interface ConquestEvent {
+    type: 'conquest';
     enclaveId: number;
     conqueror: Player;
     archetypeKey: string;
     legacyKey: string;
 }
+
+export interface AttackEvent {
+    type: 'attack';
+    fromEnclaveId: number;
+    toEnclaveId: number;
+    owner: Player;
+}
+
+export interface HoldEvent {
+    type: 'hold';
+    enclaveId: number;
+}
+
+export interface AssistEvent {
+    type: 'assist';
+    fromEnclaveId: number;
+    toEnclaveId: number;
+}
+
+export type TurnEvent = ConquestEvent | AttackEvent | HoldEvent | AssistEvent;
 
 // Temporary comment to force re-evaluation

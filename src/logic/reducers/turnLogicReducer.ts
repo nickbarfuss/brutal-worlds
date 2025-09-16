@@ -1,8 +1,113 @@
-import { GameState, Enclave, EffectQueueItem } from '@/types/game';
+import { GameState, Enclave, EffectQueueItem, TurnEvent, ConquestEvent } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
 import { v4 as uuidv4 } from 'uuid';
 import { EFFECT_PROFILES } from '@/data/effects';
 import { triggerNewEffect as triggerEffectLogic } from "@/logic/effectManager";
+
+const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveData: { [id: number]: Enclave }): EffectQueueItem[] => {
+    const effects: EffectQueueItem[] = [];
+    let playerHasHadFirstConquestDialog = state.playerHasHadFirstConquestDialog;
+    let opponentHasHadFirstConquestDialog = state.opponentHasHadFirstConquestDialog;
+
+    const conquestEvents = events.filter(e => e.type === 'conquest') as ConquestEvent[];
+    const playerConquests = conquestEvents.filter(e => e.conqueror === 'player-1');
+    const opponentConquests = conquestEvents.filter(e => e.conqueror === 'player-2');
+
+    // First Conquest Dialog Logic
+    if (playerConquests.length > 0 && !playerHasHadFirstConquestDialog) {
+        const event = playerConquests[0];
+        const sfxKey = `archetype-${event.archetypeKey}-${event.legacyKey}-dialog-conquest`;
+        effects.push({
+            id: uuidv4(),
+            sfx: { key: sfxKey, channel: 'dialog' },
+            position: newEnclaveData[event.enclaveId].center,
+        });
+    }
+    if (opponentConquests.length > 0 && !opponentHasHadFirstConquestDialog) {
+        const event = opponentConquests[0];
+        const sfxKey = `archetype-${event.archetypeKey}-${event.legacyKey}-dialog-conquest`;
+        effects.push({
+            id: uuidv4(),
+            sfx: { key: sfxKey, channel: 'dialog' },
+            position: newEnclaveData[event.enclaveId].center,
+        });
+    }
+
+    // Subsequent Random Conquest Dialog Logic
+    const nonFirstConquests = conquestEvents.filter(event => {
+        if (event.conqueror === 'player-1') return playerHasHadFirstConquestDialog;
+        if (event.conqueror === 'player-2') return opponentHasHadFirstConquestDialog;
+        return true;
+    });
+
+    if (nonFirstConquests.length > 0 && Math.random() < state.gameConfig.CONQUEST_DIALOG_CHANCE) {
+        const randomConquest = nonFirstConquests[Math.floor(Math.random() * nonFirstConquests.length)];
+        const sfxKey = `archetype-${randomConquest.archetypeKey}-${randomConquest.legacyKey}-dialog-conquest`;
+        effects.push({
+            id: uuidv4(),
+            sfx: { key: sfxKey, channel: 'dialog' },
+            position: newEnclaveData[randomConquest.enclaveId].center,
+        });
+    }
+
+    events.forEach(event => {
+        switch (event.type) {
+            case 'attack': {
+                const toEnclave = newEnclaveData[event.toEnclaveId];
+                if (toEnclave) {
+                    effects.push({
+                        id: uuidv4(),
+                        sfx: { key: 'order-attack-sfx', channel: 'fx', position: toEnclave.center },
+                        vfx: ['order-attack-vfx'],
+                        position: toEnclave.center,
+                    });
+                }
+                break;
+            }
+            case 'conquest': {
+                const enclave = newEnclaveData[event.enclaveId];
+                if (enclave) {
+                    const ownerKey = event.conqueror === 'player-1' ? 'player' : 'opponent';
+                    const sfxKey = `conquest-${ownerKey}-sfx`;
+                    const vfxKey = `conquest-${ownerKey}-vfx`;
+                    effects.push({
+                        id: uuidv4(),
+                        sfx: { key: sfxKey, channel: 'fx', position: enclave.center },
+                        vfx: [vfxKey],
+                        position: enclave.center,
+                    });
+                }
+                break;
+            }
+            case 'hold': {
+                const enclave = newEnclaveData[event.enclaveId];
+                if (enclave) {
+                    effects.push({
+                        id: uuidv4(),
+                        sfx: { key: 'order-hold-sfx', channel: 'fx', position: enclave.center },
+                        vfx: ['order-hold-vfx'],
+                        position: enclave.center,
+                    });
+                }
+                break;
+            }
+            case 'assist': {
+                const toEnclave = newEnclaveData[event.toEnclaveId];
+                if (toEnclave) {
+                    effects.push({
+                        id: uuidv4(),
+                        sfx: { key: 'order-assist-sfx', channel: 'fx', position: toEnclave.center },
+                        vfx: ['order-assist-vfx'],
+                        position: toEnclave.center,
+                    });
+                }
+                break;
+            }
+        }
+    });
+
+    return effects;
+};
 
 export const handleTurnLogic = (state: GameState, action: Action): GameState => {
     switch (action.type) {
@@ -13,7 +118,6 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 isPaused: false,
             };
 
-            // This logic specifically handles the test case for a disaster on Turn 1.
             if (disasterConfig?.enabled && disasterConfig.triggerOnTurn === 1) {
                 const disasterProfile = EFFECT_PROFILES[disasterConfig.disasterKey];
                 if (!disasterProfile) {
@@ -54,57 +158,18 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 newCurrentTurn, 
                 newEffectMarkers, 
                 gameOverState, 
-                effectsToPlay, 
-                playerConquestsThisTurn, 
-                opponentConquestsThisTurn,
-                conquestEvents,
+                events,
+                effectsToPlay, // From disasters
             } = action.payload;
             
-            const newEffectsToQueue: EffectQueueItem[] = [];
-            let playerHasHadFirstConquestDialog = state.playerHasHadFirstConquestDialog;
-            let opponentHasHadFirstConquestDialog = state.opponentHasHadFirstConquestDialog;
+            const turnEffects = mapEventsToEffects(events, state, newEnclaveData);
+            const allEffects = [...turnEffects, ...(effectsToPlay || [])].map(effect => ({ ...effect, id: effect.id || uuidv4() }));
 
-            if (conquestEvents && conquestEvents.length > 0) {
-                const playerConquests = conquestEvents.filter((e: any) => e.conqueror === 'player-1');
-                const opponentConquests = conquestEvents.filter((e: any) => e.conqueror === 'player-2');
-
-                const playerHasFirst = playerConquests.length > 0 && !playerHasHadFirstConquestDialog;
-                const opponentHasFirst = opponentConquests.length > 0 && !opponentHasHadFirstConquestDialog;
-
-                const queueDialog = (event: any) => {
-                    const sfxKey = `archetype-${event.archetypeKey}-${event.legacyKey}-dialog-conquest`;
-                    newEffectsToQueue.push({
-                        id: uuidv4(),
-                        sfx: { key: sfxKey, channel: 'dialog' }, // No position for global dialog
-                        position: newEnclaveData[event.enclaveId].center, // Position for camera focus if needed later
-                    });
-                };
-
-                // 1. Handle first conquests
-                if (playerHasFirst) {
-                    queueDialog(playerConquests[0]);
-                    playerHasHadFirstConquestDialog = true;
-                }
-                if (opponentHasFirst) {
-                    queueDialog(opponentConquests[0]);
-                    opponentHasHadFirstConquestDialog = true;
-                }
-
-                // 2. Handle subsequent random conquests if no "firsts" happened this turn
-                if (!playerHasFirst && !opponentHasFirst) {
-                    const playerRoll = playerConquests.length > 0 && Math.random() < 0.5;
-                    const opponentRoll = opponentConquests.length > 0 && Math.random() < 0.5;
-
-                    if (playerConquests.length > opponentConquests.length) {
-                        if (playerRoll) queueDialog(playerConquests[0]);
-                    } else if (opponentConquests.length > playerConquests.length) {
-                        if (opponentRoll) queueDialog(opponentConquests[0]);
-                    } else { // Tie in number of conquests
-                        if (playerRoll) queueDialog(playerConquests[0]);
-                        else if (opponentRoll) queueDialog(opponentConquests[0]);
-                    }
-                }
-            }
+            const conquestEvents = events.filter((e: TurnEvent) => e.type === 'conquest');
+            const playerConquestsThisTurn = conquestEvents.filter((e: any) => e.conqueror === 'player-1').length;
+            const opponentConquestsThisTurn = conquestEvents.filter((e: any) => e.conqueror === 'player-2').length;
+            const playerHasHadFirstConquestDialog = state.playerHasHadFirstConquestDialog || playerConquestsThisTurn > 0;
+            const opponentHasHadFirstConquestDialog = state.opponentHasHadFirstConquestDialog || opponentConquestsThisTurn > 0;
 
             Object.values(newEnclaveData).forEach((enclave: Enclave) => {
                 if (enclave.activeEffects) {
@@ -141,8 +206,6 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 
                 return cell;
             });
-            
-            const finalEffectsToPlay = [...effectsToPlay, ...newEffectsToQueue].map(effect => ({ ...effect, id: effect.id || uuidv4() }));
 
             const intermediateState: GameState = {
                 ...state,
@@ -157,7 +220,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 gameOverState: gameOverState,
                 isPaused: gameOverState !== 'none' ? true : state.isPaused,
                 isResolvingTurn: false,
-                pendingEffects: finalEffectsToPlay, // Use pendingEffects instead of effectQueue
+                pendingEffects: allEffects,
                 effectQueue: [], // Clear the old queue
                 playerConquestsThisTurn,
                 opponentConquestsThisTurn,
@@ -210,9 +273,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
         
             if (ordersWereCancelled) {
                 const sfxKey = `order-hold-sfx`;
-                // Changed to add to effectQueue
                 const effectsToQueue: EffectQueueItem[] = [];
-                // Assuming the first cancelled order's enclave is representative for position
                 const fromEnclave = state.enclaveData[ordersToCancel[0]]; 
                 if (fromEnclave) {
                     effectsToQueue.push({
@@ -230,8 +291,6 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             return state;
         }
 
-        
-        
         case 'AI_CANCEL_ORDER': {
             const { fromId } = action.payload;
             const fromEnclave = state.enclaveData[fromId];

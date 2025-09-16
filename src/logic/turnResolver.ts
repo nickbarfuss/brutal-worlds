@@ -1,5 +1,3 @@
-//throw new Error('Simulating worker crash');
-
 /*
   This is a web worker script for resolving game turns in the background.
   It receives the game state, processes all game logic for a turn (disasters,
@@ -296,7 +294,8 @@ export const resolveTurn = (
     opponentLegacyKey: string | null,
 ) => {
     try {
-        const effectsToPlay: EffectQueueItem[] = [];
+        const allTurnEvents: TurnEvent[] = [];
+        const effectsToPlay: EffectQueueItem[] = []; // For disaster effects for now
         
         // Convert to Maps for safe, immutable operations
         const initialEnclavesMap = new Map<number, Enclave>(Object.entries(initialEnclaveData).map(([id, e]) => [parseInt(id), e]));
@@ -313,16 +312,18 @@ export const resolveTurn = (
         const allValidOrders = { ...validPlayerOrders, ...validAiOrders };
 
         // Order Resolution Pipeline
-        const enclavesAfterHolding = resolveHolding(enclavesAfterEffects, allValidOrders, routesAfterEffects, gameConfig, effectsToPlay);
-        const enclavesAfterAssists = resolveAssists(enclavesAfterHolding, allValidOrders, gameConfig, effectsToPlay);
-        const { newEnclaveData: enclavesAfterAttacks, conquestEvents } = resolveAttacks(
-            enclavesAfterAssists, allValidOrders, gameConfig, effectsToPlay, playerArchetypeKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey, routesAfterEffects,
+        const { newEnclaveData: enclavesAfterHolding, events: holdEvents } = resolveHolding(enclavesAfterEffects, allValidOrders, routesAfterEffects, gameConfig);
+        allTurnEvents.push(...holdEvents);
+
+        const { newEnclaveData: enclavesAfterAssists, events: assistEvents } = resolveAssists(enclavesAfterHolding, allValidOrders, gameConfig);
+        allTurnEvents.push(...assistEvents);
+
+        const { newEnclaveData: enclavesAfterAttacks, events: attackEvents } = resolveAttacks(
+            enclavesAfterAssists, allValidOrders, gameConfig, playerArchetypeKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey, routesAfterEffects,
         );
+        allTurnEvents.push(...attackEvents);
         
         let finalEnclavesMap = enclavesAfterAttacks;
-
-        const playerConquestsThisTurn = conquestEvents.filter(c => c.conqueror === 'player-1').length;
-        const opponentConquestsThisTurn = conquestEvents.filter(c => c.conqueror === 'player-2').length;
 
         // Game Over Check
         const finalEnclaves = Array.from(finalEnclavesMap.values());
@@ -343,11 +344,9 @@ export const resolveTurn = (
             newCurrentTurn: currentTurn + 1,
             newEffectMarkers: remainingEffectMarkers,
             gameOverState,
-            effectsToPlay,
+            events: allTurnEvents,
+            effectsToPlay, // Still needed for disasters
             gameSessionId,
-            playerConquestsThisTurn,
-            opponentConquestsThisTurn,
-            conquestEvents,
         };
 
     } catch (e) {

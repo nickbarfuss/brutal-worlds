@@ -7,10 +7,10 @@ export const resolveAssists = (
     currentEnclavesMap: Map<number, Enclave>,
     processedOrders: PendingOrders,
     gameConfig: GameConfig,
-    effectsToPlay: EffectQueueItem[],
-): Map<number, Enclave> => {
+): { newEnclaveData: Map<number, Enclave>, events: TurnEvent[] } => {
     const { FORCE_SUPPLY_CAP } = gameConfig;
     const forceDeltas = new Map<number, number>();
+    const events: TurnEvent[] = [];
 
     // --- PASS 1: Calculate all force deltas based on the initial, stable state ---
     Object.entries(processedOrders).forEach(([fromIdStr, orderUntyped]) => {
@@ -25,13 +25,7 @@ export const resolveAssists = (
 
         if (!origin || !destination) return;
 
-        // Queue the VFX/SFX on the destination enclave
-        effectsToPlay.push({
-            id: `vfx-assist-${fromId}-${order.to}`,
-            sfx: { key: 'order-assist-sfx', channel: 'fx', position: destination.center },
-            vfx: ['order-assist-vfx'],
-            position: destination.center,
-        });
+        events.push({ type: 'assist', fromEnclaveId: fromId, toEnclaveId: order.to });
 
         const assistMultiplier = getAssistMultiplierForEnclave(origin);
         const safeForces = Number.isFinite(origin.forces) ? origin.forces : 0;
@@ -46,7 +40,7 @@ export const resolveAssists = (
 
     // If no transfers occurred, return the original map to avoid unnecessary cloning.
     if (forceDeltas.size === 0) {
-        return currentEnclavesMap;
+        return { newEnclaveData: currentEnclavesMap, events };
     }
 
     // --- PASS 2: Apply all calculated deltas using a copy-on-write strategy ---
@@ -63,5 +57,5 @@ export const resolveAssists = (
         newEnclavesMap.set(enclaveId, newEnclave);
     });
 
-    return newEnclavesMap;
+    return { newEnclaveData: newEnclavesMap, events };
 };

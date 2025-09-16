@@ -38,6 +38,14 @@ export const handleFx = (state: GameState, action: Action): GameState => {
                 effectQueue: [], // Clear the immediate effect queue when new pending effects are set
             };
         }
+
+        case 'REMOVE_PENDING_EFFECTS': {
+            const idsToRemove = new Set(action.payload);
+            return {
+                ...state,
+                pendingEffects: state.pendingEffects.filter(effect => !idsToRemove.has(effect.id)),
+            };
+        }
             
         default:
             return state;
