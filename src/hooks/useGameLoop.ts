@@ -1,17 +1,13 @@
 import { useEffect, useRef } from 'react';
-import { GamePhase, WorldProfile } from '@/types/game';
+import { GameState } from '@/types/game';
 import { CONFIG } from '@/data/config';
 
 export const useGameLoop = (
-    isPaused: boolean,
-    gamePhase: GamePhase,
-    isResolvingTurn: boolean,
-    currentWorld: WorldProfile | null,
-    currentTurn: number,
+    gameState: GameState,
     resolveTurn: () => void,
-    isIntroComplete: boolean,
-    onFrame?: () => void
+    onFrame?: (gameState: GameState) => void
 ) => {
+    const { isPaused, gamePhase, isResolvingTurn, currentTurn, isIntroComplete } = gameState;
     const turnStartTimeRef = useRef<number | null>(null);
     const pauseStartRef = useRef<number | null>(null);
 
@@ -20,7 +16,9 @@ export const useGameLoop = (
         const loop = (timestamp: number) => {
             animationFrameId = requestAnimationFrame(loop);
 
-            onFrame?.();
+            if (onFrame) {
+                onFrame(gameState);
+            }
             
             if (isResolvingTurn) {
                 turnStartTimeRef.current = null; 
@@ -62,7 +60,7 @@ export const useGameLoop = (
 
         animationFrameId = requestAnimationFrame(loop);
         return () => cancelAnimationFrame(animationFrameId);
-    }, [isPaused, gamePhase, isResolvingTurn, currentTurn, currentWorld, resolveTurn, isIntroComplete, onFrame]);
+    }, [gameState, resolveTurn, onFrame, isPaused, gamePhase, isResolvingTurn, currentTurn, isIntroComplete]);
 
     return { turnStartTimeRef, pauseStartRef };
 };

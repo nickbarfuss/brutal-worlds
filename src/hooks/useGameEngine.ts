@@ -46,13 +46,7 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
     const [state, dispatch] = useReducer(gameReducer, initialState);
     const workerRef = useRef<Worker | null>(null);
     const aiActionTimeoutsRef = useRef<number[]>([]);
-    const stateRef = useRef<GameState>(state);
     const playedEffectIdsRef = useRef<Set<string>>(new Set());
-    
-    useEffect(() => {
-        stateRef.current = state;
-    }, [state]);
-
     const gameSessionIdRef = useRef<number>(state.gameSessionId);
     gameSessionIdRef.current = state.gameSessionId;
 
@@ -65,66 +59,60 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
         playedEffectIdsRef.current.clear();
     }, [state.currentTurn]);
 
-    const processEffects = useCallback(() => {
-        if (stateRef.current.effects.length === 0) return;
+    const processEffects = useCallback((currentState: GameState) => {
+        if (currentState.effects.length === 0) return;
 
-        const effectsToPlayNow: EffectQueueItem[] = [];
-        const pendingEffectsToCheck: EffectQueueItem[] = [];
-        const playedIds = new Set<string>();
+        const effectsToProcess = currentState.effects.filter(effect => !playedEffectIdsRef.current.has(effect.id));
+        if (effectsToProcess.length === 0) return;
 
-        // First, separate immediate effects from pending ones
-        stateRef.current.effects.forEach(effect => {
-            if (effect.playMode === 'immediate') {
-                effectsToPlayNow.push(effect);
-                playedIds.add(effect.id);
-            } else if (!playedEffectIdsRef.current.has(effect.id)) {
-                // Only consider pending effects that haven't been played this turn
-                pendingEffectsToCheck.push(effect);
+        const sfxToPlay: { [channel: string]: EffectQueueItem['sfx'] } = {};
+        const vfxToPlay: { key: string, position: THREE.Vector3 }[] = [];
+        const effectIdsToRemove = new Set<string>();
+
+        effectsToProcess.forEach(effect => {
+            const isImmediate = effect.playMode === 'immediate';
+            let canPlay = isImmediate;
+
+            if (!canPlay && worldCanvasHandle.current && worldCanvasHandle.current.camera) {
+                const camera = worldCanvasHandle.current.camera;
+                camera.updateMatrixWorld();
+                const frustum = new THREE.Frustum();
+                const matrix = new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+                frustum.setFromProjectionMatrix(matrix);
+                if (effect.position && frustum.containsPoint(effect.position)) {
+                    canPlay = true;
+                }
+            }
+
+            if (canPlay) {
+                if (effect.vfx && effect.position) {
+                    const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];
+                    vfxItems.forEach(v => {
+                        const key = typeof v === 'string' ? v : v.key;
+                        if (key) {
+                            vfxToPlay.push({ key, position: effect.position as THREE.Vector3 });
+                        }
+                    });
+                }
+                if (effect.sfx) {
+                    sfxToPlay[effect.sfx.channel] = effect.sfx;
+                }
+                effectIdsToRemove.add(effect.id);
+                playedEffectIdsRef.current.add(effect.id);
             }
         });
 
-        // Process pending effects with visibility check
-        if (pendingEffectsToCheck.length > 0 && worldCanvasHandle.current && worldCanvasHandle.current.camera) {
-            const camera = worldCanvasHandle.current.camera;
-            camera.updateMatrixWorld();
-            const frustum = new THREE.Frustum();
-            const matrix = new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
-            frustum.setFromProjectionMatrix(matrix);
+        vfxToPlay.forEach(vfx => vfxManager.current.playEffect(vfx.key, vfx.position));
+        Object.values(sfxToPlay).forEach(sfx => {
+            if (sfx) {
+                sfxManager.current.playSound(sfx.key, sfx.channel, sfx.position);
+            }
+        });
 
-            pendingEffectsToCheck.forEach(effect => {
-                if (effect.position && frustum.containsPoint(effect.position)) {
-                    effectsToPlayNow.push(effect);
-                    playedIds.add(effect.id);
-                    playedEffectIdsRef.current.add(effect.id); // Mark as played for this turn
-                }
-            });
-        }
-
-        // Play all effects identified for this frame
-        if (effectsToPlayNow.length > 0) {
-            effectsToPlayNow.forEach((effect, index) => {
-                const staggerDelay = effect.playMode === 'pending' ? index * 200 : 0;
-                setTimeout(() => {
-                    if (effect.vfx && effect.position) {
-                        const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];
-                        vfxItems.forEach(v => {
-                            const key = typeof v === 'string' ? v : v.key;
-                            if (key) {
-                                vfxManager.current.playEffect(key, effect.position as THREE.Vector3);
-                            }
-                        });
-                    }
-                    if (effect.sfx) {
-                        sfxManager.current.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
-                    }
-                }, staggerDelay);
-            });
-
-            // Dispatch a single action to remove all played effects
-            dispatch({ type: 'REMOVE_EFFECTS', payload: Array.from(playedIds) });
+        if (effectIdsToRemove.size > 0) {
+            dispatch({ type: 'REMOVE_EFFECTS', payload: Array.from(effectIdsToRemove) });
         }
     }, [worldCanvasHandle, vfxManager, sfxManager, dispatch]);
-
 
     const resolveTurn = useCallback(() => {
         const latestState = getState();
@@ -153,7 +141,7 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
         workerRef.current.postMessage(JSON.stringify(serializableState));
     }, [dispatch, workerRef, getState]);
 
-    useGameLoop(state.isPaused, state.gamePhase, state.isResolvingTurn, state.currentWorld, state.currentTurn, resolveTurn, state.isIntroComplete, processEffects);
+    useGameLoop(state, resolveTurn, processEffects);
 
     const setInitializationState = useCallback((isInitialized, message, error) => {
         dispatch({ type: 'SET_INITIALIZATION_STATE', payload: { isInitialized, message, error } });
@@ -180,14 +168,14 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
     const handleUserInteraction = useCallback(async () => {
         await sfxManager.current.handleUserInteraction();
         if (sfxManager.current) {
-            const latestState = stateRef.current;
+            const latestState = state; // Use state directly
             (Object.keys(latestState.volumes) as AudioChannel[]).forEach(channel => {
                 const isMuted = latestState.isGloballyMuted || latestState.mutedChannels[channel];
                 const volume = latestState.volumes[channel];
                 sfxManager.current.setVolume(channel, isMuted ? 0 : volume);
             });
         }
-    }, []);
+    }, [state]); // Add state to dependency array    
 
     useEffect(() => {
         const cleanup = () => {
@@ -371,6 +359,7 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
     const setHoveredCellId = useCallback((id: number) => dispatch({ type: 'SET_HOVERED_CELL', payload: id }), []);
     const handleMapClick = useCallback((cellId: number | null, isCtrlPressed: boolean) => dispatch({ type: 'HANDLE_MAP_CLICK', payload: { cellId, isCtrlPressed } }), []);
     const handleEnclaveDblClick = useCallback((enclaveId: number | null) => dispatch({ type: 'HANDLE_DBL_CLICK', payload: enclaveId }), []);
+
     const focusOnEnclave = useCallback((id: number) => dispatch({ type: 'FOCUS_ON_ENCLAVE', payload: id }), []);
     const focusOnVector = useCallback((vector: Vector3) => dispatch({ type: 'FOCUS_ON_VECTOR', payload: vector }), []);
     const setInspectedArchetypeOwner = useCallback((owner: PlayerIdentifier | null) => dispatch({ type: 'SET_INSPECTED_ARCHETYPE_OWNER', payload: owner }), []);
