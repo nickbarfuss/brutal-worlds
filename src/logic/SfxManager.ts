@@ -124,10 +124,8 @@ export class SfxManager {
 
         const now = performance.now();
         if (now - (this.lastPlayed.get(soundKey) || 0) < this.COOLDOWN_MS) {
-            console.log(`[SfxManager] Cooldown hit for key: ${soundKey}. Ignoring.`);
             return; // Cooldown active, ignore this play request
         }
-        console.log(`[SfxManager] Playing sound for key: ${soundKey}`);
         this.lastPlayed.set(soundKey, now);
 
         const assets = this.flattenedAudioAssets.get(soundKey);

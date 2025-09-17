@@ -33,8 +33,6 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
     if (cellId === null || cellId === -1) {
         const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
         const newInspectedEntity = state.worldInspectorManuallyClosed ? null : { type: 'world' as const };
-        console.log('[Reducer] Current immediateEffects:', state.immediateEffects.map(e => e.id));
-        console.log('[Reducer] Effects from click:', result.effectsToQueue.map(e => e.id));
         return { ...state, selectedEnclaveId: null, inspectedMapEntity: newInspectedEntity, immediateEffects: [...state.immediateEffects, ...result.effectsToQueue] };
     }
     
@@ -59,8 +57,6 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
         const result = handleSingleClick(
             cell.enclaveId, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, isCtrlPressed
         );
-        console.log('[Reducer] Current immediateEffects:', state.immediateEffects.map(e => e.id));
-        console.log('[Reducer] Effects from click:', result.effectsToQueue.map(e => e.id));
         return {
             ...state,
             playerPendingOrders: result.updatedOrders,
@@ -70,8 +66,6 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
         };
     } else if (cell.domainId !== null && state.domainData[cell.domainId]) {
         const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
-        console.log('[Reducer] Current immediateEffects:', state.immediateEffects.map(e => e.id));
-        console.log('[Reducer] Effects from click:', result.effectsToQueue.map(e => e.id));
         return {
             ...state,
             selectedEnclaveId: null,
@@ -82,8 +76,6 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
         // The disaster marker check has been moved up. Now just inspect the void feature.
         if (cell.voidType) {
             const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
-            console.log('[Reducer] Current immediateEffects:', state.immediateEffects.map(e => e.id));
-            console.log('[Reducer] Effects from click:', result.effectsToQueue.map(e => e.id));
             return {
                 ...state,
                 selectedEnclaveId: null,
@@ -94,8 +86,6 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
     }
     
     const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
-    console.log('[Reducer] Current immediateEffects:', state.immediateEffects.map(e => e.id));
-    console.log('[Reducer] Effects from click:', result.effectsToQueue.map(e => e.id));
     return { ...state, selectedEnclaveId: null, inspectedMapEntity: null, immediateEffects: [...state.immediateEffects, ...result.effectsToQueue] };
 };
 
@@ -108,8 +98,6 @@ const dblClickMap = (state: GameState, payload: number | null): GameState => {
 
     if (clickedEnclave.owner === 'player-1') {
         const result = handleDoubleClick(enclaveId, state.enclaveData, state.playerPendingOrders);
-        console.log('[Reducer] Current immediateEffects:', state.immediateEffects.map(e => e.id));
-        console.log('[Reducer] Effects from click:', result.effectsToQueue.map(e => e.id));
         return {
             ...state,
             playerPendingOrders: result.updatedOrders,

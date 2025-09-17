@@ -25,7 +25,6 @@ export const handleSingleClick = (
                 position: deselectedEnclave.center,
             });
         }
-        console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
         return {
             newSelectedEnclaveId: null,
             newInspectedEnclaveId: null,
@@ -50,7 +49,6 @@ export const handleSingleClick = (
             sfx: { key: sfxKey, channel: 'fx', position: clickedEnclave.center },
             position: clickedEnclave.center,
         });
-        console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
         return {
             newSelectedEnclaveId: newSelectedId,
             newInspectedEnclaveId: clickedEnclaveId,
@@ -73,7 +71,6 @@ export const handleSingleClick = (
                     position: deselectedEnclave.center,
                 });
             }
-            console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
             return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders, effectsToQueue };
         }
         
@@ -95,7 +92,6 @@ export const handleSingleClick = (
                         position: clickedEnclave.center,
                     });
                 }
-                console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
                 return {
                     newSelectedEnclaveId: null, // Exit command mode
                     newInspectedEnclaveId: clickedEnclaveId,
@@ -151,11 +147,9 @@ export const handleSingleClick = (
                             position: originEnclave.center,
                         });
                     }
-                    console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
                     return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders, effectsToQueue };
                 } else {
                     // Invalid order due to insufficient forces
-                    console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
                     return {
                         newSelectedEnclaveId: selectedEnclaveId,
                         newInspectedEnclaveId: clickedEnclaveId,
@@ -174,12 +168,10 @@ export const handleSingleClick = (
             sfx: { key: 'order-commandMode-sfx-exit', channel: 'fx', position: originEnclave.center },
             position: originEnclave.center,
         });
-        console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
         return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders, effectsToQueue };
 
     } else {
         // 4. Default action: Not in command mode, so just inspect.
-        console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
         return {
             newSelectedEnclaveId: null,
             newInspectedEnclaveId: clickedEnclaveId,

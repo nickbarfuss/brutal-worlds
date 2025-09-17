@@ -71,10 +71,8 @@ export class VfxManager {
     public playEffect(key: string, worldPosition: THREE.Vector3): void {
         const now = performance.now();
         if (now - (this.lastPlayed.get(key) || 0) < this.COOLDOWN_MS) {
-            console.log(`[VfxManager] Cooldown hit for key: ${key}. Ignoring.`);
             return; // Cooldown active, ignore this play request
         }
-        console.log(`[VfxManager] Playing effect for key: ${key}`);
         this.lastPlayed.set(key, now);
 
         const videos = this.preloadedVideos.get(key);
