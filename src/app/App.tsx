@@ -63,6 +63,9 @@ const App: React.FC = () => {
     };
     
     const handleBegin = async () => {
+        if (isStartingGameRef.current) return;
+        isStartingGameRef.current = true;
+
         // This now waits for the audio context to be ready before proceeding.
         await engine.handleUserInteraction();
     
@@ -123,13 +126,14 @@ const App: React.FC = () => {
             engine.startGame(finalP1Archetype, finalWorldKey, p1LegacyKey, finalP2Archetype, p2LegacyKey);
         } else {
             // Normal flow: open the archetype selection dialog.
-            isStartingGameRef.current = false;
             if (closeDialogTimeoutRef.current) {
                 clearTimeout(closeDialogTimeoutRef.current);
             }
             setIsClosingStartDialog(false);
             engine.openArchetypeSelection();
         }
+        
+        isStartingGameRef.current = false;
     };
 
     // ARCHITECTURAL FIX: Check for a fatal error first, regardless of game phase.
