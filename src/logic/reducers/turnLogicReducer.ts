@@ -18,6 +18,7 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
             const sfxKey = `archetype-${event.archetypeKey}-${event.legacyKey}-dialog-conquest`;
             effects.push({
                 id: uuidv4(),
+                playMode: 'pending',
                 sfx: { key: sfxKey, channel: 'dialog' },
                 position: newEnclaveData[event.enclaveId].center,
             });
@@ -26,6 +27,7 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
             const sfxKey = `archetype-${randomConquest.archetypeKey}-${randomConquest.legacyKey}-dialog-conquest`;
             effects.push({
                 id: uuidv4(),
+                playMode: 'pending',
                 sfx: { key: sfxKey, channel: 'dialog' },
                 position: newEnclaveData[randomConquest.enclaveId].center,
             });
@@ -39,6 +41,7 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
             const sfxKey = `archetype-${event.archetypeKey}-${event.legacyKey}-dialog-conquest`;
             effects.push({
                 id: uuidv4(),
+                playMode: 'pending',
                 sfx: { key: sfxKey, channel: 'dialog' },
                 position: newEnclaveData[event.enclaveId].center,
             });
@@ -47,6 +50,7 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
             const sfxKey = `archetype-${randomConquest.archetypeKey}-${randomConquest.legacyKey}-dialog-conquest`;
             effects.push({
                 id: uuidv4(),
+                playMode: 'pending',
                 sfx: { key: sfxKey, channel: 'dialog' },
                 position: newEnclaveData[randomConquest.enclaveId].center,
             });
@@ -62,6 +66,7 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
             const vfxKey = `conquest-${ownerKey}-vfx`;
             effects.push({
                 id: uuidv4(),
+                playMode: 'pending',
                 sfx: { key: sfxKey, channel: 'fx', position: enclave.center },
                 vfx: [vfxKey],
                 position: enclave.center,
@@ -76,7 +81,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
     switch (action.type) {
         case 'START_FIRST_TURN': {
             const disasterConfig = state.gameConfig.DISASTER_TESTING;
-            const updates: Partial<GameState> & { effectQueue?: EffectQueueItem[] } = {
+            const updates: Partial<GameState> & { effects?: EffectQueueItem[] } = {
                 currentTurn: 1,
                 isPaused: false,
             };
@@ -183,7 +188,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 gameOverState: gameOverState,
                 isPaused: gameOverState !== 'none' ? true : state.isPaused,
                 isResolvingTurn: false,
-                pendingEffects: allEffects,
+                effects: [...state.effects, ...allEffects],
                 playerConquestsThisTurn,
                 opponentConquestsThisTurn,
                 playerHasHadFirstConquestDialog,
@@ -240,6 +245,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 if (fromEnclave) {
                     effectsToQueue.push({
                         id: uuidv4(),
+                        playMode: 'immediate',
                         sfx: { key: sfxKey, channel: 'fx', position: fromEnclave.center },
                         position: fromEnclave.center,
                     });
@@ -247,7 +253,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 return {
                     ...state,
                     playerPendingOrders: newPlayerOrders,
-                    effectQueue: [...state.effectQueue, ...effectsToQueue],
+                    effects: [...state.effects, ...effectsToQueue],
                 };
             }
             return state;
@@ -267,6 +273,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             const vfxKey = 'order-hold-vfx';
             effectsToQueue.push({
                 id: uuidv4(),
+                playMode: 'immediate',
                 sfx: { key: sfxKey, channel: 'fx', position: fromEnclave.center },
                 vfx: [vfxKey],
                 position: fromEnclave.center,
@@ -275,7 +282,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             return {
                 ...state,
                 aiPendingOrders: newAiOrders,
-                effectQueue: [...state.effectQueue, ...effectsToQueue],
+                effects: [...state.effects, ...effectsToQueue],
             };
         }
 
@@ -294,12 +301,14 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
 
             effectsToQueue.push({
                 id: uuidv4(),
+                playMode: 'immediate',
                 vfx: [vfxKey],
                 position: toEnclave.center, // VFX at target
             });
 
             effectsToQueue.push({
                 id: uuidv4(),
+                playMode: 'immediate',
                 sfx: { key: sfxKey, channel: 'fx', position: fromEnclave.center }, // SFX at origin
                 position: fromEnclave.center,
             });
@@ -310,7 +319,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                     ...state.aiPendingOrders,
                     [fromId]: order,
                 },
-                effectQueue: [...state.effectQueue, ...effectsToQueue],
+                effects: [...state.effects, ...effectsToQueue],
             };
         }
 

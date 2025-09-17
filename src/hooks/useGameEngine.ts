@@ -65,28 +65,45 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
         playedEffectIdsRef.current.clear();
     }, [state.currentTurn]);
 
-    const playPendingEffects = useCallback(() => {
-        if (!worldCanvasHandle.current || !worldCanvasHandle.current.camera || stateRef.current.pendingEffects.length === 0) return;
+    const processEffects = useCallback(() => {
+        if (stateRef.current.effects.length === 0) return;
 
-        const camera = worldCanvasHandle.current.camera;
-        camera.updateMatrixWorld(); // Ensure camera matrices are up-to-date
-        const frustum = new THREE.Frustum();
-        const matrix = new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
-        frustum.setFromProjectionMatrix(matrix);
+        const effectsToPlayNow: EffectQueueItem[] = [];
+        const pendingEffectsToCheck: EffectQueueItem[] = [];
+        const playedIds = new Set<string>();
 
-        const effectsToPlayThisFrame: EffectQueueItem[] = [];
-        const playedIds: string[] = [];
-
-        stateRef.current.pendingEffects.forEach(effect => {
-            if (!playedEffectIdsRef.current.has(effect.id) && effect.position && frustum.containsPoint(effect.position)) {
-                effectsToPlayThisFrame.push(effect);
-                playedEffectIdsRef.current.add(effect.id);
-                playedIds.push(effect.id);
+        // First, separate immediate effects from pending ones
+        stateRef.current.effects.forEach(effect => {
+            if (effect.playMode === 'immediate') {
+                effectsToPlayNow.push(effect);
+                playedIds.add(effect.id);
+            } else if (!playedEffectIdsRef.current.has(effect.id)) {
+                // Only consider pending effects that haven't been played this turn
+                pendingEffectsToCheck.push(effect);
             }
         });
 
-        if (effectsToPlayThisFrame.length > 0) {
-            effectsToPlayThisFrame.forEach((effect, index) => {
+        // Process pending effects with visibility check
+        if (pendingEffectsToCheck.length > 0 && worldCanvasHandle.current && worldCanvasHandle.current.camera) {
+            const camera = worldCanvasHandle.current.camera;
+            camera.updateMatrixWorld();
+            const frustum = new THREE.Frustum();
+            const matrix = new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+            frustum.setFromProjectionMatrix(matrix);
+
+            pendingEffectsToCheck.forEach(effect => {
+                if (effect.position && frustum.containsPoint(effect.position)) {
+                    effectsToPlayNow.push(effect);
+                    playedIds.add(effect.id);
+                    playedEffectIdsRef.current.add(effect.id); // Mark as played for this turn
+                }
+            });
+        }
+
+        // Play all effects identified for this frame
+        if (effectsToPlayNow.length > 0) {
+            effectsToPlayNow.forEach((effect, index) => {
+                const staggerDelay = effect.playMode === 'pending' ? index * 200 : 0;
                 setTimeout(() => {
                     if (effect.vfx && effect.position) {
                         const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];
@@ -100,12 +117,14 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
                     if (effect.sfx) {
                         sfxManager.current.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
                     }
-                }, index * 200);
+                }, staggerDelay);
             });
 
-            dispatch({ type: 'REMOVE_PENDING_EFFECTS', payload: playedIds });
+            // Dispatch a single action to remove all played effects
+            dispatch({ type: 'REMOVE_EFFECTS', payload: Array.from(playedIds) });
         }
     }, [worldCanvasHandle, vfxManager, sfxManager, dispatch]);
+
 
     const resolveTurn = useCallback(() => {
         const latestState = getState();
@@ -134,7 +153,7 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
         workerRef.current.postMessage(JSON.stringify(serializableState));
     }, [dispatch, workerRef, getState]);
 
-    useGameLoop(state.isPaused, state.gamePhase, state.isResolvingTurn, state.currentWorld, state.currentTurn, resolveTurn, state.isIntroComplete, playPendingEffects);
+    useGameLoop(state.isPaused, state.gamePhase, state.isResolvingTurn, state.currentWorld, state.currentTurn, resolveTurn, state.isIntroComplete, processEffects);
 
     const setInitializationState = useCallback((isInitialized, message, error) => {
         dispatch({ type: 'SET_INITIALIZATION_STATE', payload: { isInitialized, message, error } });
@@ -309,26 +328,6 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
             });
         }
     }, [state.volumes, state.mutedChannels, state.isGloballyMuted]);
-
-    useEffect(() => {
-        if (state.effectQueue.length > 0) {
-            state.effectQueue.forEach(effect => {
-                if (effect.vfx && effect.position) {
-                    const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];
-                    vfxItems.forEach(v => {
-                        const key = typeof v === 'string' ? v : v.key;
-                        if (key) {
-                            vfxManager.current.playEffect(key, effect.position as THREE.Vector3);
-                        }
-                    });
-                }
-                if (effect.sfx) {
-                    sfxManager.current.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
-                }
-            });
-            dispatch({ type: 'CLEAR_EFFECT_QUEUE' });
-        }
-    }, [state.effectQueue, dispatch]);
 
     useEffect(() => {
         if (state.isIntroComplete && state.gamePhase === 'playing' && state.currentTurn === 0) {

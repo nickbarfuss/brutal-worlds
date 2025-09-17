@@ -33,7 +33,7 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
     if (cellId === null || cellId === -1) {
         const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
         const newInspectedEntity = state.worldInspectorManuallyClosed ? null : { type: 'world' as const };
-        return { ...state, selectedEnclaveId: null, inspectedMapEntity: newInspectedEntity, effectQueue: [...state.effectQueue, ...result.effectsToQueue] };
+        return { ...state, selectedEnclaveId: null, inspectedMapEntity: newInspectedEntity, effects: [...state.effects, ...result.effectsToQueue] };
     }
     
     const cell = state.mapData[cellId];
@@ -62,7 +62,7 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
             playerPendingOrders: result.updatedOrders,
             selectedEnclaveId: result.newSelectedEnclaveId,
             inspectedMapEntity: result.newInspectedEnclaveId !== null ? { type: 'enclave', id: result.newInspectedEnclaveId } : state.inspectedMapEntity,
-            effectQueue: [...state.effectQueue, ...result.effectsToQueue],
+            effects: [...state.effects, ...result.effectsToQueue],
         };
     } else if (cell.domainId !== null && state.domainData[cell.domainId]) {
         const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
@@ -70,7 +70,7 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
             ...state,
             selectedEnclaveId: null,
             inspectedMapEntity: { type: 'domain', id: cell.domainId },
-            effectQueue: [...state.effectQueue, ...result.effectsToQueue],
+            effects: [...state.effects, ...result.effectsToQueue],
         };
     } else if (cell.voidId !== null) {
         // The disaster marker check has been moved up. Now just inspect the void feature.
@@ -80,13 +80,13 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
                 ...state,
                 selectedEnclaveId: null,
                 inspectedMapEntity: { type: cell.voidType, id: cell.voidId },
-                effectQueue: [...state.effectQueue, ...result.effectsToQueue],
+                effects: [...state.effects, ...result.effectsToQueue],
             };
         }
     }
     
     const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
-    return { ...state, selectedEnclaveId: null, inspectedMapEntity: null, effectQueue: [...state.effectQueue, ...result.effectsToQueue] };
+    return { ...state, selectedEnclaveId: null, inspectedMapEntity: null, effects: [...state.effects, ...result.effectsToQueue] };
 };
 
 const dblClickMap = (state: GameState, payload: number | null): GameState => {
@@ -103,7 +103,7 @@ const dblClickMap = (state: GameState, payload: number | null): GameState => {
             playerPendingOrders: result.updatedOrders,
             selectedEnclaveId: result.newSelectedEnclaveId,
             inspectedMapEntity: { type: 'enclave', id: enclaveId },
-            effectQueue: [...state.effectQueue, ...result.effectsToQueue],
+            effects: [...state.effects, ...result.effectsToQueue],
         };
     }
     

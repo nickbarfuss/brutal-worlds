@@ -1,52 +1,18 @@
 import { GameState } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
 
-
-
 export const handleFx = (state: GameState, action: Action): GameState => {
     switch (action.type) {
-        case 'PROCESS_EFFECT_QUEUE': {
-            if (!('payload' in action) || !action.payload) return state;
-            const { playedIds } = action.payload;
-            if (playedIds.length === 0) return state;
-            const playedIdSet = new Set(playedIds);
-            return {
-                ...state,
-                effectQueue: state.effectQueue.filter(effect => !playedIdSet.has(effect.id)),
-            };
-        }
-
-        case 'ADD_EFFECTS_TO_QUEUE': {
-            const newEffects = action.payload;
-            return {
-                ...state,
-                effectQueue: [...state.effectQueue, ...newEffects],
-            };
-        }
-
-        case 'CLEAR_EFFECT_QUEUE': { // Re-add this case
-            return {
-                ...state,
-                effectQueue: [],
-            };
-        }
-
-        case 'SET_PENDING_EFFECTS': {
-            return {
-                ...state,
-                pendingEffects: action.payload,
-                effectQueue: [], // Clear the immediate effect queue when new pending effects are set
-            };
-        }
-
-        case 'REMOVE_PENDING_EFFECTS': {
+        case 'REMOVE_EFFECTS': {
             const idsToRemove = new Set(action.payload);
+            if (idsToRemove.size === 0) {
+                return state;
+            }
             return {
                 ...state,
-                pendingEffects: state.pendingEffects.filter(effect => !idsToRemove.has(effect.id)),
+                effects: state.effects.filter(effect => !idsToRemove.has(effect.id)),
             };
         }
-            
         default:
             return state;
     }

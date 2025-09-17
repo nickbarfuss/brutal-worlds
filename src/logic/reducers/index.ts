@@ -21,21 +21,19 @@ export type Action =
     | { type: 'HANDLE_DBL_CLICK'; payload: number | null }
     | { type: 'FOCUS_ON_ENCLAVE'; payload: number }
     | { type: 'FOCUS_ON_VECTOR'; payload: Vector3 }
-    | { type: 'SET_INSPECTED_ARCHETYPE_OWNER', payload: PlayerIdentifier | null }
-    | { type: 'SET_INSPECTED_MAP_ENTITY', payload: InspectedMapEntity | { type: 'world' } | null }
-    | { type: 'SET_WORLD_INSPECTOR_MANUALLY_CLOSED', payload: boolean }
+    | { type: 'SET_INSPECTED_ARCHETYPE_OWNER'; payload: PlayerIdentifier | null }
+    | { type: 'SET_INSPECTED_MAP_ENTITY'; payload: InspectedMapEntity | { type: 'world' } | null }
+    | { type: 'SET_WORLD_INSPECTOR_MANUALLY_CLOSED'; payload: boolean }
     | { type: 'START_RESOLVING_TURN' }
     | { type: 'APPLY_RESOLVED_TURN'; payload: any }
     | { type: 'START_FIRST_TURN' }
-    | { type: 'PLAYER_CANCEL_ORDERS', payload: number[] }
+    | { type: 'PLAYER_CANCEL_ORDERS'; payload: number[] }
     | { type: 'AI_ISSUE_ORDER'; payload: { fromId: number; order: Order } }
     | { type: 'AI_CANCEL_ORDER'; payload: { fromId: number } }
     | { type: 'AI_CLEAR_ORDERS' }
     | { type: 'TRIGGER_EFFECT'; payload: string }
     | { type: 'CLEAR_LATEST_EFFECT' }
-    | { type: 'PROCESS_EFFECT_QUEUE'; payload: { playedIds: string[] } }
-    | { type: 'ADD_EFFECTS_TO_QUEUE'; payload: EffectQueueItem[] } // New action
-    | { type: 'CLEAR_EFFECT_QUEUE' }
+    | { type: 'REMOVE_EFFECTS'; payload: string[] }
     | { type: 'GO_TO_MAIN_MENU' }
     | { type: 'SET_ACTIVE_HIGHLIGHT'; payload: ActiveHighlight | null }
     | { type: 'TOGGLE_SETTINGS_DRAWER' }
@@ -46,9 +44,7 @@ export type Action =
     | { type: 'SET_BLOOM_VALUE'; payload: { key: 'threshold' | 'strength' | 'radius'; value: number } }
     | { type: 'SET_MATERIAL_VALUE'; payload: { type: keyof GameState['materialSettings'], key: keyof MaterialProperties, value: number } }
     | { type: 'SET_AMBIENT_LIGHT_INTENSITY'; payload: number }
-    | { type: 'SET_TONEMAPPING_STRENGTH'; payload: number }
-    | { type: 'SET_PENDING_EFFECTS'; payload: EffectQueueItem[] }
-    | { type: 'REMOVE_PENDING_EFFECTS'; payload: string[] };
+    | { type: 'SET_TONEMAPPING_STRENGTH'; payload: number };
 
 export const initialState: GameState = {
     mapData: [], enclaveData: {}, domainData: {}, riftData: {}, expanseData: {}, routes: [],
@@ -68,7 +64,7 @@ export const initialState: GameState = {
     worldInspectorManuallyClosed: false,
     isIntroComplete: false, cameraFocusAnimation: null, hoveredEntity: null,
     isPaused: true, initialCameraTarget: null, activeHighlight: null,
-    effectQueue: [],
+    effects: [],
     isSettingsOpen: false,
     isResolvingTurn: false,
     gameOverState: 'none',
@@ -80,8 +76,6 @@ export const initialState: GameState = {
     materialSettings: CONFIG.VISUAL_DEFAULTS.materialSettings,
     ambientLightIntensity: CONFIG.VISUAL_DEFAULTS.ambientLightIntensity,
     tonemappingStrength: CONFIG.VISUAL_DEFAULTS.tonemappingStrength,
-    pendingEffects: [],
-    
 };
 
 export const reducer = (state: GameState, action: Action): GameState => {
@@ -124,11 +118,7 @@ export const reducer = (state: GameState, action: Action): GameState => {
             return handleEffects(state, action);
 
         // VFX/SFX
-        case 'PROCESS_EFFECT_QUEUE':
-        case 'ADD_EFFECTS_TO_QUEUE':
-        case 'CLEAR_EFFECT_QUEUE':
-        case 'SET_PENDING_EFFECTS':
-        case 'REMOVE_PENDING_EFFECTS':
+        case 'REMOVE_EFFECTS':
             return handleFx(state, action);
 
         // UI

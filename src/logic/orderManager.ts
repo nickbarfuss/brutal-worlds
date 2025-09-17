@@ -20,6 +20,7 @@ export const handleSingleClick = (
         if (deselectedEnclave) {
             effectsToQueue.push({
                 id: uuidv4(),
+                playMode: 'immediate',
                 sfx: { key: 'order-commandMode-sfx-exit', channel: 'fx', position: deselectedEnclave.center },
                 position: deselectedEnclave.center,
             });
@@ -44,6 +45,7 @@ export const handleSingleClick = (
             : 'order-commandMode-sfx-exit';
         effectsToQueue.push({
             id: uuidv4(),
+                playMode: 'immediate',
             sfx: { key: sfxKey, channel: 'fx', position: clickedEnclave.center },
             position: clickedEnclave.center,
         });
@@ -64,6 +66,7 @@ export const handleSingleClick = (
              if (deselectedEnclave) {
                 effectsToQueue.push({
                     id: uuidv4(),
+                playMode: 'immediate',
                     sfx: { key: 'order-commandMode-sfx-exit', channel: 'fx', position: deselectedEnclave.center },
                     position: deselectedEnclave.center,
                 });
@@ -83,6 +86,7 @@ export const handleSingleClick = (
                 if (profile.assets.vfx || profile.assets.sfx) {
                     effectsToQueue.push({
                         id: uuidv4(),
+                playMode: 'immediate',
                         vfx: profile.assets.vfx ? [vfxKey] : undefined,
                         sfx: profile.assets.sfx ? { key: sfxKey, channel: 'fx', position: clickedEnclave.center } : undefined,
                         position: clickedEnclave.center,
@@ -128,6 +132,7 @@ export const handleSingleClick = (
                     if (profile.assets.vfx) {
                         effectsToQueue.push({
                             id: uuidv4(),
+                playMode: 'immediate',
                             vfx: [vfxKey],
                             position: clickedEnclave.center, // VFX at target
                         });
@@ -135,6 +140,7 @@ export const handleSingleClick = (
                     if (profile.assets.sfx) {
                         effectsToQueue.push({
                             id: uuidv4(),
+                playMode: 'immediate',
                             sfx: { key: sfxKey, channel: 'fx', position: originEnclave.center }, // SFX at origin
                             position: originEnclave.center,
                         });
@@ -156,6 +162,7 @@ export const handleSingleClick = (
         // 3c. Click on anything else (invalid target, etc.): Deselect.
         effectsToQueue.push({
             id: uuidv4(),
+                playMode: 'immediate',
             sfx: { key: 'order-commandMode-sfx-exit', channel: 'fx', position: originEnclave.center },
             position: originEnclave.center,
         });
@@ -193,6 +200,7 @@ export const handleDoubleClick = (
     const sfxKey = `order-commandMode-sfx-enter`;
     effectsToQueue.push({
         id: uuidv4(),
+                playMode: 'immediate',
         sfx: { key: sfxKey, channel: 'fx', position: clickedEnclave.center },
         position: clickedEnclave.center,
     });

@@ -543,6 +543,7 @@ export interface ActiveGambit {
 
 export interface EffectQueueItem {
     id: string;
+    playMode: 'immediate' | 'pending';
     position: Vector3;
     sfx?: SfxPlayback;
     vfx?: { key: string }[] | string[];
@@ -633,7 +634,7 @@ export interface GameState {
     isPaused: boolean;
     initialCameraTarget: Vector3 | null;
     activeHighlight: ActiveHighlight | null;
-    effectQueue: EffectQueueItem[];
+    effects: EffectQueueItem[];
     isSettingsOpen: boolean;
     isResolvingTurn: boolean;
     gameOverState: GameOverState;
@@ -653,7 +654,6 @@ export interface GameState {
     };
     ambientLightIntensity: number;
     tonemappingStrength: number;
-    pendingEffects: EffectQueueItem[];
 
     // New state for concurrent inspectors
     inspectedArchetypeOwner: PlayerIdentifier | null;
