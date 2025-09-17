@@ -635,6 +635,7 @@ export interface GameState {
     initialCameraTarget: Vector3 | null;
     activeHighlight: ActiveHighlight | null;
     effects: EffectQueueItem[];
+    immediateEffects: EffectQueueItem[];
     isSettingsOpen: boolean;
     isResolvingTurn: boolean;
     gameOverState: GameOverState;

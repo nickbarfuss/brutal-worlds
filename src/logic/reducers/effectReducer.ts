@@ -32,7 +32,7 @@ export const handleEffects = (state: GameState, action: Action): GameState => {
             }
             
             if (result.effectsToPlay) {
-                updates.effectQueue = [...state.effectQueue, ...result.effectsToPlay];
+                updates.effects = [...state.effects, ...result.effectsToPlay];
             }
     
             return Object.keys(updates).length > 0 ? { ...state, ...updates } : state;
@@ -40,9 +40,6 @@ export const handleEffects = (state: GameState, action: Action): GameState => {
 
         case 'CLEAR_LATEST_EFFECT':
             return { ...state, latestEffect: null };
-
-        case 'CLEAR_EFFECT_QUEUE':
-            return { ...state, effectQueue: [] };
 
         default:
             return state;

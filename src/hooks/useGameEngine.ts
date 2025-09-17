@@ -59,21 +59,39 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
         playedEffectIdsRef.current.clear();
     }, [state.currentTurn]);
 
+    useEffect(() => {
+        if (state.immediateEffects.length > 0) {
+            state.immediateEffects.forEach(effect => {
+                if (effect.vfx && effect.position) {
+                    const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];
+                    vfxItems.forEach(v => {
+                        const key = typeof v === 'string' ? v : v.key;
+                        if (key) {
+                            vfxManager.current.playEffect(key, effect.position as THREE.Vector3);
+                        }
+                    });
+                }
+                if (effect.sfx) {
+                    sfxManager.current.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
+                }
+            });
+            dispatch({ type: 'CLEAR_IMMEDIATE_EFFECTS' });
+        }
+    }, [state.immediateEffects, dispatch, vfxManager, sfxManager]);
+
     const processEffects = useCallback((currentState: GameState) => {
-        if (currentState.effects.length === 0) return;
+        if (currentState.effects.length === 0) {
+            return;
+        }
 
-        const effectsToProcess = currentState.effects.filter(effect => !playedEffectIdsRef.current.has(effect.id));
-        if (effectsToProcess.length === 0) return;
-
+        const effectsToProcess = currentState.effects;
         const sfxToPlay: { [channel: string]: EffectQueueItem['sfx'] } = {};
-        const vfxToPlay: { key: string, position: THREE.Vector3 }[] = [];
+        const vfxToPlay: { key: string; position: THREE.Vector3 }[] = [];
         const effectIdsToRemove = new Set<string>();
 
         effectsToProcess.forEach(effect => {
-            const isImmediate = effect.playMode === 'immediate';
-            let canPlay = isImmediate;
-
-            if (!canPlay && worldCanvasHandle.current && worldCanvasHandle.current.camera) {
+            let canPlay = false;
+            if (worldCanvasHandle.current && worldCanvasHandle.current.camera) {
                 const camera = worldCanvasHandle.current.camera;
                 camera.updateMatrixWorld();
                 const frustum = new THREE.Frustum();
@@ -85,29 +103,36 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
             }
 
             if (canPlay) {
-                if (effect.vfx && effect.position) {
-                    const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];
-                    vfxItems.forEach(v => {
-                        const key = typeof v === 'string' ? v : v.key;
-                        if (key) {
-                            vfxToPlay.push({ key, position: effect.position as THREE.Vector3 });
-                        }
-                    });
-                }
-                if (effect.sfx) {
-                    sfxToPlay[effect.sfx.channel] = effect.sfx;
+                if (!playedEffectIdsRef.current.has(effect.id)) {
+                    if (effect.vfx && effect.position) {
+                        const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];
+                        vfxItems.forEach(v => {
+                            const key = typeof v === 'string' ? v : v.key;
+                            if (key) {
+                                vfxToPlay.push({ key, position: effect.position as THREE.Vector3 });
+                            }
+                        });
+                    }
+                    if (effect.sfx) {
+                        sfxToPlay[effect.sfx.channel] = effect.sfx;
+                    }
+                    playedEffectIdsRef.current.add(effect.id);
                 }
                 effectIdsToRemove.add(effect.id);
-                playedEffectIdsRef.current.add(effect.id);
             }
         });
 
-        vfxToPlay.forEach(vfx => vfxManager.current.playEffect(vfx.key, vfx.position));
-        Object.values(sfxToPlay).forEach(sfx => {
-            if (sfx) {
-                sfxManager.current.playSound(sfx.key, sfx.channel, sfx.position);
-            }
-        });
+        if (vfxToPlay.length > 0) {
+            vfxToPlay.forEach(vfx => vfxManager.current.playEffect(vfx.key, vfx.position));
+        }
+
+        if (Object.keys(sfxToPlay).length > 0) {
+            Object.values(sfxToPlay).forEach(sfx => {
+                if (sfx) {
+                    sfxManager.current.playSound(sfx.key, sfx.channel, sfx.position);
+                }
+            });
+        }
 
         if (effectIdsToRemove.size > 0) {
             dispatch({ type: 'REMOVE_EFFECTS', payload: Array.from(effectIdsToRemove) });

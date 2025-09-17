@@ -34,6 +34,7 @@ export type Action =
     | { type: 'TRIGGER_EFFECT'; payload: string }
     | { type: 'CLEAR_LATEST_EFFECT' }
     | { type: 'REMOVE_EFFECTS'; payload: string[] }
+    | { type: 'CLEAR_IMMEDIATE_EFFECTS' }
     | { type: 'GO_TO_MAIN_MENU' }
     | { type: 'SET_ACTIVE_HIGHLIGHT'; payload: ActiveHighlight | null }
     | { type: 'TOGGLE_SETTINGS_DRAWER' }
@@ -65,6 +66,7 @@ export const initialState: GameState = {
     isIntroComplete: false, cameraFocusAnimation: null, hoveredEntity: null,
     isPaused: true, initialCameraTarget: null, activeHighlight: null,
     effects: [],
+    immediateEffects: [],
     isSettingsOpen: false,
     isResolvingTurn: false,
     gameOverState: 'none',
@@ -119,6 +121,7 @@ export const reducer = (state: GameState, action: Action): GameState => {
 
         // VFX/SFX
         case 'REMOVE_EFFECTS':
+        case 'CLEAR_IMMEDIATE_EFFECTS':
             return handleFx(state, action);
 
         // UI
