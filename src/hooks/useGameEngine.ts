@@ -58,28 +58,7 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
         playedEffectIdsRef.current.clear();
     }, [state.currentTurn]);
 
-    useEffect(() => {
-        if (state.immediateEffects.length > 0) {
-            const effectsToPlay = [...state.immediateEffects];
-            const effectIdsToRemove = effectsToPlay.map(effect => effect.id);
-
-            effectsToPlay.forEach(effect => {
-                if (effect.vfx && effect.position) {
-                    const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];
-                    vfxItems.forEach(v => {
-                        const key = typeof v === 'string' ? v : v.key;
-                        if (key) {
-                            vfxManager.current.playEffect(key, effect.position as THREE.Vector3);
-                        }
-                    });
-                }
-                if (effect.sfx) {
-                    sfxManager.current.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
-                }
-            });
-            dispatch({ type: 'REMOVE_IMMEDIATE_EFFECTS', payload: effectIdsToRemove });
-        }
-    }, [state.immediateEffects, dispatch, vfxManager, sfxManager]);
+    
 
     const processEffects = useCallback((currentState: GameState) => {
         if (currentState.effects.length === 0) {

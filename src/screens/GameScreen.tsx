@@ -30,6 +30,7 @@ import SurrenderConfirmDialog from '@/components/features/surrender/SurrenderCon
 import { getAssetUrl } from '@/utils/assetUtils';
 import { toCamelCase } from '@/utils/stringUtils';
 import WarpStarsCanvas from '@/features/background/WarpStarsCanvas';
+import { EffectPlayer } from '@/features/effects/EffectPlayer';
 
 import ErrorBoundary from '@/components/features/system/ErrorBoundary'; // Added ErrorBoundary import
 
@@ -804,8 +805,18 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine, worldCanvasHandle }) =>
         engine.setInspectedMapEntity({ type: 'world' });
     };
 
+    const handleEffectsPlayed = useCallback((effectIds: string[]) => {
+        engine.dispatch({ type: 'REMOVE_IMMEDIATE_EFFECTS', payload: effectIds });
+    }, [engine]);
+
     return (
         <div className={`w-full h-full bg-black relative overflow-hidden ${cursorClass}`}>
+            <EffectPlayer 
+                effects={engine.immediateEffects} 
+                vfxManager={engine.vfxManager} 
+                sfxManager={engine.sfxManager} 
+                onEffectsPlayed={handleEffectsPlayed} 
+            />
             {engine.isResolvingTurn && <CustomCursor />}
             
             <video ref={videoEnterRef} src={getAssetUrl(ASSETS.cinematic.intro.vfx[0].src)} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'entry' ? 'block' : 'none' }} />
