@@ -1,14 +1,12 @@
-import React, { useCallback, useRef, useEffect, useReducer } from 'react';
-import * as THREE from 'three';
+import { useCallback, useRef, useEffect, useReducer } from 'react';
 import {
-    Enclave, PendingOrders, GamePhase, GameState, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, EffectQueueItem, PlayerIdentifier, InspectedMapEntity
+    Enclave, PendingOrders, GamePhase, GameState, ActiveHighlight, AudioChannel, MaterialProperties, Order, PlayerIdentifier, InspectedMapEntity, Vector3
 } from '@/types/game';
-import { WorldCanvasHandle } from '@/features/world/WorldCanvas';
 import { VfxManager } from '@/logic/VfxManager';
 import { SfxManager } from '@/logic/SfxManager';
 import { useGameInitializer } from '@/hooks/useGameInitializer';
 import { useGameLoop } from '@/hooks/useGameLoop';
-import { reducer as gameReducer, initialState } from '@/logic/reducers';
+import { reducer, initialState, Action } from '@/logic/reducers';
 import { deserializeResolvedTurn, serializeGameStateForWorker } from '@/utils/threeUtils';
 import { calculateAIOrderChanges } from '@/logic/ai';
 import { getAssistMultiplierForEnclave } from '@/logic/birthrightManager.ts';
@@ -38,14 +36,16 @@ const getInvalidPlayerAssistOrders = (
     return ordersToCancel;
 };
 
-export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHandle | null>) => {
+export const useGameEngine = () => {
     const { setOnline } = useConnection();
     const vfxManager = useRef(new VfxManager());
     const sfxManager = useRef(new SfxManager());
-    const [state, dispatch] = useReducer(gameReducer, initialState);
+            const [state, dispatch] = useReducer(
+        (state: GameState, action: Action) => reducer(state, action, vfxManager.current, sfxManager.current),
+        initialState
+    );
     const workerRef = useRef<Worker | null>(null);
     const aiActionTimeoutsRef = useRef<number[]>([]);
-    const playedEffectIdsRef = useRef<Set<string>>(new Set());
     const gameSessionIdRef = useRef<number>(state.gameSessionId);
     gameSessionIdRef.current = state.gameSessionId;
 
@@ -53,72 +53,6 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
     gamePhaseRef.current = state.gamePhase;
 
     const getState = useCallback(() => state, [state]);
-
-    useEffect(() => {
-        playedEffectIdsRef.current.clear();
-    }, [state.currentTurn]);
-
-    
-
-    const processEffects = useCallback((currentState: GameState) => {
-        if (currentState.effects.length === 0) {
-            return;
-        }
-
-        const effectsToProcess = currentState.effects;
-        const sfxToPlay: { [channel: string]: EffectQueueItem['sfx'] } = {};
-        const vfxToPlay: { key: string; position: THREE.Vector3 }[] = [];
-        const effectIdsToRemove = new Set<string>();
-
-        effectsToProcess.forEach(effect => {
-            let canPlay = false;
-            if (worldCanvasHandle.current && worldCanvasHandle.current.camera) {
-                const camera = worldCanvasHandle.current.camera;
-                camera.updateMatrixWorld();
-                const frustum = new THREE.Frustum();
-                const matrix = new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
-                frustum.setFromProjectionMatrix(matrix);
-                if (effect.position && frustum.containsPoint(effect.position)) {
-                    canPlay = true;
-                }
-            }
-
-            if (canPlay) {
-                if (!playedEffectIdsRef.current.has(effect.id)) {
-                    if (effect.vfx && effect.position) {
-                        const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];
-                        vfxItems.forEach(v => {
-                            const key = typeof v === 'string' ? v : v.key;
-                            if (key) {
-                                vfxToPlay.push({ key, position: effect.position as THREE.Vector3 });
-                            }
-                        });
-                    }
-                    if (effect.sfx) {
-                        sfxToPlay[effect.sfx.channel] = effect.sfx;
-                    }
-                    playedEffectIdsRef.current.add(effect.id);
-                }
-                effectIdsToRemove.add(effect.id);
-            }
-        });
-
-        if (vfxToPlay.length > 0) {
-            vfxToPlay.forEach(vfx => vfxManager.current.playEffect(vfx.key, vfx.position));
-        }
-
-        if (Object.keys(sfxToPlay).length > 0) {
-            Object.values(sfxToPlay).forEach(sfx => {
-                if (sfx) {
-                    sfxManager.current.playSound(sfx.key, sfx.channel, sfx.position);
-                }
-            });
-        }
-
-        if (effectIdsToRemove.size > 0) {
-            dispatch({ type: 'REMOVE_EFFECTS', payload: Array.from(effectIdsToRemove) });
-        }
-    }, [worldCanvasHandle, vfxManager, sfxManager, dispatch]);
 
     const resolveTurn = useCallback(() => {
         const latestState = getState();
@@ -147,7 +81,7 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
         workerRef.current.postMessage(JSON.stringify(serializableState));
     }, [dispatch, workerRef, getState]);
 
-    useGameLoop(state, resolveTurn, processEffects);
+    useGameLoop(state, resolveTurn);
 
     const setInitializationState = useCallback((isInitialized, message, error) => {
         dispatch({ type: 'SET_INITIALIZATION_STATE', payload: { isInitialized, message, error } });

@@ -13,19 +13,6 @@ export const handleFx = (state: GameState, action: Action): GameState => {
                 effects: state.effects.filter(effect => !idsToRemove.has(effect.id)),
             };
         }
-        case 'CLEAR_IMMEDIATE_EFFECTS': {
-            return { ...state, immediateEffects: [] };
-        }
-        case 'REMOVE_IMMEDIATE_EFFECTS': {
-            const idsToRemove = new Set(action.payload);
-            if (idsToRemove.size === 0) {
-                return state;
-            }
-            return {
-                ...state,
-                immediateEffects: state.immediateEffects.filter(effect => !idsToRemove.has(effect.id)),
-            };
-        }
         default:
             return state;
     }

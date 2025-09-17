@@ -7,6 +7,8 @@ import { handleTurnLogic } from '@/logic/reducers/turnLogicReducer';
 import { handleEffects } from '@/logic/reducers/effectReducer';
 import { handleFx } from '@/logic/reducers/vfxReducer';
 import { handleUi } from '@/logic/reducers/uiReducer'; 
+import { VfxManager } from '../VfxManager';
+import { SfxManager } from '../SfxManager';
 
 export type Action =
     | { type: 'SET_INITIALIZATION_STATE'; payload: { isInitialized: boolean; message: string; error: string | null } }
@@ -34,8 +36,6 @@ export type Action =
     | { type: 'TRIGGER_EFFECT'; payload: string }
     | { type: 'CLEAR_LATEST_EFFECT' }
     | { type: 'REMOVE_EFFECTS'; payload: string[] }
-    | { type: 'REMOVE_IMMEDIATE_EFFECTS'; payload: string[] }
-    | { type: 'CLEAR_IMMEDIATE_EFFECTS' }
     | { type: 'GO_TO_MAIN_MENU' }
     | { type: 'SET_ACTIVE_HIGHLIGHT'; payload: ActiveHighlight | null }
     | { type: 'TOGGLE_SETTINGS_DRAWER' }
@@ -67,7 +67,6 @@ export const initialState: GameState = {
     isIntroComplete: false, cameraFocusAnimation: null, hoveredEntity: null,
     isPaused: true, initialCameraTarget: null, activeHighlight: null,
     effects: [],
-    immediateEffects: [],
     isSettingsOpen: false,
     isResolvingTurn: false,
     gameOverState: 'none',
@@ -81,7 +80,7 @@ export const initialState: GameState = {
     tonemappingStrength: CONFIG.VISUAL_DEFAULTS.tonemappingStrength,
 };
 
-export const reducer = (state: GameState, action: Action): GameState => {
+export const reducer = (state: GameState, action: Action, vfxManager: VfxManager, sfxManager: SfxManager): GameState => {
     switch (action.type) {
         // Initialization
         case 'SET_INITIALIZATION_STATE':
@@ -103,7 +102,7 @@ export const reducer = (state: GameState, action: Action): GameState => {
         case 'FOCUS_ON_ENCLAVE':
         case 'FOCUS_ON_VECTOR':
         case 'SET_INSPECTED_MAP_ENTITY':
-            return handleMapInteraction(state, action);
+            return handleMapInteraction(state, action, vfxManager, sfxManager);
             
         // Turn Logic
         case 'START_FIRST_TURN':
@@ -122,8 +121,6 @@ export const reducer = (state: GameState, action: Action): GameState => {
 
         // VFX/SFX
         case 'REMOVE_EFFECTS':
-        case 'REMOVE_IMMEDIATE_EFFECTS':
-        case 'CLEAR_IMMEDIATE_EFFECTS':
             return handleFx(state, action);
 
         // UI

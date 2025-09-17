@@ -13,9 +13,7 @@ interface ActiveEffect {
 export class VfxManager {
     private isInitialized: boolean = false;
     private preloadedVideos: Map<string, VFXAsset[]> = new Map();
-    private activeEffects: ActiveEffect[] = [];
-    private lastPlayed: Map<string, number> = new Map();
-    private readonly COOLDOWN_MS = 100;
+    private activeImmediateEffect: ActiveEffect | null = null;
 
     constructor() {}
 
@@ -61,19 +59,18 @@ export class VfxManager {
     }
 
     public reset(): void {
-        this.activeEffects.forEach(effect => {
-            effect.video.pause();
-            effect.video.currentTime = 0;
-        });
-        this.activeEffects = [];
+        if (this.activeImmediateEffect) {
+            this.activeImmediateEffect.video.pause();
+            this.activeImmediateEffect.video.currentTime = 0;
+            this.activeImmediateEffect = null;
+        }
     }
 
-    public playEffect(key: string, worldPosition: THREE.Vector3): void {
-        const now = performance.now();
-        if (now - (this.lastPlayed.get(key) || 0) < this.COOLDOWN_MS) {
-            return; // Cooldown active, ignore this play request
+    public playImmediateEffect(key: string, worldPosition: THREE.Vector3): void {
+        if (this.activeImmediateEffect) {
+            this.activeImmediateEffect.video.pause();
+            this.activeImmediateEffect.video.currentTime = 0;
         }
-        this.lastPlayed.set(key, now);
 
         const videos = this.preloadedVideos.get(key);
         if (!videos || videos.length === 0) {
@@ -88,10 +85,12 @@ export class VfxManager {
             video.currentTime = 0;
             video.play().catch(e => console.error(`Error playing VFX for ${key}:`, e));
 
-            this.activeEffects.push({ key, video, worldPosition, width: videoAsset.width, height: videoAsset.height });
+            this.activeImmediateEffect = { key, video, worldPosition, width: videoAsset.width, height: videoAsset.height };
 
             video.onended = () => {
-                this.activeEffects = this.activeEffects.filter(effect => effect.video !== video);
+                if (this.activeImmediateEffect && this.activeImmediateEffect.video === video) {
+                    this.activeImmediateEffect = null;
+                }
             };
         };
 
@@ -100,10 +99,6 @@ export class VfxManager {
         } else {
             video.addEventListener('canplaythrough', playVideo, { once: true });
         }
-    }
-
-    public getActiveEffects(): ActiveEffect[] {
-        return this.activeEffects;
     }
 
     public isInitializedStatus(): boolean {
@@ -115,40 +110,40 @@ export class VfxManager {
         mapContainer: THREE.Object3D, 
         camera: THREE.PerspectiveCamera, 
     ): void {
-        if (!this.isInitialized) return;
+        if (!this.isInitialized || !this.activeImmediateEffect) {
+            return;
+        }
 
         const dpr = window.devicePixelRatio || 1;
         const canvasWidth = ctx.canvas.width / dpr;
         const canvasHeight = ctx.canvas.height / dpr;
 
-        for (let i = this.activeEffects.length - 1; i >= 0; i--) {
-            const effect = this.activeEffects[i];
+        const effect = this.activeImmediateEffect;
             
-            if (effect.video.ended) {
-                this.activeEffects.splice(i, 1);
-                continue;
-            }
+        if (effect.video.ended) {
+            this.activeImmediateEffect = null;
+            return;
+        }
 
-            const worldPos = effect.worldPosition.clone().applyMatrix4(mapContainer.matrixWorld);
+        const worldPos = effect.worldPosition.clone().applyMatrix4(mapContainer.matrixWorld);
+        
+        const viewVector = new THREE.Vector3().subVectors(camera.position, worldPos);
+        const normal = worldPos.clone().normalize();
+
+        if (viewVector.dot(normal) > 0) {
+            const screenPos = worldPos.clone().project(camera);
             
-            const viewVector = new THREE.Vector3().subVectors(camera.position, worldPos);
-            const normal = worldPos.clone().normalize();
+            if (screenPos.z < 1) {
+                const x = (screenPos.x * 0.5 + 0.5) * canvasWidth;
+                const y = (-screenPos.y * 0.5 + 0.5) * canvasHeight;
 
-            if (viewVector.dot(normal) > 0) {
-                const screenPos = worldPos.clone().project(camera);
-                
-                if (screenPos.z < 1) {
-                    const x = (screenPos.x * 0.5 + 0.5) * canvasWidth;
-                    const y = (-screenPos.y * 0.5 + 0.5) * canvasHeight;
-
-                    ctx.drawImage(
-                        effect.video,
-                        x - effect.width / 2,
-                        y - effect.height / 2,
-                        effect.width,
-                        effect.height
-                    );
-                }
+                ctx.drawImage(
+                    effect.video,
+                    x - effect.width / 2,
+                    y - effect.height / 2,
+                    effect.width,
+                    effect.height
+                );
             }
         }
     }

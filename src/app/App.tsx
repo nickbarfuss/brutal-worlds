@@ -17,7 +17,7 @@ import { WorldCanvasHandle } from '@/features/world/WorldCanvas';
 const App: React.FC = () => {
     const { isOnline } = useConnection();
     const worldCanvasHandle = useRef<WorldCanvasHandle | null>(null);
-    const engine = useGameEngine(worldCanvasHandle);
+    const engine = useGameEngine();
     const [isClosingStartDialog, setIsClosingStartDialog] = useState(false);
     const closeDialogTimeoutRef = useRef<number | null>(null);
     const isStartingGameRef = useRef(false); // State lock to prevent race conditions

@@ -253,7 +253,6 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                 return {
                     ...state,
                     playerPendingOrders: newPlayerOrders,
-                    immediateEffects: [...state.immediateEffects, ...effectsToQueue],
                 };
             }
             return state;
@@ -282,7 +281,6 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             return {
                 ...state,
                 aiPendingOrders: newAiOrders,
-                immediateEffects: [...state.immediateEffects, ...effectsToQueue],
             };
         }
 
@@ -319,7 +317,6 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
                     ...state.aiPendingOrders,
                     [fromId]: order,
                 },
-                immediateEffects: [...state.immediateEffects, ...effectsToQueue],
             };
         }
 

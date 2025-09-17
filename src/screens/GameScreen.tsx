@@ -30,7 +30,7 @@ import SurrenderConfirmDialog from '@/components/features/surrender/SurrenderCon
 import { getAssetUrl } from '@/utils/assetUtils';
 import { toCamelCase } from '@/utils/stringUtils';
 import WarpStarsCanvas from '@/features/background/WarpStarsCanvas';
-import { EffectPlayer } from '@/features/effects/EffectPlayer';
+import ImmediateVfxPlayer from '@/features/effects/ImmediateVfxPlayer';
 
 import ErrorBoundary from '@/components/features/system/ErrorBoundary'; // Added ErrorBoundary import
 
@@ -38,12 +38,12 @@ declare const gsap: any;
 
 interface GameScreenProps {
     engine: ReturnType<typeof useGameEngine>;
-    worldCanvasHandle: React.RefObject<WorldCanvasHandle | null>;
 }
 
 const MemoizedSettingsDrawer = React.memo(SettingsDrawer);
 
-const GameScreen: React.FC<GameScreenProps> = ({ engine, worldCanvasHandle }) => {
+const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
+    const worldCanvasHandle = useRef<WorldCanvasHandle | null>(null);
     const [briefing, setBriefing] = useState<BriefingState | null>(null);
     const [briefingTarget, setBriefingTarget] = useState<{ type: BriefingType, key: string } | null>(null);
     const [isClosingGameOver, setIsClosingGameOver] = useState(false);
@@ -805,17 +805,13 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine, worldCanvasHandle }) =>
         engine.setInspectedMapEntity({ type: 'world' });
     };
 
-    const handleEffectsPlayed = useCallback((effectIds: string[]) => {
-        engine.dispatch({ type: 'REMOVE_IMMEDIATE_EFFECTS', payload: effectIds });
-    }, [engine]);
+    
 
     return (
         <div className={`w-full h-full bg-black relative overflow-hidden ${cursorClass}`}>
-            <EffectPlayer 
-                effects={engine.immediateEffects} 
+            <ImmediateVfxPlayer 
                 vfxManager={engine.vfxManager} 
-                sfxManager={engine.sfxManager} 
-                onEffectsPlayed={handleEffectsPlayed} 
+                worldCanvasHandle={worldCanvasHandle} 
             />
             {engine.isResolvingTurn && <CustomCursor />}
             
