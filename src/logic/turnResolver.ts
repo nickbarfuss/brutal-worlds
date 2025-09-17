@@ -5,9 +5,9 @@
 */
 
 import { Enclave, PendingOrders, EffectQueueItem, ActiveEffectMarker, Route, MapCell, ActiveEffect, EffectProfile, GameConfig, GameState, TurnEvent } from '@/types/game.ts';
-import { resolveHolding } from '@/logic/holdResolver';
-import { resolveAssists } from '@/logic/assistResolver';
-import { resolveAttacks } from '@/logic/attackResolver';
+import { resolveHolding } from '@/logic/orders/holdResolver';
+import { resolveAssists } from '@/logic/orders/assistResolver';
+import { resolveAttacks } from '@/logic/orders/attackResolver';
 import * as THREE from 'three';
 import { EFFECT_PROFILES } from '@/data/effects';
 import { applyContinuousEffects } from '@/logic/effectProcessor';

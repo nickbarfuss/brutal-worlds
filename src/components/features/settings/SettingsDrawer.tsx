@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { AudioChannel, GameState, MaterialProperties } from '@/types/game';
 import SliderCard from '@/components/ui/SliderCard';
 import SwitchCard from '@/components/ui/SwitchCard';
-import { SfxManager } from '@/logic/SfxManager';
+import { SfxManager } from '@/logic/effects/SfxManager';
 import { WorldCanvasHandle } from '@/features/world/WorldCanvas';
 import { TEXT } from '@/data/text';
 

@@ -8,13 +8,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 
-import { VfxManager } from '@/logic/VfxManager';
+import { VfxManager } from '@/logic/effects/VfxManager';
 import { drawUICanvas } from '@/canvas/drawingUtils';
 import { Enclave, ActiveHighlight, GameState, MapCell, Route, PendingOrders, ActiveEffectMarker, WorldProfile, Vector3, Domain, Rift, Expanse, IntroPhase, GamePhase } from '@/types/game';
 import { mainNebulaVertexShader, mainNebulaFragmentShader, wispyNebulaVertexShader, wispyNebulaFragmentShader, atmosphereVertexShader, atmosphereFragmentShader, sunVertexShader, sunFragmentShader } from '@/canvas/shaderUtils';
 import { createStarfield } from '@/canvas/starfieldUtils';
 // FIX: Import the SfxManager type to resolve the 'Cannot find name' error.
-import { SfxManager } from '@/logic/SfxManager';
+import { SfxManager } from '@/logic/effects/SfxManager';
 
 declare const gsap: any;
 

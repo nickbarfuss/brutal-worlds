@@ -1,6 +1,6 @@
 import { GameState } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
-import { handleSingleClick, handleDoubleClick } from '@/logic/orderManager';
+import { handleSingleClick, handleDoubleClick } from '@/logic/orders/orderManager';
 import { VfxManager } from '@/logic/effects/VfxManager';
 import { SfxManager } from '@/logic/effects/SfxManager';
 
