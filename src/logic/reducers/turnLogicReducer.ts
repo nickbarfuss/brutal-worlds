@@ -3,6 +3,8 @@ import { Action } from '@/logic/reducers/index';
 import { v4 as uuidv4 } from 'uuid';
 import { EFFECT_PROFILES } from '@/data/effects';
 import { triggerNewEffect as triggerEffectLogic } from "@/logic/effectManager";
+import { SfxManager } from '../SfxManager';
+import { VfxManager } from '../VfxManager';
 
 const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveData: { [id: number]: Enclave }): EffectQueueItem[] => {
     const effects: EffectQueueItem[] = [];
@@ -77,7 +79,7 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
     return effects;
 };
 
-export const handleTurnLogic = (state: GameState, action: Action): GameState => {
+export const handleTurnLogic = (state: GameState, action: Action, vfxManager?: VfxManager, sfxManager?: SfxManager): GameState => {
     switch (action.type) {
         case 'START_FIRST_TURN': {
             const disasterConfig = state.gameConfig.DISASTER_TESTING;
@@ -259,6 +261,7 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
         }
 
         case 'AI_CANCEL_ORDER': {
+            if (!sfxManager || !vfxManager) return state;
             const { fromId } = action.payload;
             const fromEnclave = state.enclaveData[fromId];
             if (!fromEnclave || !state.aiPendingOrders[fromId]) return state;
@@ -266,17 +269,11 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
             const newAiOrders = { ...state.aiPendingOrders };
             delete newAiOrders[fromId];
 
-            const effectsToQueue: EffectQueueItem[] = [];
-
             const sfxKey = `order-hold-sfx`;
             const vfxKey = 'order-hold-vfx';
-            effectsToQueue.push({
-                id: uuidv4(),
-                playMode: 'immediate',
-                sfx: { key: sfxKey, channel: 'fx', position: fromEnclave.center },
-                vfx: [vfxKey],
-                position: fromEnclave.center,
-            });
+            
+            sfxManager.playSound(sfxKey, 'fx', fromEnclave.center);
+            vfxManager.playImmediateEffect(vfxKey, fromEnclave.center);
 
             return {
                 ...state,
@@ -285,31 +282,20 @@ export const handleTurnLogic = (state: GameState, action: Action): GameState => 
         }
 
         case 'AI_ISSUE_ORDER': {
+            if (!sfxManager || !vfxManager) return state;
             const { fromId, order } = action.payload;
             const fromEnclave = state.enclaveData[fromId];
             const toEnclave = state.enclaveData[order.to];
 
             if (!fromEnclave || !toEnclave) return state;
 
-            const effectsToQueue: EffectQueueItem[] = [];
             const orderType = order.type;
 
             const vfxKey = `order-${orderType}-vfx`;
             const sfxKey = `order-${orderType}-sfx`;
 
-            effectsToQueue.push({
-                id: uuidv4(),
-                playMode: 'immediate',
-                vfx: [vfxKey],
-                position: toEnclave.center, // VFX at target
-            });
-
-            effectsToQueue.push({
-                id: uuidv4(),
-                playMode: 'immediate',
-                sfx: { key: sfxKey, channel: 'fx', position: fromEnclave.center }, // SFX at origin
-                position: fromEnclave.center,
-            });
+            vfxManager.playImmediateEffect(vfxKey, toEnclave.center);
+            sfxManager.playSound(sfxKey, 'fx', fromEnclave.center);
 
             return {
                 ...state,

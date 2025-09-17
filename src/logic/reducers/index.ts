@@ -112,7 +112,7 @@ export const reducer = (state: GameState, action: Action, vfxManager: VfxManager
         case 'AI_ISSUE_ORDER':
         case 'AI_CANCEL_ORDER':
         case 'AI_CLEAR_ORDERS':
-            return handleTurnLogic(state, action);
+            return handleTurnLogic(state, action, vfxManager, sfxManager);
 
         // Effects
         case 'TRIGGER_EFFECT':
