@@ -63,6 +63,8 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
             const effectsToPlay = [...state.immediateEffects];
             const effectIdsToRemove = effectsToPlay.map(effect => effect.id);
 
+            console.log('[GameEngine] useEffect triggered. Playing effects:', effectsToPlay.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
+
             effectsToPlay.forEach(effect => {
                 if (effect.vfx && effect.position) {
                     const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];

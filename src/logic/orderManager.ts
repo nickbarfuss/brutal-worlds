@@ -25,6 +25,7 @@ export const handleSingleClick = (
                 position: deselectedEnclave.center,
             });
         }
+        console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
         return {
             newSelectedEnclaveId: null,
             newInspectedEnclaveId: null,
@@ -49,6 +50,7 @@ export const handleSingleClick = (
             sfx: { key: sfxKey, channel: 'fx', position: clickedEnclave.center },
             position: clickedEnclave.center,
         });
+        console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
         return {
             newSelectedEnclaveId: newSelectedId,
             newInspectedEnclaveId: clickedEnclaveId,
@@ -71,6 +73,7 @@ export const handleSingleClick = (
                     position: deselectedEnclave.center,
                 });
             }
+            console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
             return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders, effectsToQueue };
         }
         
@@ -92,6 +95,7 @@ export const handleSingleClick = (
                         position: clickedEnclave.center,
                     });
                 }
+                console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
                 return {
                     newSelectedEnclaveId: null, // Exit command mode
                     newInspectedEnclaveId: clickedEnclaveId,
@@ -111,7 +115,9 @@ export const handleSingleClick = (
 
         if (route && clickedEnclave.id !== selectedEnclaveId) {
             const existingOrder = playerPendingOrders[selectedEnclaveId];
-            if (!existingOrder || existingOrder.to !== clickedEnclaveId) {
+            // FIX: This logic was flawed. It should only proceed if there is NO existing order
+            // or if the new order is different from the existing one. This prevents re-triggering effects.
+            if (!existingOrder || existingOrder.to !== clickedEnclaveId || existingOrder.type !== (clickedEnclave.owner === originEnclave.owner ? 'assist' : 'attack')) {
                 const orderType: OrderType = clickedEnclave.owner === originEnclave.owner ? 'assist' : 'attack';
                 const safeForces = Number.isFinite(originEnclave.forces) ? originEnclave.forces : 0;
                 let forceToSend = 0;
@@ -132,7 +138,7 @@ export const handleSingleClick = (
                     if (profile.assets.vfx) {
                         effectsToQueue.push({
                             id: uuidv4(),
-                playMode: 'immediate',
+                            playMode: 'immediate',
                             vfx: [vfxKey],
                             position: clickedEnclave.center, // VFX at target
                         });
@@ -140,14 +146,16 @@ export const handleSingleClick = (
                     if (profile.assets.sfx) {
                         effectsToQueue.push({
                             id: uuidv4(),
-                playMode: 'immediate',
+                            playMode: 'immediate',
                             sfx: { key: sfxKey, channel: 'fx', position: originEnclave.center }, // SFX at origin
                             position: originEnclave.center,
                         });
                     }
+                    console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
                     return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders, effectsToQueue };
                 } else {
                     // Invalid order due to insufficient forces
+                    console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
                     return {
                         newSelectedEnclaveId: selectedEnclaveId,
                         newInspectedEnclaveId: clickedEnclaveId,
@@ -166,10 +174,12 @@ export const handleSingleClick = (
             sfx: { key: 'order-commandMode-sfx-exit', channel: 'fx', position: originEnclave.center },
             position: originEnclave.center,
         });
+        console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
         return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders, effectsToQueue };
 
     } else {
         // 4. Default action: Not in command mode, so just inspect.
+        console.log('[OrderManager] Effects generated:', effectsToQueue.map(e => ({id: e.id, sfx: e.sfx?.key, vfx: e.vfx?.[0]})));
         return {
             newSelectedEnclaveId: null,
             newInspectedEnclaveId: clickedEnclaveId,

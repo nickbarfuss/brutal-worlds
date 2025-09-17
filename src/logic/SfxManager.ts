@@ -34,6 +34,8 @@ export class SfxManager {
     private isInitialized = false;
 
     private flattenedAudioAssets: Map<string, SFXAsset[]> = new Map();
+    private lastPlayed: Map<string, number> = new Map();
+    private readonly COOLDOWN_MS = 100;
 
     public async init(): Promise<void> {
         if (this.isInitialized) return Promise.resolve();
@@ -114,14 +116,20 @@ export class SfxManager {
 
     // Play a sound effect once
     public async playSound(key: string | string[], channel: AudioChannel = 'fx', position?: Vector3): Promise<void> {
-        
         if (!this.hasUserInteracted || !this.audioContext) {
-            
             return;
         }
 
         const soundKey = Array.isArray(key) ? key[Math.floor(Math.random() * key.length)] : key;
-        
+
+        const now = performance.now();
+        if (now - (this.lastPlayed.get(soundKey) || 0) < this.COOLDOWN_MS) {
+            console.log(`[SfxManager] Cooldown hit for key: ${soundKey}. Ignoring.`);
+            return; // Cooldown active, ignore this play request
+        }
+        console.log(`[SfxManager] Playing sound for key: ${soundKey}`);
+        this.lastPlayed.set(soundKey, now);
+
         const assets = this.flattenedAudioAssets.get(soundKey);
         if (!assets || assets.length === 0) {
             console.warn(`[SfxManager] Sound key not found in flattened assets or no URLs for key: ${soundKey}. Playback aborted.`);
@@ -138,7 +146,7 @@ export class SfxManager {
 
         const source = this.audioContext.createBufferSource();
         source.buffer = buffer;
-        
+
         const channelGain = this.channelGains.get(channel);
         if (!channelGain) {
             console.warn(`[SfxManager] Channel gain not found for channel: ${channel}. Playback aborted.`);
@@ -154,26 +162,24 @@ export class SfxManager {
             panner.coneInnerAngle = 360;
             panner.coneOuterAngle = 0;
             panner.coneOuterGain = 0;
-            
+
             panner.positionX.value = position.x;
             panner.positionY.value = position.y;
             panner.positionZ.value = position.z;
 
             source.connect(panner);
             panner.connect(channelGain);
-            
+
             this.activeSpatialSounds.push({ panner, position, source });
             source.onended = () => {
                 this.activeSpatialSounds = this.activeSpatialSounds.filter(s => s.source !== source);
-                
             };
 
         } else {
             source.connect(channelGain);
         }
-        
+
         source.start();
-        
     };    
     // Play a spatial looping sound
     public playSpatialLoop(loopId: string, soundKey: string, channel: AudioChannel, position: Vector3): void {

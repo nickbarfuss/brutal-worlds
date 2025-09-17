@@ -33,7 +33,9 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
     if (cellId === null || cellId === -1) {
         const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
         const newInspectedEntity = state.worldInspectorManuallyClosed ? null : { type: 'world' as const };
-        return { ...state, selectedEnclaveId: null, inspectedMapEntity: newInspectedEntity, effects: [...state.effects, ...result.effectsToQueue] };
+        console.log('[Reducer] Current immediateEffects:', state.immediateEffects.map(e => e.id));
+        console.log('[Reducer] Effects from click:', result.effectsToQueue.map(e => e.id));
+        return { ...state, selectedEnclaveId: null, inspectedMapEntity: newInspectedEntity, immediateEffects: [...state.immediateEffects, ...result.effectsToQueue] };
     }
     
     const cell = state.mapData[cellId];
@@ -57,36 +59,44 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
         const result = handleSingleClick(
             cell.enclaveId, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, isCtrlPressed
         );
+        console.log('[Reducer] Current immediateEffects:', state.immediateEffects.map(e => e.id));
+        console.log('[Reducer] Effects from click:', result.effectsToQueue.map(e => e.id));
         return {
             ...state,
             playerPendingOrders: result.updatedOrders,
             selectedEnclaveId: result.newSelectedEnclaveId,
             inspectedMapEntity: result.newInspectedEnclaveId !== null ? { type: 'enclave', id: result.newInspectedEnclaveId } : state.inspectedMapEntity,
-            effects: [...state.effects, ...result.effectsToQueue],
+            immediateEffects: [...state.immediateEffects, ...result.effectsToQueue],
         };
     } else if (cell.domainId !== null && state.domainData[cell.domainId]) {
         const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
+        console.log('[Reducer] Current immediateEffects:', state.immediateEffects.map(e => e.id));
+        console.log('[Reducer] Effects from click:', result.effectsToQueue.map(e => e.id));
         return {
             ...state,
             selectedEnclaveId: null,
             inspectedMapEntity: { type: 'domain', id: cell.domainId },
-            effects: [...state.effects, ...result.effectsToQueue],
+            immediateEffects: [...state.immediateEffects, ...result.effectsToQueue],
         };
     } else if (cell.voidId !== null) {
         // The disaster marker check has been moved up. Now just inspect the void feature.
         if (cell.voidType) {
             const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
+            console.log('[Reducer] Current immediateEffects:', state.immediateEffects.map(e => e.id));
+            console.log('[Reducer] Effects from click:', result.effectsToQueue.map(e => e.id));
             return {
                 ...state,
                 selectedEnclaveId: null,
                 inspectedMapEntity: { type: cell.voidType, id: cell.voidId },
-                effects: [...state.effects, ...result.effectsToQueue],
+                immediateEffects: [...state.immediateEffects, ...result.effectsToQueue],
             };
         }
     }
     
     const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
-    return { ...state, selectedEnclaveId: null, inspectedMapEntity: null, effects: [...state.effects, ...result.effectsToQueue] };
+    console.log('[Reducer] Current immediateEffects:', state.immediateEffects.map(e => e.id));
+    console.log('[Reducer] Effects from click:', result.effectsToQueue.map(e => e.id));
+    return { ...state, selectedEnclaveId: null, inspectedMapEntity: null, immediateEffects: [...state.immediateEffects, ...result.effectsToQueue] };
 };
 
 const dblClickMap = (state: GameState, payload: number | null): GameState => {
@@ -98,12 +108,14 @@ const dblClickMap = (state: GameState, payload: number | null): GameState => {
 
     if (clickedEnclave.owner === 'player-1') {
         const result = handleDoubleClick(enclaveId, state.enclaveData, state.playerPendingOrders);
+        console.log('[Reducer] Current immediateEffects:', state.immediateEffects.map(e => e.id));
+        console.log('[Reducer] Effects from click:', result.effectsToQueue.map(e => e.id));
         return {
             ...state,
             playerPendingOrders: result.updatedOrders,
             selectedEnclaveId: result.newSelectedEnclaveId,
             inspectedMapEntity: { type: 'enclave', id: enclaveId },
-            effects: [...state.effects, ...result.effectsToQueue],
+            immediateEffects: [...state.immediateEffects, ...result.effectsToQueue],
         };
     }
     

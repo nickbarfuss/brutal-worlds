@@ -14,6 +14,8 @@ export class VfxManager {
     private isInitialized: boolean = false;
     private preloadedVideos: Map<string, VFXAsset[]> = new Map();
     private activeEffects: ActiveEffect[] = [];
+    private lastPlayed: Map<string, number> = new Map();
+    private readonly COOLDOWN_MS = 100;
 
     constructor() {}
 
@@ -67,6 +69,14 @@ export class VfxManager {
     }
 
     public playEffect(key: string, worldPosition: THREE.Vector3): void {
+        const now = performance.now();
+        if (now - (this.lastPlayed.get(key) || 0) < this.COOLDOWN_MS) {
+            console.log(`[VfxManager] Cooldown hit for key: ${key}. Ignoring.`);
+            return; // Cooldown active, ignore this play request
+        }
+        console.log(`[VfxManager] Playing effect for key: ${key}`);
+        this.lastPlayed.set(key, now);
+
         const videos = this.preloadedVideos.get(key);
         if (!videos || videos.length === 0) {
             console.warn(`No VFX found for key: ${key}`);
