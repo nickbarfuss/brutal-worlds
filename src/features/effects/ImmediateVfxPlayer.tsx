@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-import { VfxManager } from '@/logic/VfxManager';
+import { VfxManager } from '@/logic/effects/VfxManager';
 import { WorldCanvasHandle } from '@/features/world/WorldCanvas';
 
 interface ImmediateVfxPlayerProps {

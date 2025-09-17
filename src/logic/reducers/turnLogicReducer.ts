@@ -3,8 +3,8 @@ import { Action } from '@/logic/reducers/index';
 import { v4 as uuidv4 } from 'uuid';
 import { EFFECT_PROFILES } from '@/data/effects';
 import { triggerNewEffect as triggerEffectLogic } from "@/logic/effectManager";
-import { SfxManager } from '../SfxManager';
-import { VfxManager } from '../VfxManager';
+import { SfxManager } from '@/logic/effects/SfxManager';
+import { VfxManager } from '@/logic/effects/VfxManager';
 
 const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveData: { [id: number]: Enclave }): EffectQueueItem[] => {
     const effects: EffectQueueItem[] = [];

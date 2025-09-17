@@ -2,8 +2,8 @@ import { useCallback, useRef, useEffect, useReducer } from 'react';
 import {
     Enclave, PendingOrders, GamePhase, GameState, ActiveHighlight, AudioChannel, MaterialProperties, Order, PlayerIdentifier, InspectedMapEntity, Vector3
 } from '@/types/game';
-import { VfxManager } from '@/logic/VfxManager';
-import { SfxManager } from '@/logic/SfxManager';
+import { VfxManager } from '@/logic/effects/VfxManager';
+import { SfxManager } from '@/logic/effects/SfxManager';
 import { useGameInitializer } from '@/hooks/useGameInitializer';
 import { useGameLoop } from '@/hooks/useGameLoop';
 import { reducer, initialState, Action } from '@/logic/reducers';
