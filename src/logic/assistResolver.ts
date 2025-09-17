@@ -1,4 +1,4 @@
-import { Enclave, PendingOrders, Order, EffectQueueItem } from '@/types/game.ts';
+import { Enclave, PendingOrders, Order, TurnEvent } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
 import { getAssistMultiplierForEnclave } from '@/logic/birthrightManager.ts';
 import { cloneEnclave } from '@/logic/cloneUtils.ts';

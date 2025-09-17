@@ -1,4 +1,4 @@
-import { GameState, GamePhase, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, PlayerIdentifier, InspectedMapEntity, EffectQueueItem } from '@/types/game';
+import { GameState, GamePhase, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, PlayerIdentifier, InspectedMapEntity } from '@/types/game';
 import { CONFIG } from '@/data/config';
 import { handleInitialization } from '@/logic/reducers/initializationReducer';
 import { handleGameFlow } from '@/logic/reducers/gameFlowReducer';
@@ -34,6 +34,7 @@ export type Action =
     | { type: 'TRIGGER_EFFECT'; payload: string }
     | { type: 'CLEAR_LATEST_EFFECT' }
     | { type: 'REMOVE_EFFECTS'; payload: string[] }
+    | { type: 'REMOVE_IMMEDIATE_EFFECTS'; payload: string[] }
     | { type: 'CLEAR_IMMEDIATE_EFFECTS' }
     | { type: 'GO_TO_MAIN_MENU' }
     | { type: 'SET_ACTIVE_HIGHLIGHT'; payload: ActiveHighlight | null }
@@ -121,6 +122,7 @@ export const reducer = (state: GameState, action: Action): GameState => {
 
         // VFX/SFX
         case 'REMOVE_EFFECTS':
+        case 'REMOVE_IMMEDIATE_EFFECTS':
         case 'CLEAR_IMMEDIATE_EFFECTS':
             return handleFx(state, action);
 

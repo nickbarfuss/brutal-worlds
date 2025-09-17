@@ -1,4 +1,4 @@
-import { Enclave, PendingOrders, Route, Rule, GameState, EffectQueueItem } from '@/types/game.ts';
+import { Enclave, PendingOrders, Route, Rule, GameState, TurnEvent } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
 import { getAppliedModifiers } from '@/logic/effectProcessor.ts';
 import { getHoldBonusForEnclave } from '@/logic/birthrightManager.ts';

@@ -120,11 +120,12 @@ export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext
         const camelCaseKey = profile.key.replace(/-./g, x => x.toUpperCase()[1]);
         const sfxKey = profile.ui.assets.sfx?.alert ? `disaster-${camelCaseKey}-sfx-alert` : undefined;
         const vfxKey = profile.ui.assets.vfx?.alert ? `disaster-${camelCaseKey}-vfx-alert` : undefined;
-        const selectedAlertDialogKey = getRandomAssetKey(profile.ui.assets.dialog?.alert);
+        const selectedAlertDialogKey = getRandomAssetKey(profile.ui.assets.dialog?.alert?.map(asset => asset.src));
 
         if (vfxKey || sfxKey) {
             effectsToPlay.push({
                 id: `eff-${profile.key}-alert-vfx-sfx-${cell.id}-${Date.now()}`,
+                playMode: 'pending',
                 vfx: vfxKey ? [vfxKey] : undefined,
                 sfx: sfxKey ? { key: sfxKey, channel: 'fx', position: cell.center } : undefined,
                 position: cell.center,
@@ -134,6 +135,7 @@ export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext
         if (selectedAlertDialogKey) {
             effectsToPlay.push({
                 id: `eff-${profile.key}-alert-dialog-${cell.id}-${Date.now()}`,
+                playMode: 'pending',
                 sfx: { key: selectedAlertDialogKey, channel: 'dialog', position: cell.center },
                 position: cell.center,
             });

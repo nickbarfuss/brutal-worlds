@@ -214,7 +214,7 @@ function getEffectSfx(
 ): string | undefined {
     const sfxAssets = profile.ui.assets.sfx?.[phase];
     if (sfxAssets && sfxAssets.length > 0) {
-        return sfxAssets[Math.floor(Math.random() * sfxAssets.length)];
+        return sfxAssets[Math.floor(Math.random() * sfxAssets.length)].src;
     }
     return undefined;
 }
@@ -225,7 +225,7 @@ function getEffectVfx(
 ): string | undefined {
     const vfxAssets = profile.ui.assets.vfx?.[phase];
     if (vfxAssets && vfxAssets.length > 0) {
-        return vfxAssets[Math.floor(Math.random() * vfxAssets.length)];
+        return vfxAssets[Math.floor(Math.random() * vfxAssets.length)].src;
     }
     return undefined;
 }

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect, useReducer } from 'react';
+import React, { useCallback, useRef, useEffect, useReducer } from 'react';
 import * as THREE from 'three';
 import {
     Enclave, PendingOrders, GamePhase, GameState, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, EffectQueueItem, PlayerIdentifier, InspectedMapEntity
@@ -12,7 +12,6 @@ import { reducer as gameReducer, initialState } from '@/logic/reducers';
 import { deserializeResolvedTurn, serializeGameStateForWorker } from '@/utils/threeUtils';
 import { calculateAIOrderChanges } from '@/logic/ai';
 import { getAssistMultiplierForEnclave } from '@/logic/birthrightManager.ts';
-import { v4 as uuidv4 } from 'uuid';
 import { useConnection } from '@/hooks/useConnection';
 
 
@@ -61,7 +60,10 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
 
     useEffect(() => {
         if (state.immediateEffects.length > 0) {
-            state.immediateEffects.forEach(effect => {
+            const effectsToPlay = [...state.immediateEffects];
+            const effectIdsToRemove = effectsToPlay.map(effect => effect.id);
+
+            effectsToPlay.forEach(effect => {
                 if (effect.vfx && effect.position) {
                     const vfxItems = Array.isArray(effect.vfx) ? effect.vfx : [effect.vfx];
                     vfxItems.forEach(v => {
@@ -75,7 +77,7 @@ export const useGameEngine = (worldCanvasHandle: React.RefObject<WorldCanvasHand
                     sfxManager.current.playSound(effect.sfx.key, effect.sfx.channel, effect.sfx.position);
                 }
             });
-            dispatch({ type: 'CLEAR_IMMEDIATE_EFFECTS' });
+            dispatch({ type: 'REMOVE_IMMEDIATE_EFFECTS', payload: effectIdsToRemove });
         }
     }, [state.immediateEffects, dispatch, vfxManager, sfxManager]);
 

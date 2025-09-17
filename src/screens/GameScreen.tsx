@@ -234,7 +234,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine, worldCanvasHandle }) =>
             if (readyCheckInterval) clearInterval(readyCheckInterval);
             if (tl) tl.kill();
         };
-    }, [gamePhase, isIntroComplete, gameSessionId, sfxManager, currentWorld, completeIntro, engine.initialCameraTarget, playerArchetypeKey, playerLegacyKey]);
+    }, [gamePhase, isIntroComplete, gameSessionId, sfxManager, currentWorld, completeIntro, engine.initialCameraTarget, playerArchetypeKey, playerLegacyKey, worldCanvasHandle]);
     
     
     useEffect(() => {
@@ -816,7 +816,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine, worldCanvasHandle }) =>
                 <WorldCanvas
                     ref={worldCanvasHandle}
                     sfxManager={sfxManager}
-                    effectQueue={engine.effectQueue}
+                    
                     vfxManager={engine.vfxManager}
                     convertLatLonToVector3={convertLatLonToVector3}
                     highlightBorderMeshes={highlightBorderMeshes}

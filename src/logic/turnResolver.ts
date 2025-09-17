@@ -4,7 +4,7 @@
   orders, battles), and posts the new state back to the main thread.
 */
 
-import { Enclave, PendingOrders, EffectQueueItem, ActiveEffectMarker, Route, MapCell, ActiveEffect, EffectProfile, GameConfig, GameState } from '@/types/game.ts';
+import { Enclave, PendingOrders, EffectQueueItem, ActiveEffectMarker, Route, MapCell, ActiveEffect, EffectProfile, GameConfig, GameState, TurnEvent } from '@/types/game.ts';
 import { resolveHolding } from '@/logic/holdResolver';
 import { resolveAssists } from '@/logic/assistResolver';
 import { resolveAttacks } from '@/logic/attackResolver';
@@ -51,6 +51,7 @@ export const queueEffectAssets = (
     if (vfxKey || sfxKey) {
         effectsToPlay.push({
             id: `eff-${profile.key}-${phase}-vfx-sfx-${position.x}-${position.y}-${position.z}-${Date.now()}`,
+            playMode: 'pending',
             vfx: vfxKey ? [vfxKey] : undefined,
             sfx: sfxKey ? { key: sfxKey, channel: 'fx', position: position } : undefined,
             position: position,
@@ -60,6 +61,7 @@ export const queueEffectAssets = (
     if (selectedAlertDialogKey) {
         effectsToPlay.push({
             id: `eff-${profile.key}-${phase}-dialog-${position.x}-${position.y}-${position.z}-${Date.now()}`,
+            playMode: 'pending',
             sfx: { key: selectedAlertDialogKey, channel: 'dialog', position: position },
             position: position,
         });
@@ -126,6 +128,7 @@ export const processEffectMarkers = (
             // Push the side effect directly to effectsToPlay for the main thread to handle VFX/SFX
             effectsToPlay.push({
                 id: `vfx-sfx-${Date.now()}-${Math.random()}`,
+                playMode: 'pending',
                 vfx: sideEffect.vfxKey ? [sideEffect.vfxKey] : undefined,
                 sfx: sideEffect.sfx,
                 position: sideEffect.position,

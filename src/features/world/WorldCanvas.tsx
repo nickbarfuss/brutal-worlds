@@ -7,7 +7,7 @@ import { PLAYER_THREE_COLORS } from '@/data/theme';
 import { useWorldGeometry } from '@/hooks/useWorldGeometry';
 import { useCommandZone } from '@/hooks/useCommandZone';
 import { useWorldRenderer } from '@/hooks/useWorldRenderer';
-import { ActiveHighlight, SemanticColorPalette, GameState, MaterialProperties, MapCell, Enclave, Route, PendingOrders, ActiveEffectMarker, WorldProfile, Vector3, Domain, Rift, Expanse, IntroPhase, GamePhase, EffectQueueItem } from '@/types/game';
+import { ActiveHighlight, SemanticColorPalette, GameState, MaterialProperties, MapCell, Enclave, Route, PendingOrders, ActiveEffectMarker, WorldProfile, Vector3, Domain, Rift, Expanse, IntroPhase, GamePhase } from '@/types/game';
 import { SfxManager } from '@/logic/SfxManager';
 import { Action } from '@/logic/reducers';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
@@ -29,7 +29,7 @@ export interface WorldCanvasHandle {
 interface WorldCanvasProps {
     dispatch: React.Dispatch<Action>;
     sfxManager: SfxManager;
-    effectQueue: EffectQueueItem[];
+    
     vfxManager: VfxManager;
     convertLatLonToVector3: (lat: number, lon: number) => THREE.Vector3;
     highlightBorderMeshes: Line2[];
