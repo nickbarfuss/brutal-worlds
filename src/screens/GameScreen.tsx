@@ -13,7 +13,7 @@ import { EVENT_PROFILES } from '@/data/events';
 import { ARCHETYPES } from '@/data/archetypes';
 import { BIRTHRIGHTS } from '@/data/birthrights';
 import { ICONS } from '@/data/icons';
-import { getDomainOwner } from '@/logic/domains/domainLogic';
+import { getDomainOwner } from '@/logic/domains';
 import TurnDisplay from '@/components/features/display/TurnDisplay';
 import WorldDisplay from '@/components/features/display/WorldDisplay';
 import { PLAYER_THREE_COLORS, THEME_CONFIG } from '@/data/theme';
@@ -23,7 +23,7 @@ import Backdrop from '@/components/ui/Backdrop';
 import LegendDisplay from '@/components/features/display/LegendDisplay';
 import VignetteOverlay from '@/components/ui/VignetteOverlay';
 import { getAppliedModifiers } from '@/logic/events/eventProcessor';
-import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrights/birthrightManager';
+import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrights';
 import CustomCursor from '@/components/ui/CustomCursor';
 import SettingsDrawer from '@/components/features/settings/SettingsDrawer';
 import SurrenderConfirmDialog from '@/components/features/surrender/SurrenderConfirmDialog';
@@ -248,7 +248,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         return () => document.body.classList.remove('hide-cursor');
     }, [engine.isResolvingTurn]);
 
-    const { activeHighlight, convertLatLonToVector3, highlightBorderMeshes, highlightBorderMaterials, highlightBorderOpacity, permanentBorderMeshes, permanentBorderMaterials } = useWorldHighlights({
+    const { activeHighlight, convertLatLonToVector3, highlightBorderMeshes, highlightBorderMaterials, highlightBorderOpacity, permanentBorderMeshes } = useWorldHighlights({
         mapData: engine.mapData,
         enclaveData: engine.enclaveData,
         domainData: engine.domainData,
@@ -825,7 +825,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     activeHighlight={activeHighlight}
                     highlightBorderOpacity={highlightBorderOpacity}
                     permanentBorderMeshes={permanentBorderMeshes}
-                    permanentBorderMaterials={permanentBorderMaterials}
+                    permanentBorderMaterials={highlightBorderMaterials}
                     gameSessionId={engine.gameSessionId}
                     mapData={engine.mapData}
                     domainData={engine.domainData}

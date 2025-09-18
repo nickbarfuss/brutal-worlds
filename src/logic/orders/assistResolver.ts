@@ -1,7 +1,7 @@
 import { Enclave, PendingOrders, Order, TurnEvent } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
-import { getAssistMultiplierForEnclave } from '@/logic/birthrights/birthrightManager';
-import { cloneEnclave } from '@/logic/enclaves/cloneUtils';
+import { getAssistMultiplierForEnclave } from '@/logic/birthrights';
+import { cloneEnclave } from '@/logic/enclaves';
 
 export const resolveAssists = (
     currentEnclavesMap: Map<number, Enclave>,

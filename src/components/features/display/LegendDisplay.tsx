@@ -2,7 +2,7 @@
 import React from 'react';
 import { Owner, Enclave, Domain, Rift, Expanse, HighlightType, ActiveHighlight, WorldProfile } from '@/types/game';
 import { ICONS } from '@/data/icons';
-import { getDomainOwner } from '@/logic/domains/domainLogic';
+import { getDomainOwner } from '@/logic/domains';
 import { PLAYER_THREE_COLORS } from '@/data/theme';
 import ChipGroup from '@/components/ui/ChipGroup';
 

@@ -5,7 +5,7 @@ import { MapCell, Owner, ActiveHighlight, Enclave, Rift, WorldProfile, Expanse, 
 import { useHighlightZone } from '@/hooks/useHighlightZone';
 import { convertLatLonToVector3 as convertLatLonToVector3Util } from '@/utils/geo';
 import { PLAYER_THREE_COLORS } from '@/data/theme';
-import { getDomainOwner } from '@/logic/domains/domainLogic';
+import { getDomainOwner } from '@/logic/domains';
 
 interface UseWorldHighlightsProps {
     mapData: MapCell[];

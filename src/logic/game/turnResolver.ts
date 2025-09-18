@@ -5,13 +5,11 @@
 */
 
 import { Enclave, PendingOrders, EventQueueItem, ActiveEventMarker, Route, MapCell, ActiveEvent, EventProfile, GameConfig, GameState, TurnEvent } from '@/types/game.ts';
-import { resolveHolding } from '@/logic/orders/holdResolver';
-import { resolveAssists } from '@/logic/orders/assistResolver';
-import { resolveAttacks } from '@/logic/orders/attackResolver';
+import { resolveHolding, resolveAssists, resolveAttacks } from '@/logic/orders';
 import * as THREE from 'three';
 import { EVENT_PROFILES } from '@/data/events';
 import { applyContinuousEffects } from '@/logic/events/eventProcessor';
-import { cloneEnclave } from '@/logic/enclaves/cloneUtils';
+import { cloneEnclave } from '@/logic/enclaves';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
 import * as entropyWindHandler from '@/logic/disasters/entropyWind';
 import { getRandomAssetKey } from '@/utils/assetUtils';

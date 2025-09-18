@@ -8,8 +8,8 @@ import { useGameInitializer } from '@/hooks/useGameInitializer';
 import { useGameLoop } from '@/hooks/useGameLoop';
 import { reducer, initialState, Action } from '@/logic/reducers';
 import { deserializeResolvedTurn, serializeGameStateForWorker } from '@/utils/threeUtils';
-import { calculateAIOrderChanges } from '@/logic/ai/ai';
-import { getAssistMultiplierForEnclave } from '@/logic/birthrights/birthrightManager';
+import { calculateAIOrderChanges } from '@/logic/ai';
+import { getAssistMultiplierForEnclave } from '@/logic/birthrights';
 import { useConnection } from '@/hooks/useConnection';
 
 

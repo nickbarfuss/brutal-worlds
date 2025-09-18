@@ -1,6 +1,6 @@
 import { Enclave, ActiveDisasterMarker, ActiveEvent, DisasterProfile, Route, EventQueueItem, MapCell } from '@/types/game';
 import { applyInstantaneousRules } from '@/logic/events/eventProcessor';
-import { queueEventAssets } from '@/logic/game/turnResolver';
+import { queueEventAssets } from '@/logic/game';
 
 const resolveNumericRange = (value: number | [number, number]): number => {
     if (Array.isArray(value)) {

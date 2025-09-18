@@ -3,7 +3,7 @@ import { Domain, Enclave, WorldProfile, Owner } from '@/types/game';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { ICONS } from '@/data/icons';
-import { getDomainOwner } from '@/logic/domains/domainLogic';
+import { getDomainOwner } from '@/logic/domains';
 import { PLAYER_THREE_COLORS } from '@/data/theme';
 
 interface DomainInspectorProps {

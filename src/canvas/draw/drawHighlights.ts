@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { ActiveHighlight, Owner, WorldProfile, GameState } from '@/types/game';
 import { getPaletteForOwner, getScreenPosition } from '@/canvas/draw/drawUtils';
 import { ICONS } from '@/data/icons';
-import { getDomainOwner } from '@/logic/domains/domainLogic';
+import { getDomainOwner } from '@/logic/domains';
 
 const canvasStyles = {
     enclaveMarker: { radius: 14 },

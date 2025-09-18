@@ -1,8 +1,8 @@
 import { Enclave, PendingOrders, Player, Order, TurnEvent, Rule, GameState, Route } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
 import { getAppliedModifiers } from '@/logic/events/eventProcessor.ts';
-import { getAttackBonusForEnclave } from '@/logic/birthrights/birthrightManager';
-import { cloneEnclave } from '@/logic/enclaves/cloneUtils';
+import { getAttackBonusForEnclave } from '@/logic/birthrights';
+import { cloneEnclave } from '@/logic/enclaves';
 import { EVENT_PROFILES } from '@/data/events.ts';
 
 interface Attack {
