@@ -36,6 +36,7 @@ import {
 } from '@/canvas/shaderUtils';
 import { createStarfield } from '@/canvas/starfieldUtils';
 import { SfxManager, VfxManager } from '@/logic/effects';
+import { turnBasedEffectsProcessor } from '@/logic/effects/turnBasedEffects';
 
 declare const gsap: any;
 
@@ -692,6 +693,8 @@ export const useWorldRenderer = (props: MapRendererProps) => {
       } else if (state.focusAnimationState) {
         camera.lookAt(0, 0, 0);
       }
+
+      turnBasedEffectsProcessor.processQueues();
 
       mapContainer.updateMatrixWorld(true);
 

@@ -1,8 +1,8 @@
 import { useCallback, useRef, useEffect, useReducer } from 'react';
 import {
-    Enclave, PendingOrders, GamePhase, GameState, ActiveHighlight, AudioChannel, MaterialProperties, Order, PlayerIdentifier, InspectedMapEntity, Vector3
+    Enclave, PendingOrders, GamePhase, GameState, ActiveHighlight, AudioChannel, MaterialProperties, Order, PlayerIdentifier, InspectedMapEntity, Vector3, ConquestEvent
 } from '@/types/game';
-import { SfxManager, VfxManager } from '@/logic/effects';
+import { sfxManager, vfxManager, turnBasedEffectsProcessor } from '@/logic/effects';
 import { useGameInitializer } from '@/hooks/useGameInitializer';
 import { useGameLoop } from '@/hooks/useGameLoop';
 import { reducer, initialState, Action } from '@/logic';
@@ -10,6 +10,7 @@ import { deserializeResolvedTurn, serializeGameStateForWorker } from '@/utils/th
 import { calculateAIOrderChanges } from '@/logic/ai';
 import { getAssistMultiplierForEnclave } from '@/logic/birthrights';
 import { useConnection } from '@/hooks/useConnection';
+import { selectConquestDialog } from '@/logic/dialog';
 
 
 const getInvalidPlayerAssistOrders = (
@@ -37,10 +38,8 @@ const getInvalidPlayerAssistOrders = (
 
 export const useGameEngine = () => {
     const { setOnline } = useConnection();
-    const vfxManager = useRef(new VfxManager());
-    const sfxManager = useRef(new SfxManager());
-            const [state, dispatch] = useReducer(
-        (state: GameState, action: Action) => reducer(state, action, vfxManager.current, sfxManager.current),
+    const [state, dispatch] = useReducer(
+        (state: GameState, action: Action) => reducer(state, action, vfxManager, sfxManager),
         initialState
     );
     const workerRef = useRef<Worker | null>(null);
@@ -52,6 +51,31 @@ export const useGameEngine = () => {
     gamePhaseRef.current = state.gamePhase;
 
     const getState = useCallback(() => state, [state]);
+
+    useEffect(() => {
+        if (state.unprocessedTurnEvents) {
+            const conquestEvents = state.unprocessedTurnEvents.filter(e => e.type === 'conquest') as ConquestEvent[];
+            
+            // Clear queues and add new effects
+            turnBasedEffectsProcessor.clearQueues();
+            conquestEvents.forEach(event => {
+                const enclave = state.enclaveData[event.enclaveId];
+                if (enclave) {
+                    turnBasedEffectsProcessor.addEffectsForConquest(event, enclave.center);
+                }
+            });
+
+            // Handle dialog
+            const dialogToPlay = selectConquestDialog(conquestEvents, state);
+            if (dialogToPlay) {
+                sfxManager.playSound(dialogToPlay.dialogKey, 'dialog', dialogToPlay.position);
+                dispatch({ type: 'UPDATE_CONQUEST_DIALOG_STATE', payload: dialogToPlay.conqueror });
+            }
+
+            // Clear the processed events
+            dispatch({ type: 'CLEAR_UNPROCESSED_TURN_EVENTS' });
+        }
+    }, [state.unprocessedTurnEvents, state.enclaveData, dispatch]);
 
     const resolveTurn = useCallback(() => {
         const latestState = getState();
@@ -73,8 +97,6 @@ export const useGameEngine = () => {
             playerLegacyKey: latestState.playerLegacyKey,
             opponentArchetypeKey: latestState.opponentArchetypeKey,
             opponentLegacyKey: latestState.opponentLegacyKey,
-            playerHasHadFirstConquestDialog: latestState.playerHasHadFirstConquestDialog,
-            opponentHasHadFirstConquestDialog: latestState.opponentHasHadFirstConquestDialog,
         });
 
         workerRef.current.postMessage(JSON.stringify(serializableState));
@@ -91,11 +113,11 @@ export const useGameEngine = () => {
         if (eventsToPlay.length > 0) {
             eventsToPlay.forEach(event => {
                 if (event.sfx) {
-                    sfxManager.current.playSound(event.sfx.key, event.sfx.channel, event.sfx.position);
+                    sfxManager.playSound(event.sfx.key, event.sfx.channel, event.sfx.position);
                 }
                 if (event.vfx && event.position) {
                     event.vfx.forEach(vfxKey => {
-                        vfxManager.current.playImmediateEffect(vfxKey, event.position as Vector3);
+                        vfxManager.playImmediateEffect(vfxKey, event.position as Vector3);
                     });
                 }
             });
@@ -111,30 +133,30 @@ export const useGameEngine = () => {
 
     const setGamePhase = useCallback((phase: GamePhase) => dispatch({ type: 'SET_GAME_PHASE', payload: phase }), []);
     const startGame = useCallback((playerArchetypeKey: string, worldKey: string, playerLegacyKey: string, opponentArchetypeKey?: string, opponentLegacyKey?: string) => {
-        vfxManager.current.reset();
+        vfxManager.reset();
         dispatch({ type: 'START_GAME', payload: { playerArchetypeKey, worldKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey } });
     }, []);
 
     const completeIntro = useCallback(() => dispatch({ type: 'COMPLETE_INTRO' }), []);
 
     const resetGame = useCallback(() => {
-        sfxManager.current.reset();
+        sfxManager.reset();
         dispatch({ type: 'RESET_GAME' });
     }, []);
     const togglePause = useCallback(() => dispatch({ type: 'TOGGLE_PAUSE' }), []);
     const goToMainMenu = useCallback(() => {
-        sfxManager.current.reset();
+        sfxManager.reset();
         dispatch({ type: 'GO_TO_MAIN_MENU' });
     }, []);
 
     const handleUserInteraction = useCallback(async () => {
-        await sfxManager.current.handleUserInteraction();
-        if (sfxManager.current) {
+        await sfxManager.handleUserInteraction();
+        if (sfxManager) {
             const latestState = state; // Use state directly
             (Object.keys(latestState.volumes) as AudioChannel[]).forEach(channel => {
                 const isMuted = latestState.isGloballyMuted || latestState.mutedChannels[channel];
                 const volume = latestState.volumes[channel];
-                sfxManager.current.setVolume(channel, isMuted ? 0 : volume);
+                sfxManager.setVolume(channel, isMuted ? 0 : volume);
             });
         }
     }, [state]); // Add state to dependency array    
@@ -267,14 +289,14 @@ export const useGameEngine = () => {
         }
     }, [state.latestEvent, dispatch]);
     
-    useGameInitializer(vfxManager, sfxManager, startGame, setGamePhase, setInitializationState);
+    useGameInitializer(startGame, setGamePhase, setInitializationState);
     
     useEffect(() => {
-        if (sfxManager.current) {
+        if (sfxManager) {
             (Object.keys(state.volumes) as AudioChannel[]).forEach(channel => {
                 const isMuted = state.isGloballyMuted || state.mutedChannels[channel];
                 const volume = state.volumes[channel];
-                sfxManager.current.setVolume(channel, isMuted ? 0 : volume);
+                sfxManager.setVolume(channel, isMuted ? 0 : volume);
             });
         }
     }, [state.volumes, state.mutedChannels, state.isGloballyMuted]);
@@ -289,7 +311,7 @@ export const useGameEngine = () => {
     }, [state.isIntroComplete, state.gamePhase, state.currentTurn]);
 
     useEffect(() => {
-        const sfx = sfxManager.current;
+        const sfx = sfxManager;
         if (state.gamePhase === 'playing' && state.currentTurn >= 1 && !state.isPaused) {
             if (sfx.isReady() && !sfx.hasLoop('ambient')) {
                 sfx.playRandomLoop('ambient');
@@ -300,7 +322,7 @@ export const useGameEngine = () => {
     }, [state.gamePhase, state.currentTurn, state.isPaused]);
     
     useEffect(() => {
-        const musicManager = sfxManager.current;
+        const musicManager = sfxManager;
         const phase = state.gamePhase;
     
         const shouldPlayMusic = (
@@ -341,8 +363,8 @@ export const useGameEngine = () => {
     return {
         ...state,
         dispatch,
-        vfxManager: vfxManager.current,
-        sfxManager: sfxManager.current,
+        vfxManager,
+        sfxManager,
         setGamePhase,
         startGame,
         completeIntro,

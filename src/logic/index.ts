@@ -1,11 +1,11 @@
-import { GameState, GamePhase, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, PlayerIdentifier, InspectedMapEntity } from '@/types/game';
+import { GameState, GamePhase, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, PlayerIdentifier, InspectedMapEntity, TurnEvent } from '@/types/game';
 import { CONFIG } from '@/data/config';
 import { handleInitialization, handleGameFlow, handleTurnLogic } from '@/logic/game';
 import { handleMapInteraction } from '@/logic/map';
 import { handleEvents } from '@/logic/events';
 import { handleFx } from '@/logic/effects';
 import { handleUi } from '@/logic/ui'; 
-import { VfxManager } from '@/logic/effects';
+import { vfxManager, VfxManager } from '@/logic/effects';
 import { SfxManager } from '@/logic/effects';
 
 export type Action =
@@ -44,7 +44,9 @@ export type Action =
     | { type: 'SET_BLOOM_VALUE'; payload: { key: 'threshold' | 'strength' | 'radius'; value: number } }
     | { type: 'SET_MATERIAL_VALUE'; payload: { type: keyof GameState['materialSettings'], key: keyof MaterialProperties, value: number } }
     | { type: 'SET_AMBIENT_LIGHT_INTENSITY'; payload: number }
-    | { type: 'SET_TONEMAPPING_STRENGTH'; payload: number };
+    | { type: 'SET_TONEMAPPING_STRENGTH'; payload: number }
+    | { type: 'CLEAR_UNPROCESSED_TURN_EVENTS' }
+    | { type: 'UPDATE_CONQUEST_DIALOG_STATE'; payload: PlayerIdentifier };
 
 export const initialState: GameState = {
     mapData: [], enclaveData: {}, domainData: {}, riftData: {}, expanseData: {}, routes: [],
@@ -54,10 +56,7 @@ export const initialState: GameState = {
     loadingMessage: 'Initializing', currentWorld: null, gameConfig: CONFIG, gamePhase: 'loading',
     gameSessionId: 0,
     playerArchetypeKey: null, playerLegacyKey: null, playerLegacyIndex: null, opponentArchetypeKey: null, opponentLegacyKey: null, opponentLegacyIndex: null, 
-    playerHasHadFirstConquestDialog: false,
-    opponentHasHadFirstConquestDialog: false,
-    playerConquestsThisTurn: 0,
-    opponentConquestsThisTurn: 0,
+    conquestDialogState: {},
     playerGambits: [], opponentGambits: [],
     hoveredCellId: -1, selectedEnclaveId: null, 
     inspectedArchetypeOwner: null, inspectedMapEntity: null,
@@ -76,6 +75,7 @@ export const initialState: GameState = {
     materialSettings: CONFIG.VISUAL_DEFAULTS.materialSettings,
     ambientLightIntensity: CONFIG.VISUAL_DEFAULTS.ambientLightIntensity,
     tonemappingStrength: CONFIG.VISUAL_DEFAULTS.tonemappingStrength,
+    unprocessedTurnEvents: null,
 };
 
 export const reducer = (state: GameState, action: Action, vfxManager: VfxManager, sfxManager: SfxManager): GameState => {
@@ -120,6 +120,25 @@ export const reducer = (state: GameState, action: Action, vfxManager: VfxManager
         // VFX/SFX Logic
         case 'REMOVE_EVENTS_FROM_QUEUE':
             return handleFx(state, action);
+
+        case 'CLEAR_UNPROCESSED_TURN_EVENTS':
+            return {
+                ...state,
+                unprocessedTurnEvents: null,
+            };
+
+        case 'UPDATE_CONQUEST_DIALOG_STATE': {
+            const conqueror = action.payload;
+            const newConquestDialogState = { ...state.conquestDialogState };
+            if (!newConquestDialogState[conqueror]) {
+                newConquestDialogState[conqueror] = { hasHadFirstConquestDialog: false };
+            }
+            newConquestDialogState[conqueror].hasHadFirstConquestDialog = true;
+            return {
+                ...state,
+                conquestDialogState: newConquestDialogState,
+            };
+        }
 
         // UI Logic
         case 'SET_INSPECTED_ARCHETYPE_OWNER':

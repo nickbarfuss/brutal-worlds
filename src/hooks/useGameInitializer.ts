@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { SfxManager, VfxManager } from '@/logic/effects';
+import { useEffect } from 'react';
+import { sfxManager, vfxManager } from '@/logic/effects';
 import { GamePhase } from '@/types/game';
 import { getAssetUrl, extractAssetUrls } from '@/utils/assetUtils';
 import { ASSETS } from '@/data/assets';
@@ -72,8 +72,6 @@ const preloadAudio = (urls: string[]): Promise<void[]> => {
 
 
 export const useGameInitializer = (
-    vfxManager: React.RefObject<VfxManager>,
-    sfxManager: React.RefObject<SfxManager>,
     startGame: (
         playerArchetypeKey: string,
         worldKey: string,
@@ -106,10 +104,10 @@ export const useGameInitializer = (
                 await preloadAudio(assetUrls.audio);
 
                 updateMessage('Initializing VFX...');
-                await vfxManager.current?.init();
+                await vfxManager.init();
 
                 updateMessage('Initializing SFX...');
-                await sfxManager.current?.init();
+                await sfxManager.init();
 
                 updateMessage('Ready to begin.');
                 setGamePhase('mainMenu');
@@ -123,5 +121,5 @@ export const useGameInitializer = (
         };
 
         initialize();
-    }, [vfxManager, sfxManager, setGamePhase, setInitializationState]);
+    }, [setGamePhase, setInitializationState]);
 };

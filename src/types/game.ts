@@ -616,10 +616,11 @@ export interface GameState {
     opponentArchetypeKey: string | null;
     opponentLegacyKey: string | null;
     opponentLegacyIndex: number | null;
-    playerHasHadFirstConquestDialog: boolean;
-    opponentHasHadFirstConquestDialog: boolean;
-    playerConquestsThisTurn: number;
-    opponentConquestsThisTurn: number;
+    conquestDialogState: {
+      [playerId: string]: {
+        hasHadFirstConquestDialog: boolean;
+      };
+    };
     playerGambits: ActiveGambit[];
     opponentGambits: ActiveGambit[];
     hoveredCellId: number;
@@ -659,6 +660,7 @@ export interface GameState {
     inspectedArchetypeOwner: PlayerIdentifier | null;
     inspectedMapEntity: InspectedMapEntity | { type: 'world' } | null;
     worldInspectorManuallyClosed: boolean;
+    unprocessedTurnEvents: TurnEvent[] | null;
 }
 
 export interface ConquestEvent {

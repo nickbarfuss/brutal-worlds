@@ -31,7 +31,7 @@ import { getAssetUrl } from '@/utils/assetUtils';
 import { toCamelCase } from '@/utils/stringUtils';
 import WarpStarsCanvas from '@/features/background/WarpStarsCanvas';
 import ImmediateVfxPlayer from '@/features/effects/ImmediateVfxPlayer';
-
+import { turnBasedEffectsProcessor } from '@/logic/effects/turnBasedEffects';
 
 declare const gsap: any;
 
@@ -85,6 +85,12 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         gamePhase, isIntroComplete, completeIntro, sfxManager, currentWorld, 
         gameSessionId, playerArchetypeKey, playerLegacyKey, dispatch 
     } = engine;
+
+    useEffect(() => {
+        if (worldCanvasHandle.current && worldCanvasHandle.current.camera) {
+            turnBasedEffectsProcessor.setCamera(worldCanvasHandle.current.camera);
+        }
+    }, [worldCanvasHandle.current]);
 
     useEffect(() => {
         if (gamePhase !== 'playing' || isIntroComplete || typeof gsap === 'undefined' || !currentWorld) {
@@ -817,7 +823,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 <WorldCanvas
                     ref={worldCanvasHandle}
                     sfxManager={sfxManager}
-                    
+                    turnBasedEffectsProcessor={turnBasedEffectsProcessor}
                     vfxManager={engine.vfxManager}
                     convertLatLonToVector3={convertLatLonToVector3}
                     highlightBorderMeshes={highlightBorderMeshes}

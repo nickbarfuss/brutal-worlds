@@ -435,3 +435,5 @@ export class SfxManager {
         }
     }
 }
+
+export const sfxManager = new SfxManager();
