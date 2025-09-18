@@ -1,21 +1,21 @@
-import { ActiveEffectMarker, Enclave } from '@/types/game';
-import { EFFECT_PROFILES } from '@/data/effects';
+import { ActiveEventMarker, Enclave } from '@/types/game';
+import { EVENT_PROFILES } from '@/data/events';
 import { ICONS } from '@/data/icons';
 
 const canvasStyles = {
-    effectIcon: { radius: 12, iconFont: "16px 'Material Symbols Outlined'" },
+    eventIcon: { radius: 12, iconFont: "16px 'Material Symbols Outlined'" },
     baseMarker: { radius: 14 },
 };
 
-const drawEffectMarker = (ctx: CanvasRenderingContext2D, marker: ActiveEffectMarker, pos: { x: number; y: number }, clockTime: number) => {
+const drawEventMarker = (ctx: CanvasRenderingContext2D, marker: ActiveEventMarker, pos: { x: number; y: number }, clockTime: number) => {
     const style = canvasStyles.baseMarker;
-    const iconStyle = canvasStyles.effectIcon;
+    const iconStyle = canvasStyles.eventIcon;
     
-    const isCrisis = marker.effects.length > 1;
+    const isCrisis = marker.events.length > 1;
     let icon = ICONS.disaster; // Default crisis icon
 
     if (!isCrisis) {
-        const profile = EFFECT_PROFILES[marker.profileKey];
+        const profile = EVENT_PROFILES[marker.profileKey];
         if (profile) {
             icon = profile.ui.icon;
         }
@@ -54,28 +54,28 @@ const drawEffectMarker = (ctx: CanvasRenderingContext2D, marker: ActiveEffectMar
     ctx.restore();
 };
 
-interface DrawAllEffectsProps {
-    activeEffectMarkers: ActiveEffectMarker[];
-    effectMarkerScreenPositions: { [id: number]: { x: number; y: number; visible: boolean } };
+interface DrawAllEventMarkersProps {
+    activeEventMarkers: ActiveEventMarker[];
+    eventMarkerScreenPositions: { [id: number]: { x: number; y: number; visible: boolean } };
     clockTime: number;
     enclaveData: { [id: number]: Enclave };
 }
 
-export const drawAllEffectMarkers = (ctx: CanvasRenderingContext2D, props: DrawAllEffectsProps) => {
-    const { activeEffectMarkers, effectMarkerScreenPositions, clockTime, enclaveData } = props;
+export const drawAllEventMarkers = (ctx: CanvasRenderingContext2D, props: DrawAllEventMarkersProps) => {
+    const { activeEventMarkers, eventMarkerScreenPositions, clockTime, enclaveData } = props;
     
     const mainCellIdSet = new Set(Object.values(enclaveData).map(e => e.mainCellId));
 
-    (activeEffectMarkers || []).forEach((marker, i) => {
+    (activeEventMarkers || []).forEach((marker, i) => {
         // If a disaster site is on an enclave's main marker cell, do not draw it separately.
         // It will be attached as a chip to the enclave marker instead.
         if (mainCellIdSet.has(marker.cellId)) {
             return;
         }
 
-        const pos = effectMarkerScreenPositions[i];
+        const pos = eventMarkerScreenPositions[i];
         if (pos && pos.visible) {
-            drawEffectMarker(ctx, marker, pos, clockTime);
+            drawEventMarker(ctx, marker, pos, clockTime);
         }
     });
 };

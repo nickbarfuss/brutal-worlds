@@ -1,6 +1,6 @@
-import { Enclave, Route, ActiveDisasterMarker, EffectQueueItem, ActiveEffect, MapCell, GameState } from '@/types/game';
+import { Enclave, Route, ActiveDisasterMarker, EventQueueItem, ActiveEvent, MapCell, GameState } from '@/types/game';
 import { DISASTERS } from '@/data/disasters';
-import { applyContinuousEffects, applyInstantaneousRules } from '@/logic/effectProcessor';
+import { applyContinuousEffects, applyInstantaneousRules } from '@/logic/events/eventProcessor';
 import { cloneEnclave } from '@/logic/cloneUtils';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
 import * as entropyWindHandler from '@/logic/disasters/entropyWind';
@@ -14,7 +14,7 @@ export const processDisasterEffects = (
     initialEnclavesMap: Map<number, Enclave>,
     initialRoutes: Route[],
     currentMarkers: ActiveDisasterMarker[],
-    effectsToPlay: EffectQueueItem[],
+    effectsToPlay: EventQueueItem[],
     mapData: MapCell[],
 ) => {
     let workingEnclaves = new Map<number, Enclave>(initialEnclavesMap);
@@ -25,29 +25,29 @@ export const processDisasterEffects = (
     const allSideEffects: any[] = []; 
 
     for (const [id, enclave] of workingEnclaves.entries()) {
-        if (!enclave.activeEffects || enclave.activeEffects.length === 0) continue;
+        if (!enclave.activeEvents || enclave.activeEvents.length === 0) continue;
         
         let modifiedEnclave = cloneEnclave(enclave);
         let modifiedRoutes = workingRoutes;
 
-        for (let i = modifiedEnclave.activeEffects.length - 1; i >= 0; i--) {
-            const effect = modifiedEnclave.activeEffects[i];
-            const profile = DISASTERS[effect.profileKey];
+        for (let i = modifiedEnclave.activeEvents.length - 1; i >= 0; i--) {
+            const event = modifiedEnclave.activeEvents[i];
+            const profile = DISASTERS[event.profileKey];
             if (!profile) continue;
             
-            const handler = disasterHandlers[effect.profileKey] || disasterHandlers.default;
+            const handler = disasterHandlers[event.profileKey] || disasterHandlers.default;
             if (handler && handler.handleContinuous) {
-                const result = handler.handleContinuous(effect, profile, modifiedEnclave, workingEnclaves, modifiedRoutes, mapData);
+                const result = handler.handleContinuous(event, profile, modifiedEnclave, workingEnclaves, modifiedRoutes, mapData);
                 modifiedEnclave = result.enclave;
                 modifiedRoutes = result.newRoutes;
-                if (result.removeEffect) {
-                     modifiedEnclave.activeEffects.splice(i, 1);
+                if (result.removeEvent) {
+                     modifiedEnclave.activeEvents.splice(i, 1);
                 }
                 if (result.sideEffects) {
                     allSideEffects.push(...result.sideEffects);
                 }
             } else {
-                const continuousResult = applyContinuousEffects(modifiedEnclave, effect.rules, {} as GameState);
+                const continuousResult = applyContinuousEffects(modifiedEnclave, event.rules, {} as GameState);
                 modifiedEnclave = { ...modifiedEnclave, forces: modifiedEnclave.forces * continuousResult.combatModifier };
                 // Note: routes are not modified by applyContinuousEffects
             }
@@ -71,10 +71,10 @@ export const processDisasterEffects = (
                 const newEnclaveState = impactResult.enclave;
                 workingRoutes = impactResult.routes;
 
-                newEnclaveState.activeEffects.push(sideEffect.newEffect);
+                newEnclaveState.activeEvents.push(sideEffect.newEvent);
                 workingEnclaves.set(sideEffect.targetEnclaveId, newEnclaveState);
-                if (sideEffect.effectToPlay) {
-                    effectsToPlay.push(sideEffect.effectToPlay);
+                if (sideEffect.eventToPlay) {
+                    effectsToPlay.push(sideEffect.eventToPlay);
                 }
             }
         }
@@ -82,7 +82,7 @@ export const processDisasterEffects = (
     
     // --- STEP 2: PROCESS MARKERS AND PHASE TRANSITIONS ---
     const remainingDisasterMarkers: ActiveDisasterMarker[] = [];
-    const effectsToAdd: { enclaveId: number, effect: ActiveEffect }[] = [];
+    const eventsToAdd: { enclaveId: number, event: ActiveEvent }[] = [];
     
     currentMarkers.forEach(marker => {
         marker.durationInPhase--;
@@ -93,7 +93,7 @@ export const processDisasterEffects = (
             const handler = disasterHandlers[marker.profileKey] || disasterHandlers.default;
             if (handler && handler.processMarker) {
                 const result = handler.processMarker(marker, profile, workingEnclaves, workingRoutes, effectsToPlay, mapData);
-                result.effectsToAdd?.forEach((e: { enclaveId: number, effect: ActiveEffect }) => effectsToAdd.push(e));
+                result.eventsToAdd?.forEach((e: { enclaveId: number, event: ActiveEvent }) => eventsToAdd.push(e));
                 workingRoutes = result.newRoutes || workingRoutes;
             }
         } else {
@@ -102,31 +102,31 @@ export const processDisasterEffects = (
     });
     
     for (const enclave of workingEnclaves.values()) {
-        const remainingEffects: ActiveEffect[] = [];
-        for (const effect of enclave.activeEffects) {
-            effect.duration--;
-            if (effect.duration > 0) {
-                remainingEffects.push(effect);
+        const remainingEvents: ActiveEvent[] = [];
+        for (const event of enclave.activeEvents) {
+            event.duration--;
+            if (event.duration > 0) {
+                remainingEvents.push(event);
             } else {
-                const profile = DISASTERS[effect.profileKey];
+                const profile = DISASTERS[event.profileKey];
                 if (!profile) continue;
                 
-                const handler = disasterHandlers[effect.profileKey] || disasterHandlers.default;
+                const handler = disasterHandlers[event.profileKey] || disasterHandlers.default;
                 if (handler && handler.processEffect) {
-                    const result = handler.processEffect(effect, profile, enclave, workingEnclaves, workingRoutes, effectsToPlay, mapData);
-                    result.effectsToAdd?.forEach((e: { enclaveId: number, effect: ActiveEffect }) => effectsToAdd.push(e));
+                    const result = handler.processEffect(event, profile, enclave, workingEnclaves, workingRoutes, effectsToPlay, mapData);
+                    result.eventsToAdd?.forEach((e: { enclaveId: number, event: ActiveEvent }) => eventsToAdd.push(e));
                     workingRoutes = result.newRoutes || workingRoutes;
                 }
             }
         }
-        enclave.activeEffects = remainingEffects;
+        enclave.activeEvents = remainingEvents;
     }
     
-    effectsToAdd.forEach(({ enclaveId, effect }) => {
+    eventsToAdd.forEach(({ enclaveId, event }) => {
         const enclave = workingEnclaves.get(enclaveId);
         if (enclave) {
             const newEnclave = cloneEnclave(enclave);
-            newEnclave.activeEffects.push(effect);
+            newEnclave.activeEvents.push(event);
             workingEnclaves.set(enclaveId, newEnclave);
         }
     });

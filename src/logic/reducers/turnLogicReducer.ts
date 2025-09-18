@@ -1,13 +1,13 @@
-import { GameState, Enclave, EffectQueueItem, TurnEvent, ConquestEvent } from '@/types/game';
+import { GameState, Enclave, EventQueueItem, TurnEvent, ConquestEvent } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
 import { v4 as uuidv4 } from 'uuid';
-import { EFFECT_PROFILES } from '@/data/effects';
-import { triggerNewEffect as triggerEffectLogic } from "@/logic/effectManager";
+import { EVENT_PROFILES } from '@/data/events';
+import { triggerNewEvent as triggerEventLogic } from "@/logic/events/eventManager";
 import { SfxManager } from '@/logic/effects/SfxManager';
 import { VfxManager } from '@/logic/effects/VfxManager';
 
-const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveData: { [id: number]: Enclave }): EffectQueueItem[] => {
-    const effects: EffectQueueItem[] = [];
+const mapEventsToEvents = (events: TurnEvent[], state: GameState, newEnclaveData: { [id: number]: Enclave }): EventQueueItem[] => {
+    const eventQueue: EventQueueItem[] = [];
 
     const conquestEvents = events.filter(e => e.type === 'conquest') as ConquestEvent[];
     const playerConquests = conquestEvents.filter(e => e.conqueror === 'player-1');
@@ -18,7 +18,7 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
         if (!state.playerHasHadFirstConquestDialog) {
             const event = playerConquests[0];
             const sfxKey = `archetype-${event.archetypeKey}-${event.legacyKey}-dialog-conquest`;
-            effects.push({
+            eventQueue.push({
                 id: uuidv4(),
                 playMode: 'pending',
                 sfx: { key: sfxKey, channel: 'dialog' },
@@ -27,7 +27,7 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
         } else if (Math.random() < state.gameConfig.CONQUEST_DIALOG_CHANCE) {
             const randomConquest = playerConquests[Math.floor(Math.random() * playerConquests.length)];
             const sfxKey = `archetype-${randomConquest.archetypeKey}-${randomConquest.legacyKey}-dialog-conquest`;
-            effects.push({
+            eventQueue.push({
                 id: uuidv4(),
                 playMode: 'pending',
                 sfx: { key: sfxKey, channel: 'dialog' },
@@ -41,7 +41,7 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
         if (!state.opponentHasHadFirstConquestDialog) {
             const event = opponentConquests[0];
             const sfxKey = `archetype-${event.archetypeKey}-${event.legacyKey}-dialog-conquest`;
-            effects.push({
+            eventQueue.push({
                 id: uuidv4(),
                 playMode: 'pending',
                 sfx: { key: sfxKey, channel: 'dialog' },
@@ -50,7 +50,7 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
         } else if (Math.random() < state.gameConfig.CONQUEST_DIALOG_CHANCE) {
             const randomConquest = opponentConquests[Math.floor(Math.random() * opponentConquests.length)];
             const sfxKey = `archetype-${randomConquest.archetypeKey}-${randomConquest.legacyKey}-dialog-conquest`;
-            effects.push({
+            eventQueue.push({
                 id: uuidv4(),
                 playMode: 'pending',
                 sfx: { key: sfxKey, channel: 'dialog' },
@@ -59,14 +59,14 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
         }
     }
 
-    // Generic Conquest Effects (VFX/SFX)
+    // Generic Conquest Events (VFX/SFX)
     conquestEvents.forEach(event => {
         const enclave = newEnclaveData[event.enclaveId];
         if (enclave) {
             const ownerKey = event.conqueror === 'player-1' ? 'player' : 'opponent';
             const sfxKey = `conquest-${ownerKey}-sfx`;
             const vfxKey = `conquest-${ownerKey}-vfx`;
-            effects.push({
+            eventQueue.push({
                 id: uuidv4(),
                 playMode: 'pending',
                 sfx: { key: sfxKey, channel: 'fx', position: enclave.center },
@@ -76,25 +76,25 @@ const mapEventsToEffects = (events: TurnEvent[], state: GameState, newEnclaveDat
         }
     });
 
-    return effects;
+    return eventQueue;
 };
 
 export const handleTurnLogic = (state: GameState, action: Action, vfxManager?: VfxManager, sfxManager?: SfxManager): GameState => {
     switch (action.type) {
         case 'START_FIRST_TURN': {
             const disasterConfig = state.gameConfig.DISASTER_TESTING;
-            const updates: Partial<GameState> & { effects?: EffectQueueItem[] } = {
+            const updates: Partial<GameState> & { events?: EventQueueItem[] } = {
                 currentTurn: 1,
                 isPaused: false,
             };
 
             if (disasterConfig?.enabled && disasterConfig.triggerOnTurn === 1) {
-                const disasterProfile = EFFECT_PROFILES[disasterConfig.disasterKey];
+                const disasterProfile = EVENT_PROFILES[disasterConfig.disasterKey];
                 if (!disasterProfile) {
                     console.error(`Disaster profile not found for key: ${disasterConfig.disasterKey}`);
                     return { ...state, ...updates };
                 }
-                const result = triggerEffectLogic(disasterProfile, {
+                const result = triggerEventLogic(disasterProfile, {
                     enclaveData: state.enclaveData,
                     domainData: state.domainData,
                     mapData: state.mapData,
@@ -103,8 +103,8 @@ export const handleTurnLogic = (state: GameState, action: Action, vfxManager?: V
                 });
 
                 if (result) {
-                    if (result.newMarkers) updates.activeEffectMarkers = [...state.activeEffectMarkers, ...result.newMarkers];
-                    if (result.snackbarData) updates.latestEffect = result.snackbarData;
+                    if (result.newMarkers) updates.activeEventMarkers = [...state.activeEventMarkers, ...result.newMarkers];
+                    if (result.snackbarData) updates.latestEvent = result.snackbarData;
                 }
             }
             return { ...state, ...updates };
@@ -132,8 +132,8 @@ export const handleTurnLogic = (state: GameState, action: Action, vfxManager?: V
                 effectsToPlay, // From disasters
             } = action.payload;
             
-            const turnEffects = mapEventsToEffects(events, state, newEnclaveData);
-            const allEffects = [...turnEffects, ...(effectsToPlay || [])].map(effect => ({ ...effect, id: effect.id || uuidv4() }));
+            const turnEvents = mapEventsToEvents(events, state, newEnclaveData);
+            const allEvents = [...turnEvents, ...(effectsToPlay || [])].map(event => ({ ...event, id: event.id || uuidv4() }));
 
             const conquestEvents = events.filter((e: TurnEvent) => e.type === 'conquest');
             const playerConquestsThisTurn = conquestEvents.filter((e: any) => e.conqueror === 'player-1').length;
@@ -142,14 +142,14 @@ export const handleTurnLogic = (state: GameState, action: Action, vfxManager?: V
             const opponentHasHadFirstConquestDialog = state.opponentHasHadFirstConquestDialog || opponentConquestsThisTurn > 0;
 
             Object.values(newEnclaveData).forEach((enclave: Enclave) => {
-                if (enclave.activeEffects) {
-                    enclave.activeEffects.forEach(effect => {
-                         const profile = EFFECT_PROFILES[effect.profileKey];
+                if (enclave.activeEvents) {
+                    enclave.activeEvents.forEach(event => {
+                         const profile = EVENT_PROFILES[event.profileKey];
                          if (profile) {
-                            if (effect.phase === 'impact' && profile.logic.impact) {
-                                effect.rules = profile.logic.impact.rules;
-                            } else if (effect.phase === 'aftermath' && profile.logic.aftermath) {
-                                effect.rules = profile.logic.aftermath.rules;
+                            if (event.phase === 'impact' && profile.logic.impact) {
+                                event.rules = profile.logic.impact.rules;
+                            } else if (event.phase === 'aftermath' && profile.logic.aftermath) {
+                                event.rules = profile.logic.aftermath.rules;
                             }
                          }
                     });
@@ -185,12 +185,12 @@ export const handleTurnLogic = (state: GameState, action: Action, vfxManager?: V
                 aiPendingOrders: newAiPendingOrders,
                 routes: newRoutes,
                 currentTurn: newCurrentTurn,
-                activeEffectMarkers: newEffectMarkers,
+                activeEventMarkers: newEffectMarkers,
                 gamePhase: gameOverState !== 'none' ? 'gameOver' : state.gamePhase,
                 gameOverState: gameOverState,
                 isPaused: gameOverState !== 'none' ? true : state.isPaused,
                 isResolvingTurn: false,
-                effects: [...state.effects, ...allEffects],
+                events: [...state.events, ...allEvents],
                 playerConquestsThisTurn,
                 opponentConquestsThisTurn,
                 playerHasHadFirstConquestDialog,
@@ -204,13 +204,13 @@ export const handleTurnLogic = (state: GameState, action: Action, vfxManager?: V
             const wasTestDisasterTurn = disasterConfig?.enabled && turnThatJustEnded === disasterConfig.triggerOnTurn;
 
             if (!wasTestDisasterTurn && world && turnThatJustEnded > 0 && world.disasterChance > 0 && Math.random() < world.disasterChance) {
-                if (world.possibleEffects && world.possibleEffects.length > 0) {
-                    const disasterKey = world.possibleEffects[Math.floor(Math.random() * world.possibleEffects.length)];
-                    const disasterProfile = EFFECT_PROFILES[disasterKey];
+                if (world.possibleEvents && world.possibleEvents.length > 0) {
+                    const disasterKey = world.possibleEvents[Math.floor(Math.random() * world.possibleEvents.length)];
+                    const disasterProfile = EVENT_PROFILES[disasterKey];
                     if (!disasterProfile) {
                         console.error(`Disaster profile not found for key: ${disasterKey}`);
                     } else {
-                        const disasterResult = triggerEffectLogic(disasterProfile, {
+                        const disasterResult = triggerEventLogic(disasterProfile, {
                             enclaveData: intermediateState.enclaveData,
                             domainData: intermediateState.domainData,
                             mapData: intermediateState.mapData,
@@ -219,8 +219,8 @@ export const handleTurnLogic = (state: GameState, action: Action, vfxManager?: V
                         });
 
                         if (disasterResult) {
-                            if (disasterResult.newMarkers) intermediateState.activeEffectMarkers.push(...disasterResult.newMarkers);
-                            if (disasterResult.snackbarData) intermediateState.latestEffect = disasterResult.snackbarData;
+                            if (disasterResult.newMarkers) intermediateState.activeEventMarkers.push(...disasterResult.newMarkers);
+                            if (disasterResult.snackbarData) intermediateState.latestEvent = disasterResult.snackbarData;
                         }
                     }
                 }
@@ -242,10 +242,10 @@ export const handleTurnLogic = (state: GameState, action: Action, vfxManager?: V
         
             if (ordersWereCancelled) {
                 const sfxKey = `order-hold-sfx`;
-                const effectsToQueue: EffectQueueItem[] = [];
+                const eventsToQueue: EventQueueItem[] = [];
                 const fromEnclave = state.enclaveData[ordersToCancel[0]]; 
                 if (fromEnclave) {
-                    effectsToQueue.push({
+                    eventsToQueue.push({
                         id: uuidv4(),
                         playMode: 'immediate',
                         sfx: { key: sfxKey, channel: 'fx', position: fromEnclave.center },

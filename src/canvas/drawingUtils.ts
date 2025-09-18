@@ -4,7 +4,7 @@ import { VfxManager } from '@/logic/effects/VfxManager';
 import { getScreenPosition } from '@/canvas/draw/drawUtils';
 import { drawAllEnclaves, drawSelectionPulse } from '@/canvas/draw/drawEnclaves';
 import { drawAllRoutes } from '@/canvas/draw/drawRoutes';
-import { drawAllEffectMarkers } from '@/canvas/draw/drawEffects';
+import { drawAllEventMarkers } from '@/canvas/draw/drawEventMarkers';
 import { drawHighlightLabels } from '@/canvas/draw/drawHighlights';
 
 export const drawUICanvas = (
@@ -19,7 +19,7 @@ export const drawUICanvas = (
 ) => {
     // FIX: The `gameState` object passed here is from renderer props and not a true GameState object.
     // It has a combined `pendingOrders` property. Cast to `any` to access it and prevent a type error.
-    const { enclaveData, routes, selectedEnclaveId, mapData, hoveredCellId, currentWorld, activeEffectMarkers } = gameState;
+    const { enclaveData, routes, selectedEnclaveId, mapData, hoveredCellId, currentWorld, activeEventMarkers } = gameState;
     const pendingOrders = (gameState as any).pendingOrders;
 
     const canvas = ctx.canvas;
@@ -38,16 +38,16 @@ export const drawUICanvas = (
         enclaveScreenPositions[enclave.id] = getScreenPosition(enclave.center, mapContainer, camera, canvas);
     });
 
-    const effectMarkerScreenPositions: { [id: number]: { x: number; y: number; visible: boolean } } = {};
-    (activeEffectMarkers || []).forEach((marker, i) => {
-        effectMarkerScreenPositions[i] = getScreenPosition(marker.position, mapContainer, camera, canvas);
+    const eventMarkerScreenPositions: { [id: number]: { x: number; y: number; visible: boolean } } = {};
+    (activeEventMarkers || []).forEach((marker, i) => {
+        eventMarkerScreenPositions[i] = getScreenPosition(marker.position, mapContainer, camera, canvas);
     });
 
     drawAllRoutes(ctx, { routes, enclaveData, pendingOrders, enclaveScreenPositions, selectedEnclaveId, hoveredCellId, mapData, currentWorld, clockTime });
 
     drawHighlightLabels(ctx, { activeHighlight, gameState, mapContainer, camera, canvas });
     
-    drawAllEffectMarkers(ctx, { activeEffectMarkers, effectMarkerScreenPositions, clockTime, enclaveData });
+    drawAllEventMarkers(ctx, { activeEventMarkers, eventMarkerScreenPositions, clockTime, enclaveData });
     
     // Draw selection pulse behind the selected enclave marker
     if (selectedEnclaveId !== null) {
@@ -57,7 +57,7 @@ export const drawUICanvas = (
         }
     }
     
-    drawAllEnclaves(ctx, { enclaveData, enclaveScreenPositions, selectedEnclaveId, hoveredCellId, mapData, currentWorld, routes, activeHighlight, clockTime, activeEffectMarkers });
+    drawAllEnclaves(ctx, { enclaveData, enclaveScreenPositions, selectedEnclaveId, hoveredCellId, mapData, currentWorld, routes, activeHighlight, clockTime, activeEventMarkers });
 
     ctx.restore();
 };

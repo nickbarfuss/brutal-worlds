@@ -1,14 +1,14 @@
 import React from 'react';
-import { Enclave, Domain, PendingOrders, WorldProfile, ActiveEffectMarker, Route, Owner, Order } from '@/types/game';
+import { Enclave, Domain, PendingOrders, WorldProfile, ActiveEventMarker, Route, Owner, Order } from '@/types/game';
 import { ORDER_PROFILES } from '@/data/orders';
 import { PLAYER_THREE_COLORS, THEME_CONFIG } from '@/data/theme';
-import { EFFECT_PROFILES } from '@/data/effects';
+import { EVENT_PROFILES } from '@/data/events';
 import { BIRTHRIGHTS } from '@/data/birthrights';
 import { ARCHETYPES } from '@/data/archetypes';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { ICONS } from '@/data/icons';
-import { getAppliedModifiers } from '@/logic/effectProcessor';
+import { getAppliedModifiers } from '@/logic/events/eventProcessor';
 import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrightManager';
 import { calculateEnclaveTurnPreview, TurnPreview } from '@/logic/previewManager'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { getAssetUrl } from '@/utils/assetUtils';
@@ -21,7 +21,7 @@ interface EnclaveInspectorProps {
     pendingOrders: PendingOrders;
     routes: Route[];
     currentWorld: WorldProfile | null;
-    activeEffectMarkers: ActiveEffectMarker[];
+    activeEventMarkers: ActiveEventMarker[];
     isSelected: boolean;
     isConfirming: boolean;
     gameConfig: typeof GameConfig;
@@ -42,19 +42,19 @@ const getPaletteForOwner = (owner: Owner, worldProfile: WorldProfile | null) => 
 };
 
 const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
-    enclave, enclaveData, domainData, pendingOrders, routes, currentWorld, activeEffectMarkers,
+    enclave, enclaveData, domainData, pendingOrders, routes, currentWorld, activeEventMarkers,
     isSelected, isConfirming, onFocusEnclave, gameConfig,
     onPointerMove, onPointerLeave
 }) => {
     
     const palette = getPaletteForOwner(enclave.owner, currentWorld);
-    const gameState = { enclaveData, domainData, routes, currentWorld, activeEffectMarkers, pendingOrders, gameConfig };
+    const gameState = { enclaveData, domainData, routes, currentWorld, activeEventMarkers, pendingOrders, gameConfig };
 
     const outgoingOrder = pendingOrders[enclave.id];
     const incomingOrders = (Object.entries(pendingOrders) as [string, Order][]).filter(([, order]) => order.to === enclave.id);
     
     // FIX: Check marker metadata for targetEnclaveIds.
-    const effectMarkers = (activeEffectMarkers || []).filter(m => m.metadata && m.metadata.targetEnclaveIds && m.metadata.targetEnclaveIds.includes(enclave.id));
+    const eventMarkers = (activeEventMarkers || []).filter(m => m.metadata && m.metadata.targetEnclaveIds && m.metadata.targetEnclaveIds.includes(enclave.id));
     const affectedRoutes = routes.filter(r => 
         (r.from === enclave.id || r.to === enclave.id) && 
         (r.isDestroyed || r.disabledForTurns > 0)
@@ -64,10 +64,10 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
     const safeCurrentForces = Number.isFinite(enclave.forces) ? enclave.forces : 0;
 
     if (outgoingOrder) {
-        const rules = enclave.activeEffects.flatMap(effect => {
-            const profile = EFFECT_PROFILES[effect.profileKey];
+        const rules = enclave.activeEvents.flatMap(event => {
+            const profile = EVENT_PROFILES[event.profileKey];
             if (!profile) return [];
-            const phaseLogic = profile.logic[effect.phase];
+            const phaseLogic = profile.logic[event.phase];
             return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
         });
         const { combatModifier } = getAppliedModifiers(enclave, rules, gameState as any);
@@ -81,10 +81,10 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
         }
     } else { // Holding
         if (enclave.owner) {
-            const rules = enclave.activeEffects.flatMap(effect => {
-                const profile = EFFECT_PROFILES[effect.profileKey];
+            const rules = enclave.activeEvents.flatMap(event => {
+                const profile = EVENT_PROFILES[event.profileKey];
                 if (!profile) return [];
-                const phaseLogic = profile.logic[effect.phase];
+                const phaseLogic = profile.logic[event.phase];
                 return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
             });
             const { productionModifier } = getAppliedModifiers(enclave, rules, gameState as any);
@@ -117,53 +117,53 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
         return null;
     }, [enclave.id, enclave.owner, routes, enclaveData, pendingOrders]);
     
-    const allEffects = React.useMemo(() => {
-        const effects: { id: string; category: string; component: React.ReactElement }[] = [];
+    const allEvents = React.useMemo(() => {
+        const events: { id: string; category: string; component: React.ReactElement }[] = [];
         
-        effectMarkers.forEach(marker => {
-            const profile = EFFECT_PROFILES[marker.profileKey];
+        eventMarkers.forEach(marker => {
+            const profile = EVENT_PROFILES[marker.profileKey];
             if (!profile) return;
-            effects.push({
+            events.push({
                 id: marker.id, category: 'Disaster',
                 // FIX: Get icon from profile, use durationInPhase from marker.
-                component: <ChipCard key={marker.id} icon={profile.ui.icon} iconColorClass="text-amber-400" baseValue={marker.durationInPhase} valueType="duration" briefingProps={{ type: 'effect', key: `effect-${enclave.id}-${marker.id}` }} title={profile.logic.alert.name} subtitle={profile.ui.name} />
+                component: <ChipCard key={marker.id} icon={profile.ui.icon} iconColorClass="text-amber-400" baseValue={marker.durationInPhase} valueType="duration" briefingProps={{ type: 'event', key: `event-${enclave.id}-${marker.id}` }} title={profile.logic.alert.name} subtitle={profile.ui.name} />
             });
         });
     
-        enclave.activeEffects.forEach(effect => {
-            const profile = EFFECT_PROFILES[effect.profileKey];
+        enclave.activeEvents.forEach(event => {
+            const profile = EVENT_PROFILES[event.profileKey];
             if (!profile) return;
-            const phaseName = effect.phase === 'alert' ? profile.logic.alert.name : (effect.phase === 'impact' ? profile.logic.impact.name : (profile.logic.aftermath ? profile.logic.aftermath.name : ''));
-            effects.push({
-                id: effect.id, category: 'Disaster',
-                // FIX: Property 'icon' does not exist on type 'ActiveEffect'. Get it from the profile.
-                component: <ChipCard key={effect.id} icon={profile.ui.icon} iconColorClass="text-amber-400" baseValue={effect.duration > 0 ? effect.duration : undefined} valueType="duration" briefingProps={{ type: 'effect', key: `effect-${enclave.id}-${effect.id}` }} title={phaseName} subtitle={profile.ui.name} />
+            const phaseName = event.phase === 'alert' ? profile.logic.alert.name : (event.phase === 'impact' ? profile.logic.impact.name : (event.phase === 'aftermath' ? profile.logic.aftermath.name : ''));
+            events.push({
+                id: event.id, category: 'Disaster',
+                // FIX: Property 'icon' does not exist on type 'ActiveEvent'. Get it from the profile.
+                component: <ChipCard key={event.id} icon={profile.ui.icon} iconColorClass="text-amber-400" baseValue={event.duration > 0 ? event.duration : undefined} valueType="duration" briefingProps={{ type: 'event', key: `event-${enclave.id}-${event.id}` }} title={phaseName} subtitle={profile.ui.name} />
             });
         });
     
         if (memeticResonanceSource) {
             const birthright = BIRTHRIGHTS['memeticResonance'];
             const ownerTheme = memeticResonanceSource.owner === 'player-1' ? THEME_CONFIG.player1 : THEME_CONFIG.player2;
-            effects.push({
+            events.push({
                 id: 'memeticResonance', category: 'Birthright',
                 component: <ChipCard key="memeticResonance" icon={birthright.icon} iconColorClass={`text-${ownerTheme}-400`} title={birthright.name} subtitle="Forces being drained" briefingProps={{ type: 'birthright', key: `memeticResonance-${memeticResonanceSource.owner}` }} />
             });
         }
     
-        return effects;
-    }, [enclave.id, enclave.activeEffects, effectMarkers, memeticResonanceSource]);
+        return events;
+    }, [enclave.id, enclave.activeEvents, eventMarkers, memeticResonanceSource]);
     
-    const effectsByCategory = React.useMemo(() => allEffects.reduce((acc, effect) => {
-        (acc[effect.category] = acc[effect.category] || []).push(effect.component);
+    const eventsByCategory = React.useMemo(() => allEvents.reduce((acc, event) => {
+        (acc[event.category] = acc[event.category] || []).push(event.component);
         return acc;
-    }, {} as Record<string, React.ReactElement[]>), [allEffects]);
+    }, {} as Record<string, React.ReactElement[]>), [allEvents]);
     
-    const effectCategories = Object.keys(effectsByCategory);
+    const eventCategories = Object.keys(eventsByCategory);
 
     const turnPreview = React.useMemo(() => {
         if (!currentWorld) return null;
-        return calculateEnclaveTurnPreview(enclave, enclaveData, pendingOrders, gameConfig, activeEffectMarkers, routes);
-    }, [enclave, enclaveData, pendingOrders, gameConfig, currentWorld, activeEffectMarkers, routes]);
+        return calculateEnclaveTurnPreview(enclave, enclaveData, pendingOrders, gameConfig, activeEventMarkers, routes);
+    }, [enclave, enclaveData, pendingOrders, gameConfig, currentWorld, activeEventMarkers, routes]);
 
     const renderFooter = () => {
         if (!turnPreview || turnPreview.status === 'unchanged') {
@@ -295,10 +295,10 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                       const currentFromEnclave = enclaveData[parseInt(fromId, 10)]; // Renamed variable
                       if (!currentFromEnclave) return null; // Use renamed variable
                       
-                      const rules = currentFromEnclave.activeEffects.flatMap(effect => {
-                        const profile = EFFECT_PROFILES[effect.profileKey];
+                      const rules = currentFromEnclave.activeEvents.flatMap(event => {
+                        const profile = EVENT_PROFILES[event.profileKey];
                         if (!profile) return [];
-                        const phaseLogic = profile.logic[effect.phase];
+                        const phaseLogic = profile.logic[event.phase];
                         return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
                       });
                       const { combatModifier } = getAppliedModifiers(currentFromEnclave, rules, gameState as any);
@@ -330,21 +330,21 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                       );
                    })}
                 </Card.Section>
-                <Card.Section title="Effects" hasContent={allEffects.length > 0}>
-                    {effectCategories.length > 1 ? (
+                <Card.Section title="Events" hasContent={allEvents.length > 0}>
+                    {eventCategories.length > 1 ? (
                         <div className="space-y-4">
-                            {effectCategories.map(category => (
+                            {eventCategories.map(category => (
                                 <div key={category}>
-                                    <h4 className="font-semibold text-neutral-400 mb-2 px-1">{category} Effects</h4>
+                                    <h4 className="font-semibold text-neutral-400 mb-2 px-1">{category} Events</h4>
                                     <div className="space-y-2">
-                                        {effectsByCategory[category]}
+                                        {eventsByCategory[category]}
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            {allEffects.map(effect => effect.component)}
+                            {allEvents.map(event => event.component)}
                         </div>
                     )}
                 </Card.Section>

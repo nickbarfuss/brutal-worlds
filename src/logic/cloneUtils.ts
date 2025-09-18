@@ -12,7 +12,7 @@ export const cloneEnclave = (enclave: Enclave): Enclave => {
         ...enclave,
         // Vector3 objects must be explicitly cloned to preserve their methods.
         center: enclave.center.clone(),
-        // Shallow copy of the effects array is sufficient as the objects within are not deeply nested.
-        activeEffects: (enclave.activeEffects || []).map(effect => ({ ...effect })),
+        // Shallow copy of the events array is sufficient as the objects within are not deeply nested.
+        activeEvents: (enclave.activeEvents || []).map(event => ({ ...event })),
     };
 };

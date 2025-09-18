@@ -204,7 +204,7 @@ export interface EffectLogic {
     aftermath?: EffectPhase;
 }
 
-export interface EffectProfile {
+export interface EventProfile {
     key: string;
     ui: EffectUI;
     logic: EffectLogic;
@@ -224,11 +224,11 @@ export interface GambitLogic extends EffectLogic {
     legacyKey?: string;
 }
 
-export interface GambitProfile extends EffectProfile {
+export interface GambitProfile extends EventProfile {
     logic: GambitLogic; // Override logic to be GambitLogic
 }
 
-export interface DisasterProfile extends EffectProfile {}
+export interface DisasterProfile extends EventProfile {}
 export type DisasterRule = Rule;
 
 export type { Vector3 };
@@ -302,7 +302,7 @@ export interface WorldProfile {
     expanses: string[];
   };
   possibleDisasters?: string[];
-  possibleEffects?: string[];
+  possibleEvents?: string[];
   disasterChance: number;
   bloom?: {
     threshold: number;
@@ -409,7 +409,7 @@ export interface ScreenPosition {
 export type GamePhase = 'loading' | 'mainMenu' | 'archetypeSelection' | 'playing' | 'gameOver';
 export type GameOverState = 'none' | 'victory' | 'defeat';
 
-export type MapEntityType = 'enclave' | 'rift' | 'expanse' | 'domain' | 'effect';
+export type MapEntityType = 'enclave' | 'rift' | 'expanse' | 'domain' | 'event';
 export type InspectedMapEntity = { type: MapEntityType; id: number | string };
 
 export type InspectedEntity = 
@@ -441,7 +441,7 @@ export interface Enclave {
   center: Vector3;
   domainId: number;
   mainCellId: number;
-  activeEffects: ActiveEffect[];
+  activeEvents: ActiveEvent[];
   archetypeKey?: string;
   imageUrl: string;
   vfxToPlayThisTurn?: { key: string; center: Vector3 }[];
@@ -492,8 +492,8 @@ export interface PendingOrders {
   [fromId: number]: Order;
 }
 
-// Disasters & Effects (Stateful parts)
-export interface ActiveEffect {
+// Disasters & Events (Stateful parts)
+export interface ActiveEvent {
   id: string;
   profileKey: string;
   duration: number;
@@ -503,7 +503,7 @@ export interface ActiveEffect {
   metadata?: any;
 }
 
-export interface ActiveEffectMarker {
+export interface ActiveEventMarker {
   id: string;
   profileKey: string;
   cellId: number;
@@ -512,14 +512,14 @@ export interface ActiveEffectMarker {
   durationInPhase: number;
   radius: number;
   movement: number;
-  effects: string[];
+  events: string[];
   metadata?: {
     targetEnclaveIds?: number[];
     [key: string]: any;
   };
 }
 
-export interface ActiveDisasterMarker extends ActiveEffectMarker {
+export interface ActiveDisasterMarker extends ActiveEventMarker {
   disasterKey: string;
 }
 
@@ -541,8 +541,8 @@ export interface ActiveGambit {
     remainingDuration?: number;
 }
 
-export interface EffectQueueItem {
-    id: string;
+export interface EventQueueItem {
+    id:string;
     playMode: 'immediate' | 'pending';
     position: Vector3;
     sfx?: SfxPlayback;
@@ -550,7 +550,7 @@ export interface EffectQueueItem {
 }
 
 // Briefing
-export type BriefingType = 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker' | 'disasterProfile' | 'disasterMarker';
+export type BriefingType = 'order' | 'event' | 'route' | 'domain' | 'eventProfile' | 'birthright' | 'eventMarker' | 'disasterProfile' | 'disasterMarker';
 
 export interface BriefingState {
     content: BriefingContent;
@@ -603,8 +603,8 @@ export interface GameState {
     currentTurn: number;
     playerPendingOrders: PendingOrders;
     aiPendingOrders: PendingOrders;
-    latestEffect: { profile: EffectProfile; locationName: string } | null;
-    activeEffectMarkers: ActiveEffectMarker[];
+    latestEvent: { profile: EventProfile; locationName: string } | null;
+    activeEventMarkers: ActiveEventMarker[];
     loadingMessage: string;
     currentWorld: WorldProfile | null;
     gameConfig: GameConfig;
@@ -634,7 +634,7 @@ export interface GameState {
     isPaused: boolean;
     initialCameraTarget: Vector3 | null;
     activeHighlight: ActiveHighlight | null;
-    effects: EffectQueueItem[];
+    events: EventQueueItem[];
     isSettingsOpen: boolean;
     isResolvingTurn: boolean;
     gameOverState: GameOverState;

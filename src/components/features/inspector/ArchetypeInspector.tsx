@@ -13,9 +13,11 @@ interface ArchetypeInspectorProps {
   archetypeKey: string | null;
   legacyKey: string | null;
   onClose: () => void;
+  onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
+  onPointerLeave: (e: React.PointerEvent<HTMLDivElement>) => void;
 }
 
-const ArchetypeInspector: React.FC<ArchetypeInspectorProps> = ({ owner, archetypeKey, legacyKey, onClose }) => {
+const ArchetypeInspector: React.FC<ArchetypeInspectorProps> = ({ owner, archetypeKey, legacyKey, onClose, onPointerMove, onPointerLeave }) => {
   const isPlayer1 = owner === 'player-1';
   const archetype = archetypeKey ? ARCHETYPES[archetypeKey] : null;
   const legacy = archetype && legacyKey && archetype.legacies ? (archetype.legacies as any)[legacyKey] : null;
@@ -48,7 +50,7 @@ const ArchetypeInspector: React.FC<ArchetypeInspectorProps> = ({ owner, archetyp
             onClose={onClose}
           />
       </div>
-      <div className="flex-grow overflow-y-auto no-scrollbar">
+      <div className="flex-grow overflow-y-auto no-scrollbar" onPointerMove={onPointerMove} onPointerLeave={onPointerLeave}>
         {legacyVideo && (
           <div className="w-full aspect-video bg-black flex-shrink-0">
               <video

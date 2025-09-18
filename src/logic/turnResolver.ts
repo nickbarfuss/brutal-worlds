@@ -4,13 +4,13 @@
   orders, battles), and posts the new state back to the main thread.
 */
 
-import { Enclave, PendingOrders, EffectQueueItem, ActiveEffectMarker, Route, MapCell, ActiveEffect, EffectProfile, GameConfig, GameState, TurnEvent } from '@/types/game.ts';
+import { Enclave, PendingOrders, EventQueueItem, ActiveEventMarker, Route, MapCell, ActiveEvent, EventProfile, GameConfig, GameState, TurnEvent } from '@/types/game.ts';
 import { resolveHolding } from '@/logic/orders/holdResolver';
 import { resolveAssists } from '@/logic/orders/assistResolver';
 import { resolveAttacks } from '@/logic/orders/attackResolver';
 import * as THREE from 'three';
-import { EFFECT_PROFILES } from '@/data/effects';
-import { applyContinuousEffects } from '@/logic/effectProcessor';
+import { EVENT_PROFILES } from '@/data/events';
+import { applyContinuousEffects } from '@/logic/events/eventProcessor';
 import { cloneEnclave } from '@/logic/cloneUtils';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
 import * as entropyWindHandler from '@/logic/disasters/entropyWind';
@@ -25,16 +25,16 @@ const resolveNumericRange = (value: number | [number, number]): number => {
     return value;
 };
 
-const effectHandlers: { [key: string]: any } = {
+const eventHandlers: { [key: string]: any } = {
     default: defaultHandler,
     'entropy-wind': entropyWindHandler,
 };
 
-export const queueEffectAssets = (
-    profile: EffectProfile,
+export const queueEventAssets = (
+    profile: EventProfile,
     phase: 'alert' | 'impact' | 'aftermath',
     position: THREE.Vector3,
-    effectsToPlay: EffectQueueItem[]
+    eventsToPlay: EventQueueItem[]
 ) => {
     const sfxAssets = profile.ui.assets.sfx?.[phase];
     const vfxAssets = profile.ui.assets.vfx?.[phase];
@@ -49,8 +49,8 @@ export const queueEffectAssets = (
     const selectedAlertDialogKey = dialogAssets ? getRandomAssetKey(dialogAssets.map(asset => asset.src)) : undefined;
 
     if (vfxKey || sfxKey) {
-        effectsToPlay.push({
-            id: `eff-${profile.key}-${phase}-vfx-sfx-${position.x}-${position.y}-${position.z}-${Date.now()}`,
+        eventsToPlay.push({
+            id: `evt-${profile.key}-${phase}-vfx-sfx-${position.x}-${position.y}-${position.z}-${Date.now()}`,
             playMode: 'pending',
             vfx: vfxKey ? [vfxKey] : undefined,
             sfx: sfxKey ? { key: sfxKey, channel: 'fx', position: position } : undefined,
@@ -59,8 +59,8 @@ export const queueEffectAssets = (
     }
 
     if (selectedAlertDialogKey) {
-        effectsToPlay.push({
-            id: `eff-${profile.key}-${phase}-dialog-${position.x}-${position.y}-${position.z}-${Date.now()}`,
+        eventsToPlay.push({
+            id: `evt-${profile.key}-${phase}-dialog-${position.x}-${position.y}-${position.z}-${Date.now()}`,
             playMode: 'pending',
             sfx: { key: selectedAlertDialogKey, channel: 'dialog', position: position },
             position: position,
@@ -68,11 +68,11 @@ export const queueEffectAssets = (
     }
 };
 
-export const processEffectMarkers = (
+export const processEventMarkers = (
     initialEnclavesMap: Map<number, Enclave>,
     initialRoutes: Route[],
-    currentMarkers: ActiveEffectMarker[],
-    effectsToPlay: EffectQueueItem[],
+    currentMarkers: ActiveEventMarker[],
+    eventsToPlay: EventQueueItem[],
     mapData: MapCell[],
 ) => {
     let workingEnclaves = new Map<number, Enclave>(initialEnclavesMap);
@@ -83,33 +83,33 @@ export const processEffectMarkers = (
     const allSideEffects: any[] = []; 
 
     for (const [id, enclave] of workingEnclaves.entries()) {
-        if (!enclave.activeEffects || enclave.activeEffects.length === 0) continue;
+        if (!enclave.activeEvents || enclave.activeEvents.length === 0) continue;
         
         let modifiedEnclave = cloneEnclave(enclave);
         let modifiedRoutes = workingRoutes;
 
-        for (let i = modifiedEnclave.activeEffects.length - 1; i >= 0; i--) {
-            const effect = modifiedEnclave.activeEffects[i];
-            const profile = EFFECT_PROFILES[effect.profileKey];
+        for (let i = modifiedEnclave.activeEvents.length - 1; i >= 0; i--) {
+            const event = modifiedEnclave.activeEvents[i];
+            const profile = EVENT_PROFILES[event.profileKey];
             if (!profile) continue;
             
-            const handler = effectHandlers[effect.profileKey] || effectHandlers.default;
+            const handler = eventHandlers[event.profileKey] || eventHandlers.default;
             if (handler && handler.handleContinuous) {
                 // Reset hasImpactedThisTurn flag for the new turn
-                if (effect.metadata && effect.metadata.hasImpactedThisTurn !== undefined) {
-                    effect.metadata.hasImpactedThisTurn = false;
+                if (event.metadata && event.metadata.hasImpactedThisTurn !== undefined) {
+                    event.metadata.hasImpactedThisTurn = false;
                 }
-                const result = handler.handleContinuous(effect, profile, modifiedEnclave, workingEnclaves, modifiedRoutes, mapData);
+                const result = handler.handleContinuous(event, profile, modifiedEnclave, workingEnclaves, modifiedRoutes, mapData);
                 modifiedEnclave = result.enclave;
                 modifiedRoutes = result.newRoutes;
-                if (result.removeEffect) {
-                     modifiedEnclave.activeEffects.splice(i, 1);
+                if (result.removeEvent) {
+                     modifiedEnclave.activeEvents.splice(i, 1);
                 }
                 if (result.sideEffects) {
                     allSideEffects.push(...result.sideEffects);
                 }
             } else {
-                const continuousResult = applyContinuousEffects(modifiedEnclave, effect.rules, {} as GameState);
+                const continuousResult = applyContinuousEffects(modifiedEnclave, event.rules, {} as GameState);
                 modifiedEnclave = { ...modifiedEnclave, forces: modifiedEnclave.forces * continuousResult.combatModifier };
                 // Note: routes are not modified by applyContinuousEffects
             }
@@ -125,8 +125,8 @@ export const processEffectMarkers = (
     // Now, safely apply all queued side effects from handlers like Entropy Wind
     allSideEffects.forEach(sideEffect => {
         if (sideEffect.type === 'PLAY_VFX_SFX') {
-            // Push the side effect directly to effectsToPlay for the main thread to handle VFX/SFX
-            effectsToPlay.push({
+            // Push the side effect directly to eventsToPlay for the main thread to handle VFX/SFX
+            eventsToPlay.push({
                 id: `vfx-sfx-${Date.now()}-${Math.random()}`,
                 playMode: 'pending',
                 vfx: sideEffect.vfxKey ? [sideEffect.vfxKey] : undefined,
@@ -138,17 +138,17 @@ export const processEffectMarkers = (
     });
     
     // STEP 2: PROCESS MARKERS AND PHASE TRANSITIONS
-    const remainingEffectMarkers: ActiveEffectMarker[] = [];
-    const effectsToAdd: { enclaveId: number, effect: ActiveEffect }[] = [];
+    const remainingEventMarkers: ActiveEventMarker[] = [];
+    const eventsToAdd: { enclaveId: number, event: ActiveEvent }[] = [];
     
     currentMarkers.forEach(marker => {
         marker.durationInPhase--;
         if (marker.durationInPhase <= 0) {
-            const profile = EFFECT_PROFILES[marker.profileKey];
+            const profile = EVENT_PROFILES[marker.profileKey];
             if (!profile) return;
 
             let nextPhase: 'impact' | 'aftermath' | undefined;
-            let nextPhaseLogic: EffectProfile['logic']['impact'] | EffectProfile['logic']['aftermath'] | undefined;
+            let nextPhaseLogic: EventProfile['logic']['impact'] | EventProfile['logic']['aftermath'] | undefined;
 
             if (marker.currentPhase === 'alert' && profile.logic.impact) {
                 nextPhase = 'impact';
@@ -163,48 +163,48 @@ export const processEffectMarkers = (
                 const resolvedDuration = nextPhaseLogic.duration === 'Permanent' ? 9999 : nextPhaseLogic.duration;
                 marker.durationInPhase = resolveNumericRange(resolvedDuration);
                 // Re-queue assets for the new phase
-                queueEffectAssets(profile, nextPhase, marker.position, effectsToPlay);
-                remainingEffectMarkers.push(marker); // Keep marker if it transitions to next phase
+                queueEventAssets(profile, nextPhase, marker.position, eventsToPlay);
+                remainingEventMarkers.push(marker); // Keep marker if it transitions to next phase
             } else {
-                // Effect is complete, or no next phase
-                const handler = effectHandlers[marker.profileKey] || effectHandlers.default;
+                // Event is complete, or no next phase
+                const handler = eventHandlers[marker.profileKey] || eventHandlers.default;
                 if (handler && handler.processMarker) {
-                    const result = handler.processMarker(marker, profile, workingEnclaves, workingRoutes, effectsToPlay, mapData);
-                    result.effectsToAdd?.forEach((e: { enclaveId: number, effect: ActiveEffect }) => effectsToAdd.push(e));
+                    const result = handler.processMarker(marker, profile, workingEnclaves, workingRoutes, eventsToPlay, mapData);
+                    result.eventsToAdd?.forEach((e: { enclaveId: number, event: ActiveEvent }) => eventsToAdd.push(e));
                     workingRoutes = result.newRoutes || workingRoutes;
                 }
             }
         } else {
-            remainingEffectMarkers.push(marker);
+            remainingEventMarkers.push(marker);
         }
     });
     
     for (const enclave of workingEnclaves.values()) {
-        const remainingEffects: ActiveEffect[] = [];
-        for (const effect of enclave.activeEffects) {
-            effect.duration--;
-            if (effect.duration > 0) {
-                remainingEffects.push(effect);
+        const remainingEvents: ActiveEvent[] = [];
+        for (const event of enclave.activeEvents) {
+            event.duration--;
+            if (event.duration > 0) {
+                remainingEvents.push(event);
             } else {
-                const profile = EFFECT_PROFILES[effect.profileKey];
+                const profile = EVENT_PROFILES[event.profileKey];
                 if (!profile) continue;
                 
-                const handler = effectHandlers[effect.profileKey] || effectHandlers.default;
-                if (handler && handler.processEffect) {
-                    const result = handler.processEffect(effect, profile, enclave, workingEnclaves, workingRoutes, effectsToPlay, mapData);
-                    result.effectsToAdd?.forEach((e: { enclaveId: number, effect: ActiveEffect }) => effectsToAdd.push(e));
+                const handler = eventHandlers[event.profileKey] || eventHandlers.default;
+                if (handler && handler.processEvent) {
+                    const result = handler.processEvent(event, profile, enclave, workingEnclaves, workingRoutes, eventsToPlay, mapData);
+                    result.eventsToAdd?.forEach((e: { enclaveId: number, event: ActiveEvent }) => eventsToAdd.push(e));
                     workingRoutes = result.newRoutes || workingRoutes;
                 }
             }
         }
-        enclave.activeEffects = remainingEffects;
+        enclave.activeEvents = remainingEvents;
     }
     
-    effectsToAdd.forEach(({ enclaveId, effect }) => {
+    eventsToAdd.forEach(({ enclaveId, event }) => {
         const enclave = workingEnclaves.get(enclaveId);
         if (enclave) {
             const newEnclave = cloneEnclave(enclave);
-            newEnclave.activeEffects.push(effect);
+            newEnclave.activeEvents.push(event);
             workingEnclaves.set(enclaveId, newEnclave);
         }
     });
@@ -212,7 +212,7 @@ export const processEffectMarkers = (
     return {
         newEnclaveStates: workingEnclaves,
         newRoutes: workingRoutes,
-        remainingEffectMarkers,
+        remainingEventMarkers,
     };
 };
 
@@ -289,7 +289,7 @@ export const resolveTurn = (
     mapData: MapCell[],
     currentTurn: number,
     gameSessionId: number,
-    initialEffectMarkers: ActiveEffectMarker[],
+    initialEventMarkers: ActiveEventMarker[],
     gameConfig: GameConfig,
     playerArchetypeKey: string | null,
     playerLegacyKey: string | null,
@@ -298,14 +298,14 @@ export const resolveTurn = (
 ) => {
     try {
         const allTurnEvents: TurnEvent[] = [];
-        const effectsToPlay: EffectQueueItem[] = []; // For disaster effects for now
+        const effectsToPlay: EventQueueItem[] = []; // For disaster effects for now
         
         // Convert to Maps for safe, immutable operations
         const initialEnclavesMap = new Map<number, Enclave>(Object.entries(initialEnclaveData).map(([id, e]) => [parseInt(id), e]));
 
         // Effect Marker Processing Phase
-        const { newEnclaveStates: enclavesAfterEffects, newRoutes: routesAfterEffects, remainingEffectMarkers } = processEffectMarkers(
-            initialEnclavesMap, initialRoutes, initialEffectMarkers, effectsToPlay, mapData
+        const { newEnclaveStates: enclavesAfterEffects, newRoutes: routesAfterEffects, remainingEventMarkers } = processEventMarkers(
+            initialEnclavesMap, initialRoutes, initialEventMarkers, effectsToPlay, mapData
         );
 
         // Order Pruning
@@ -345,7 +345,7 @@ export const resolveTurn = (
             newAiPendingOrders: validAiOrders,
             newRoutes: routesAfterEffects,
             newCurrentTurn: currentTurn + 1,
-            newEffectMarkers: remainingEffectMarkers,
+            newEventMarkers: remainingEventMarkers,
             gameOverState,
             events: allTurnEvents,
             effectsToPlay, // Still needed for disasters
@@ -373,7 +373,7 @@ self.onmessage = (e: MessageEvent) => {
         state.mapData.forEach((cell: any) => {
             cell.center = deserializeVector3(cell.center);
         });
-        (state.activeEffectMarkers || []).forEach((marker: any) => {
+        (state.activeEventMarkers || []).forEach((marker: any) => {
             marker.position = deserializeVector3(marker.position);
         });
 
@@ -385,7 +385,7 @@ self.onmessage = (e: MessageEvent) => {
             state.mapData,
             state.currentTurn,
             state.gameSessionId,
-            state.activeEffectMarkers,
+            state.activeEventMarkers,
             state.gameConfig,
             state.playerArchetypeKey,
             state.playerLegacyKey,

@@ -1,28 +1,27 @@
-
 import React from 'react';
-import { Expanse, ActiveEffectMarker, Enclave } from '@/types/game';
-import { EFFECT_PROFILES } from '@/data/effects';
+import { Expanse, ActiveEventMarker, Enclave } from '@/types/game';
+import { EVENT_PROFILES } from '@/data/events';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { ICONS } from '@/data/icons';
 
 interface ExpanseInspectorProps {
     entity: Expanse;
-    activeEffectMarkers: ActiveEffectMarker[];
+    activeEventMarkers: ActiveEventMarker[];
     enclaveData: { [id: number]: Enclave };
     onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerLeave: (e: React.PointerEvent<HTMLDivElement>) => void;
 }
 
-const ExpanseInspector: React.FC<ExpanseInspectorProps> = ({ entity, activeEffectMarkers, enclaveData, onPointerMove, onPointerLeave }) => {
-    const activeMarker = activeEffectMarkers.find(marker => marker.position.equals(entity.center));
+const ExpanseInspector: React.FC<ExpanseInspectorProps> = ({ entity, activeEventMarkers, enclaveData, onPointerMove, onPointerLeave }) => {
+    const activeMarker = activeEventMarkers.find(marker => marker.position.equals(entity.center));
       
     const nearbyEnclaves = Object.values(enclaveData).filter(e => e.center.distanceTo(entity.center) < 15);
-    // Add enclaveId to each effect for constructing the briefing key
-    const aftermathEffects = nearbyEnclaves.flatMap(e => e.activeEffects ? e.activeEffects.map(eff => ({...eff, enclaveId: e.id})) : []).filter(eff => eff.phase === 'aftermath');
-    const uniqueAftermathKeys = [...new Set(aftermathEffects.map(eff => eff.profileKey))];
+    // Add enclaveId to each event for constructing the briefing key
+    const aftermathEvents = nearbyEnclaves.flatMap(e => e.activeEvents ? e.activeEvents.map(eff => ({...eff, enclaveId: e.id})) : []).filter(eff => eff.phase === 'aftermath');
+    const uniqueAftermathKeys = [...new Set(aftermathEvents.map(eff => eff.profileKey))];
 
-    const hasEffects = !!activeMarker || uniqueAftermathKeys.length > 0;
+    const hasEvents = !!activeMarker || uniqueAftermathKeys.length > 0;
 
     return (
         <>
@@ -39,15 +38,15 @@ const ExpanseInspector: React.FC<ExpanseInspectorProps> = ({ entity, activeEffec
               <Card.Section title="Description" hasContent={!!entity.description}>
                   <p className="text-neutral-300 text-base">{entity.description}</p>
               </Card.Section>
-              <Card.Section title="Effects" hasContent={hasEffects}>
+              <Card.Section title="Events" hasContent={hasEvents}>
                  {activeMarker && (() => {
-                    const profile = EFFECT_PROFILES[activeMarker.profileKey];
+                    const profile = EVENT_PROFILES[activeMarker.profileKey];
                     if (!profile) return null;
                     // FIX: Find the first target enclave from metadata for briefing key
                     const firstTargetEnclaveId = activeMarker.metadata && activeMarker.metadata.targetEnclaveIds && activeMarker.metadata.targetEnclaveIds.length > 0 ? activeMarker.metadata.targetEnclaveIds[0] : null;
                     const briefingProps = firstTargetEnclaveId !== null
-                        ? { type: 'effect' as const, key: `effect-${firstTargetEnclaveId}-${activeMarker.id}` }
-                        : { type: 'effectProfile' as const, key: activeMarker.profileKey };
+                        ? { type: 'event' as const, key: `event-${firstTargetEnclaveId}-${activeMarker.id}` }
+                        : { type: 'eventProfile' as const, key: activeMarker.profileKey };
                     return (
                       <ChipCard
                           key={activeMarker.id}
@@ -64,19 +63,19 @@ const ExpanseInspector: React.FC<ExpanseInspectorProps> = ({ entity, activeEffec
                     );
                  })()}
                  {uniqueAftermathKeys.map(key => {
-                      const effect = aftermathEffects.find(e => e.profileKey === key);
-                      const profile = EFFECT_PROFILES[key];
-                      if (!effect || !profile || !profile.logic.aftermath) return null;
+                      const event = aftermathEvents.find(e => e.profileKey === key);
+                      const profile = EVENT_PROFILES[key];
+                      if (!event || !profile || !profile.logic.aftermath) return null;
   
                       return (
                           <ChipCard
                               key={`aftermath-${key}`}
-                              // FIX: Property 'icon' does not exist on type 'ActiveEffect'. Get it from the profile.
+                              // FIX: Property 'icon' does not exist on type 'ActiveEvent'. Get it from the profile.
                               icon={profile.ui.icon}
                               iconColorClass="text-amber-400"
-                              baseValue={effect.duration}
+                              baseValue={event.duration}
                               valueType="duration"
-                              briefingProps={{ type: 'effect', key: `effect-${effect.enclaveId}-${effect.id}` }}
+                              briefingProps={{ type: 'event', key: `event-${event.enclaveId}-${event.id}` }}
                               title={profile.logic.aftermath.name}
                               subtitle={profile.ui.name}
                           />

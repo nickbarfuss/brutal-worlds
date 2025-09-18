@@ -1,8 +1,8 @@
-import { ActiveEffectMarker, GameState, Enclave, Route } from '@/types/game';
+import { ActiveEventMarker, GameState, Enclave, Route } from '@/types/game';
 
 export function getTargetEnclaves(
     target: 'occupyingEnclave' | 'affectedEnclaves' | 'targetEnclave' | 'adjacentEnclaves' | 'capitalEnclave' | 'randomNeutralEnclave',
-    marker: ActiveEffectMarker,
+    marker: ActiveEventMarker,
     gameState: GameState
 ): Enclave[] {
     const { enclaveData, routes } = gameState;
@@ -56,7 +56,7 @@ export function getTargetEnclaves(
 
 export function getTargetRoutes(
     target: 'affectedEnclaves' | 'global' | 'targetRoute' | 'seaRoutes' | 'targetEnclave',
-    marker: ActiveEffectMarker,
+    marker: ActiveEventMarker,
     gameState: GameState
 ): Route[] {
     const { routes } = gameState;

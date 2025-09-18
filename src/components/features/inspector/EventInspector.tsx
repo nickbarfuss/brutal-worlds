@@ -1,29 +1,29 @@
 import React from 'react';
-import { ActiveEffectMarker } from '@/types/game';
-import { EFFECT_PROFILES } from '@/data/effects';
+import { ActiveEventMarker } from '@/types/game';
+import { EVENT_PROFILES } from '@/data/events';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { ICONS } from '@/data/icons';
 
-interface EffectInspectorProps {
-    marker: ActiveEffectMarker;
+interface EventInspectorProps {
+    marker: ActiveEventMarker;
     onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerLeave: (e: React.PointerEvent<HTMLDivElement>) => void;
 }
 
-const EffectInspector: React.FC<EffectInspectorProps> = ({ marker, onPointerMove, onPointerLeave }) => {
-    // For overlapping effects, we show info for the first one in the list.
-    const primaryProfile = EFFECT_PROFILES[marker.profileKey];
+const EventInspector: React.FC<EventInspectorProps> = ({ marker, onPointerMove, onPointerLeave }) => {
+    // For overlapping events, we show info for the first one in the list.
+    const primaryProfile = EVENT_PROFILES[marker.profileKey];
     if (!primaryProfile) return null;
 
     const phaseProfile = primaryProfile.logic[marker.currentPhase];
     if (!phaseProfile) return null;
 
-    const isCrisis = marker.effects.length > 1;
+    const isCrisis = marker.events.length > 1;
     const icon = isCrisis ? ICONS.disaster : primaryProfile.ui.icon;
     
-    // For briefing cards, show phase-specific info for a single effect.
-    const briefingProps = { type: 'effectMarker' as const, key: marker.id };
+    // For briefing cards, show phase-specific info for a single event.
+    const briefingProps = { type: 'eventMarker' as const, key: marker.id };
 
     return (
         <>
@@ -31,15 +31,15 @@ const EffectInspector: React.FC<EffectInspectorProps> = ({ marker, onPointerMove
                <Card.Header
                   icon={icon}
                   iconColorClass="text-amber-400"
-                  title="Effect Zone"
+                  title="Event Zone"
               />
           </div>
           
           <div className="flex-grow overflow-y-auto no-scrollbar" onPointerMove={onPointerMove} onPointerLeave={onPointerLeave}>
-              <Card.Section title={isCrisis ? "Active Effects" : "Active Phase"}>
+              <Card.Section title={isCrisis ? "Active Events" : "Active Phase"}>
                  {isCrisis ? (
-                    marker.effects.map(key => {
-                        const profile = EFFECT_PROFILES[key];
+                    marker.events.map(key => {
+                        const profile = EVENT_PROFILES[key];
                         if (!profile) return null;
                         const currentPhase = profile.logic[marker.currentPhase];
                         return (
@@ -51,7 +51,7 @@ const EffectInspector: React.FC<EffectInspectorProps> = ({ marker, onPointerMove
                                 subtitle={profile.ui.name}
                                 baseValue={marker.durationInPhase}
                                 valueType="duration"
-                                briefingProps={{ type: 'effectProfile', key: key }}
+                                briefingProps={{ type: 'eventProfile', key: key }}
                             />
                         );
                     })
@@ -73,4 +73,4 @@ const EffectInspector: React.FC<EffectInspectorProps> = ({ marker, onPointerMove
     );
 };
 
-export default EffectInspector;
+export default EventInspector;

@@ -3,14 +3,15 @@ import { Action } from '@/logic/reducers/index';
 
 export const handleFx = (state: GameState, action: Action): GameState => {
     switch (action.type) {
-        case 'REMOVE_EFFECTS': {
+        case 'REMOVE_EVENTS': {
+            if (action.type !== 'REMOVE_EVENTS') return state;
             const idsToRemove = new Set(action.payload);
             if (idsToRemove.size === 0) {
                 return state;
             }
             return {
                 ...state,
-                effects: state.effects.filter(effect => !idsToRemove.has(effect.id)),
+                events: state.events.filter(event => !idsToRemove.has(event.id)),
             };
         }
         default:

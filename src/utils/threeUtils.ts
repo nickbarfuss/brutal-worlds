@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Enclave, MapCell, ActiveEffectMarker, EffectQueueItem } from '@/types/game.ts';
+import { Enclave, MapCell, ActiveEventMarker, EventQueueItem } from '@/types/game.ts';
 
 interface PlainVector3 {
     x: number;
@@ -44,14 +44,14 @@ export const serializeGameStateForWorker = (payload: any) => {
                     center: serializeVector3(enclave.center),
                     domainId: enclave.domainId,
                     mainCellId: enclave.mainCellId,
-                    activeEffects: (enclave.activeEffects || []).map(effect => ({
-                        id: effect.id,
-                        profileKey: effect.profileKey,
-                        duration: effect.duration,
-                        maxDuration: effect.maxDuration,
-                        phase: effect.phase,
-                        metadata: effect.metadata,
-                        rules: effect.rules,
+                    activeEvents: (enclave.activeEvents || []).map(event => ({
+                        id: event.id,
+                        profileKey: event.profileKey,
+                        duration: event.duration,
+                        maxDuration: event.maxDuration,
+                        phase: event.phase,
+                        metadata: event.metadata,
+                        rules: event.rules,
                     })),
                     archetypeKey: enclave.archetypeKey,
                     imageUrl: enclave.imageUrl,
@@ -60,7 +60,7 @@ export const serializeGameStateForWorker = (payload: any) => {
             })
         ),
         
-        activeEffectMarkers: (payload.activeEffectMarkers || []).map((marker: ActiveEffectMarker) => ({
+        activeEventMarkers: (payload.activeEventMarkers || []).map((marker: ActiveEventMarker) => ({
             id: marker.id,
             profileKey: marker.profileKey,
             position: serializeVector3(marker.position),
@@ -69,7 +69,7 @@ export const serializeGameStateForWorker = (payload: any) => {
             durationInPhase: marker.durationInPhase,
             radius: marker.radius,
             movement: marker.movement,
-            effects: marker.effects,
+            events: marker.events,
             metadata: marker.metadata,
         })),
 
@@ -104,14 +104,14 @@ export const serializeResolvedTurn = (result: any) => {
                     center: serializeVector3(enclave.center),
                     domainId: enclave.domainId,
                     mainCellId: enclave.mainCellId,
-                    activeEffects: (enclave.activeEffects || []).map(effect => ({
-                        id: effect.id,
-                        profileKey: effect.profileKey,
-                        duration: effect.duration,
-                        maxDuration: effect.maxDuration,
-                        phase: effect.phase,
-                        metadata: effect.metadata,
-                        rules: effect.rules,
+                    activeEvents: (enclave.activeEvents || []).map(event => ({
+                        id: event.id,
+                        profileKey: event.profileKey,
+                        duration: event.duration,
+                        maxDuration: event.maxDuration,
+                        phase: event.phase,
+                        metadata: event.metadata,
+                        rules: event.rules,
                     })),
                     archetypeKey: enclave.archetypeKey,
                     imageUrl: enclave.imageUrl,
@@ -119,8 +119,8 @@ export const serializeResolvedTurn = (result: any) => {
                 return [id, sanitizedEnclave];
             })
         ),
-        
-        newEffectMarkers: (result.newEffectMarkers || []).map((marker: ActiveEffectMarker) => ({
+
+        newEventMarkers: (result.newEventMarkers || []).map((marker: ActiveEventMarker) => ({
             id: marker.id,
             profileKey: marker.profileKey,
             position: serializeVector3(marker.position),
@@ -129,23 +129,17 @@ export const serializeResolvedTurn = (result: any) => {
             durationInPhase: marker.durationInPhase,
             radius: marker.radius,
             movement: marker.movement,
-            effects: marker.effects,
+            events: marker.events,
             metadata: marker.metadata,
         })),
 
-        effectsToPlay: (result.effectsToPlay || []).map((effect: EffectQueueItem) => {
-            const serializedSfx = effect.sfx ? {
-                ...effect.sfx,
-                position: effect.sfx.position ? serializeVector3(effect.sfx.position) : undefined,
-            } : undefined;
-
-            return {
-                id: effect.id,
-                vfx: effect.vfx,
-                sfx: serializedSfx,
-                position: serializeVector3(effect.position),
-            };
-        }),
+        eventsToPlay: (result.eventsToPlay || []).map((event: EventQueueItem) => ({
+            id: event.id,
+            playMode: event.playMode,
+            position: serializeVector3(event.position),
+            sfx: event.sfx,
+            vfx: event.vfx,
+        })),
     };
 };
 
@@ -156,17 +150,17 @@ export const deserializeResolvedTurn = (result: any) => {
         });
     }
 
-    if (result.newEffectMarkers) {
-        result.newEffectMarkers.forEach((marker: ActiveEffectMarker) => {
+    if (result.newEventMarkers) {
+        result.newEventMarkers.forEach((marker: ActiveEventMarker) => {
             marker.position = deserializeVector3(marker.position as unknown as PlainVector3);
         });
     }
 
-    if (result.effectsToPlay) {
-        result.effectsToPlay.forEach((effect: EffectQueueItem) => {
-            effect.position = deserializeVector3(effect.position as unknown as PlainVector3);
-            if (effect.sfx?.position) {
-                effect.sfx.position = deserializeVector3(effect.sfx.position as unknown as PlainVector3);
+    if (result.eventsToPlay) {
+        result.eventsToPlay.forEach((event: EventQueueItem) => {
+            event.position = deserializeVector3(event.position as unknown as PlainVector3);
+            if (event.sfx?.position) {
+                event.sfx.position = deserializeVector3(event.sfx.position as unknown as PlainVector3);
             }
         });
     }

@@ -10,7 +10,7 @@ import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 
 import { VfxManager } from '@/logic/effects/VfxManager';
 import { drawUICanvas } from '@/canvas/drawingUtils';
-import { Enclave, ActiveHighlight, GameState, MapCell, Route, PendingOrders, ActiveEffectMarker, WorldProfile, Vector3, Domain, Rift, Expanse, IntroPhase, GamePhase } from '@/types/game';
+import { Enclave, ActiveHighlight, GameState, MapCell, Route, PendingOrders, ActiveEventMarker, WorldProfile, Vector3, Domain, Rift, Expanse, IntroPhase, GamePhase } from '@/types/game';
 import { mainNebulaVertexShader, mainNebulaFragmentShader, wispyNebulaVertexShader, wispyNebulaFragmentShader, atmosphereVertexShader, atmosphereFragmentShader, sunVertexShader, sunFragmentShader } from '@/canvas/shaderUtils';
 import { createStarfield } from '@/canvas/starfieldUtils';
 // FIX: Import the SfxManager type to resolve the 'Cannot find name' error.
@@ -75,7 +75,7 @@ interface MapRendererProps {
     selectedEnclaveId: number | null;
     hoveredCellId: number;
     currentWorld: WorldProfile | null;
-    activeEffectMarkers: ActiveEffectMarker[];
+    activeEffectMarkers: ActiveEventMarker[];
     cameraFocusAnimation: { active: boolean; target: Vector3 } | null;
     initialCameraTarget: Vector3 | null;
     isBloomEnabled: boolean;

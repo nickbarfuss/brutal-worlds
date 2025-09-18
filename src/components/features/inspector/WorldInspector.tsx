@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { WorldProfile, Domain, Enclave, Rift, Expanse, Vector3 } from '@/types/game';
-import { EFFECT_PROFILES } from '@/data/effects';
+import { EVENT_PROFILES } from '@/data/events';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { ICONS } from '@/data/icons';
@@ -13,14 +12,14 @@ interface WorldInspectorProps {
     enclaveData: { [id: number]: Enclave };
     riftData: { [id: number]: Rift };
     expanseData: { [id: number]: Expanse };
-    onTriggerEffect: (key: string) => void;
+    onTriggerEvent: (key: string) => void;
     onFocusVector: (vector: Vector3) => void;
     onClose: () => void;
     onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerLeave: (e: React.PointerEvent<HTMLDivElement>) => void;
 }
 
-const WorldInspector: React.FC<WorldInspectorProps> = ({ world, domainData, enclaveData, riftData, expanseData, onTriggerEffect, onFocusVector, onClose, onPointerMove, onPointerLeave }) => {
+const WorldInspector: React.FC<WorldInspectorProps> = ({ world, domainData, enclaveData, riftData, expanseData, onTriggerEvent, onFocusVector, onClose, onPointerMove, onPointerLeave }) => {
     const domains = Object.values(domainData).sort((a, b) => a.name.localeCompare(b.name));
     const expanses = Object.values(expanseData).sort((a, b) => a.name.localeCompare(b.name));
     const rifts = Object.values(riftData).sort((a, b) => a.name.localeCompare(b.name));
@@ -48,21 +47,21 @@ const WorldInspector: React.FC<WorldInspectorProps> = ({ world, domainData, encl
                     <p className="text-base text-neutral-300">{world.description}</p>
                 </Card.Section>
 
-                {world.possibleEffects && world.possibleEffects.length > 0 && (
-                    <Card.Section title="Possible Effects">
+                {world.possibleEvents && world.possibleEvents.length > 0 && (
+                    <Card.Section title="Possible Events">
                         <div className="space-y-2">
-                            {world.possibleEffects.map(effectKey => {
-                                const effect = EFFECT_PROFILES[effectKey];
-                                if (!effect) return null;
+                            {world.possibleEvents.map(eventKey => {
+                                const event = EVENT_PROFILES[eventKey];
+                                if (!event) return null;
                                 return (
                                     <ChipCard 
-                                        key={effectKey}
-                                        icon={effect.ui.icon}
+                                        key={eventKey}
+                                        icon={event.ui.icon}
                                         iconColorClass="text-amber-400"
-                                        title={effect.ui.name}
-                                        subtitle={effect.ui.description.split('.')[0] + '.'}
-                                        briefingProps={{ type: 'effectProfile', key: effectKey }}
-                                        onClick={() => onTriggerEffect(effectKey)}
+                                        title={event.ui.name}
+                                        subtitle={event.ui.description.split('.')[0] + '.'}
+                                        briefingProps={{ type: 'eventProfile', key: eventKey }}
+                                        onClick={() => onTriggerEvent(eventKey)}
                                     />
                                 );
                             })}

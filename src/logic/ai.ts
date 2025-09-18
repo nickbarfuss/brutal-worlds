@@ -1,7 +1,7 @@
 import { Enclave, Route, PendingOrders, Order, GameState, Rule } from '@/types/game.ts';
 import { getAssistMultiplierForEnclave, getAttackBonusForEnclave } from '@/logic/birthrightManager.ts';
-import { getAppliedModifiers } from '@/logic/effectProcessor.ts';
-import { EFFECT_PROFILES } from '@/data/effects.ts';
+import { getAppliedModifiers } from '@/logic/events/eventProcessor.ts';
+import { EVENT_PROFILES } from '@/data/events.ts';
 
 const findWeakestEnclave = (candidates: Enclave[]): Enclave | null => {
     if (candidates.length === 0) return null;
@@ -42,10 +42,10 @@ const findBestMoveForEnclave = (
     const weakestAlly = findWeakestEnclave(potentialAssistTargets);
 
     if (weakestAttackTarget && safeOriginForces > 2) {
-        const rules: Rule[] = origin.activeEffects.flatMap(effect => {
-            const profile = EFFECT_PROFILES[effect.profileKey];
+        const rules: Rule[] = origin.activeEvents.flatMap(event => {
+            const profile = EVENT_PROFILES[event.profileKey];
             if (!profile) return [];
-            const phaseLogic = profile.logic[effect.phase];
+            const phaseLogic = profile.logic[event.phase];
             return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
         });
         const { combatModifier } = getAppliedModifiers(origin, rules, { enclaveData, routes } as Partial<GameState> as GameState);

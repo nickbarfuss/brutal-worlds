@@ -405,7 +405,7 @@ export const generateNewWorld = (worldProfile: WorldProfile): {
             position: closestCell.center.clone(),
             mainCellId: closestCell.id,
             domainId,
-            activeEffects: [],
+            activeEvents: [],
             imageUrl,
         };
     });

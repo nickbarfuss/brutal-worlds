@@ -68,7 +68,7 @@ export const useGameEngine = () => {
             mapData: latestState.mapData,
             currentTurn: latestState.currentTurn,
             gameSessionId: latestState.gameSessionId,
-            activeEffectMarkers: latestState.activeEffectMarkers,
+            activeEventMarkers: latestState.activeEventMarkers,
             gameConfig: latestState.gameConfig,
             playerArchetypeKey: latestState.playerArchetypeKey,
             playerLegacyKey: latestState.playerLegacyKey,
@@ -236,14 +236,14 @@ export const useGameEngine = () => {
       }, [setOnline]);
 
     useEffect(() => {
-        if (state.latestEffect) {
+        if (state.latestEvent) {
             const timerId = setTimeout(() => {
-                dispatch({ type: 'CLEAR_LATEST_EFFECT' });
+                dispatch({ type: 'CLEAR_LATEST_EVENT' });
             }, 5100);
 
             return () => clearTimeout(timerId);
         }
-    }, [state.latestEffect, dispatch]);
+    }, [state.latestEvent, dispatch]);
     
     useGameInitializer(vfxManager, sfxManager, startGame, setGamePhase, setInitializationState);
     
@@ -294,8 +294,8 @@ export const useGameEngine = () => {
         }
     }, [state.gamePhase]);
 
-    const clearLatestEffect = useCallback(() => dispatch({ type: 'CLEAR_LATEST_EFFECT' }), []);
-    const triggerEffect = useCallback((key: string) => dispatch({ type: 'TRIGGER_EFFECT', payload: key }), []);
+    const clearLatestEvent = useCallback(() => dispatch({ type: 'CLEAR_LATEST_EVENT' }), []);
+    const triggerEvent = useCallback((key: string) => dispatch({ type: 'TRIGGER_EVENT', payload: key }), []);
     const setHoveredCellId = useCallback((id: number) => dispatch({ type: 'SET_HOVERED_CELL', payload: id }), []);
     const handleMapClick = useCallback((cellId: number | null, isCtrlPressed: boolean) => dispatch({ type: 'HANDLE_MAP_CLICK', payload: { cellId, isCtrlPressed } }), []);
     const handleEnclaveDblClick = useCallback((enclaveId: number | null) => dispatch({ type: 'HANDLE_DBL_CLICK', payload: enclaveId }), []);
@@ -329,8 +329,8 @@ export const useGameEngine = () => {
         closeArchetypeSelection: () => setGamePhase('mainMenu'),
         goToMainMenu,
         togglePause,
-        clearLatestEffect,
-        triggerEffect,
+        clearLatestEvent,
+        triggerEvent,
         setHoveredCellId,
         handleMapClick,
         handleEnclaveDblClick,

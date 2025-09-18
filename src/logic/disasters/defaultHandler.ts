@@ -1,6 +1,6 @@
-import { Enclave, ActiveDisasterMarker, ActiveEffect, DisasterProfile, Route, EffectQueueItem, MapCell } from '@/types/game';
-import { applyInstantaneousRules } from '@/logic/effectProcessor';
-import { queueEffectAssets } from '@/logic/turnResolver';
+import { Enclave, ActiveDisasterMarker, ActiveEvent, DisasterProfile, Route, EventQueueItem, MapCell } from '@/types/game';
+import { applyInstantaneousRules } from '@/logic/events/eventProcessor';
+import { queueEventAssets } from '@/logic/turnResolver';
 
 const resolveNumericRange = (value: number | [number, number]): number => {
     if (Array.isArray(value)) {
@@ -40,10 +40,10 @@ export const processMarker = (
     profile: DisasterProfile,
     workingEnclaves: Map<number, Enclave>,
     workingRoutes: Route[],
-    effectsToPlay: EffectQueueItem[],
+    effectsToPlay: EventQueueItem[],
     mapData: MapCell[]
 ) => {
-    const effectsToAdd: { enclaveId: number, effect: ActiveEffect }[] = [];
+    const effectsToAdd: { enclaveId: number, effect: ActiveEvent }[] = [];
     let newRoutes = workingRoutes;
     const impactPhase = profile.logic.impact;
 
@@ -78,7 +78,7 @@ export const processMarker = (
                     }
                 });
                 
-                queueEffectAssets(profile, 'impact', enclave.center, effectsToPlay);
+                queueEventAssets(profile, 'impact', enclave.center, effectsToPlay);
             }
         });
     }
@@ -87,15 +87,15 @@ export const processMarker = (
 };
 
 export const processEffect = (
-    effect: ActiveEffect,
+    effect: ActiveEvent,
     profile: DisasterProfile,
     enclave: Enclave,
     workingEnclaves: Map<number, Enclave>,
     workingRoutes: Route[],
-    effectsToPlay: EffectQueueItem[],
+    effectsToPlay: EventQueueItem[],
     mapData: MapCell[]
 ) => {
-    const effectsToAdd: { enclaveId: number, effect: ActiveEffect }[] = [];
+    const effectsToAdd: { enclaveId: number, effect: ActiveEvent }[] = [];
     
     if (effect.phase === 'impact' && profile.logic.aftermath) {
         const aftermath = profile.logic.aftermath;
@@ -133,7 +133,7 @@ export const processEffect = (
 
             const targetEnclave = workingEnclaves.get(enclaveId);
             if (targetEnclave) {
-                 queueEffectAssets(profile, 'aftermath', targetEnclave.center, effectsToPlay);
+                 queueEventAssets(profile, 'aftermath', targetEnclave.center, effectsToPlay);
             }
         });
     }

@@ -1,4 +1,4 @@
-import { Enclave, Domain, MapCell, Expanse, ActiveEffectMarker, EffectProfile, Rift, EffectQueueItem } from '@/types/game.ts';
+import { Enclave, Domain, MapCell, Expanse, ActiveEventMarker, EventProfile, Rift, EventQueueItem } from '@/types/game.ts';
 import { getRandomAssetKey } from '@/utils/assetUtils.ts';
 
 
@@ -43,7 +43,7 @@ const getCellsInRadius = (startCellId: number, radius: number, mapData: MapCell[
     return cellsInRadius;
 };
 
-export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext) => {
+export const triggerNewEvent = (profile: EventProfile, context: TriggerContext) => {
 
     const { enclaveData, mapData } = context;
 
@@ -61,8 +61,8 @@ export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext
 
     if (candidateCells.length === 0) return null;
 
-    const newMarkers: ActiveEffectMarker[] = [];
-    const effectsToPlay: EffectQueueItem[] = [];
+    const newMarkers: ActiveEventMarker[] = [];
+    const eventsToPlay: EventQueueItem[] = [];
     let locationName = "an unknown region";
 
     const chosenCells: MapCell[] = [];
@@ -87,8 +87,8 @@ export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext
         )];
         
         const resolvedDuration = alertPhase.duration === 'Permanent' ? 9999 : alertPhase.duration;
-        const newMarker: ActiveEffectMarker = {
-            id: `eff-site-${profile.key}-${cell.id}-${Date.now()}`,
+        const newMarker: ActiveEventMarker = {
+            id: `evt-site-${profile.key}-${cell.id}-${Date.now()}`,
             profileKey: profile.key,
             cellId: cell.id,
             position: cell.center.clone(),
@@ -96,7 +96,7 @@ export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext
             durationInPhase: resolveNumericRange(resolvedDuration),
             radius: radiusInCells,
             movement: resolveNumericRange(alertPhase.movement),
-            effects: [profile.key],
+            events: [profile.key],
             metadata: { targetEnclaveIds }, // Store for later phases
         };
         newMarkers.push(newMarker);
@@ -123,8 +123,8 @@ export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext
         const selectedAlertDialogKey = getRandomAssetKey(profile.ui.assets.dialog?.alert?.map(asset => asset.src));
 
         if (vfxKey || sfxKey) {
-            effectsToPlay.push({
-                id: `eff-${profile.key}-alert-vfx-sfx-${cell.id}-${Date.now()}`,
+            eventsToPlay.push({
+                id: `evt-${profile.key}-alert-vfx-sfx-${cell.id}-${Date.now()}`,
                 playMode: 'pending',
                 vfx: vfxKey ? [vfxKey] : undefined,
                 sfx: sfxKey ? { key: sfxKey, channel: 'fx', position: cell.center } : undefined,
@@ -133,8 +133,8 @@ export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext
         }
 
         if (selectedAlertDialogKey) {
-            effectsToPlay.push({
-                id: `eff-${profile.key}-alert-dialog-${cell.id}-${Date.now()}`,
+            eventsToPlay.push({
+                id: `evt-${profile.key}-alert-dialog-${cell.id}-${Date.now()}`,
                 playMode: 'pending',
                 sfx: { key: selectedAlertDialogKey, channel: 'dialog', position: cell.center },
                 position: cell.center,
@@ -144,5 +144,5 @@ export const triggerNewEffect = (profile: EffectProfile, context: TriggerContext
 
     const snackbarData = { profile, locationName };
 
-    return { newMarkers, snackbarData, effectsToPlay };
+    return { newMarkers, snackbarData, eventsToPlay };
 };

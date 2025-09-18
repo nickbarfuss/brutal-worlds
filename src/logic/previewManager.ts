@@ -1,8 +1,8 @@
-import { Enclave, PendingOrders, GameState, Player, Rule, ActiveEffectMarker, Route } from '@/types/game';
-import { getAppliedModifiers } from '@/logic/effectProcessor';
+import { Enclave, PendingOrders, GameState, Player, Rule, ActiveEventMarker, Route } from '@/types/game';
+import { getAppliedModifiers } from '@/logic/events/eventProcessor';
 import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrightManager';
 import { DISASTERS } from '@/data/disasters';
-import { EFFECT_PROFILES } from '@/data/effects';
+import { EVENT_PROFILES } from '@/data/events';
 
 export interface TurnPreview {
     status: 'conquered' | 'neutralized' | 'strengthened' | 'substantiallyStrengthened' | 'weakened' | 'substantiallyWeakened' | 'unchanged';
@@ -26,16 +26,16 @@ export const calculateEnclaveTurnPreview = (
     enclaveData: { [id: string]: Enclave },
     pendingOrders: PendingOrders,
     gameConfig: GameState['gameConfig'],
-    activeEffectMarkers: ActiveEffectMarker[],
+    activeEventMarkers: ActiveEventMarker[] = [],
     routes: Route[],
 ): TurnPreview => {
     
     let predictedForces = Number.isFinite(enclave.forces) ? enclave.forces : 0;
     
     // Simulate instantaneous damage from disaster alerts
-    const alertEffects = (enclave.activeEffects || []).filter(e => e.phase === 'alert');
-    alertEffects.forEach(effect => {
-        const profile = DISASTERS[effect.profileKey];
+    const alertEvents = (enclave.activeEvents || []).filter(e => e.phase === 'alert');
+    alertEvents.forEach(event => {
+        const profile = DISASTERS[event.profileKey];
         // FIX: Iterate over rules array
         if (profile && profile.logic.impact) {
             profile.logic.impact.rules.forEach(rule => {
@@ -52,7 +52,7 @@ export const calculateEnclaveTurnPreview = (
     });
 
     // FIX: Get target enclaves for markers based on metadata, not a direct property.
-    const markers = activeEffectMarkers.filter(m => m.metadata && m.metadata.targetEnclaveIds && m.metadata.targetEnclaveIds.includes(enclave.id));
+    const markers = activeEventMarkers.filter(m => m.metadata && m.metadata.targetEnclaveIds && m.metadata.targetEnclaveIds.includes(enclave.id));
     markers.forEach(marker => {
         const profile = DISASTERS[marker.profileKey];
         // FIX: Iterate over rules array
@@ -85,10 +85,10 @@ export const calculateEnclaveTurnPreview = (
     
     // Simulate holding reinforcements
     if (enclave.owner && !outgoingOrder) {
-        const rules: Rule[] = enclave.activeEffects.flatMap(effect => {
-            const profile = EFFECT_PROFILES[effect.profileKey];
+        const rules: Rule[] = enclave.activeEvents.flatMap(event => {
+            const profile = EVENT_PROFILES[event.profileKey];
             if (!profile) return [];
-            const phaseLogic = profile.logic[effect.phase];
+            const phaseLogic = profile.logic[event.phase];
             return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
         });
         const { productionModifier } = getAppliedModifiers(enclave, rules, { enclaveData, routes } as Partial<GameState> as GameState);
@@ -119,10 +119,10 @@ export const calculateEnclaveTurnPreview = (
         if (order.to === enclave.id && order.type === 'attack') {
             const originEnclave = enclaveData[parseInt(fromIdStr, 10)];
             if (originEnclave) {
-                const rules: Rule[] = originEnclave.activeEffects.flatMap(effect => {
-                    const profile = EFFECT_PROFILES[effect.profileKey];
+                const rules: Rule[] = originEnclave.activeEvents.flatMap(event => {
+                    const profile = EVENT_PROFILES[event.profileKey];
                     if (!profile) return [];
-                    const phaseLogic = profile.logic[effect.phase];
+                    const phaseLogic = profile.logic[event.phase];
                     return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
                 });
                 const { combatModifier } = getAppliedModifiers(originEnclave, rules, { enclaveData, routes } as Partial<GameState> as GameState);
@@ -189,10 +189,10 @@ export const calculateEnclaveTurnPreview = (
                     const powerByOwner = new Map<Player, { power: number; units: number; detachments: typeof meleeSurvivors }>();
                     meleeSurvivors.forEach(survivor => {
                         const owner = survivor.attacker.owner as Player;
-                        const rules: Rule[] = survivor.attacker.activeEffects.flatMap(effect => {
-                            const profile = EFFECT_PROFILES[effect.profileKey];
+                        const rules: Rule[] = survivor.attacker.activeEvents.flatMap(event => {
+                            const profile = EVENT_PROFILES[event.profileKey];
                             if (!profile) return [];
-                            const phaseLogic = profile.logic[effect.phase];
+                            const phaseLogic = profile.logic[event.phase];
                             return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
                         });
                         const { combatModifier } = getAppliedModifiers(survivor.attacker, rules, { enclaveData, routes } as Partial<GameState> as GameState);

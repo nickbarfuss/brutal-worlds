@@ -1,15 +1,15 @@
 import {
-    ActiveEffectMarker,
+    ActiveEventMarker,
     Enclave,
     GameState,
     Rule,
-    EffectProfile,
+    EventProfile,
     SfxPlayback,
     Vector3,
     Route,
-} from '../types/game.ts';
+} from '@/types/game.ts';
 import { getTargetEnclaves, getTargetRoutes } from './targeting.ts';
-import { resolveNumericRange } from '../utils/math.ts';
+import { resolveNumericRange } from '@/utils/math.ts';
 
 export function applyInstantaneousRules(
     rules: Rule[],
@@ -60,7 +60,7 @@ export function applyContinuousEffects(
 }
 
 export function applyOneTimeEffects(
-    marker: ActiveEffectMarker,
+    marker: ActiveEventMarker,
     rules: Rule[],
     gameState: GameState
 ) {
@@ -104,7 +104,7 @@ export function applyOneTimeEffects(
 }
 
 export function applyAftermathEffects(
-    marker: ActiveEffectMarker,
+    marker: ActiveEventMarker,
     rules: Rule[],
     gameState: GameState
 ) {
@@ -139,22 +139,22 @@ export function applyAftermathEffects(
     }
 }
 
-export function processEffectMarker(
-    marker: ActiveEffectMarker,
+export function processEventMarker(
+    marker: ActiveEventMarker,
     gameState: GameState,
-    effectProfiles: { [key: string]: EffectProfile }
+    eventProfiles: { [key: string]: EventProfile }
 ): {
-    updatedMarker: ActiveEffectMarker | null;
+    updatedMarker: ActiveEventMarker | null;
     vfxToPlay: { key: string; center: Vector3 }[];
     sfxToPlay: SfxPlayback[];
 } {
-    const updatedMarker: ActiveEffectMarker = { ...marker };
+    const updatedMarker: ActiveEventMarker = { ...marker };
     const vfxToPlay: { key: string; center: Vector3 }[] = [];
     const sfxToPlay: SfxPlayback[] = [];
 
-    const profile = effectProfiles[marker.profileKey];
+    const profile = eventProfiles[marker.profileKey];
     if (!profile) {
-        console.warn(`Effect profile not found for key: ${marker.profileKey}`);
+        console.warn(`Event profile not found for key: ${marker.profileKey}`);
         return { updatedMarker: null, vfxToPlay, sfxToPlay };
     }
 
@@ -188,11 +188,11 @@ export function processEffectMarker(
                 applyOneTimeEffects(updatedMarker, nextPhaseProfile.rules, gameState);
             }
 
-            const vfx = getEffectVfx(profile, nextPhaseKey);
+            const vfx = getEventVfx(profile, nextPhaseKey);
             if (vfx) {
                 vfxToPlay.push({ key: vfx, center: updatedMarker.position });
             }
-            const sfx = getEffectSfx(profile, nextPhaseKey);
+            const sfx = getEventSfx(profile, nextPhaseKey);
             if (sfx) {
                 sfxToPlay.push({
                     key: sfx,
@@ -208,8 +208,8 @@ export function processEffectMarker(
     return { updatedMarker, vfxToPlay, sfxToPlay };
 }
 
-function getEffectSfx(
-    profile: EffectProfile,
+function getEventSfx(
+    profile: EventProfile,
     phase: 'alert' | 'impact' | 'aftermath'
 ): string | undefined {
     const sfxAssets = profile.ui.assets.sfx?.[phase];
@@ -219,8 +219,8 @@ function getEffectSfx(
     return undefined;
 }
 
-function getEffectVfx(
-    profile: EffectProfile,
+function getEventVfx(
+    profile: EventProfile,
     phase: 'alert' | 'impact' | 'aftermath'
 ): string | undefined {
     const vfxAssets = profile.ui.assets.vfx?.[phase];

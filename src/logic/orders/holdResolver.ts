@@ -1,9 +1,9 @@
 import { Enclave, PendingOrders, Route, Rule, GameState, TurnEvent } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
-import { getAppliedModifiers } from '@/logic/effectProcessor.ts';
+import { getAppliedModifiers } from '@/logic/events/eventProcessor.ts';
 import { getHoldBonusForEnclave } from '@/logic/birthrightManager.ts';
 import { cloneEnclave } from '@/logic/cloneUtils.ts';
-import { EFFECT_PROFILES } from '@/data/effects.ts';
+import { EVENT_PROFILES } from '@/data/events.ts';
 
 export const resolveHolding = (
     currentEnclavesMap: Map<number, Enclave>,
@@ -23,10 +23,10 @@ export const resolveHolding = (
             let reinforcements = 2; // Standard holding value
             reinforcements += getHoldBonusForEnclave(enclave);
 
-            const rules: Rule[] = enclave.activeEffects.flatMap(effect => {
-                const profile = EFFECT_PROFILES[effect.profileKey];
+            const rules: Rule[] = enclave.activeEvents.flatMap(event => {
+                const profile = EVENT_PROFILES[event.profileKey];
                 if (!profile) return [];
-                const phaseLogic = profile.logic[effect.phase];
+                const phaseLogic = profile.logic[event.phase];
                 return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
             });
             const enclaveData = Object.fromEntries(currentEnclavesMap.entries());

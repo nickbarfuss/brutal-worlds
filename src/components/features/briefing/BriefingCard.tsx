@@ -75,10 +75,10 @@ const BriefingCard: React.FC<BriefingCardProps> = ({ briefing, world }) => {
         switch (type) {
             case 'order':
                 return <OrderBriefing content={content} />;
-            case 'effect':
+            case 'event':
             case 'disasterMarker':
-            case 'effectMarker':
-            case 'effectProfile':
+            case 'eventMarker':
+            case 'eventProfile':
                 return <EffectBriefing content={content} />;
             case 'route':
                 return <RouteBriefing content={content} />;

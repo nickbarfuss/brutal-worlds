@@ -1,7 +1,7 @@
-import { Enclave, WorldProfile, ActiveHighlight, ActiveEffectMarker } from '@/types/game';
+import { Enclave, WorldProfile, ActiveHighlight, ActiveEventMarker } from '@/types/game';
 import { getPaletteForOwner } from '@/canvas/draw/drawUtils';
 import { ICONS } from '@/data/icons';
-import { EFFECT_PROFILES } from '@/data/effects';
+import { EVENT_PROFILES } from '@/data/events';
 
 const canvasStyles = {
     enclaveMarker: { radius: 14 },
@@ -43,9 +43,9 @@ const drawEnclaveChip = (
     clockTime: number,
     worldProfile: WorldProfile | null,
     showLabel: boolean,
-    effectsOnMainCell: ActiveEffectMarker[]
+    effectsOnMainCell: ActiveEventMarker[]
 ) => {
-    const effects = enclave.activeEffects || [];
+    const events = enclave.activeEvents || [];
     
     const chipStyle = canvasStyles.dynamicChip;
     const disasterIconStyle = canvasStyles.disasterIcon;
@@ -64,9 +64,9 @@ const drawEnclaveChip = (
         disastersWidth -= chipStyle.paddingInner;
     }
     
-    const effectsWidth = effects.length > 0 ? (effects.length * (disasterIconStyle.radius * 2 + chipStyle.paddingInner)) - chipStyle.paddingInner : 0;
-    const rightPartSeparator = effects.length > 0 && effectsOnMainCell.length > 0 ? chipStyle.paddingInner : 0;
-    const rightPartWidth = effectsWidth + rightPartSeparator + disastersWidth;
+    const eventsWidth = events.length > 0 ? (events.length * (disasterIconStyle.radius * 2 + chipStyle.paddingInner)) - chipStyle.paddingInner : 0;
+    const rightPartSeparator = events.length > 0 && effectsOnMainCell.length > 0 ? chipStyle.paddingInner : 0;
+    const rightPartWidth = eventsWidth + rightPartSeparator + disastersWidth;
     
     let leftPartWidth = 0;
     if (showLabel) {
@@ -119,10 +119,10 @@ const drawEnclaveChip = (
 
     let currentXForRightChips = pos.x + enclaveMarkerStyle.radius + chipStyle.paddingInner;
 
-    effects.forEach(effect => {
-        const profile = EFFECT_PROFILES[effect.profileKey];
+    events.forEach(event => {
+        const profile = EVENT_PROFILES[event.profileKey];
         if (!profile) return;
-        if (effect.phase === 'alert') {
+        if (event.phase === 'alert') {
             const pulse = (Math.sin(clockTime * Math.PI * 4) + 1) / 2;
             ctx.globalAlpha = 0.5 + pulse * 0.5;
         }
@@ -134,10 +134,10 @@ const drawEnclaveChip = (
     });
 
     effectsOnMainCell.forEach(marker => {
-        const profile = EFFECT_PROFILES[marker.profileKey];
+        const profile = EVENT_PROFILES[marker.profileKey];
         if (!profile) return;
         
-        const isCrisis = marker.effects.length > 1;
+        const isCrisis = marker.events.length > 1;
         const icon = isCrisis ? ICONS.disaster : profile.ui.icon;
         const durationText = String(marker.durationInPhase);
 
@@ -220,18 +220,18 @@ interface DrawAllEnclavesProps {
     routes: any[]; // Simplified type
     activeHighlight: ActiveHighlight | null;
     clockTime: number;
-    activeEffectMarkers: ActiveEffectMarker[];
+    activeEventMarkers: ActiveEventMarker[];
 }
 
 export const drawAllEnclaves = (ctx: CanvasRenderingContext2D, props: DrawAllEnclavesProps) => {
-    const { enclaveData, enclaveScreenPositions, selectedEnclaveId, hoveredCellId, mapData, currentWorld, routes, activeHighlight, clockTime, activeEffectMarkers } = props;
+    const { enclaveData, enclaveScreenPositions, selectedEnclaveId, hoveredCellId, mapData, currentWorld, routes, activeHighlight, clockTime, activeEventMarkers } = props;
     
-    const effectMarkersByCellId = new Map<number, ActiveEffectMarker[]>();
-    (activeEffectMarkers || []).forEach(marker => {
-        if (!effectMarkersByCellId.has(marker.cellId)) {
-            effectMarkersByCellId.set(marker.cellId, []);
+    const eventMarkersByCellId = new Map<number, ActiveEventMarker[]>();
+    (activeEventMarkers || []).forEach(marker => {
+        if (!eventMarkersByCellId.has(marker.cellId)) {
+            eventMarkersByCellId.set(marker.cellId, []);
         }
-        effectMarkersByCellId.get(marker.cellId)!.push(marker);
+        eventMarkersByCellId.get(marker.cellId)!.push(marker);
     });
 
     Object.values(enclaveData).forEach(enclave => {
@@ -239,10 +239,10 @@ export const drawAllEnclaves = (ctx: CanvasRenderingContext2D, props: DrawAllEnc
         if (!pos || !pos.visible) return;
 
         const shouldDrawLabel = activeHighlight?.type === 'enclaves' && activeHighlight.owners.has(enclave.owner);
-        const effectsOnMainCell = effectMarkersByCellId.get(enclave.mainCellId) || [];
+        const effectsOnMainCell = eventMarkersByCellId.get(enclave.mainCellId) || [];
         const hasEffectsOnMainCell = effectsOnMainCell.length > 0;
         
-        if (enclave.activeEffects.length > 0 || shouldDrawLabel || hasEffectsOnMainCell) {
+        if (enclave.activeEvents.length > 0 || shouldDrawLabel || hasEffectsOnMainCell) {
             drawEnclaveChip(ctx, enclave, pos, clockTime, currentWorld, shouldDrawLabel, effectsOnMainCell);
         } else {
              const localHoveredEnclaveId = mapData[hoveredCellId]?.enclaveId ?? -1;

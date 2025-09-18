@@ -1,9 +1,9 @@
 import { Enclave, PendingOrders, Player, Order, TurnEvent, Rule, GameState, Route } from '@/types/game.ts';
 import { GameConfig } from '@/types/game.ts';
-import { getAppliedModifiers } from '@/logic/effectProcessor.ts';
+import { getAppliedModifiers } from '@/logic/events/eventProcessor.ts';
 import { getAttackBonusForEnclave } from '@/logic/birthrightManager.ts';
 import { cloneEnclave } from '@/logic/cloneUtils.ts';
-import { EFFECT_PROFILES } from '@/data/effects.ts';
+import { EVENT_PROFILES } from '@/data/events.ts';
 
 interface Attack {
     from: number;
@@ -57,10 +57,10 @@ export const resolveAttacks = (
 
         if (unitsLeaving > 0 && safeForces >= unitsLeaving) {
             forcesLeaving[fromId] = unitsLeaving;
-            const rules: Rule[] = origin.activeEffects.flatMap(effect => {
-                const profile = EFFECT_PROFILES[effect.profileKey];
+            const rules: Rule[] = origin.activeEvents.flatMap(event => {
+                const profile = EVENT_PROFILES[event.profileKey];
                 if (!profile) return [];
-                const phaseLogic = profile.logic[effect.phase];
+                const phaseLogic = profile.logic[event.phase];
                 return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
             });
             const enclaveData = Object.fromEntries(newEnclavesMap.entries());
@@ -142,10 +142,10 @@ export const resolveAttacks = (
                 meleeSurvivors.forEach(survivor => {
                     const owner = survivor.attacker.owner;
                     const originEnclave = newEnclavesMap.get(survivor.attacker.from)!;
-                    const rules: Rule[] = originEnclave.activeEffects.flatMap(effect => {
-                        const profile = EFFECT_PROFILES[effect.profileKey];
+                    const rules: Rule[] = originEnclave.activeEvents.flatMap(event => {
+                        const profile = EVENT_PROFILES[event.profileKey];
                         if (!profile) return [];
-                        const phaseLogic = profile.logic[effect.phase];
+                        const phaseLogic = profile.logic[event.phase];
                         return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
                     });
                     const enclaveData = Object.fromEntries(newEnclavesMap.entries());

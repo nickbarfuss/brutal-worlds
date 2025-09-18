@@ -1,6 +1,5 @@
-
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
-import { Enclave, Domain, PendingOrders, InspectedEntity, Rift, Expanse, ActiveEffectMarker, Route, WorldProfile, Vector3, PlayerIdentifier } from '@/types/game';
+import { Enclave, Domain, PendingOrders, InspectedEntity, Rift, Expanse, ActiveEventMarker, Route, WorldProfile, Vector3, BriefingType } from '@/types/game';
 import Card from '@/components/ui/Card';
 import EnclaveInspector from '@/components/features/inspector/EnclaveInspector';
 import WorldInspector from '@/components/features/inspector/WorldInspector';
@@ -8,7 +7,7 @@ import DomainInspector from '@/components/features/inspector/DomainInspector';
 import RiftInspector from '@/components/features/inspector/RiftInspector';
 import ExpanseInspector from '@/components/features/inspector/ExpanseInspector';
 import { CONFIG as GameConfig } from '@/data/config';
-import EffectInspector from '@/components/features/inspector/EffectInspector';
+import EventInspector from '@/components/features/inspector/EventInspector';
 import ArchetypeInspector from '@/components/features/inspector/ArchetypeInspector';
 
 // GSAP is loaded globally via script tag in index.html
@@ -26,13 +25,13 @@ interface InspectorCardProps {
   pendingOrders: PendingOrders;
   routes: Route[];
   currentWorld: WorldProfile | null;
-  activeEffectMarkers: ActiveEffectMarker[];
+  activeEventMarkers: ActiveEventMarker[];
   gameConfig: typeof GameConfig;
   onFocusEnclave: (id: number) => void;
   onFocusVector: (vector: Vector3) => void;
-  onShowBriefing: (type: 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker', contentKey: string) => void;
+  onShowBriefing: (type: BriefingType, contentKey: string) => void;
   onHideBriefing: () => void;
-  onTriggerEffect: (key: string) => void;
+  onTriggerEvent: (key: string) => void;
   onClose: () => void;
   playerArchetypeKey: string | null;
   playerLegacyKey: string | null;
@@ -41,7 +40,7 @@ interface InspectorCardProps {
 }
 
 const InspectorCard = React.memo(React.forwardRef<HTMLDivElement, InspectorCardProps>(({
-  isVisible, isClosing, inspectedEntity, selectedEnclaveId, onTriggerEffect,
+  isVisible, isClosing, inspectedEntity, selectedEnclaveId, onTriggerEvent,
   onShowBriefing, onHideBriefing, onClose, onFocusVector, 
   playerArchetypeKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey,
   ...rest
@@ -112,61 +111,110 @@ const InspectorCard = React.memo(React.forwardRef<HTMLDivElement, InspectorCardP
     hoveredBriefingRef.current = key;
 
     if (chip && key) {
-      const type = chip.dataset.briefingType as 'order' | 'effect' | 'route' | 'domain' | 'effectProfile' | 'birthright' | 'effectMarker';
+      const type = chip.dataset.briefingType as BriefingType;
       onShowBriefing(type, key);
     } else {
       onHideBriefing();
     }
   };
 
-  const handlePointerLeave = () => {
-    if (hoveredBriefingRef.current) {
-        hoveredBriefingRef.current = null;
-        onHideBriefing();
+  const handlePointerLeave = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === 'mouse') {
+      hoveredBriefingRef.current = null;
+      onHideBriefing();
     }
   };
 
-  const getContent = () => {
-      if (!inspectedEntity) return null;
+  const renderContent = () => {
+    if (!inspectedEntity || !rest.currentWorld) return null;
 
-      const { type } = inspectedEntity;
-      const { enclaveData, domainData, riftData, expanseData, currentWorld, activeEffectMarkers } = rest;
-      
-      const commonPointerProps = { onPointerMove: handlePointerMove, onPointerLeave: handlePointerLeave };
-
-      if (type === 'world') {
-          return currentWorld ? <WorldInspector world={currentWorld} domainData={domainData} enclaveData={enclaveData} riftData={riftData} expanseData={expanseData} onTriggerEffect={onTriggerEffect} onClose={onClose} onFocusVector={onFocusVector} {...commonPointerProps} /> : null;
+    switch (inspectedEntity.type) {
+      case 'enclave': {
+        const enclave = rest.enclaveData[inspectedEntity.id as number];
+        if (!enclave) return null;
+        return (
+          <EnclaveInspector
+            enclave={enclave}
+            enclaveData={rest.enclaveData}
+            domainData={rest.domainData}
+            pendingOrders={rest.pendingOrders}
+            routes={rest.routes}
+            currentWorld={rest.currentWorld}
+            activeEventMarkers={rest.activeEventMarkers}
+            isSelected={enclave.id === selectedEnclaveId}
+            isConfirming={isConfirming}
+            onFocusEnclave={rest.onFocusEnclave}
+            gameConfig={rest.gameConfig}
+            onPointerMove={handlePointerMove}
+            onPointerLeave={handlePointerLeave}
+          />
+        );
       }
-      if (type === 'archetype') {
-          const owner = (inspectedEntity as { owner: PlayerIdentifier }).owner;
-          const archetypeKey = owner === 'player-1' ? playerArchetypeKey : opponentArchetypeKey;
-          const legacyKey = owner === 'player-1' ? playerLegacyKey : opponentLegacyKey;
-          return <ArchetypeInspector owner={owner} archetypeKey={archetypeKey} legacyKey={legacyKey} onClose={onClose} />
+      case 'world':
+        return (
+          <WorldInspector
+            world={rest.currentWorld}
+            domainData={rest.domainData}
+            enclaveData={rest.enclaveData}
+            riftData={rest.riftData}
+            expanseData={rest.expanseData}
+            onTriggerEvent={onTriggerEvent}
+            onFocusVector={onFocusVector}
+            onClose={onClose}
+            onPointerMove={handlePointerMove}
+            onPointerLeave={handlePointerLeave}
+          />
+        );
+      case 'domain': {
+        const domain = rest.domainData[inspectedEntity.id as number];
+        if (!domain) return null;
+        return (
+          <DomainInspector 
+            domain={domain} 
+            enclaveData={rest.enclaveData} 
+            world={rest.currentWorld}
+            onPointerMove={handlePointerMove} 
+            onPointerLeave={handlePointerLeave} 
+          />
+        );
       }
-      if (type === 'enclave') {
-          const enclave = enclaveData[inspectedEntity.id];
-          return enclave ? <EnclaveInspector enclave={enclave} isSelected={isSelected} isConfirming={isConfirming} {...rest} {...commonPointerProps} /> : null;
+      case 'rift': {
+        const rift = rest.riftData[inspectedEntity.id as number];
+        if (!rift) return null;
+        return <RiftInspector entity={rift} activeEventMarkers={rest.activeEventMarkers} enclaveData={rest.enclaveData} onPointerMove={handlePointerMove} onPointerLeave={handlePointerLeave} />;
       }
-      if (type === 'domain') {
-          const domain = domainData[inspectedEntity.id];
-          return domain && currentWorld ? <DomainInspector domain={domain} enclaveData={enclaveData} world={currentWorld} {...commonPointerProps} /> : null;
+      case 'expanse': {
+        const expanse = rest.expanseData[inspectedEntity.id as number];
+        if (!expanse) return null;
+        return <ExpanseInspector entity={expanse} activeEventMarkers={rest.activeEventMarkers} enclaveData={rest.enclaveData} onPointerMove={handlePointerMove} onPointerLeave={handlePointerLeave} />;
       }
-      if (type === 'rift') {
-          const rift = riftData[inspectedEntity.id];
-          return rift ? <RiftInspector entity={rift} enclaveData={enclaveData} activeEffectMarkers={rest.activeEffectMarkers} {...commonPointerProps} /> : null;
+      case 'event': {
+        const marker = rest.activeEventMarkers.find(m => m.id === inspectedEntity.id);
+        if (!marker) return null;
+        return <EventInspector marker={marker} onPointerMove={handlePointerMove} onPointerLeave={handlePointerLeave} />;
       }
-      if (type === 'expanse') {
-          const expanse = expanseData[inspectedEntity.id];
-          return expanse ? <ExpanseInspector entity={expanse} enclaveData={enclaveData} activeEffectMarkers={rest.activeEffectMarkers} {...commonPointerProps} /> : null;
+      case 'archetype': {
+        const { owner } = inspectedEntity;
+        const archetypeKey = owner === 'player-1' ? playerArchetypeKey : opponentArchetypeKey;
+        const legacyKey = owner === 'player-1' ? playerLegacyKey : opponentLegacyKey;
+        if (!archetypeKey || !legacyKey) return null;
+        return (
+          <ArchetypeInspector
+            owner={owner}
+            archetypeKey={archetypeKey}
+            legacyKey={legacyKey}
+            onClose={onClose}
+            onPointerMove={handlePointerMove}
+            onPointerLeave={handlePointerLeave}
+          />
+        );
       }
-      if (type === 'effect') {
-          const marker = (activeEffectMarkers || []).find(m => m.id === (inspectedEntity as { id: string }).id);
-          return marker ? <EffectInspector marker={marker} {...commonPointerProps} /> : null;
-      }
-      return null;
+      default:
+        return null;
+    }
   };
 
-  const content = getContent();
+  const content = renderContent();
   
   const isArchetypeInspector = inspectedEntity?.type === 'archetype';
   const positionClass = isArchetypeInspector ? 'top-8 left-8' : 'top-8 right-8';

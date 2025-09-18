@@ -9,7 +9,7 @@ import BriefingCard from '@/components/features/briefing/BriefingCard';
 import GameOverDialog from '@/components/features/game-over/GameOverDialog';
 import { ORDER_PROFILES } from '@/data/orders';
 import { ASSETS } from '@/data/assets';
-import { EFFECT_PROFILES } from '@/data/effects';
+import { EVENT_PROFILES } from '@/data/events';
 import { ARCHETYPES } from '@/data/archetypes';
 import { BIRTHRIGHTS } from '@/data/birthrights';
 import { ICONS } from '@/data/icons';
@@ -18,11 +18,11 @@ import TurnDisplay from '@/components/features/display/TurnDisplay';
 import WorldDisplay from '@/components/features/display/WorldDisplay';
 import { PLAYER_THREE_COLORS, THEME_CONFIG } from '@/data/theme';
 import { useWorldHighlights } from '@/hooks/useWorldHighlights';
-import { BriefingContent, BriefingState, GameOverState, OrderType, Owner, WorldProfile, Enclave, Domain, IntroPhase, Vector3, EffectQueueItem, PlayerIdentifier, InspectedMapEntity, BriefingType } from '@/types/game'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import { BriefingContent, BriefingState, GameOverState, OrderType, Owner, WorldProfile, Enclave, Domain, IntroPhase, Vector3, EventQueueItem, PlayerIdentifier, InspectedMapEntity, BriefingType } from '@/types/game'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import Backdrop from '@/components/ui/Backdrop';
 import LegendDisplay from '@/components/features/display/LegendDisplay';
 import VignetteOverlay from '@/components/ui/VignetteOverlay';
-import { getAppliedModifiers } from '@/logic/effectProcessor';
+import { getAppliedModifiers } from '@/logic/events/eventProcessor';
 import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrightManager';
 import CustomCursor from '@/components/ui/CustomCursor';
 import SettingsDrawer from '@/components/features/settings/SettingsDrawer';
@@ -32,7 +32,6 @@ import { toCamelCase } from '@/utils/stringUtils';
 import WarpStarsCanvas from '@/features/background/WarpStarsCanvas';
 import ImmediateVfxPlayer from '@/features/effects/ImmediateVfxPlayer';
 
-import ErrorBoundary from '@/components/features/system/ErrorBoundary'; // Added ErrorBoundary import
 
 declare const gsap: any;
 
@@ -70,11 +69,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
     const closeMapInspectorTimeoutRef = useRef<number | null>(null);
     const closeSettingsTimeoutRef = useRef<number | null>(null);
     const closeSurrenderTimeoutRef = useRef<number | null>(null);
-
-    const effectTestKey = engine.gameConfig.DISASTER_TESTING?.enabled 
-        ? engine.gameConfig.DISASTER_TESTING.disasterKey 
-        : null;
-    const effectTestProfile = effectTestKey ? EFFECT_PROFILES[effectTestKey] : null;
 
     useEffect(() => {
         return () => {
@@ -317,10 +311,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 };
                 
                 if (orderType === 'attack') {
-                    const rules = fromEnclave.activeEffects.flatMap(effect => {
-                        const profile = EFFECT_PROFILES[effect.profileKey];
+                    const rules = fromEnclave.activeEvents.flatMap(event => {
+                        const profile = EVENT_PROFILES[event.profileKey];
                         if (!profile) return [];
-                        const phaseLogic = profile.logic[effect.phase];
+                        const phaseLogic = profile.logic[event.phase];
                         return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
                     });
                     const { combatModifier } = getAppliedModifiers(fromEnclave, rules, engine);
@@ -388,10 +382,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 };
     
                 if (fromEnclave.owner) {
-                    const rules = fromEnclave.activeEffects.flatMap(effect => {
-                        const profile = EFFECT_PROFILES[effect.profileKey];
+                    const rules = fromEnclave.activeEvents.flatMap(event => {
+                        const profile = EVENT_PROFILES[event.profileKey];
                         if (!profile) return [];
-                        const phaseLogic = profile.logic[effect.phase];
+                        const phaseLogic = profile.logic[event.phase];
                         return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
                     });
                     const { productionModifier } = getAppliedModifiers(fromEnclave, rules, engine);
@@ -424,22 +418,22 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             }
             return null;
         }
-        if (type === 'effect') {
+        if (type === 'event') {
             const parts = contentKey.split('-');
             const enclaveId = parseInt(parts[1], 10);
-            const effectOrMarkerId = parts.slice(2).join('-');
+            const eventOrMarkerId = parts.slice(2).join('-');
             
             const enclave = engine.enclaveData[enclaveId];
             if (!enclave) return null;
     
-            const effect = enclave.activeEffects.find(e => e.id === effectOrMarkerId);
-            const marker = engine.activeEffectMarkers.find(m => m.id === effectOrMarkerId && m.metadata?.targetEnclaveIds?.includes(enclaveId));
+            const event = enclave.activeEvents.find(e => e.id === eventOrMarkerId);
+            const marker = engine.activeEventMarkers.find(m => m.id === eventOrMarkerId && m.metadata?.targetEnclaveIds?.includes(enclaveId));
     
-            if (effect) {
-                 const profile = EFFECT_PROFILES[effect.profileKey];
+            if (event) {
+                 const profile = EVENT_PROFILES[event.profileKey];
                  if (!profile) return null;
                  
-                 const phaseKey = effect.phase;
+                 const phaseKey = event.phase;
                  const phaseProfile = profile.logic[phaseKey as keyof typeof profile.logic];
                  if (!phaseProfile) return null;
                  
@@ -449,12 +443,12 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                      title: (phaseProfile as any).name,
                      subtitle: profile.ui.name,
                      description: (phaseProfile as any).description,
-                     baseValue: effect.duration,
+                     baseValue: event.duration,
                      valueType: 'duration',
                      imageUrl: profile.ui.assets.image ? getAssetUrl(profile.ui.assets.image) : undefined,
                  };
             } else if (marker) {
-                const profile = EFFECT_PROFILES[marker.profileKey];
+                const profile = EVENT_PROFILES[marker.profileKey];
                 if (!profile) return null;
                 const alertProfile = profile.logic.alert;
                 return {
@@ -470,12 +464,12 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             }
             return null;
         }
-        if (type === 'effectMarker') {
+        if (type === 'eventMarker') {
             const markerId = contentKey;
-            const marker = engine.activeEffectMarkers.find(m => m.id === markerId);
+            const marker = engine.activeEventMarkers.find(m => m.id === markerId);
             if (!marker) return null;
     
-            const profile = EFFECT_PROFILES[marker.profileKey];
+            const profile = EVENT_PROFILES[marker.profileKey];
             if (!profile) return null;
     
             const phaseKey = marker.currentPhase;
@@ -493,8 +487,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 imageUrl: profile.ui.assets.image ? getAssetUrl(profile.ui.assets.image) : undefined,
             };
         }
-        if (type === 'effectProfile') {
-            const profile = EFFECT_PROFILES[contentKey];
+        if (type === 'eventProfile') {
+            const profile = EVENT_PROFILES[contentKey];
             if (!profile) return null;
         
             return {
@@ -843,7 +837,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     selectedEnclaveId={engine.selectedEnclaveId}
                     hoveredCellId={engine.hoveredCellId}
                     currentWorld={engine.currentWorld}
-                    activeEffectMarkers={engine.activeEffectMarkers}
+                    activeEffectMarkers={engine.activeEventMarkers}
                     cameraFocusAnimation={engine.cameraFocusAnimation}
                     initialCameraTarget={engine.initialCameraTarget}
                     isBloomEnabled={engine.isBloomEnabled}
@@ -947,13 +941,13 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 pendingOrders={{...engine.playerPendingOrders, ...engine.aiPendingOrders}}
                 routes={engine.routes}
                 currentWorld={engine.currentWorld}
-                activeEffectMarkers={engine.activeEffectMarkers}
+                activeEventMarkers={engine.activeEventMarkers}
                 gameConfig={engine.gameConfig}
                 onFocusEnclave={engine.focusOnEnclave}
                 onFocusVector={engine.focusOnVector}
                 onShowBriefing={showBriefing}
                 onHideBriefing={hideBriefing}
-                onTriggerEffect={engine.triggerEffect}
+                onTriggerEvent={engine.triggerEvent}
                 playerArchetypeKey={engine.playerArchetypeKey}
                 playerLegacyKey={engine.playerLegacyKey}
                 opponentArchetypeKey={engine.opponentArchetypeKey}
@@ -974,13 +968,13 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 pendingOrders={{...engine.playerPendingOrders, ...engine.aiPendingOrders}}
                 routes={engine.routes}
                 currentWorld={engine.currentWorld}
-                activeEffectMarkers={engine.activeEffectMarkers}
+                activeEventMarkers={engine.activeEventMarkers}
                 gameConfig={engine.gameConfig}
                 onFocusEnclave={engine.focusOnEnclave}
                 onFocusVector={engine.focusOnVector}
                 onShowBriefing={showBriefing}
                 onHideBriefing={hideBriefing}
-                onTriggerEffect={engine.triggerEffect}
+                onTriggerEvent={engine.triggerEvent}
                 playerArchetypeKey={engine.playerArchetypeKey}
                 playerLegacyKey={engine.playerLegacyKey}
                 opponentArchetypeKey={engine.opponentArchetypeKey}
@@ -995,50 +989,34 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             </div>
 
             <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-40 pointer-events-auto">
-                <Snackbar data={engine.latestEffect ? { icon: engine.latestEffect.profile.ui.icon, title: engine.latestEffect.profile.ui.name, subtitle: `Detected in ${engine.latestEffect.locationName}`, iconColorClass: 'text-amber-400' } : null} onClose={engine.clearLatestEffect} />
+                <Snackbar data={engine.latestEvent ? { icon: engine.latestEvent.profile.ui.icon, title: engine.latestEvent.profile.ui.name, subtitle: `Detected in ${engine.latestEvent.locationName}`, iconColorClass: 'text-amber-400' } : null} onClose={engine.clearLatestEvent} />
             </div>
 
-            {effectTestProfile && (
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-auto">
-                    <button
-                        onClick={() => effectTestKey && engine.triggerEffect(effectTestKey)}
-                        className="bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 px-4 rounded-full flex items-center gap-2 shadow-lg transition-transform hover:scale-105"
-                    >
-                        <span className="material-symbols-outlined">{effectTestProfile.ui.icon}</span>
-                        Test: {effectTestProfile.ui.name}
-                    </button>
-                </div>
-            )}
-            
-            {(engine.isSettingsOpen || isClosingSettings) && debugCamera && (
-                <ErrorBoundary>
-                    <MemoizedSettingsDrawer
-                        isOpen={engine.isSettingsOpen}
-                        isClosing={isClosingSettings}
-                        onClose={handleToggleSettings}
-                        isGloballyMuted={engine.isGloballyMuted}
-                        onToggleGlobalMute={engine.toggleGlobalMute}
-                        volumes={engine.volumes}
-                        onVolumeChange={engine.setVolume}
-                        mutedChannels={engine.mutedChannels}
-                        onToggleMute={engine.toggleMuteChannel}
-                        isBloomEnabled={engine.isBloomEnabled}
-                        onToggleBloom={engine.setBloomEnabled}
-                        bloomSettings={engine.bloomSettings}
-                        onBloomSettingChange={engine.setBloomValue}
-                        materialSettings={engine.materialSettings}
-                        onMaterialSettingChange={engine.setMaterialValue}
-                        ambientLightIntensity={engine.ambientLightIntensity}
-                        onAmbientLightIntensityChange={engine.setAmbientLightIntensity}
-                        onTonemappingStrengthChange={engine.setTonemappingStrength}
-                        tonemappingStrength={engine.tonemappingStrength}
-                        sfxManager={sfxManager}
-                        worldCanvasHandle={worldCanvasHandle}
-                        // FIX: Pass the 'debugCamera' state variable instead of the undefined 'camera' variable.
-                        camera={debugCamera}
-                    />
-                </ErrorBoundary>
-            )}
+            <MemoizedSettingsDrawer
+                isOpen={engine.isSettingsOpen}
+                isClosing={isClosingSettings}
+                onClose={handleToggleSettings}
+                isGloballyMuted={engine.isGloballyMuted}
+                onToggleGlobalMute={engine.toggleGlobalMute}
+                volumes={engine.volumes}
+                onVolumeChange={engine.setVolume}
+                mutedChannels={engine.mutedChannels}
+                onToggleMute={engine.toggleMuteChannel}
+                isBloomEnabled={engine.isBloomEnabled}
+                onToggleBloom={engine.setBloomEnabled}
+                bloomSettings={engine.bloomSettings}
+                onBloomSettingChange={engine.setBloomValue}
+                materialSettings={engine.materialSettings}
+                onMaterialSettingChange={engine.setMaterialValue}
+                ambientLightIntensity={engine.ambientLightIntensity}
+                onAmbientLightIntensityChange={engine.setAmbientLightIntensity}
+                onTonemappingStrengthChange={engine.setTonemappingStrength}
+                tonemappingStrength={engine.tonemappingStrength}
+                sfxManager={sfxManager}
+                worldCanvasHandle={worldCanvasHandle}
+                // FIX: Pass the 'debugCamera' state variable instead of the undefined 'camera' variable.
+                camera={debugCamera}
+            />
             
             {showGameOverDialog && (
                 <>

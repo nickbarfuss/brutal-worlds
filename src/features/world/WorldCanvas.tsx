@@ -7,7 +7,7 @@ import { PLAYER_THREE_COLORS } from '@/data/theme';
 import { useWorldGeometry } from '@/hooks/useWorldGeometry';
 import { useCommandZone } from '@/hooks/useCommandZone';
 import { useWorldRenderer } from '@/hooks/useWorldRenderer';
-import { ActiveHighlight, SemanticColorPalette, GameState, MaterialProperties, MapCell, Enclave, Route, PendingOrders, ActiveEffectMarker, WorldProfile, Vector3, Domain, Rift, Expanse, IntroPhase, GamePhase } from '@/types/game';
+import { ActiveHighlight, SemanticColorPalette, GameState, MaterialProperties, MapCell, Enclave, Route, PendingOrders, ActiveEventMarker, WorldProfile, Vector3, Domain, Rift, Expanse, IntroPhase, GamePhase } from '@/types/game';
 import { SfxManager } from '@/logic/effects/SfxManager';
 import { Action } from '@/logic/reducers';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
@@ -49,7 +49,7 @@ interface WorldCanvasProps {
     selectedEnclaveId: number | null;
     hoveredCellId: number;
     currentWorld: WorldProfile | null;
-    activeEffectMarkers: ActiveEffectMarker[];
+    activeEffectMarkers: ActiveEventMarker[];
     cameraFocusAnimation: { active: boolean; target: Vector3 } | null;
     initialCameraTarget: Vector3 | null;
     isBloomEnabled: boolean;
