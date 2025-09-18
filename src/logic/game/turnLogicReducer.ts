@@ -1,5 +1,5 @@
 import { GameState, Enclave, EventQueueItem, TurnEvent, ConquestEvent } from '@/types/game';
-import { Action } from '@/logic/reducers/index';
+import { Action } from '@/logic';
 import { v4 as uuidv4 } from 'uuid';
 import { EVENT_PROFILES } from '@/data/events';
 import { triggerNewEvent as triggerEventLogic } from "@/logic/events";

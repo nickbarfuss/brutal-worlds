@@ -5,7 +5,7 @@ import {
 import { SfxManager, VfxManager } from '@/logic/effects';
 import { useGameInitializer } from '@/hooks/useGameInitializer';
 import { useGameLoop } from '@/hooks/useGameLoop';
-import { reducer, initialState, Action } from '@/logic/reducers';
+import { reducer, initialState, Action } from '@/logic';
 import { deserializeResolvedTurn, serializeGameStateForWorker } from '@/utils/threeUtils';
 import { calculateAIOrderChanges } from '@/logic/ai';
 import { getAssistMultiplierForEnclave } from '@/logic/birthrights';
@@ -80,7 +80,30 @@ export const useGameEngine = () => {
         workerRef.current.postMessage(JSON.stringify(serializableState));
     }, [dispatch, workerRef, getState]);
 
-    useGameLoop(state, resolveTurn);
+    const onFrame = useCallback(() => {
+        const { events, isPaused, isResolvingTurn } = getState();
+        if (isPaused || isResolvingTurn || events.length === 0) {
+            return;
+        }
+    
+        const eventsToPlay = events.filter(event => event.playMode === 'pending');
+    
+        if (eventsToPlay.length > 0) {
+            eventsToPlay.forEach(event => {
+                if (event.sfx) {
+                    sfxManager.current.playSound(event.sfx.key, event.sfx.channel, event.sfx.position);
+                }
+                if (event.vfx && event.position) {
+                    event.vfx.forEach(vfxKey => {
+                        vfxManager.current.playImmediateEffect(vfxKey, event.position as Vector3);
+                    });
+                }
+            });
+            dispatch({ type: 'REMOVE_EVENTS_FROM_QUEUE', payload: eventsToPlay.map(e => e.id) });
+        }
+    }, [getState, dispatch]);
+
+    useGameLoop(state, resolveTurn, onFrame);
 
     const setInitializationState = useCallback((isInitialized, message, error) => {
         dispatch({ type: 'SET_INITIALIZATION_STATE', payload: { isInitialized, message, error } });

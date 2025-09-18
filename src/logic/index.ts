@@ -1,12 +1,10 @@
 import { GameState, GamePhase, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, PlayerIdentifier, InspectedMapEntity } from '@/types/game';
 import { CONFIG } from '@/data/config';
-import { handleInitialization } from '@/logic/reducers/initializationReducer';
-import { handleGameFlow } from '@/logic/reducers/gameFlowReducer';
-import { handleMapInteraction } from '@/logic/reducers/mapInteractionReducer';
-import { handleTurnLogic } from '@/logic/reducers/turnLogicReducer';
-import { handleEvents } from '@/logic/reducers/eventReducer';
-import { handleFx } from '@/logic/reducers/vfxReducer';
-import { handleUi } from '@/logic/reducers/uiReducer'; 
+import { handleInitialization, handleGameFlow, handleTurnLogic } from '@/logic/game';
+import { handleMapInteraction } from '@/logic/map';
+import { handleEvents } from '@/logic/events';
+import { handleFx } from '@/logic/effects';
+import { handleUi } from '@/logic/ui'; 
 import { VfxManager } from '@/logic/effects';
 import { SfxManager } from '@/logic/effects';
 
@@ -35,7 +33,7 @@ export type Action =
     | { type: 'AI_CLEAR_ORDERS' }
     | { type: 'TRIGGER_EVENT'; payload: string }
     | { type: 'CLEAR_LATEST_EVENT' }
-    | { type: 'REMOVE_EVENTS'; payload: string[] }
+    | { type: 'REMOVE_EVENTS_FROM_QUEUE'; payload: string[] }
     | { type: 'GO_TO_MAIN_MENU' }
     | { type: 'SET_ACTIVE_HIGHLIGHT'; payload: ActiveHighlight | null }
     | { type: 'TOGGLE_SETTINGS_DRAWER' }
@@ -101,9 +99,7 @@ export const reducer = (state: GameState, action: Action, vfxManager: VfxManager
         case 'HANDLE_DBL_CLICK':
         case 'FOCUS_ON_ENCLAVE':
         case 'FOCUS_ON_VECTOR':
-        case 'SET_INSPECTED_ARCHETYPE_OWNER':
-        case 'SET_INSPECTED_MAP_ENTITY':
-        case 'SET_WORLD_INSPECTOR_MANUALLY_CLOSED':
+        case 'SET_ACTIVE_HIGHLIGHT':
             return handleMapInteraction(state, action, vfxManager, sfxManager);
 
         // Turn Logic
@@ -116,17 +112,19 @@ export const reducer = (state: GameState, action: Action, vfxManager: VfxManager
         case 'AI_CLEAR_ORDERS':
             return handleTurnLogic(state, action, vfxManager, sfxManager);
 
-        // Events
+        // Event Logic
         case 'TRIGGER_EVENT':
         case 'CLEAR_LATEST_EVENT':
             return handleEvents(state, action);
 
-        // VFX/SFX
-        case 'REMOVE_EVENTS':
+        // VFX/SFX Logic
+        case 'REMOVE_EVENTS_FROM_QUEUE':
             return handleFx(state, action);
 
-        // UI
-        case 'SET_ACTIVE_HIGHLIGHT':
+        // UI Logic
+        case 'SET_INSPECTED_ARCHETYPE_OWNER':
+        case 'SET_INSPECTED_MAP_ENTITY':
+        case 'SET_WORLD_INSPECTOR_MANUALLY_CLOSED':
         case 'TOGGLE_SETTINGS_DRAWER':
         case 'TOGGLE_GLOBAL_MUTE':
         case 'SET_VOLUME':
@@ -136,7 +134,6 @@ export const reducer = (state: GameState, action: Action, vfxManager: VfxManager
         case 'SET_MATERIAL_VALUE':
         case 'SET_AMBIENT_LIGHT_INTENSITY':
         case 'SET_TONEMAPPING_STRENGTH':
-        
             return handleUi(state, action);
 
         default:

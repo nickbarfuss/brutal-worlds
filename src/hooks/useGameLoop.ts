@@ -5,7 +5,7 @@ import { CONFIG } from '@/data/config';
 export const useGameLoop = (
     gameState: GameState,
     resolveTurn: () => void,
-    onFrame?: (gameState: GameState) => void
+    onFrame?: (timestamp: number) => void
 ) => {
     const { isPaused, gamePhase, isResolvingTurn, currentTurn, isIntroComplete } = gameState;
     const turnStartTimeRef = useRef<number | null>(null);
@@ -17,7 +17,7 @@ export const useGameLoop = (
             animationFrameId = requestAnimationFrame(loop);
 
             if (onFrame) {
-                onFrame(gameState);
+                onFrame(timestamp);
             }
             
             if (isResolvingTurn) {

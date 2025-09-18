@@ -10,7 +10,7 @@ import { useCommandZone } from '@/hooks/useCommandZone';
 import { useWorldGeometry } from '@/hooks/useWorldGeometry';
 import { useWorldRenderer } from '@/hooks/useWorldRenderer';
 import { SfxManager, VfxManager } from '@/logic/effects';
-import { Action } from '@/logic/reducers';
+import { Action } from '@/logic';
 import {
   ActiveEventMarker,
   ActiveHighlight,

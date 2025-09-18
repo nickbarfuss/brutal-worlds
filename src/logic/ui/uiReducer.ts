@@ -1,5 +1,5 @@
 import { GameState, ActiveHighlight } from '@/types/game';
-import { Action } from '@/logic/reducers/index';
+import { Action } from '@/logic';
 
 export const handleUi = (state: GameState, action: Action): GameState => {
     switch (action.type) {

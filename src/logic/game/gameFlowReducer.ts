@@ -1,5 +1,5 @@
 import { GameState } from '@/types/game';
-import { Action, initialState } from '@/logic/reducers/index';
+import { Action, initialState } from '@/logic';
 import { WORLD_LIBRARY } from '@/data/worlds';
 import { ARCHETYPES } from '@/data/archetypes';
 

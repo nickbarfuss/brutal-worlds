@@ -1,5 +1,5 @@
 import { GameState } from '@/types/game';
-import { Action } from '@/logic/reducers/index';
+import { Action } from '@/logic';
 import { handleSingleClick, handleDoubleClick } from '@/logic/orders';
 import { VfxManager, SfxManager } from '@/logic/effects';
 
@@ -42,14 +42,16 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
 
     // --- NEW: Check for a nearby disaster marker first, regardless of cell type ---
     const clickedPos = cell.center;
-    for (const marker of state.activeEventMarkers) {
-        // Using a slightly larger radius for easier clicking
-        if (marker.position.distanceTo(clickedPos) < 3.0) { 
-            return {
-                ...state,
-                selectedEnclaveId: null,
-                inspectedMapEntity: { type: 'event', id: marker.id },
-            };
+    if (Array.isArray(state.activeEventMarkers)) {
+        for (const marker of state.activeEventMarkers) {
+            // Using a slightly larger radius for easier clicking
+            if (marker.position.distanceTo(clickedPos) < 3.0) {
+                return {
+                    ...state,
+                    selectedEnclaveId: null,
+                    inspectedMapEntity: { type: 'event', id: marker.id },
+                };
+            }
         }
     }
 

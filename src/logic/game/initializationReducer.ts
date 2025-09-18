@@ -1,5 +1,5 @@
 import { GameState } from '@/types/game';
-import { Action } from '@/logic/reducers/index';
+import { Action } from '@/logic';
 
 export const handleInitialization = (state: GameState, action: Action): GameState => {
     if (action.type === 'SET_INITIALIZATION_STATE') {
