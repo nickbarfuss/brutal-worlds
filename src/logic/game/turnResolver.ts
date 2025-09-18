@@ -11,7 +11,7 @@ import { resolveAttacks } from '@/logic/orders/attackResolver';
 import * as THREE from 'three';
 import { EVENT_PROFILES } from '@/data/events';
 import { applyContinuousEffects } from '@/logic/events/eventProcessor';
-import { cloneEnclave } from '@/logic/cloneUtils';
+import { cloneEnclave } from '@/logic/enclaves/cloneUtils';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
 import * as entropyWindHandler from '@/logic/disasters/entropyWind';
 import { getRandomAssetKey } from '@/utils/assetUtils';

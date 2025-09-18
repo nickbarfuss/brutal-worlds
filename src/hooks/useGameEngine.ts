@@ -8,8 +8,8 @@ import { useGameInitializer } from '@/hooks/useGameInitializer';
 import { useGameLoop } from '@/hooks/useGameLoop';
 import { reducer, initialState, Action } from '@/logic/reducers';
 import { deserializeResolvedTurn, serializeGameStateForWorker } from '@/utils/threeUtils';
-import { calculateAIOrderChanges } from '@/logic/ai';
-import { getAssistMultiplierForEnclave } from '@/logic/birthrightManager.ts';
+import { calculateAIOrderChanges } from '@/logic/ai/ai';
+import { getAssistMultiplierForEnclave } from '@/logic/birthrights/birthrightManager';
 import { useConnection } from '@/hooks/useConnection';
 
 
@@ -173,7 +173,7 @@ export const useGameEngine = () => {
     
     useEffect(() => {
         try {
-            const worker = new Worker(new URL('../logic/turnResolver.ts', import.meta.url), {
+            const worker = new Worker(new URL('../logic/game/turnResolver.ts', import.meta.url), {
                 type: 'module'
             });
             workerRef.current = worker;

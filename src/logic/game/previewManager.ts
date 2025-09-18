@@ -1,6 +1,6 @@
 import { Enclave, PendingOrders, GameState, Player, Rule, ActiveEventMarker, Route } from '@/types/game';
 import { getAppliedModifiers } from '@/logic/events/eventProcessor';
-import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrightManager';
+import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrights/birthrightManager';
 import { DISASTERS } from '@/data/disasters';
 import { EVENT_PROFILES } from '@/data/events';
 

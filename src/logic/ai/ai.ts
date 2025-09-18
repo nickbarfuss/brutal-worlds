@@ -1,5 +1,5 @@
 import { Enclave, Route, PendingOrders, Order, GameState, Rule } from '@/types/game.ts';
-import { getAssistMultiplierForEnclave, getAttackBonusForEnclave } from '@/logic/birthrightManager.ts';
+import { getAssistMultiplierForEnclave, getAttackBonusForEnclave } from '@/logic/birthrights/birthrightManager';
 import { getAppliedModifiers } from '@/logic/events/eventProcessor.ts';
 import { EVENT_PROFILES } from '@/data/events.ts';
 
