@@ -1,6 +1,6 @@
 import { Enclave, Route, ActiveDisasterMarker, EventQueueItem, ActiveEvent, MapCell, GameState } from '@/types/game';
 import { DISASTERS } from '@/data/disasters';
-import { applyContinuousEffects, applyInstantaneousRules } from '@/logic/events/eventProcessor';
+import { applyContinuousEffects, applyInstantaneousRules } from '@/logic/events';
 import { cloneEnclave } from '@/logic/enclaves';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
 import * as entropyWindHandler from '@/logic/disasters/entropyWind';

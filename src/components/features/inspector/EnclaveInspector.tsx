@@ -8,7 +8,7 @@ import { ARCHETYPES } from '@/data/archetypes';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { ICONS } from '@/data/icons';
-import { getAppliedModifiers } from '@/logic/events/eventProcessor';
+import { getAppliedModifiers } from '@/logic/events';
 import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrights';
 import { calculateEnclaveTurnPreview, TurnPreview } from '@/logic/game/previewManager'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { getAssetUrl } from '@/utils/assetUtils';

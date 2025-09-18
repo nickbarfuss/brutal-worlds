@@ -1,8 +1,7 @@
 import { Enclave, PendingOrders, Route, OrderType } from '@/types/game.ts';
 import { getAssistMultiplierForEnclave } from '@/logic/birthrights';
 import { ORDER_PROFILES } from '@/data/orders.ts';
-import { VfxManager } from '../effects/VfxManager';
-import { SfxManager } from '../effects/SfxManager';
+import { VfxManager, SfxManager } from '@/logic/effects';
 
 
 export const handleSingleClick = (

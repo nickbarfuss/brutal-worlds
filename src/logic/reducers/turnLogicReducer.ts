@@ -2,9 +2,8 @@ import { GameState, Enclave, EventQueueItem, TurnEvent, ConquestEvent } from '@/
 import { Action } from '@/logic/reducers/index';
 import { v4 as uuidv4 } from 'uuid';
 import { EVENT_PROFILES } from '@/data/events';
-import { triggerNewEvent as triggerEventLogic } from "@/logic/events/eventManager";
-import { SfxManager } from '@/logic/effects/SfxManager';
-import { VfxManager } from '@/logic/effects/VfxManager';
+import { triggerNewEvent as triggerEventLogic } from "@/logic/events";
+import { SfxManager, VfxManager } from '@/logic/effects';
 
 const mapEventsToEvents = (events: TurnEvent[], state: GameState, newEnclaveData: { [id: number]: Enclave }): EventQueueItem[] => {
     const eventQueue: EventQueueItem[] = [];

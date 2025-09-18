@@ -1,72 +1,93 @@
-import React, { useRef, useMemo, useImperativeHandle, forwardRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
-import { VfxManager } from '@/logic/effects/VfxManager';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+
 import { PLAYER_THREE_COLORS } from '@/data/theme';
-import { useWorldGeometry } from '@/hooks/useWorldGeometry';
 import { useCommandZone } from '@/hooks/useCommandZone';
+import { useWorldGeometry } from '@/hooks/useWorldGeometry';
 import { useWorldRenderer } from '@/hooks/useWorldRenderer';
-import { ActiveHighlight, SemanticColorPalette, GameState, MaterialProperties, MapCell, Enclave, Route, PendingOrders, ActiveEventMarker, WorldProfile, Vector3, Domain, Rift, Expanse, IntroPhase, GamePhase } from '@/types/game';
-import { SfxManager } from '@/logic/effects/SfxManager';
+import { SfxManager, VfxManager } from '@/logic/effects';
 import { Action } from '@/logic/reducers';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import {
+  ActiveEventMarker,
+  ActiveHighlight,
+  Domain,
+  Enclave,
+  Expanse,
+  GamePhase,
+  GameState,
+  IntroPhase,
+  MapCell,
+  PendingOrders,
+  Rift,
+  Route,
+  SemanticColorPalette,
+  Vector3,
+  WorldProfile,
+} from '@/types/game';
 
 export interface WorldCanvasHandle {
   setAmbientLightIntensity: (value: number) => void;
   setBloomValue: (key: 'threshold' | 'strength' | 'radius', value: number) => void;
-  setMaterialValue: (type: keyof GameState['materialSettings'], key: keyof MaterialProperties, value: number) => void;
+  setMaterialValue: (
+    type: 'player' | 'neutral' | 'void',
+    key: 'metalness' | 'roughness' | 'emissiveIntensity',
+    value: number,
+  ) => void;
   setTonemappingStrength: (value: number) => void;
   setControlsEnabled: (enabled: boolean) => void;
-  readonly camera: THREE.PerspectiveCamera | null;
-  readonly mapContainer: THREE.Object3D | null;
-  readonly opacityController: { world: number } | null;
   setFov: (value: number) => void;
   setDistance: (value: number) => void;
+  camera: THREE.PerspectiveCamera | null;
+  mapContainer: THREE.Object3D | null;
+  opacityController: { world: number } | null;
 }
 
 interface WorldCanvasProps {
-    dispatch: React.Dispatch<Action>;
-    sfxManager: SfxManager;
+  dispatch: React.Dispatch<Action>;
+  sfxManager: SfxManager;
     
-    vfxManager: VfxManager;
-    convertLatLonToVector3: (lat: number, lon: number) => THREE.Vector3;
-    highlightBorderMeshes: Line2[];
-    highlightBorderMaterials: LineMaterial[];
-    activeHighlight: ActiveHighlight | null;
-    highlightBorderOpacity: number;
-    permanentBorderMeshes: Line2[];
-    permanentBorderMaterials: LineMaterial[];
-    gameSessionId: number;
-    mapData: MapCell[];
-    domainData: { [id: number]: Domain };
-    riftData: { [id: number]: Rift };
-    expanseData: { [id: number]: Expanse };
-    enclaveData: { [id: number]: Enclave };
-    routes: Route[];
-    pendingOrders: PendingOrders;
-    selectedEnclaveId: number | null;
-    hoveredCellId: number;
-    currentWorld: WorldProfile | null;
-    activeEffectMarkers: ActiveEventMarker[];
-    cameraFocusAnimation: { active: boolean; target: Vector3 } | null;
-    initialCameraTarget: Vector3 | null;
-    isBloomEnabled: boolean;
-    bloomSettings: GameState['bloomSettings'];
-    materialSettings: GameState['materialSettings'];
-    ambientLightIntensity: number;
-    tonemappingStrength: number;
-    handleMapClick: (cellId: number | null, isCtrlPressed: boolean) => void;
-    handleEnclaveDblClick: (enclaveId: number | null) => void;
-    setHoveredCellId: (id: number) => void;
-    focusOnEnclave: (id: number) => void;
-    gamePhase: GamePhase;
-    isIntroComplete: boolean;
-    introPhase: IntroPhase;
+  vfxManager: VfxManager;
+  convertLatLonToVector3: (lat: number, lon: number) => THREE.Vector3;
+  highlightBorderMeshes: Line2[];
+  highlightBorderMaterials: LineMaterial[];
+  activeHighlight: ActiveHighlight | null;
+  highlightBorderOpacity: number;
+  permanentBorderMeshes: Line2[];
+  permanentBorderMaterials: LineMaterial[];
+  gameSessionId: number;
+  mapData: MapCell[];
+  domainData: { [id: number]: Domain };
+  riftData: { [id: number]: Rift };
+  expanseData: { [id: number]: Expanse };
+  enclaveData: { [id: number]: Enclave };
+  routes: Route[];
+  pendingOrders: PendingOrders;
+  selectedEnclaveId: number | null;
+  hoveredCellId: number;
+  currentWorld: WorldProfile | null;
+  activeEffectMarkers: ActiveEventMarker[];
+  cameraFocusAnimation: { active: boolean; target: Vector3 } | null;
+  initialCameraTarget: Vector3 | null;
+  isBloomEnabled: boolean;
+  bloomSettings: GameState['bloomSettings'];
+  materialSettings: GameState['materialSettings'];
+  ambientLightIntensity: number;
+  tonemappingStrength: number;
+  handleMapClick: (cellId: number | null, isCtrlPressed: boolean) => void;
+  handleEnclaveDblClick: (enclaveId: number | null) => void;
+  setHoveredCellId: (id: number) => void;
+  focusOnEnclave: (id: number) => void;
+  gamePhase: GamePhase;
+  isIntroComplete: boolean;
+  introPhase: IntroPhase;
 }
 
-const WorldCanvas = React.memo(forwardRef<WorldCanvasHandle, WorldCanvasProps>((props, ref) => {
+const WorldCanvas = React.memo(
+  forwardRef<WorldCanvasHandle, WorldCanvasProps>((props, ref) => {
     const mountRef = useRef<HTMLDivElement>(null);
     const { convertLatLonToVector3 } = props;
 

@@ -1,8 +1,7 @@
 import { GameState } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
 import { handleSingleClick, handleDoubleClick } from '@/logic/orders';
-import { VfxManager } from '@/logic/effects/VfxManager';
-import { SfxManager } from '@/logic/effects/SfxManager';
+import { VfxManager, SfxManager } from '@/logic/effects';
 
 const setHoveredCell = (state: GameState, payload: number): GameState => {
     const id = payload;

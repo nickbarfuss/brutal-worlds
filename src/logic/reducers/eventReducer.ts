@@ -1,6 +1,6 @@
 import { GameState } from '@/types/game';
 import { Action } from '@/logic/reducers/index';
-import { triggerNewEvent as triggerEventLogic } from "@/logic/events/eventManager";
+import { triggerNewEvent as triggerEventLogic } from "@/logic/events";
 import { EVENT_PROFILES } from '@/data/events';
 
 export const handleEvents = (state: GameState, action: Action): GameState => {

@@ -7,8 +7,8 @@ import { handleTurnLogic } from '@/logic/reducers/turnLogicReducer';
 import { handleEvents } from '@/logic/reducers/eventReducer';
 import { handleFx } from '@/logic/reducers/vfxReducer';
 import { handleUi } from '@/logic/reducers/uiReducer'; 
-import { VfxManager } from '@/logic/effects/VfxManager';
-import { SfxManager } from '@/logic/effects/SfxManager';
+import { VfxManager } from '@/logic/effects';
+import { SfxManager } from '@/logic/effects';
 
 export type Action =
     | { type: 'SET_INITIALIZATION_STATE'; payload: { isInitialized: boolean; message: string; error: string | null } }

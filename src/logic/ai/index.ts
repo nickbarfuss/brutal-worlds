@@ -1,6 +1,6 @@
 import { Enclave, Route, PendingOrders, Order, GameState, Rule } from '@/types/game.ts';
 import { getAssistMultiplierForEnclave, getAttackBonusForEnclave } from '@/logic/birthrights';
-import { getAppliedModifiers } from '@/logic/events/eventProcessor.ts';
+import { getAppliedModifiers } from '@/logic/events';
 import { EVENT_PROFILES } from '@/data/events.ts';
 
 const findWeakestEnclave = (candidates: Enclave[]): Enclave | null => {

@@ -8,7 +8,7 @@ import { Enclave, PendingOrders, EventQueueItem, ActiveEventMarker, Route, MapCe
 import { resolveHolding, resolveAssists, resolveAttacks } from '@/logic/orders';
 import * as THREE from 'three';
 import { EVENT_PROFILES } from '@/data/events';
-import { applyContinuousEffects } from '@/logic/events/eventProcessor';
+import { applyContinuousEffects } from '@/logic/events';
 import { cloneEnclave } from '@/logic/enclaves';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
 import * as entropyWindHandler from '@/logic/disasters/entropyWind';

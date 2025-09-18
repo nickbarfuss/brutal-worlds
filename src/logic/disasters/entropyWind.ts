@@ -1,5 +1,5 @@
 import { Enclave, ActiveEvent, DisasterProfile, Route, DisasterRule, MapCell, GameState } from '@/types/game';
-import { applyContinuousEffects, applyInstantaneousRules } from '@/logic/events/eventProcessor';
+import { applyContinuousEffects, applyInstantaneousRules } from '@/logic/events';
 export { processMarker, processEffect } from '@/logic/disasters/defaultHandler';
 import { queueEventAssets } from '@/logic/game';
 

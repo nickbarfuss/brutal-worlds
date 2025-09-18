@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { ActiveHighlight, GameState } from '@/types/game';
-import { VfxManager } from '@/logic/effects/VfxManager';
+import { VfxManager } from '@/logic/effects';
 import { getScreenPosition } from '@/canvas/draw/drawUtils';
 import { drawAllEnclaves, drawSelectionPulse } from '@/canvas/draw/drawEnclaves';
 import { drawAllRoutes } from '@/canvas/draw/drawRoutes';

@@ -22,7 +22,7 @@ import { BriefingContent, BriefingState, GameOverState, OrderType, Owner, WorldP
 import Backdrop from '@/components/ui/Backdrop';
 import LegendDisplay from '@/components/features/display/LegendDisplay';
 import VignetteOverlay from '@/components/ui/VignetteOverlay';
-import { getAppliedModifiers } from '@/logic/events/eventProcessor';
+import { getAppliedModifiers } from '@/logic/events';
 import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrights';
 import CustomCursor from '@/components/ui/CustomCursor';
 import SettingsDrawer from '@/components/features/settings/SettingsDrawer';

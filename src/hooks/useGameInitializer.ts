@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { VfxManager } from '@/logic/effects/VfxManager';
-import { SfxManager } from '@/logic/effects/SfxManager';
+import { SfxManager, VfxManager } from '@/logic/effects';
 import { GamePhase } from '@/types/game';
 import { getAssetUrl, extractAssetUrls } from '@/utils/assetUtils';
 import { ASSETS } from '@/data/assets';
