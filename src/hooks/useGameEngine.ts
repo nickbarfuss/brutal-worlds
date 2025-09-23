@@ -110,7 +110,7 @@ export const useGameEngine = () => {
             return;
         }
     
-        const eventsToPlay = events.filter(event => event.playMode === 'pending');
+        const eventsToPlay = events.filter(event => event.playMode === 'immediate');
     
         if (eventsToPlay.length > 0) {
             eventsToPlay.forEach(event => {
