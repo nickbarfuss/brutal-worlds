@@ -2,7 +2,9 @@ import { useCallback, useRef, useEffect, useReducer } from 'react';
 import {
     Enclave, PendingOrders, GamePhase, GameState, ActiveHighlight, AudioChannel, MaterialProperties, Order, PlayerIdentifier, InspectedMapEntity, Vector3, ConquestEvent
 } from '@/types/game';
-import { sfxManager, vfxManager, turnBasedEffectsProcessor } from '@/logic/effects';
+import { sfxManager, vfxManager } from '@/logic/effects';
+import { turnBasedEffects } from '@/features/effects/turn-based/turnBasedEffects';
+import { immediateEffects } from '@/features/effects/immediate/immediateEffects';
 import { useGameInitializer } from '@/hooks/useGameInitializer';
 import { useGameLoop } from '@/hooks/useGameLoop';
 import { reducer, initialState, Action } from '@/logic';
@@ -57,11 +59,11 @@ export const useGameEngine = () => {
             const conquestEvents = state.unprocessedTurnEvents.filter(e => e.type === 'conquest') as ConquestEvent[];
             
             // Clear queues and add new effects
-            turnBasedEffectsProcessor.clearQueues();
+            turnBasedEffects.clear();
             conquestEvents.forEach(event => {
                 const enclave = state.enclaveData[event.enclaveId];
                 if (enclave) {
-                    turnBasedEffectsProcessor.addEffectsForConquest(event, enclave.center);
+                    turnBasedEffects.addEffectsForConquest(event, enclave.center);
                 }
             });
 
@@ -75,7 +77,7 @@ export const useGameEngine = () => {
             // Clear the processed events
             dispatch({ type: 'CLEAR_UNPROCESSED_TURN_EVENTS' });
         }
-    }, [state.unprocessedTurnEvents, state.enclaveData, dispatch]);
+    }, [state, dispatch]);
 
     const resolveTurn = useCallback(() => {
         const latestState = getState();
@@ -113,11 +115,11 @@ export const useGameEngine = () => {
         if (eventsToPlay.length > 0) {
             eventsToPlay.forEach(event => {
                 if (event.sfx) {
-                    sfxManager.playSound(event.sfx.key, event.sfx.channel, event.sfx.position);
+                    immediateEffects.play(event.sfx.key, event.sfx.position, 'sfx');
                 }
                 if (event.vfx && event.position) {
                     event.vfx.forEach(vfxKey => {
-                        vfxManager.playImmediateEffect(vfxKey, event.position as Vector3);
+                        immediateEffects.play(vfxKey, event.position as Vector3, 'vfx');
                     });
                 }
             });

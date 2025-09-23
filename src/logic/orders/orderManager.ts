@@ -1,8 +1,15 @@
-import { Enclave, PendingOrders, Route, OrderType } from '@/types/game.ts';
+import { Enclave, PendingOrders, Route, OrderType, EventQueueItem } from '@/types/game.ts';
 import { getAssistMultiplierForEnclave } from '@/logic/birthrights';
 import { ORDER_PROFILES } from '@/data/orders.ts';
-import { VfxManager, SfxManager } from '@/logic/effects';
+import { v4 as uuidv4 } from 'uuid';
 
+interface ClickResult {
+    newSelectedEnclaveId: number | null;
+    newInspectedEnclaveId: number | null;
+    isCardVisible: boolean;
+    updatedOrders: PendingOrders;
+    events: EventQueueItem[];
+}
 
 export const handleSingleClick = (
     clickedEnclaveId: number | null,
@@ -11,26 +18,31 @@ export const handleSingleClick = (
     routes: Route[],
     playerPendingOrders: PendingOrders,
     isCtrlPressed: boolean,
-    vfxManager: VfxManager,
-    sfxManager: SfxManager
-) => {
+): ClickResult => {
+    const events: EventQueueItem[] = [];
 
     // 1. Handle click on empty space (deselects everything)
     if (clickedEnclaveId === null) {
         const deselectedEnclave = selectedEnclaveId !== null ? enclaveData[selectedEnclaveId] : null;
         if (deselectedEnclave) {
-            sfxManager.playSound('order-commandMode-sfx-exit', 'fx', deselectedEnclave.center);
+            events.push({
+                id: uuidv4(),
+                playMode: 'immediate',
+                position: deselectedEnclave.center,
+                sfx: { key: 'order-commandMode-sfx-exit', channel: 'fx', position: deselectedEnclave.center },
+            });
         }
         return {
             newSelectedEnclaveId: null,
             newInspectedEnclaveId: null,
             isCardVisible: false,
             updatedOrders: playerPendingOrders,
+            events,
         };
     }
 
     const clickedEnclave = enclaveData[clickedEnclaveId];
-    if (!clickedEnclave) return { newSelectedEnclaveId: null, newInspectedEnclaveId: null, isCardVisible: false, updatedOrders: playerPendingOrders };
+    if (!clickedEnclave) return { newSelectedEnclaveId: null, newInspectedEnclaveId: null, isCardVisible: false, updatedOrders: playerPendingOrders, events };
 
     // 2. HIGHEST PRIORITY: Handle Ctrl+Click to enter/switch command mode.
     if (isCtrlPressed && clickedEnclave.owner === 'player-1') {
@@ -38,12 +50,18 @@ export const handleSingleClick = (
         const sfxKey = newSelectedId !== null
             ? `order-commandMode-sfx-enter`
             : 'order-commandMode-sfx-exit';
-        sfxManager.playSound(sfxKey, 'fx', clickedEnclave.center);
+        events.push({
+            id: uuidv4(),
+            playMode: 'immediate',
+            position: clickedEnclave.center,
+            sfx: { key: sfxKey, channel: 'fx', position: clickedEnclave.center },
+        });
         return {
             newSelectedEnclaveId: newSelectedId,
             newInspectedEnclaveId: clickedEnclaveId,
             isCardVisible: true,
             updatedOrders: playerPendingOrders,
+            events,
         };
     }
 
@@ -53,9 +71,14 @@ export const handleSingleClick = (
         if (!originEnclave) {
              const deselectedEnclave = selectedEnclaveId !== null ? enclaveData[selectedEnclaveId] : null;
              if (deselectedEnclave) {
-                sfxManager.playSound('order-commandMode-sfx-exit', 'fx', deselectedEnclave.center);
+                events.push({
+                    id: uuidv4(),
+                    playMode: 'immediate',
+                    position: deselectedEnclave.center,
+                    sfx: { key: 'order-commandMode-sfx-exit', channel: 'fx', position: deselectedEnclave.center },
+                });
             }
-            return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders };
+            return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders, events };
         }
         
         // 3a. Self-click: Issue a "Hold" order by canceling the current one.
@@ -68,16 +91,27 @@ export const handleSingleClick = (
                 const sfxKey = `order-${profile.key}-sfx`;
 
                 if (profile.assets.vfx) {
-                    vfxManager.playImmediateEffect(vfxKey, clickedEnclave.center);
+                    events.push({
+                        id: uuidv4(),
+                        playMode: 'immediate',
+                        vfx: [vfxKey],
+                        position: clickedEnclave.center,
+                    });
                 }
                 if (profile.assets.sfx) {
-                    sfxManager.playSound(sfxKey, 'fx', clickedEnclave.center);
+                    events.push({
+                        id: uuidv4(),
+                        playMode: 'immediate',
+                        position: clickedEnclave.center,
+                        sfx: { key: sfxKey, channel: 'fx', position: clickedEnclave.center },
+                    });
                 }
                 return {
                     newSelectedEnclaveId: null, // Exit command mode
                     newInspectedEnclaveId: clickedEnclaveId,
                     isCardVisible: true,
                     updatedOrders: newOrders,
+                    events,
                 };
             }
         }
@@ -112,12 +146,22 @@ export const handleSingleClick = (
                     const updatedOrders = { ...playerPendingOrders, [selectedEnclaveId]: { to: clickedEnclaveId, type: orderType }};
                     
                     if (profile.assets.vfx) {
-                        vfxManager.playImmediateEffect(vfxKey, clickedEnclave.center);
+                        events.push({
+                            id: uuidv4(),
+                            playMode: 'immediate',
+                            vfx: [vfxKey],
+                            position: clickedEnclave.center,
+                        });
                     }
                     if (profile.assets.sfx) {
-                        sfxManager.playSound(sfxKey, 'fx', originEnclave.center);
+                         events.push({
+                            id: uuidv4(),
+                            playMode: 'immediate',
+                            position: originEnclave.center,
+                            sfx: { key: sfxKey, channel: 'fx', position: originEnclave.center },
+                        });
                     }
-                    return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders };
+                    return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders, events };
                 } else {
                     // Invalid order due to insufficient forces
                     return {
@@ -125,14 +169,20 @@ export const handleSingleClick = (
                         newInspectedEnclaveId: clickedEnclaveId,
                         isCardVisible: true,
                         updatedOrders: playerPendingOrders,
+                        events,
                     };
                 }
             }
         }
         
         // 3c. Click on anything else (invalid target, etc.): Deselect.
-        sfxManager.playSound('order-commandMode-sfx-exit', 'fx', originEnclave.center);
-        return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders };
+        events.push({
+            id: uuidv4(),
+            playMode: 'immediate',
+            position: originEnclave.center,
+            sfx: { key: 'order-commandMode-sfx-exit', channel: 'fx', position: originEnclave.center },
+        });
+        return { newSelectedEnclaveId: null, newInspectedEnclaveId: clickedEnclaveId, isCardVisible: true, updatedOrders: playerPendingOrders, events };
 
     } else {
         // 4. Default action: Not in command mode, so just inspect.
@@ -141,30 +191,43 @@ export const handleSingleClick = (
             newInspectedEnclaveId: clickedEnclaveId,
             isCardVisible: true,
             updatedOrders: playerPendingOrders,
+            events,
         };
     }
 };
+
+interface DoubleClickResult {
+    updatedOrders: PendingOrders;
+    newSelectedEnclaveId: number;
+    events: EventQueueItem[];
+}
 
 export const handleDoubleClick = (
     enclaveId: number,
     enclaveData: { [id: number]: Enclave },
     playerPendingOrders: PendingOrders,
-    sfxManager: SfxManager
-) => {
+): DoubleClickResult => {
     const clickedEnclave = enclaveData[enclaveId];
+    const events: EventQueueItem[] = [];
     if (!clickedEnclave) {
         // Should not happen, but as a safeguard.
         return {
             updatedOrders: playerPendingOrders,
             newSelectedEnclaveId: enclaveId,
+            events,
         };
     }
     // A double click on a player-owned enclave always enters command mode.
-    // The logic to cancel an order has been moved to a self-click in handleSingleClick.
     const sfxKey = `order-commandMode-sfx-enter`;
-    sfxManager.playSound(sfxKey, 'fx', clickedEnclave.center);
+    events.push({
+        id: uuidv4(),
+        playMode: 'immediate',
+        position: clickedEnclave.center,
+        sfx: { key: sfxKey, channel: 'fx', position: clickedEnclave.center },
+    });
     return {
         updatedOrders: playerPendingOrders,
         newSelectedEnclaveId: enclaveId,
+        events,
     };
 };

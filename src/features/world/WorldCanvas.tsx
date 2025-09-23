@@ -28,7 +28,6 @@ import {
   Vector3,
   WorldProfile,
 } from '@/types/game';
-import { turnBasedEffectsProcessor } from '@/logic/effects/turnBasedEffects';
 
 export interface WorldCanvasHandle {
   setAmbientLightIntensity: (value: number) => void;
@@ -50,7 +49,7 @@ export interface WorldCanvasHandle {
 interface WorldCanvasProps {
   dispatch: React.Dispatch<Action>;
   sfxManager: SfxManager;
-  turnBasedEffectsProcessor: typeof turnBasedEffectsProcessor;
+  
   vfxManager: VfxManager;
   convertLatLonToVector3: (lat: number, lon: number) => THREE.Vector3;
   highlightBorderMeshes: Line2[];

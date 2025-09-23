@@ -31,7 +31,7 @@ export const drawUICanvas = (
     ctx.save();
     ctx.globalAlpha = globalAlpha;
 
-    vfxManager.updateAndDraw(ctx, mapContainer, camera);
+    
     
     const enclaveScreenPositions: { [id: number]: { x: number; y: number; visible: boolean } } = {};
     Object.values(enclaveData).forEach(enclave => {

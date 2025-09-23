@@ -1,7 +1,6 @@
 import { GameState } from '@/types/game';
 import { Action } from '@/logic';
 import { handleSingleClick, handleDoubleClick } from '@/logic/orders';
-import { VfxManager, SfxManager } from '@/logic/effects';
 
 const setHoveredCell = (state: GameState, payload: number): GameState => {
     const id = payload;
@@ -28,13 +27,13 @@ const setHoveredCell = (state: GameState, payload: number): GameState => {
     return { ...state, hoveredCellId: id, hoveredEntity: newHoveredEntity };
 };
 
-const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPressed: boolean }, vfxManager: VfxManager, sfxManager: SfxManager): GameState => {
+const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPressed: boolean }): GameState => {
     const { cellId, isCtrlPressed } = payload;
     
     if (cellId === null || cellId === -1) {
-        handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false, vfxManager, sfxManager);
+        const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
         const newInspectedEntity = state.worldInspectorManuallyClosed ? null : { type: 'world' as const };
-        return { ...state, selectedEnclaveId: null, inspectedMapEntity: newInspectedEntity };
+        return { ...state, selectedEnclaveId: null, inspectedMapEntity: newInspectedEntity, events: [...state.events, ...result.events] };
     }
     
     const cell = state.mapData[cellId];
@@ -58,38 +57,41 @@ const clickMap = (state: GameState, payload: { cellId: number | null, isCtrlPres
     // --- If no marker was clicked, proceed with the original logic ---
     if (cell.enclaveId !== null) {
         const result = handleSingleClick(
-            cell.enclaveId, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, isCtrlPressed, vfxManager, sfxManager
+            cell.enclaveId, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, isCtrlPressed
         );
         return {
             ...state,
             playerPendingOrders: result.updatedOrders,
             selectedEnclaveId: result.newSelectedEnclaveId,
             inspectedMapEntity: result.newInspectedEnclaveId !== null ? { type: 'enclave', id: result.newInspectedEnclaveId } : state.inspectedMapEntity,
+            events: [...state.events, ...result.events],
         };
     } else if (cell.domainId !== null && state.domainData[cell.domainId]) {
-        handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false, vfxManager, sfxManager);
+        const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
         return {
             ...state,
             selectedEnclaveId: null,
             inspectedMapEntity: { type: 'domain', id: cell.domainId },
+            events: [...state.events, ...result.events],
         };
     } else if (cell.voidId !== null) {
         // The disaster marker check has been moved up. Now just inspect the void feature.
         if (cell.voidType) {
-            handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false, vfxManager, sfxManager);
+            const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
             return {
                 ...state,
                 selectedEnclaveId: null,
                 inspectedMapEntity: { type: cell.voidType, id: cell.voidId },
+                events: [...state.events, ...result.events],
             };
         }
     }
     
-    handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false, vfxManager, sfxManager);
-    return { ...state, selectedEnclaveId: null, inspectedMapEntity: null };
+    const result = handleSingleClick(null, state.selectedEnclaveId, state.enclaveData, state.routes, state.playerPendingOrders, false);
+    return { ...state, selectedEnclaveId: null, inspectedMapEntity: null, events: [...state.events, ...result.events] };
 };
 
-const dblClickMap = (state: GameState, payload: number | null, sfxManager: SfxManager): GameState => {
+const dblClickMap = (state: GameState, payload: number | null): GameState => {
     const enclaveId = payload;
     if (enclaveId === null) return state;
 
@@ -97,12 +99,13 @@ const dblClickMap = (state: GameState, payload: number | null, sfxManager: SfxMa
     if (!clickedEnclave) return state;
 
     if (clickedEnclave.owner === 'player-1') {
-        const result = handleDoubleClick(enclaveId, state.enclaveData, state.playerPendingOrders, sfxManager);
+        const result = handleDoubleClick(enclaveId, state.enclaveData, state.playerPendingOrders);
         return {
             ...state,
             playerPendingOrders: result.updatedOrders,
             selectedEnclaveId: result.newSelectedEnclaveId,
             inspectedMapEntity: { type: 'enclave', id: enclaveId },
+            events: [...state.events, ...result.events],
         };
     }
     
@@ -122,11 +125,11 @@ const focusOnEnclave = (state: GameState, payload: number): GameState => {
     return { ...state, cameraFocusAnimation: { active: true, target: targetEnclave.center.clone() } };
 };
 
-export const handleMapInteraction = (state: GameState, action: Action, vfxManager: VfxManager, sfxManager: SfxManager): GameState => {
+export const handleMapInteraction = (state: GameState, action: Action): GameState => {
     switch (action.type) {
         case 'SET_HOVERED_CELL': return setHoveredCell(state, action.payload);
-        case 'HANDLE_MAP_CLICK': return clickMap(state, action.payload, vfxManager, sfxManager);
-        case 'HANDLE_DBL_CLICK': return dblClickMap(state, action.payload, sfxManager);
+        case 'HANDLE_MAP_CLICK': return clickMap(state, action.payload);
+        case 'HANDLE_DBL_CLICK': return dblClickMap(state, action.payload);
         case 'FOCUS_ON_ENCLAVE': return focusOnEnclave(state, action.payload);
         case 'FOCUS_ON_VECTOR':
             return { ...state, cameraFocusAnimation: { active: true, target: action.payload.clone() } };

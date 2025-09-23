@@ -30,8 +30,8 @@ import SurrenderConfirmDialog from '@/components/features/surrender/SurrenderCon
 import { getAssetUrl } from '@/utils/assetUtils';
 import { toCamelCase } from '@/utils/stringUtils';
 import WarpStarsCanvas from '@/features/background/WarpStarsCanvas';
-import ImmediateVfxPlayer from '@/features/effects/ImmediateVfxPlayer';
-import { turnBasedEffectsProcessor } from '@/logic/effects/turnBasedEffects';
+import ImmediateEffectsPlayer from '@/features/effects/immediate/ImmediateEffectsPlayer';
+import TurnBasedEffectsPlayer from '@/features/effects/turn-based/TurnBasedEffectsPlayer';
 
 declare const gsap: any;
 
@@ -86,11 +86,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         gameSessionId, playerArchetypeKey, playerLegacyKey, dispatch 
     } = engine;
 
-    useEffect(() => {
-        if (worldCanvasHandle.current && worldCanvasHandle.current.camera) {
-            turnBasedEffectsProcessor.setCamera(worldCanvasHandle.current.camera);
-        }
-    }, [worldCanvasHandle.current]);
+    
 
     useEffect(() => {
         if (gamePhase !== 'playing' || isIntroComplete || typeof gsap === 'undefined' || !currentWorld) {
@@ -809,10 +805,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
 
     return (
         <div className={`w-full h-full bg-black relative overflow-hidden ${cursorClass}`}>
-            <ImmediateVfxPlayer 
-                vfxManager={engine.vfxManager} 
-                worldCanvasHandle={worldCanvasHandle} 
-            />
+            <ImmediateEffectsPlayer worldCanvasHandle={worldCanvasHandle} />
+            <TurnBasedEffectsPlayer worldCanvasHandle={worldCanvasHandle} />
             {engine.isResolvingTurn && <CustomCursor />}
             
             <video ref={videoEnterRef} src={getAssetUrl(ASSETS.cinematic.intro.vfx[0].src)} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'entry' ? 'block' : 'none' }} />
@@ -823,7 +817,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 <WorldCanvas
                     ref={worldCanvasHandle}
                     sfxManager={sfxManager}
-                    turnBasedEffectsProcessor={turnBasedEffectsProcessor}
                     vfxManager={engine.vfxManager}
                     convertLatLonToVector3={convertLatLonToVector3}
                     highlightBorderMeshes={highlightBorderMeshes}

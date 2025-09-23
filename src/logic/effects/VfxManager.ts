@@ -1,20 +1,11 @@
 import * as THREE from 'three';
 import { ASSETS } from '@/data/assets';
 import { flattenAssetUrls, VFXAsset } from '@/utils/assetUtils';
-
-interface ActiveEffect {
-    key: string;
-    video: HTMLVideoElement;
-    worldPosition: THREE.Vector3;
-    width: number;
-    height: number;
-}
+import { ActiveEffect } from '@/features/effects/effects.types';
 
 export class VfxManager {
     private isInitialized: boolean = false;
     private preloadedVideos: Map<string, VFXAsset[]> = new Map();
-    private activeImmediateEffect: ActiveEffect | null = null;
-    private activeTurnBasedEffects: ActiveEffect[] = [];
 
     constructor() {}
 
@@ -22,7 +13,6 @@ export class VfxManager {
         if (this.isInitialized) return;
 
         const vfxAssets = flattenAssetUrls<VFXAsset>(ASSETS, ['.webm', '.mp4']);
-        //console.log('[VfxManager.init] vfxAssets map from flattenAssetUrls:', vfxAssets);
         const assetPromises: Promise<void>[] = [];
 
         vfxAssets.forEach((assets, key) => {
@@ -52,7 +42,6 @@ export class VfxManager {
 
             const assetWithVideo = { ...asset, video };
 
-            //console.log(`[VfxManager.loadVideo] Setting preloaded video for key: '${key}'`);
             if (!this.preloadedVideos.has(key)) {
                 this.preloadedVideos.set(key, []);
             }
@@ -62,29 +51,15 @@ export class VfxManager {
     }
 
     public reset(): void {
-        if (this.activeImmediateEffect) {
-            this.activeImmediateEffect.video.pause();
-            this.activeImmediateEffect.video.currentTime = 0;
-            this.activeImmediateEffect = null;
-        }
-        this.activeTurnBasedEffects.forEach(effect => {
-            effect.video.pause();
-            effect.video.currentTime = 0;
-        });
-        this.activeTurnBasedEffects = [];
+        // Now the players are responsible for stopping their own effects.
+        // This method could be used to stop all videos if needed, but for now it's empty.
     }
 
-    public playImmediateEffect(key: string, worldPosition: THREE.Vector3): void {
-        if (this.activeImmediateEffect) {
-            this.activeImmediateEffect.video.pause();
-            this.activeImmediateEffect.video.currentTime = 0;
-        }
-
+    public playEffect(key: string, worldPosition: THREE.Vector3, onEnded: () => void): ActiveEffect | null {
         const videos = this.preloadedVideos.get(key);
         if (!videos || videos.length === 0) {
             console.warn(`No VFX found for key: ${key}`);
-            //console.log('[VfxManager] Available keys in preloadedVideos:', Array.from(this.preloadedVideos.keys()));
-            return;
+            return null;
         }
 
         const videoAsset = videos[Math.floor(Math.random() * videos.length)];
@@ -97,14 +72,7 @@ export class VfxManager {
                     console.error(`Error playing VFX for ${key}:`, e);
                 }
             });
-
-            this.activeImmediateEffect = { key, video, worldPosition, width: videoAsset.width, height: videoAsset.height };
-
-            video.onended = () => {
-                if (this.activeImmediateEffect && this.activeImmediateEffect.video === video) {
-                    this.activeImmediateEffect = null;
-                }
-            };
+            video.onended = onEnded;
         };
 
         if (video.readyState >= 3) { // HAVE_FUTURE_DATA
@@ -112,36 +80,15 @@ export class VfxManager {
         } else {
             video.addEventListener('canplaythrough', playVideo, { once: true });
         }
-    }
 
-    public playTurnBasedEffect(key: string, worldPosition: THREE.Vector3): void {
-        const videos = this.preloadedVideos.get(key);
-        if (!videos || videos.length === 0) {
-            console.warn(`No VFX found for key: ${key}`);
-            //('[VfxManager] Available keys in preloadedVideos:', Array.from(this.preloadedVideos.keys()));
-            return;
-        }
-
-        const videoAsset = videos[Math.floor(Math.random() * videos.length)];
-        const video = (videoAsset as any).video as HTMLVideoElement;
-
-        const playVideo = () => {
-            video.currentTime = 0;
-            video.play().catch(e => console.error(`Error playing turn-based VFX for ${key}:`, e));
-
-            const effect: ActiveEffect = { key, video, worldPosition, width: videoAsset.width, height: videoAsset.height };
-            this.activeTurnBasedEffects.push(effect);
-
-            video.onended = () => {
-                this.activeTurnBasedEffects = this.activeTurnBasedEffects.filter(e => e.video !== video);
-            };
+        return { 
+            key, 
+            video, 
+            worldPosition, 
+            width: videoAsset.width, 
+            height: videoAsset.height,
+            onEnded
         };
-
-        if (video.readyState >= 3) { // HAVE_FUTURE_DATA
-            playVideo();
-        } else {
-            video.addEventListener('canplaythrough', playVideo, { once: true });
-        }
     }
 
     public isInitializedStatus(): boolean {
@@ -151,7 +98,8 @@ export class VfxManager {
     public updateAndDraw(
         ctx: CanvasRenderingContext2D, 
         mapContainer: THREE.Object3D, 
-        camera: THREE.PerspectiveCamera, 
+        camera: THREE.PerspectiveCamera,
+        effects: ActiveEffect[]
     ): void {
         if (!this.isInitialized) return;
 
@@ -186,18 +134,7 @@ export class VfxManager {
             }
         };
 
-        // Draw immediate effect
-        if (this.activeImmediateEffect) {
-            if (this.activeImmediateEffect.video.ended) {
-                this.activeImmediateEffect = null;
-            } else {
-                drawEffect(this.activeImmediateEffect);
-            }
-        }
-
-        // Draw and cleanup turn-based effects
-        this.activeTurnBasedEffects = this.activeTurnBasedEffects.filter(effect => !effect.video.ended);
-        this.activeTurnBasedEffects.forEach(drawEffect);
+        effects.forEach(drawEffect);
     }
 }
 

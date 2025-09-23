@@ -1,9 +1,10 @@
-import { GameState, Enclave, EventQueueItem, TurnEvent } from '@/types/game';
+import { GameState, Enclave, EventQueueItem } from '@/types/game';
 import { Action } from '@/logic';
 import { v4 as uuidv4 } from 'uuid';
 import { EVENT_PROFILES } from '@/data/events';
 import { triggerNewEvent as triggerEventLogic } from "@/logic/events";
 import { SfxManager, vfxManager, VfxManager } from '@/logic/effects';
+import { immediateEffects } from '@/features/effects/immediate/immediateEffects';
 
 export const handleTurnLogic = (state: GameState, action: Action, _vfxManager?: VfxManager, sfxManager?: SfxManager): GameState => {
     switch (action.type) {
@@ -186,8 +187,8 @@ export const handleTurnLogic = (state: GameState, action: Action, _vfxManager?: 
             const sfxKey = `order-hold-sfx`;
             const vfxKey = 'order-hold-vfx';
             
-            sfxManager.playSound(sfxKey, 'fx', fromEnclave.center);
-            vfxManager.playImmediateEffect(vfxKey, fromEnclave.center);
+            immediateEffects.play(sfxKey, fromEnclave.center, 'sfx');
+            immediateEffects.play(vfxKey, fromEnclave.center, 'vfx');
 
             return {
                 ...state,
@@ -208,15 +209,22 @@ export const handleTurnLogic = (state: GameState, action: Action, _vfxManager?: 
             const vfxKey = `order-${orderType}-vfx`;
             const sfxKey = `order-${orderType}-sfx`;
 
-            vfxManager.playImmediateEffect(vfxKey, toEnclave.center);
-            sfxManager.playSound(sfxKey, 'fx', fromEnclave.center);
-
             return {
                 ...state,
                 aiPendingOrders: {
                     ...state.aiPendingOrders,
                     [fromId]: order,
                 },
+                events: [
+                    ...state.events,
+                    {
+                        id: uuidv4(),
+                        playMode: 'immediate',
+                        sfx: { key: sfxKey, channel: 'fx', position: fromEnclave.center },
+                        vfx: [vfxKey],
+                        position: toEnclave.center,
+                    },
+                ],
             };
         }
 

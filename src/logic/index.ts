@@ -1,11 +1,11 @@
-import { GameState, GamePhase, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, PlayerIdentifier, InspectedMapEntity, TurnEvent } from '@/types/game';
+import { GameState, GamePhase, ActiveHighlight, AudioChannel, MaterialProperties, Order, Vector3, PlayerIdentifier, InspectedMapEntity } from '@/types/game';
 import { CONFIG } from '@/data/config';
 import { handleInitialization, handleGameFlow, handleTurnLogic } from '@/logic/game';
 import { handleMapInteraction } from '@/logic/map';
 import { handleEvents } from '@/logic/events';
 import { handleFx } from '@/logic/effects';
-import { handleUi } from '@/logic/ui'; 
-import { vfxManager, VfxManager } from '@/logic/effects';
+import { handleUi } from '@/logic/ui';
+import { VfxManager } from '@/logic/effects';
 import { SfxManager } from '@/logic/effects';
 
 export type Action =
@@ -100,7 +100,7 @@ export const reducer = (state: GameState, action: Action, vfxManager: VfxManager
         case 'FOCUS_ON_ENCLAVE':
         case 'FOCUS_ON_VECTOR':
         case 'SET_ACTIVE_HIGHLIGHT':
-            return handleMapInteraction(state, action, vfxManager, sfxManager);
+            return handleMapInteraction(state, action);
 
         // Turn Logic
         case 'START_RESOLVING_TURN':
