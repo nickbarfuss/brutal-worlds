@@ -20,7 +20,7 @@ class TurnBasedEffectsProcessor {
   }
 
   public addEffectsForConquest(event: ConquestEvent, position: Vector3) {
-    console.log(`[TurnBasedEffects] Adding effects for conquest by ${event.conqueror} at`, position);
+    //console.log(`[TurnBasedEffects] Adding effects for conquest by ${event.conqueror} at`, position);
     const ownerKey = event.conqueror === 'player-1' ? 'player' : 'opponent';
     this.effectQueue.push({ key: `conquest-${ownerKey}-sfx`, position, type: 'sfx' });
     this.effectQueue.push({ key: `conquest-${ownerKey}-vfx`, position, type: 'vfx' });
@@ -35,7 +35,7 @@ class TurnBasedEffectsProcessor {
     if (this.isProcessing || this.effectQueue.length === 0) {
       return;
     }
-    console.log(`[TurnBasedEffects] Starting to process queue with ${this.effectQueue.length} effects.`);
+    //console.log(`[TurnBasedEffects] Starting to process queue with ${this.effectQueue.length} effects.`);
     this.isProcessing = true;
     this.playNextEffect();
   }
@@ -55,7 +55,7 @@ class TurnBasedEffectsProcessor {
     }
 
     if (newlyVisible.length > 0) {
-        console.log(`[TurnBasedEffects] ${newlyVisible.length} effects became visible and were added to the main queue.`);
+        //console.log(`[TurnBasedEffects] ${newlyVisible.length} effects became visible and were added to the main queue.`);
         this.effectQueue.push(...newlyVisible);
     }
 
@@ -64,7 +64,7 @@ class TurnBasedEffectsProcessor {
 
   private playNextEffect() {
     if (this.effectQueue.length === 0) {
-      console.log('[TurnBasedEffects] Effect queue finished.');
+      //console.log('[TurnBasedEffects] Effect queue finished.');
       this.isProcessing = false;
       return;
     }
@@ -73,14 +73,14 @@ class TurnBasedEffectsProcessor {
     console.log('[TurnBasedEffects] Playing next effect:', effect);
 
     if (this.camera && !this.isPositionInFrustum(effect.position)) {
-      console.log(`[TurnBasedEffects] Effect ${effect.key} is off-screen. Queueing for later.`, effect.position);
+      //console.log(`[TurnBasedEffects] Effect ${effect.key} is off-screen. Queueing for later.`, effect.position);
       this.offScreenQueue.push(effect);
       // Continue processing without delay
       this.playNextEffect();
       return;
     }
 
-    console.log(`[TurnBasedEffects] Effect ${effect.key} is on-screen. Playing now.`);
+    //console.log(`[TurnBasedEffects] Effect ${effect.key} is on-screen. Playing now.`);
     if (effect.type === 'vfx') {
       vfxManager.playTurnBasedEffect(effect.key, effect.position);
     } else {
@@ -97,12 +97,12 @@ class TurnBasedEffectsProcessor {
     projScreenMatrix.multiplyMatrices(this.camera.projectionMatrix, this.camera.matrixWorldInverse);
     frustum.setFromProjectionMatrix(projScreenMatrix);
     const inFrustum = frustum.containsPoint(position);
-    console.log(`[TurnBasedEffects] Position ${position.x.toFixed(2)},${position.y.toFixed(2)},${position.z.toFixed(2)} in frustum: ${inFrustum}`);
+    //console.log(`[TurnBasedEffects] Position ${position.x.toFixed(2)},${position.y.toFixed(2)},${position.z.toFixed(2)} in frustum: ${inFrustum}`);
     return inFrustum;
   }
 
   public clearQueues() {
-    console.log('[TurnBasedEffects] Clearing all effect queues.');
+    //console.log('[TurnBasedEffects] Clearing all effect queues.');
     this.effectQueue = [];
     this.offScreenQueue = [];
     this.isProcessing = false;

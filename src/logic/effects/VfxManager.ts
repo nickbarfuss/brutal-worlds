@@ -22,7 +22,7 @@ export class VfxManager {
         if (this.isInitialized) return;
 
         const vfxAssets = flattenAssetUrls<VFXAsset>(ASSETS, ['.webm', '.mp4']);
-        console.log('[VfxManager.init] vfxAssets map from flattenAssetUrls:', vfxAssets);
+        //console.log('[VfxManager.init] vfxAssets map from flattenAssetUrls:', vfxAssets);
         const assetPromises: Promise<void>[] = [];
 
         vfxAssets.forEach((assets, key) => {
@@ -52,7 +52,7 @@ export class VfxManager {
 
             const assetWithVideo = { ...asset, video };
 
-            console.log(`[VfxManager.loadVideo] Setting preloaded video for key: '${key}'`);
+            //console.log(`[VfxManager.loadVideo] Setting preloaded video for key: '${key}'`);
             if (!this.preloadedVideos.has(key)) {
                 this.preloadedVideos.set(key, []);
             }
@@ -83,7 +83,7 @@ export class VfxManager {
         const videos = this.preloadedVideos.get(key);
         if (!videos || videos.length === 0) {
             console.warn(`No VFX found for key: ${key}`);
-            console.log('[VfxManager] Available keys in preloadedVideos:', Array.from(this.preloadedVideos.keys()));
+            //console.log('[VfxManager] Available keys in preloadedVideos:', Array.from(this.preloadedVideos.keys()));
             return;
         }
 
@@ -118,7 +118,7 @@ export class VfxManager {
         const videos = this.preloadedVideos.get(key);
         if (!videos || videos.length === 0) {
             console.warn(`No VFX found for key: ${key}`);
-            console.log('[VfxManager] Available keys in preloadedVideos:', Array.from(this.preloadedVideos.keys()));
+            //('[VfxManager] Available keys in preloadedVideos:', Array.from(this.preloadedVideos.keys()));
             return;
         }
 

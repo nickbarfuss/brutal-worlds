@@ -124,7 +124,7 @@ export const extractAssetUrls = (assets: any): AssetUrls => {
  */
 export const flattenAssetUrls = <T extends Asset>(assets: any, extensions: string[]): Map<string, T[]> => {
     const flattenedMap = new Map<string, T[]>();
-    console.log(`[flattenAssetUrls] Starting for extensions: ${extensions.join(', ')}`);
+    //console.log(`[flattenAssetUrls] Starting for extensions: ${extensions.join(', ')}`);
 
     const traverse = (obj: any, path: string[]) => {
         if (obj === null || typeof obj !== 'object') {
@@ -154,7 +154,7 @@ export const flattenAssetUrls = <T extends Asset>(assets: any, extensions: strin
                 return item as T;
             });
             const key = path.join('-');
-            console.log(`[flattenAssetUrls] Found leaf node. Setting key: '${key}' with path: [${path.join(', ')}]`);
+            //console.log(`[flattenAssetUrls] Found leaf node. Setting key: '${key}' with path: [${path.join(', ')}]`);
             if (flattenedMap.has(key)) {
                 flattenedMap.get(key)!.push(...items);
             } else {
@@ -176,7 +176,7 @@ export const flattenAssetUrls = <T extends Asset>(assets: any, extensions: strin
     };
 
     traverse(assets, []);
-    console.log(`[flattenAssetUrls] Finished. Map size: ${flattenedMap.size}`);
+    //console.log(`[flattenAssetUrls] Finished. Map size: ${flattenedMap.size}`);
     return flattenedMap;
 };
 
