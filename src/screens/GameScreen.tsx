@@ -803,9 +803,11 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
 
     
 
+    const gameScreenMountRef = useRef<HTMLDivElement>(null);
+
     return (
-        <div className={`w-full h-full bg-black relative overflow-hidden ${cursorClass}`}>
-            <ImmediateEffectsPlayer worldCanvasHandle={worldCanvasHandle} />
+        <div ref={gameScreenMountRef} className={`w-full h-full bg-black relative overflow-hidden ${cursorClass}`}>
+            <ImmediateEffectsPlayer worldCanvasHandle={worldCanvasHandle} parentRef={gameScreenMountRef} />
             <TurnBasedEffectsPlayer worldCanvasHandle={worldCanvasHandle} />
             {engine.isResolvingTurn && <CustomCursor />}
             
@@ -852,6 +854,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     gamePhase={gamePhase}
                     isIntroComplete={isIntroComplete}
                     introPhase={introPhase}
+
                 />
             )}
             

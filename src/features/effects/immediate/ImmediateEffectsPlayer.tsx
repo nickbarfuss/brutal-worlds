@@ -6,9 +6,10 @@ import { ActiveEffect } from '../effects.types';
 
 interface ImmediateEffectsPlayerProps {
     worldCanvasHandle: React.RefObject<WorldCanvasHandle | null>;
+    parentRef: React.RefObject<HTMLDivElement>;
 }
 
-const ImmediateEffectsPlayer: React.FC<ImmediateEffectsPlayerProps> = ({ worldCanvasHandle }) => {
+const ImmediateEffectsPlayer: React.FC<ImmediateEffectsPlayerProps> = ({ worldCanvasHandle, parentRef }) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [activeEffect, setActiveEffect] = useState<ActiveEffect | null>(null);
     const activeEffectRef = useRef<ActiveEffect | null>(null);
@@ -20,15 +21,17 @@ const ImmediateEffectsPlayer: React.FC<ImmediateEffectsPlayerProps> = ({ worldCa
     useEffect(() => {
         const handlePlayEffect = (effect: ImmediateEffect) => {
             if (effect.type === 'vfx') {
-                setActiveEffect(prevActiveEffect => {
-                    if (prevActiveEffect) {
-                        prevActiveEffect.video.pause();
-                    }
-                    const newEffect = vfxManager.playEffect(effect.key, effect.position, () => {
-                        setActiveEffect(null);
+                setTimeout(() => {
+                    setActiveEffect(prevActiveEffect => {
+                        if (prevActiveEffect) {
+                            prevActiveEffect.video.pause();
+                        }
+                        const newEffect = vfxManager.playEffect(effect.key, effect.position, () => {
+                            setActiveEffect(null);
+                        });
+                        return newEffect;
                     });
-                    return newEffect;
-                });
+                }, 0);
             } else if (effect.type === 'sfx') {
                 sfxManager.playSound(effect.key, 'fx', effect.position);
             }
@@ -39,6 +42,8 @@ const ImmediateEffectsPlayer: React.FC<ImmediateEffectsPlayerProps> = ({ worldCa
     }, []);
 
     useEffect(() => {
+        if (!parentRef.current) return;
+
         const canvas = document.createElement('canvas');
         canvas.style.position = 'absolute';
         canvas.style.top = '0';
@@ -46,8 +51,8 @@ const ImmediateEffectsPlayer: React.FC<ImmediateEffectsPlayerProps> = ({ worldCa
         canvas.style.width = '100%';
         canvas.style.height = '100%';
         canvas.style.pointerEvents = 'none';
-        canvas.style.zIndex = '10';
-        document.body.appendChild(canvas);
+        canvas.style.zIndex = '1'; // Set a lower z-index to appear below markers
+        parentRef.current.appendChild(canvas);
         canvasRef.current = canvas;
 
         let animationFrameId: number;
@@ -75,10 +80,10 @@ const ImmediateEffectsPlayer: React.FC<ImmediateEffectsPlayerProps> = ({ worldCa
         return () => {
             cancelAnimationFrame(animationFrameId);
             if (canvasRef.current) {
-                document.body.removeChild(canvasRef.current);
+                parentRef.current?.removeChild(canvasRef.current);
             }
-            }
-    }, [worldCanvasHandle]); // Only depends on worldCanvasHandle
+        };
+    }, [worldCanvasHandle, parentRef]);
 
     return null;
 };
