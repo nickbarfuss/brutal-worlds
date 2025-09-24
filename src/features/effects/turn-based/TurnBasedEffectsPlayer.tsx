@@ -76,7 +76,7 @@ const TurnBasedEffectsPlayer: React.FC<TurnBasedEffectsPlayerProps> = ({ worldCa
       return stillOffScreen;
     });
 
-  }, [worldCanvasHandle, getCamera, isPositionInFrustum]);
+  }, [worldCanvasHandle, getCamera, isPositionInFrustum, offScreenQueue]);
 
   useEffect(() => {
     if (effectQueue.length > 0 && !isProcessingRef.current) {

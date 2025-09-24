@@ -42,7 +42,8 @@ const ImmediateEffectsPlayer: React.FC<ImmediateEffectsPlayerProps> = ({ worldCa
     }, []);
 
     useEffect(() => {
-        if (!parentRef.current) return;
+        const parentRefCurrent = parentRef.current;
+        if (!parentRefCurrent) return;
 
         const canvas = document.createElement('canvas');
         canvas.style.position = 'absolute';
@@ -79,8 +80,8 @@ const ImmediateEffectsPlayer: React.FC<ImmediateEffectsPlayerProps> = ({ worldCa
 
         return () => {
             cancelAnimationFrame(animationFrameId);
-            if (canvasRef.current) {
-                parentRef.current?.removeChild(canvasRef.current);
+            if (canvasRef.current && parentRefCurrent) {
+                parentRefCurrent.removeChild(canvasRef.current);
             }
         };
     }, [worldCanvasHandle, parentRef]);
