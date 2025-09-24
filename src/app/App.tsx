@@ -18,7 +18,7 @@ const App: React.FC = () => {
     const engine = useGameEngine();
     const [isClosingStartDialog, setIsClosingStartDialog] = useState(false);
     const closeDialogTimeoutRef = useRef<number | null>(null);
-    const isStartingGameRef = useRef(false); // State lock to prevent race conditions
+    const [isStartingGame, setIsStartingGame] = useState(false); // State lock to prevent race conditions
 
     useEffect(() => {
         // Cleanup timeout on unmount to prevent state updates on an unmounted component.
@@ -31,14 +31,14 @@ const App: React.FC = () => {
 
     useEffect(() => {
         if (engine.gamePhase === 'playing' || engine.gamePhase === 'mainMenu') {
-            isStartingGameRef.current = false;
+            setIsStartingGame(false);
         }
     }, [engine.gamePhase]);
 
     const handleCloseStartDialog = () => {
         // Only proceed if the game is not currently playing or actively starting
         // and the dialog is actually open (i.e., gamePhase is archetypeSelection).
-        if (engine.gamePhase === 'playing' || (isStartingGameRef.current && engine.gamePhase !== 'archetypeSelection')) {
+        if (engine.gamePhase === 'playing' || (isStartingGame && engine.gamePhase !== 'archetypeSelection')) {
             // If we are already playing or in the process of starting,
             // do not force a return to the main menu.
             console.warn('[App] handleCloseStartDialog: Ignoring close request as game is already starting or playing.');
@@ -48,8 +48,8 @@ const App: React.FC = () => {
         // If the game was attempting to start, reset the lock and go to main menu.
         // This path should only be taken if the user explicitly closed the dialog
         // while it was open for archetype selection, not if the game is trying to start.
-        if (isStartingGameRef.current) {
-            isStartingGameRef.current = false;
+        if (isStartingGame) {
+            setIsStartingGame(false);
             engine.goToMainMenu();
         }
 
@@ -63,7 +63,7 @@ const App: React.FC = () => {
 
     const handleConfirmStartDialog = (archetypeKey: string, worldKey: string, selectedLegacyKey: string) => {
         // Engage the lock to prevent interruptions.
-        isStartingGameRef.current = true;
+        setIsStartingGame(true);
         
         // FIX: Clear any pending close-dialog timeouts to prevent a race condition
         // where the game phase is incorrectly reset to 'mainMenu' after starting.
@@ -79,13 +79,13 @@ const App: React.FC = () => {
         engine.sfxManager.playSound('ui-common-buttonDialogComplete', 'ui');
         engine.startGame(archetypeKey, worldKey, selectedLegacyKey);
         // engine.completeIntro(); // Ensure intro is marked complete after game start
-        // isStartingGameRef.current = false; // Moved to useEffect to ensure game phase is stable
+        // setIsStartingGame(false); // Moved to useEffect to ensure game phase is stable
     };
     
     const handleBegin = async () => {
-        console.log('[DEBUG][App] handleBegin called. isStartingGameRef.current:', isStartingGameRef.current, 'engine.gamePhase:', engine.gamePhase);
-        if (isStartingGameRef.current) return;
-        isStartingGameRef.current = true;
+        console.log('[DEBUG][App] handleBegin called. isStartingGame:', isStartingGame, 'engine.gamePhase:', engine.gamePhase);
+        if (isStartingGame) return;
+        setIsStartingGame(true);
 
         // This now waits for the audio context to be ready before proceeding.
         await engine.handleUserInteraction();
@@ -157,7 +157,7 @@ const App: React.FC = () => {
             engine.openArchetypeSelection();
         }
         
-        // isStartingGameRef.current = false; // Moved to useEffect to ensure game phase is stable
+        // setIsStartingGame(false); // Moved to useEffect to ensure game phase is stable
     };
 
     // ARCHITECTURAL FIX: Check for a fatal error first, regardless of game phase.

@@ -47,43 +47,7 @@ const TurnBasedEffectsPlayer: React.FC<TurnBasedEffectsPlayerProps> = ({ worldCa
     return frustum.containsPoint(position);
   }, [getCamera]);
 
-  const playNextEffect = useCallback(() => {
-    const camera = getCamera();
-    if (!camera) {
-      isProcessingRef.current = false;
-      return;
-    }
-
-    let currentQueue = [...effectQueue];
-    if (currentQueue.length === 0) {
-      isProcessingRef.current = false;
-      return;
-    }
-
-    const effectToPlay = currentQueue.shift()!;
-    turnBasedEffects.removeEffects([effectToPlay]);
-
-    if (!isPositionInFrustum(effectToPlay.position)) {
-      setOffScreenQueue(prev => [...prev, effectToPlay]);
-      playNextEffect();
-      return;
-    }
-
-    if (effectToPlay.type === 'vfx') {
-      const newEffect = vfxManager.playEffect(effectToPlay.key, effectToPlay.position, () => {
-        setActiveVfx(prev => prev.filter(e => e.video !== newEffect?.video));
-      });
-      if (newEffect) {
-        setActiveVfx(prev => [...prev, newEffect]);
-      }
-    } else {
-      sfxManager.playSound(effectToPlay.key, 'fx', effectToPlay.position);
-    }
-
-    setTimeout(() => {
-      playNextEffect();
-    }, 200);
-  }, [effectQueue, getCamera, isPositionInFrustum]);
+  
 
   useEffect(() => {
     const camera = getCamera();
@@ -116,10 +80,39 @@ const TurnBasedEffectsPlayer: React.FC<TurnBasedEffectsPlayerProps> = ({ worldCa
 
   useEffect(() => {
     if (effectQueue.length > 0 && !isProcessingRef.current) {
-      isProcessingRef.current = true;
-      playNextEffect();
+      isProcessingRef.current = true; // Mark as processing
+
+      const effectToPlay = effectQueue[0]; // Get the first effect
+
+      // Remove from global queue immediately to prevent re-addition by useGameEngine
+      turnBasedEffects.removeEffects([effectToPlay]);
+
+      if (!isPositionInFrustum(effectToPlay.position)) {
+        setOffScreenQueue(prev => [...prev, effectToPlay]);
+        // Remove from local queue as well
+        setEffectQueue(prevQueue => prevQueue.slice(1));
+        isProcessingRef.current = false; // Allow next effect to be processed immediately
+        return;
+      }
+
+      if (effectToPlay.type === 'vfx') {
+        const newEffect = vfxManager.playEffect(effectToPlay.key, effectToPlay.position, () => {
+          setActiveVfx(prev => prev.filter(e => e.video !== newEffect?.video));
+        });
+        if (newEffect) {
+          setActiveVfx(prev => [...prev, newEffect]);
+        }
+      } else {
+        sfxManager.playSound(effectToPlay.key, 'fx', effectToPlay.position);
+      }
+
+      // After playing, remove from local queue and set a timeout for the next effect
+      setTimeout(() => {
+        setEffectQueue(prevQueue => prevQueue.slice(1)); // Remove the played effect from local state
+        isProcessingRef.current = false; // Allow next effect to be processed
+      }, 200); // Delay before processing the next effect
     }
-  }, [effectQueue, playNextEffect]);
+  }, [effectQueue, isPositionInFrustum, getCamera]);
 
   useEffect(() => {
     const canvas = document.createElement('canvas');
