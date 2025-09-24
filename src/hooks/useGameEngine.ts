@@ -81,9 +81,11 @@ export const useGameEngine = () => {
 
     const resolveTurn = useCallback(() => {
         const latestState = getState();
-        if (latestState.isResolvingTurn || !workerRef.current) return;
-    
-        dispatch({ type: 'START_RESOLVING_TURN' });
+        console.log('[DEBUG][useGameEngine] resolveTurn called. isResolvingTurn:', latestState.isResolvingTurn, 'workerRef.current:', !!workerRef.current, 'gamePhase:', latestState.gamePhase);
+        if (latestState.isResolvingTurn || !workerRef.current || latestState.gamePhase !== 'playing') {
+            console.log('[DEBUG][useGameEngine] resolveTurn: Skipping due to conditions.');
+            return;
+        }
         
         const serializableState = serializeGameStateForWorker({
             enclaveData: latestState.enclaveData,
@@ -133,8 +135,12 @@ export const useGameEngine = () => {
         dispatch({ type: 'SET_INITIALIZATION_STATE', payload: { isInitialized, message, error } });
     }, []);
 
-    const setGamePhase = useCallback((phase: GamePhase) => dispatch({ type: 'SET_GAME_PHASE', payload: phase }), []);
+    const setGamePhase = useCallback((phase: GamePhase) => {
+        console.log('[DEBUG][useGameEngine] setGamePhase called with phase:', phase);
+        dispatch({ type: 'SET_GAME_PHASE', payload: phase });
+    }, []);
     const startGame = useCallback((playerArchetypeKey: string, worldKey: string, playerLegacyKey: string, opponentArchetypeKey?: string, opponentLegacyKey?: string) => {
+        console.log('[DEBUG][useGameEngine] startGame called with payload:', { playerArchetypeKey, worldKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey });
         vfxManager.reset();
         dispatch({ type: 'START_GAME', payload: { playerArchetypeKey, worldKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey } });
     }, []);
@@ -225,10 +231,13 @@ export const useGameEngine = () => {
             workerRef.current = worker;
 
             const handleMessage = (e: MessageEvent) => {
+                console.log('[DEBUG][useGameEngine] Worker message received:', e.data);
                 try {
                     const result = JSON.parse(e.data);
 
                     if (result.error) {
+                        console.error('[DEBUG][useGameEngine] Worker Error:', result.error);
+                        console.error('[DEBUG][useGameEngine] Worker Error:', result.error);
                         console.error("Worker Error:", result.error);
                         dispatch({ type: 'SET_INITIALIZATION_STATE', payload: { isInitialized: true, message: '', error: result.error } });
                         return;

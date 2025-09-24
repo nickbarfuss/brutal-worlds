@@ -19,7 +19,7 @@ export const CONFIG = {
         player1Legacy: 'annihilationDoctrine',
         player2Archetype: 'pactWhisperer',
         player2Legacy: 'whisperingCovenant',
-        worldKey: 'skull-sands',
+        worldKey: 'anvillar',
     },
     DISASTER_TESTING: {
         enabled: true,

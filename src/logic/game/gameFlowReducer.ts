@@ -29,6 +29,7 @@ export const handleGameFlow = (state: GameState, action: Action, baseInitialStat
                 materialSettings: state.materialSettings,
                 ambientLightIntensity: state.ambientLightIntensity,
                 tonemappingStrength: state.tonemappingStrength,
+                gameSessionId: 0,
             };
             
         case 'COMPLETE_INTRO':
@@ -68,7 +69,7 @@ export const handleGameFlow = (state: GameState, action: Action, baseInitialStat
                 isInitialized: state.isInitialized, // Preserve initialization status
                 // FIX: Use an incrementing counter for the session ID to guarantee uniqueness
                 // and prevent a race condition with the web worker.
-                gameSessionId: (state.gameSessionId || 0) + 1,
+                gameSessionId: state.gameSessionId + 1,
                 
                 // Carry over user settings.
                 volumes: state.volumes,
@@ -118,6 +119,7 @@ export const handleGameFlow = (state: GameState, action: Action, baseInitialStat
                 materialSettings: state.materialSettings,
                 ambientLightIntensity: state.ambientLightIntensity,
                 tonemappingStrength: state.tonemappingStrength,
+                gameSessionId: 0,
             };
 
         default:
