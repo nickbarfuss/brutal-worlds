@@ -808,7 +808,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
     return (
         <div ref={gameScreenMountRef} className={`w-full h-full bg-black relative overflow-hidden ${cursorClass}`}>
             <ImmediateEffectsPlayer worldCanvasHandle={worldCanvasHandle} parentRef={gameScreenMountRef} />
-            <TurnBasedEffectsPlayer worldCanvasHandle={worldCanvasHandle} />
+            <TurnBasedEffectsPlayer worldCanvasHandle={worldCanvasHandle} parentRef={gameScreenMountRef} />
             {engine.isResolvingTurn && <CustomCursor />}
             
             <video ref={videoEnterRef} src={getAssetUrl(ASSETS.cinematic.intro.vfx[0].src)} muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" style={{ display: introPhase === 'entry' ? 'block' : 'none' }} />

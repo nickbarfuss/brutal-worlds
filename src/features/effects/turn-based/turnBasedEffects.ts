@@ -7,49 +7,28 @@ export interface Effect {
   type: 'vfx' | 'sfx';
 }
 
-type EffectQueueListener = (effects: Effect[]) => void;
+type EffectListener = (effect: Effect) => void;
 
-class TurnBasedEffectsQueue {
-  private queue: Effect[] = [];
-  private listeners: EffectQueueListener[] = [];
+class TurnBasedEffects {
+  private listeners: EffectListener[] = [];
 
-  public addListener(listener: EffectQueueListener) {
+  public addListener(listener: EffectListener) {
     this.listeners.push(listener);
   }
 
-  public removeListener(listener: EffectQueueListener) {
+  public removeListener(listener: EffectListener) {
     this.listeners = this.listeners.filter(l => l !== listener);
   }
 
-  private notifyListeners() {
-    this.listeners.forEach(listener => listener([...this.queue]));
+  public play(key: string, position: Vector3, type: 'vfx' | 'sfx') {
+    this.listeners.forEach(listener => listener({ key, position, type }));
   }
 
-  public addEffectsForConquest(event: ConquestEvent, position: Vector3) {
+  public playForConquest(event: ConquestEvent, position: Vector3) {
     const ownerKey = event.conqueror === 'player-1' ? 'player' : 'opponent';
-    this.queue.push({ key: `conquest-${ownerKey}-sfx`, position, type: 'sfx' });
-    this.queue.push({ key: `conquest-${ownerKey}-vfx`, position, type: 'vfx' });
-    this.notifyListeners();
-  }
-
-  public addEffects(effects: Effect[]) {
-    this.queue.push(...effects);
-    this.notifyListeners();
-  }
-
-  public getQueue() {
-    return [...this.queue];
-  }
-
-  public clear() {
-    this.queue = [];
-    this.notifyListeners();
-  }
-
-  public removeEffects(effectsToRemove: Effect[]) {
-    this.queue = this.queue.filter(effect => !effectsToRemove.includes(effect));
-    this.notifyListeners();
+    this.play(`conquest-${ownerKey}-sfx`, position, 'sfx');
+    this.play(`conquest-${ownerKey}-vfx`, position, 'vfx');
   }
 }
 
-export const turnBasedEffects = new TurnBasedEffectsQueue();
+export const turnBasedEffects = new TurnBasedEffects();

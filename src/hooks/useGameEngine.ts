@@ -58,12 +58,10 @@ export const useGameEngine = () => {
         if (state.unprocessedTurnEvents) {
             const conquestEvents = state.unprocessedTurnEvents.filter(e => e.type === 'conquest') as ConquestEvent[];
             
-            // Clear queues and add new effects
-            turnBasedEffects.clear();
             conquestEvents.forEach(event => {
                 const enclave = state.enclaveData[event.enclaveId];
                 if (enclave) {
-                    turnBasedEffects.addEffectsForConquest(event, enclave.center);
+                    turnBasedEffects.playForConquest(event, enclave.center);
                 }
             });
 
