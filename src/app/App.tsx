@@ -4,7 +4,6 @@ import { useConnection } from '@/hooks/useConnection';
 import Loader from '@/components/features/system/Loader';
 import GameStartDialog from '@/components/features/setup/GameStartDialog';
 import MainMenuScreen from '@/screens/MainMenuScreen';
-// Re-enable GameScreen to test the rendering pipeline.
 import GameScreen from '@/screens/GameScreen';
 import Backdrop from '@/components/ui/Backdrop';
 import OfflineOverlay from '@/components/features/system/OfflineOverlay';
@@ -18,10 +17,9 @@ const App: React.FC = () => {
     const engine = useGameEngine();
     const [isClosingStartDialog, setIsClosingStartDialog] = useState(false);
     const closeDialogTimeoutRef = useRef<number | null>(null);
-    const [isStartingGame, setIsStartingGame] = useState(false); // State lock to prevent race conditions
+    const [isStartingGame, setIsStartingGame] = useState(false);
 
     useEffect(() => {
-        // Cleanup timeout on unmount to prevent state updates on an unmounted component.
         return () => {
             if (closeDialogTimeoutRef.current) {
                 clearTimeout(closeDialogTimeoutRef.current);
@@ -36,18 +34,11 @@ const App: React.FC = () => {
     }, [engine.gamePhase]);
 
     const handleCloseStartDialog = () => {
-        // Only proceed if the game is not currently playing or actively starting
-        // and the dialog is actually open (i.e., gamePhase is archetypeSelection).
         if (engine.gamePhase === 'playing' || (isStartingGame && engine.gamePhase !== 'archetypeSelection')) {
-            // If we are already playing or in the process of starting,
-            // do not force a return to the main menu.
             console.warn('[App] handleCloseStartDialog: Ignoring close request as game is already starting or playing.');
             return;
         }
 
-        // If the game was attempting to start, reset the lock and go to main menu.
-        // This path should only be taken if the user explicitly closed the dialog
-        // while it was open for archetype selection, not if the game is trying to start.
         if (isStartingGame) {
             setIsStartingGame(false);
             engine.goToMainMenu();
@@ -57,47 +48,33 @@ const App: React.FC = () => {
         if (closeDialogTimeoutRef.current) clearTimeout(closeDialogTimeoutRef.current);
         closeDialogTimeoutRef.current = window.setTimeout(() => {
             engine.closeArchetypeSelection();
-            setIsClosingStartDialog(false); // Reset for next time
-        }, 300); // Animation duration should match backdrop
+            setIsClosingStartDialog(false);
+        }, 300); 
     };
 
     const handleConfirmStartDialog = (archetypeKey: string, worldKey: string, selectedLegacyKey: string) => {
-        // Engage the lock to prevent interruptions.
         setIsStartingGame(true);
         
-        // FIX: Clear any pending close-dialog timeouts to prevent a race condition
-        // where the game phase is incorrectly reset to 'mainMenu' after starting.
         if (closeDialogTimeoutRef.current) {
             clearTimeout(closeDialogTimeoutRef.current);
         }
         
-        // FIX: Explicitly reset the closing state to prevent the dialog from
-        // getting "stuck" if confirm is clicked during the closing animation. This
-        // guarantees a clean transition to the game screen.
         setIsClosingStartDialog(false);
 
         engine.sfxManager.playSound('ui-common-buttonDialogComplete', 'ui');
         engine.startGame(archetypeKey, worldKey, selectedLegacyKey);
-        // engine.completeIntro(); // Ensure intro is marked complete after game start
-        // setIsStartingGame(false); // Moved to useEffect to ensure game phase is stable
     };
     
     const handleBegin = async () => {
-        console.log('[DEBUG][App] handleBegin called. isStartingGame:', isStartingGame, 'engine.gamePhase:', engine.gamePhase);
+        
         if (isStartingGame) return;
         setIsStartingGame(true);
 
-        // This now waits for the audio context to be ready before proceeding.
         await engine.handleUserInteraction();
     
-        // These sounds will now play immediately and reliably.
-        // Gemini note: these sounds shoud not be hardcoded here.
-        // they should be loaded from assets
         engine.sfxManager.playSound('ui-common-buttonGameStart', 'ui');
     
-        // Open the dialog.
         if (CONFIG.QUICK_START.enabled) {
-            console.log('[DEBUG][App] handleBegin: Quick start enabled. Calling engine.startGame.');
             const { player1Archetype, player1Legacy, player2Archetype, player2Legacy, worldKey } = CONFIG.QUICK_START;
     
             const archetypeKeys = Object.keys(ARCHETYPES);
@@ -146,10 +123,7 @@ const App: React.FC = () => {
             }
             
             engine.startGame(finalP1Archetype, finalWorldKey, p1LegacyKey, finalP2Archetype, p2LegacyKey);
-            // engine.completeIntro(); // Ensure intro is marked complete after game start
         } else {
-            console.log('[DEBUG][App] handleBegin: Quick start disabled. Opening archetype selection.');
-            // Normal flow: open the archetype selection dialog.
             if (closeDialogTimeoutRef.current) {
                 clearTimeout(closeDialogTimeoutRef.current);
             }
@@ -157,25 +131,19 @@ const App: React.FC = () => {
             engine.openArchetypeSelection();
         }
         
-        // setIsStartingGame(false); // Moved to useEffect to ensure game phase is stable
     };
 
-    // ARCHITECTURAL FIX: Check for a fatal error first, regardless of game phase.
-    // This provides a robust, top-level error boundary that was previously missing.
     if (engine.error) {
-        console.log('[DEBUG][App] Rendering Loader due to engine.error:', engine.error);
         return <Loader text={engine.error} hasError={true} />;
     }
     
     if (engine.gamePhase === 'loading' || !engine.isInitialized) {
-        console.log('[DEBUG][App] Rendering Loader for loading phase. Message:', engine.loadingMessage);
         return <Loader text={engine.loadingMessage} />;
     }
 
     const showStartDialog = engine.gamePhase === 'archetypeSelection' || isClosingStartDialog;
 
     if (engine.gamePhase === 'mainMenu' || showStartDialog) {
-        console.log('[DEBUG][App] Rendering MainMenuScreen or GameStartDialog. Current phase:', engine.gamePhase);
         return (
             <>
                 {!isOnline && <OfflineOverlay />}
@@ -195,15 +163,11 @@ const App: React.FC = () => {
         );
     }
     
-    // The actual game screen is now re-enabled to test the 3D rendering pipeline.
-    // The background worker remains disabled, so the game will not be interactive.
-    // For 'playing' and 'gameOver' phases
     if (engine.gamePhase === 'playing' || engine.gamePhase === 'gameOver') {
-        console.log('[DEBUG][App] Rendering GameScreen. Current phase:', engine.gamePhase, 'gameSessionId:', engine.gameSessionId);
         return <GameScreen key={engine.gameSessionId} engine={engine} />;
     }
 
-    return null; // Fallback for any unhandled game phase
+    return null;
 };
 
 export default App;

@@ -106,7 +106,6 @@ export const extractAssetUrls = (assets: any): AssetUrls => {
 
     traverse(assets);
 
-    // Remove duplicates
     urls.audio = Array.from(new Set(urls.audio));
     urls.video = Array.from(new Set(urls.video));
     urls.image = Array.from(new Set(urls.image));
@@ -124,7 +123,6 @@ export const extractAssetUrls = (assets: any): AssetUrls => {
  */
 export const flattenAssetUrls = <T extends Asset>(assets: any, extensions: string[]): Map<string, T[]> => {
     const flattenedMap = new Map<string, T[]>();
-    //console.log(`[flattenAssetUrls] Starting for extensions: ${extensions.join(', ')}`);
 
     const traverse = (obj: any, path: string[]) => {
         if (obj === null || typeof obj !== 'object') {
@@ -154,16 +152,13 @@ export const flattenAssetUrls = <T extends Asset>(assets: any, extensions: strin
                 return item as T;
             });
             const key = path.join('-');
-            //console.log(`[flattenAssetUrls] Found leaf node. Setting key: '${key}' with path: [${path.join(', ')}]`);
             if (flattenedMap.has(key)) {
                 flattenedMap.get(key)!.push(...items);
             } else {
                 flattenedMap.set(key, items);
             }
         } else if (Array.isArray(obj)) {
-            // This handles arrays that are not leaf nodes, i.e., arrays of objects.
             obj.forEach((item) => {
-                // We don't append index to path for arrays of objects to keep keys clean
                 traverse(item, path);
             });
         } else {
@@ -176,7 +171,6 @@ export const flattenAssetUrls = <T extends Asset>(assets: any, extensions: strin
     };
 
     traverse(assets, []);
-    //console.log(`[flattenAssetUrls] Finished. Map size: ${flattenedMap.size}`);
     return flattenedMap;
 };
 

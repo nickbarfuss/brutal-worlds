@@ -81,9 +81,7 @@ export const useGameEngine = () => {
 
     const resolveTurn = useCallback(() => {
         const latestState = getState();
-        console.log('[DEBUG][useGameEngine] resolveTurn called. isResolvingTurn:', latestState.isResolvingTurn, 'workerRef.current:', !!workerRef.current, 'gamePhase:', latestState.gamePhase);
         if (latestState.isResolvingTurn || !workerRef.current || latestState.gamePhase !== 'playing') {
-            console.log('[DEBUG][useGameEngine] resolveTurn: Skipping due to conditions.');
             return;
         }
         
@@ -138,11 +136,9 @@ export const useGameEngine = () => {
     }, []);
 
     const setGamePhase = useCallback((phase: GamePhase) => {
-        console.log('[DEBUG][useGameEngine] setGamePhase called with phase:', phase);
         dispatch({ type: 'SET_GAME_PHASE', payload: phase });
     }, []);
     const startGame = useCallback((playerArchetypeKey: string, worldKey: string, playerLegacyKey: string, opponentArchetypeKey?: string, opponentLegacyKey?: string) => {
-        console.log('[DEBUG][useGameEngine] startGame called with payload:', { playerArchetypeKey, worldKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey });
         vfxManager.reset();
         dispatch({ type: 'START_GAME', payload: { playerArchetypeKey, worldKey, playerLegacyKey, opponentArchetypeKey, opponentLegacyKey } });
     }, []);
@@ -233,7 +229,6 @@ export const useGameEngine = () => {
             workerRef.current = worker;
 
             const handleMessage = (e: MessageEvent) => {
-                console.log('[DEBUG][useGameEngine] Worker message received:', e.data);
                 try {
                     const result = JSON.parse(e.data);
 
@@ -246,7 +241,6 @@ export const useGameEngine = () => {
                     }
                     
                     if (result.gameSessionId !== gameSessionIdRef.current || gamePhaseRef.current !== 'playing') {
-                        console.log(`Ignoring stale/irrelevant turn result from session ${result.gameSessionId} (current is ${gameSessionIdRef.current}, phase is ${gamePhaseRef.current})`);
                         return;
                     }
 

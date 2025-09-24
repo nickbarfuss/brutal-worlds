@@ -11,9 +11,8 @@ interface ImmediateEffectsPlayerProps {
 const ImmediateEffectsPlayer: React.FC<ImmediateEffectsPlayerProps> = ({ worldCanvasHandle }) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [activeEffect, setActiveEffect] = useState<ActiveEffect | null>(null);
-    const activeEffectRef = useRef<ActiveEffect | null>(null); // Ref to hold the latest activeEffect
+    const activeEffectRef = useRef<ActiveEffect | null>(null);
 
-    // Update the ref whenever activeEffect changes
     useEffect(() => {
         activeEffectRef.current = activeEffect;
     }, [activeEffect]);
@@ -37,7 +36,7 @@ const ImmediateEffectsPlayer: React.FC<ImmediateEffectsPlayerProps> = ({ worldCa
 
         immediateEffects.addListener(handlePlayEffect);
         return () => immediateEffects.removeListener(handlePlayEffect);
-    }, []); // Empty dependency array
+    }, []);
 
     useEffect(() => {
         const canvas = document.createElement('canvas');
@@ -64,7 +63,6 @@ const ImmediateEffectsPlayer: React.FC<ImmediateEffectsPlayerProps> = ({ worldCa
                     ctx.scale(dpr, dpr);
                     
                     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-                    // Use the ref to get the latest activeEffect
                     const effectsToDraw = activeEffectRef.current ? [activeEffectRef.current] : [];
                     vfxManager.updateAndDraw(ctx, worldCanvasHandle.current.mapContainer, worldCanvasHandle.current.camera, effectsToDraw);
                 }
@@ -79,8 +77,7 @@ const ImmediateEffectsPlayer: React.FC<ImmediateEffectsPlayerProps> = ({ worldCa
             if (canvasRef.current) {
                 document.body.removeChild(canvasRef.current);
             }
-            // Cleanup for activeEffect should be handled by the first useEffect
-        };
+            }
     }, [worldCanvasHandle]); // Only depends on worldCanvasHandle
 
     return null;
