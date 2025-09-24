@@ -6,7 +6,7 @@
 /* ================================================================== */
 
 import React, { useState, useCallback } from 'react';
-import { ActiveGambit, GambitProfile } from '@/types/game';
+import { ActiveGambit, GambitProfile } from '@/logic/gambits/gambits.types';
 import { GAMBITS } from '@/data/gambits';
 import GambitCard from './GambitCard';
 import ButtonGambit from '@/components/ui/ButtonGambit';

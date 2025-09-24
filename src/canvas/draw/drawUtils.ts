@@ -1,7 +1,9 @@
 
 
 import * as THREE from 'three';
-import { Owner, WorldProfile, SemanticColorPalette } from '@/types/game';
+import { Owner } from '@/types/core';
+import { WorldProfile } from '@/types/world';
+import { SemanticColorPalette } from '@/types/theme';
 import { THEME_THREE } from '@/data/theme';
 
 export const getPaletteForOwner = (owner: Owner, worldProfile: WorldProfile | null): SemanticColorPalette => {

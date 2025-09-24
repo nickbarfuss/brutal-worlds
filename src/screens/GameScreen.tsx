@@ -301,12 +301,12 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
     
                 const profile = ORDERS[orderType];
                 const content: BriefingContent = {
-                    icon: profile.icon,
+                    icon: profile.ui.icon,
                     iconColorHex: palette.icon,
                     title: orderType === 'attack' ? 'Attacking' : 'Assisting',
                     subtitle: toEnclave.name,
-                    description: profile.description,
-                    effect: profile.effect,
+                    description: profile.ui.description,
+                    effect: profile.ui.effect,
                     owner: fromEnclave.owner,
                     worldPalette: engine.currentWorld?.neutralColorPalette,
                     valueType: 'force',
@@ -372,12 +372,12 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             } else if (orderType === 'hold') {
                 const profile = ORDERS.hold;
                 const content: BriefingContent = {
-                    icon: profile.icon,
+                    icon: profile.ui.icon,
                     iconColorHex: palette.icon,
                     title: 'Holding',
                     subtitle: fromEnclave.name,
-                    description: profile.description,
-                    effect: profile.effect,
+                    description: profile.ui.description,
+                    effect: profile.ui.effect,
                     owner: fromEnclave.owner,
                     worldPalette: engine.currentWorld?.neutralColorPalette,
                     valueType: 'force',

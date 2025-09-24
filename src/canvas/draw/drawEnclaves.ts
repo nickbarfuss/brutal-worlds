@@ -1,4 +1,7 @@
-import { Enclave, WorldProfile, ActiveHighlight, ActiveEventMarker } from '@/types/game';
+import { Enclave } from '@/logic/world/world.types';
+import { WorldProfile } from '@/types/world';
+import { ActiveEventMarker } from '@/logic/events/events.types';
+import { ActiveHighlight } from '@/types/game';
 import { getPaletteForOwner } from '@/canvas/draw/drawUtils';
 import { ICONS } from '@/data/icons';
 import { EVENTS } from '@/data/events';

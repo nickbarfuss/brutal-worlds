@@ -4,7 +4,7 @@ import { BIRTHRIGHTS } from '@/data/birthrights';
 import { GAMBITS } from '@/data/gambits';
 import ChipCard from '@/components/ui/ChipCard';
 import Card from '@/components/ui/Card';
-import { PlayerIdentifier } from '@/types/game';
+import { PlayerIdentifier } from '@/types/core';
 import { THEME } from '@/data/theme';
 import { getAssetUrl } from '@/utils/assetUtils';
 

@@ -3,7 +3,7 @@ import { geoVoronoi } from 'd3-geo-voronoi';
 import { geoCentroid } from 'd3-geo';
 import { MapCell, Enclave, Domain, Route, Rift, Expanse, WorldProfile } from '@/types/game';
 import { CONFIG } from '@/data/config';
-import { convertLatLonToVector3 as convertLatLonToVector3Util } from '@/utils/geo';
+import { convertLatLonToVector3 as convertLatLonToVector3Util } from '@/utils/geoUtils';
 
 // A simple seeded pseudo-random number generator (PRNG) to make world generation deterministic.
 const createSeededRandom = (seed: number) => {

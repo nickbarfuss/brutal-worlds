@@ -1,6 +1,9 @@
 
 import React from 'react';
-import { Owner, Enclave, Domain, Rift, Expanse, HighlightType, ActiveHighlight, WorldProfile } from '@/types/game';
+import { Owner } from '@/types/core';
+import { Enclave, Domain, Rift, Expanse } from '@/logic/world/world.types';
+import { WorldProfile } from '@/types/world';
+import { HighlightType, ActiveHighlight } from '@/types/game'; // Keep these for now
 import { ICONS } from '@/data/icons';
 import { getDomainOwner } from '@/logic/domains';
 import { THEME_THREE } from '@/data/theme';

@@ -1,5 +1,9 @@
 import React from 'react';
-import { Enclave, Domain, PendingOrders, WorldProfile, ActiveEventMarker, Route, Owner, Order } from '@/types/game';
+import { Enclave, Domain, Route } from '@/logic/world/world.types';
+import { PendingOrders, Order } from '@/logic/orders/orders.types';
+import { WorldProfile } from '@/types/world';
+import { ActiveEventMarker } from '@/logic/events/events.types';
+import { Owner } from '@/types/core';
 import { ORDERS } from '@/data/orders';
 import { THEME_THREE, THEME } from '@/data/theme';
 import { EVENTS } from '@/data/events';
@@ -258,7 +262,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                     <Card.Section title="Orders" hasContent={true}>
                         {outgoingOrder ? (
                             <ChipCard
-                                icon={ORDERS[outgoingOrder.type].icon}
+                                icon={ORDERS[outgoingOrder.type].ui.icon}
                                 iconColorHex={palette.icon}
                                 baseValue={outgoingOrderValues.base}
                                 bonusValue={outgoingOrderValues.bonus}
@@ -271,7 +275,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                             />
                         ) : (
                             <ChipCard
-                                icon={ORDERS.hold.icon}
+                                icon={ORDERS.hold.ui.icon}
                                 iconColorHex={palette.icon}
                                 baseValue={outgoingOrderValues.base}
                                 bonusValue={outgoingOrderValues.bonus}
@@ -317,7 +321,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                       return (
                          <ChipCard
                             key={fromId}
-                            icon={ORDERS[order.type].icon}
+                            icon={ORDERS[order.type].ui.icon}
                             baseValue={incomingValues.base}
                             bonusValue={incomingValues.bonus}
                             valueType="force"

@@ -1,5 +1,10 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
-import { Enclave, Domain, PendingOrders, InspectedEntity, Rift, Expanse, ActiveEventMarker, Route, WorldProfile, Vector3, BriefingType } from '@/types/game';
+import { Enclave, Domain, Rift, Expanse, Route } from '@/logic/world/world.types';
+import { PendingOrders } from '@/logic/orders/orders.types';
+import { ActiveEventMarker } from '@/logic/events/events.types';
+import { WorldProfile } from '@/types/world';
+import { InspectedEntity, BriefingType } from '@/types/game'; // Keep these for now
+import { Vector3 } from 'three'; // Import directly from three
 import Card from '@/components/ui/Card';
 import EnclaveInspector from '@/components/features/inspector/EnclaveInspector';
 import WorldInspector from '@/components/features/inspector/WorldInspector';

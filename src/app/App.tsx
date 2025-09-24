@@ -7,7 +7,7 @@ import MainMenuScreen from '@/screens/MainMenuScreen';
 import GameScreen from '@/screens/GameScreen';
 import Backdrop from '@/components/ui/Backdrop';
 import OfflineOverlay from '@/components/features/system/OfflineOverlay';
-import { AudioChannel } from '@/types/game';
+import { AudioChannel } from '@/types/core';
 import { CONFIG } from '@/data/config';
 import { ARCHETYPES } from '@/data/archetypes';
 import { WORLD_LIBRARY, getWorldByKey } from '@/data/worlds';

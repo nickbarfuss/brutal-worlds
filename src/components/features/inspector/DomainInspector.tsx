@@ -1,5 +1,7 @@
 import React from 'react';
-import { Domain, Enclave, WorldProfile, Owner } from '@/types/game';
+import { Domain, Enclave } from '@/logic/world/world.types';
+import { WorldProfile } from '@/types/world';
+import { Owner } from '@/types/core';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { ICONS } from '@/data/icons';

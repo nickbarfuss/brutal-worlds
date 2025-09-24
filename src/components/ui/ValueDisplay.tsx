@@ -1,5 +1,6 @@
 import React from 'react';
-import { Owner, SemanticColorPalette } from '@/types/game';
+import { Owner } from '@/types/core';
+import { SemanticColorPalette } from '@/types/theme';
 import { THEME_THREE } from '@/data/theme';
 
 interface ValueDisplayProps {

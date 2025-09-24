@@ -9,7 +9,7 @@ import {
     Route,
 } from '@/types/game.ts';
 import { getTargetEnclaves, getTargetRoutes } from './targeting.ts';
-import { resolveNumericRange } from '@/utils/math.ts';
+import { resolveNumericRange } from '@/utils/mathUtils.ts';
 
 export function applyInstantaneousRules(
     rules: Rule[],

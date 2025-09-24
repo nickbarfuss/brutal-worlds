@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { AudioChannel, GameState, MaterialProperties } from '@/types/game';
+import { AudioChannel } from '@/types/core';
+import { GameState, MaterialProperties } from '@/types/game'; // Keep these for now
 import SliderCard from '@/components/ui/SliderCard';
 import SwitchCard from '@/components/ui/SwitchCard';
 import { SfxManager } from '@/logic/effects';

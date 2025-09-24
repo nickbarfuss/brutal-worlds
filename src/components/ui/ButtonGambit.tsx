@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActiveGambit } from '@/types/game';
+import { ActiveGambit } from '@/logic/gambits/gambits.types';
 import { GAMBITS } from '@/data/gambits';
 
 interface ButtonGambitProps {

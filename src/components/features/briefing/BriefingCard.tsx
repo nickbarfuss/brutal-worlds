@@ -1,5 +1,6 @@
 import React, { useRef, useState, useLayoutEffect } from 'react';
-import { BriefingContent, WorldProfile, BriefingType } from '@/types/game';
+import { WorldProfile } from '@/types/world';
+import { BriefingContent, BriefingType } from '@/types/game'; // Keep these for now
 import Card from '@/components/ui/Card';
 import OrderBriefing from '@/components/features/briefing/OrderBriefing';
 import EffectBriefing from '@/components/features/briefing/EffectBriefing';

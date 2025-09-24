@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { vfxManager, sfxManager } from '@/logic/effects';
 import { WorldCanvasHandle } from '@/features/world/WorldCanvas';
-import { turnBasedEffects, Effect } from './turnBasedEffects';
-import { ActiveEffect } from '../effects.types';
+import { turnBasedEffects, Effect } from '@/features/effects/turn-based/turnBasedEffects';
+import { ActiveEffect } from '@/features/effects/effects.types';
 
 interface TurnBasedEffectsPlayerProps {
     worldCanvasHandle: React.RefObject<WorldCanvasHandle | null>;

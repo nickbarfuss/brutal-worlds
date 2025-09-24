@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import * as THREE from 'three';
 import { MapCell, Owner, ActiveHighlight, Enclave, Rift, WorldProfile, Expanse, Domain } from '@/types/game';
 import { useHighlightZone } from '@/hooks/useHighlightZone';
-import { convertLatLonToVector3 as convertLatLonToVector3Util } from '@/utils/geo';
+import { convertLatLonToVector3 as convertLatLonToVector3Util } from '@/utils/geoUtils';
 import { THEME_THREE } from '@/data/theme';
 import { getDomainOwner } from '@/logic/domains';
 

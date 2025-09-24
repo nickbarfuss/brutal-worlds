@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Owner } from '@/types/game';
+import { Owner } from '@/types/core';
 import { ICONS } from '@/data/icons';
 import { THEME_THREE } from '@/data/theme';
 

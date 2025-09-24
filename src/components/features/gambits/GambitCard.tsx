@@ -1,5 +1,5 @@
 import React, { useRef, useState, useLayoutEffect } from 'react';
-import { ActiveGambit, GambitProfile } from '@/types/game';
+import { ActiveGambit, GambitProfile } from '@/logic/gambits/gambits.types';
 import Card from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
 

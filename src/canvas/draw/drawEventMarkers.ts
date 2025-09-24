@@ -1,4 +1,5 @@
-import { ActiveEventMarker, Enclave } from '@/types/game';
+import { ActiveEventMarker } from '@/logic/events/events.types';
+import { Enclave } from '@/logic/world/world.types';
 import { EVENTS } from '@/data/events';
 import { ICONS } from '@/data/icons';
 

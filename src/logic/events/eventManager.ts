@@ -118,8 +118,8 @@ export const triggerNewEvent = (profile: EventProfile, context: TriggerContext) 
         }
 
         const camelCaseKey = profile.key.replace(/-./g, x => x.toUpperCase()[1]);
-        const sfxKey = profile.ui.assets.sfx?.alert ? `disaster-${camelCaseKey}-sfx-alert` : undefined;
-        const vfxKey = profile.ui.assets.vfx?.alert ? `disaster-${camelCaseKey}-vfx-alert` : undefined;
+        const sfxKey = (profile.ui.assets.sfx && !Array.isArray(profile.ui.assets.sfx) && profile.ui.assets.sfx.alert) ? `disaster-${camelCaseKey}-sfx-alert` : undefined;
+        const vfxKey = (profile.ui.assets.vfx && !Array.isArray(profile.ui.assets.vfx) && profile.ui.assets.vfx.alert) ? `disaster-${camelCaseKey}-vfx-alert` : undefined;
         const selectedAlertDialogKey = getRandomAssetKey(profile.ui.assets.dialog?.alert?.map(asset => asset.src));
 
         if (vfxKey || sfxKey) {

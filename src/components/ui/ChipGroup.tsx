@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Owner, HighlightType } from '@/types/game';
+import { Owner } from '@/types/core';
+import { HighlightType } from '@/types/game'; // Keep this for now
 
 interface Segment {
   id: Owner;

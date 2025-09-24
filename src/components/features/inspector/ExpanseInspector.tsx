@@ -1,5 +1,6 @@
 import React from 'react';
-import { Expanse, ActiveEventMarker, Enclave } from '@/types/game';
+import { Expanse, Enclave } from '@/logic/world/world.types';
+import { ActiveEventMarker } from '@/logic/events/events.types';
 import { EVENTS } from '@/data/events';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';

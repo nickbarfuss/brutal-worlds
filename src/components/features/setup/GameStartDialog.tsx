@@ -4,7 +4,7 @@ import { WORLD_LIBRARY } from '@/data/worlds';
 import Button from '@/components/ui/Button';
 import ArchetypeSelectionCard from '@/components/features/setup/ArchetypeSelectionCard';
 import WorldSelectionCard from '@/components/features/setup/WorldSelectionCard';
-import { AudioChannel } from '@/types/game';
+import { AudioChannel } from '@/types/core';
 import { TEXT } from '@/data/text';
 
 interface GameStartDialogProps {

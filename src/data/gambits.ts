@@ -1,4 +1,4 @@
-import { GambitProfile } from '@/types/game.ts';
+import { GambitProfile } from '@/logic/gambits/gambits.types';
 import { ASSETS } from '@/data/assets.ts';
 
 export const GAMBITS: Record<string, GambitProfile> = {

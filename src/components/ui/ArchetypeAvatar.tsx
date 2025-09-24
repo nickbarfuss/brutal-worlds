@@ -1,7 +1,7 @@
 import React from 'react';
 import { ARCHETYPES } from '@/data/archetypes';
 import { ASSETS } from '@/data/assets';
-import { PlayerIdentifier } from '@/types/game';
+import { PlayerIdentifier } from '@/types/core';
 import { THEME } from '@/data/theme';
 import { getAssetUrl, getNestedAsset } from '@/utils/assetUtils';
 import { toCamelCase } from '@/utils/stringUtils';

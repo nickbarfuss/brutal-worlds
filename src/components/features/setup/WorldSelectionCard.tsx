@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { WorldProfile } from '@/types/game';
+import { WorldProfile } from '@/types/world';
 import Avatar from '@/components/ui/Avatar';
 import ChipCard from '@/components/ui/ChipCard';
 import { DISASTERS } from '@/data/disasters';

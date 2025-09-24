@@ -1,5 +1,5 @@
 import gsap from 'gsap';
-import { SemanticColorPalette } from '@/types/game';
+import { SemanticColorPalette } from '@/types/theme';
 
 interface EnclaveAnimationState {
     currentRadius: number;

@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
-import { Owner, SemanticColorPalette, BriefingType } from '@/types/game';
+import { Owner } from '@/types/core';
+import { SemanticColorPalette } from '@/types/theme';
+import { BriefingType } from '@/types/game'; // Keep this for now
 import { THEME_THREE } from '@/data/theme';
 import ValueDisplay from '@/components/ui/ValueDisplay';
 

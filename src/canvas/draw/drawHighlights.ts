@@ -1,7 +1,9 @@
 
 
 import * as THREE from 'three';
-import { ActiveHighlight, Owner, WorldProfile, GameState } from '@/types/game';
+import { Owner } from '@/types/core';
+import { WorldProfile } from '@/types/world';
+import { ActiveHighlight, GameState } from '@/types/game'; // Keep these for now
 import { getPaletteForOwner, getScreenPosition } from '@/canvas/draw/drawUtils';
 import { ICONS } from '@/data/icons';
 import { getDomainOwner } from '@/logic/domains';

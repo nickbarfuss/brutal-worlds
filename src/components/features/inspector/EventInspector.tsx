@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActiveEventMarker } from '@/types/game';
+import { ActiveEventMarker } from '@/logic/events/events.types';
 import { EVENTS } from '@/data/events';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';

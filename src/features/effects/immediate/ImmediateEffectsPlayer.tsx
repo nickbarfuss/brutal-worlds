@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { vfxManager, sfxManager } from '@/logic/effects';
 import { WorldCanvasHandle } from '@/features/world/WorldCanvas';
-import { immediateEffects, ImmediateEffect } from './immediateEffects';
-import { ActiveEffect } from '../effects.types';
+import { immediateEffects, ImmediateEffect } from '@/features/effects/immediate/immediateEffects';
+import { ActiveEffect } from '@/features/effects/effects.types';
 
 interface ImmediateEffectsPlayerProps {
     worldCanvasHandle: React.RefObject<WorldCanvasHandle | null>;

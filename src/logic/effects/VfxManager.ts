@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { ASSETS } from '@/data/assets';
 import { flattenAssetUrls, VFXAsset } from '@/utils/assetUtils';
 import { ActiveEffect } from '@/features/effects/effects.types';
+import { v4 as uuidv4 } from 'uuid';
 
 export class VfxManager {
     private isInitialized: boolean = false;
@@ -82,6 +83,8 @@ export class VfxManager {
         }
 
         return { 
+            id: uuidv4(),
+            type: 'vfx',
             key, 
             video, 
             worldPosition, 

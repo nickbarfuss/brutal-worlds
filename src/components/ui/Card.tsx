@@ -1,6 +1,7 @@
 import React from 'react';
 import ValueDisplay from '@/components/ui/ValueDisplay';
-import { Owner, WorldProfile } from '@/types/game';
+import { Owner } from '@/types/core';
+import { WorldProfile } from '@/types/world';
 
 interface CardHeaderProps {
   icon?: string;

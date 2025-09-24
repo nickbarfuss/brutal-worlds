@@ -1,4 +1,4 @@
-import { ArchetypeProfile } from '@/types/game.ts';
+import { ArchetypeProfile } from '@/features/archetypes/archetypes.types';
 import { ASSETS } from '@/data/assets';
 
 export const ARCHETYPES: { [key: string]: ArchetypeProfile } = {

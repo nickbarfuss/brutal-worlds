@@ -1,4 +1,4 @@
-import { BirthrightProfile } from '@/types/game.ts';
+import { BirthrightProfile } from '@/features/birthrights/birthrights.types';
 import { ASSETS } from '@/data/assets';
 
 

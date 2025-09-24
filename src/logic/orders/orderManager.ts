@@ -90,7 +90,7 @@ export const handleSingleClick = (
                 const vfxKey = `order-${profile.key}-vfx`;
                 const sfxKey = `order-${profile.key}-sfx`;
 
-                if (profile.assets.vfx) {
+                if (profile.ui.assets.vfx) {
                     events.push({
                         id: uuidv4(),
                         playMode: 'immediate',
@@ -98,7 +98,7 @@ export const handleSingleClick = (
                         position: clickedEnclave.center,
                     });
                 }
-                if (profile.assets.sfx) {
+                if (profile.ui.assets.sfx) {
                     events.push({
                         id: uuidv4(),
                         playMode: 'immediate',
@@ -145,7 +145,7 @@ export const handleSingleClick = (
                     const sfxKey = `order-${profile.key}-sfx`;
                     const updatedOrders = { ...playerPendingOrders, [selectedEnclaveId]: { to: clickedEnclaveId, type: orderType }};
                     
-                    if (profile.assets.vfx) {
+                    if (profile.ui.assets.vfx) {
                         events.push({
                             id: uuidv4(),
                             playMode: 'immediate',
@@ -153,7 +153,7 @@ export const handleSingleClick = (
                             position: clickedEnclave.center,
                         });
                     }
-                    if (profile.assets.sfx) {
+                    if (profile.ui.assets.sfx) {
                          events.push({
                             id: uuidv4(),
                             playMode: 'immediate',

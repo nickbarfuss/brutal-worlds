@@ -1,5 +1,6 @@
 import React from 'react';
-import { BriefingContent, WorldProfile } from '@/types/game';
+import { WorldProfile } from '@/types/world';
+import { BriefingContent } from '@/types/game';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { ICONS } from '@/data/icons';

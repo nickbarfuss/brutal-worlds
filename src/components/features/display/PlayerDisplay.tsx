@@ -1,6 +1,6 @@
 import React from 'react';
 import ArchetypeAvatar from '@/components/ui/ArchetypeAvatar';
-import { PlayerIdentifier } from '@/types/game';
+import { PlayerIdentifier } from '@/types/core';
 
 interface PlayerDisplayProps {
   owner: PlayerIdentifier;

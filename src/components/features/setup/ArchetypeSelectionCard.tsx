@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { ArchetypeProfile, LegacyProfile } from '@/types/game';
+import { ArchetypeProfile } from '@/features/archetypes/archetypes.types';
+import { LegacyProfile } from '@/features/legacies/legacies.types';
 import Avatar from '@/components/ui/Avatar';
 import ChipCard from '@/components/ui/ChipCard';
 import { BIRTHRIGHTS } from '@/data/birthrights';
