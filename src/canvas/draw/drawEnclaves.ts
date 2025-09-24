@@ -90,7 +90,7 @@ const drawEnclaveChip = (
     const labelTextColor = palette.text;
 
     // Get animated properties for the enclave marker within the chip
-    const { currentRadius, currentColor, currentDisplayedForces } = getAnimatedEnclaveProperties(enclave.id);
+    const { currentRadius, currentColor, currentDisplayedForces, currentFontSize } = getAnimatedEnclaveProperties(enclave.id);
 
     ctx.save();
     ctx.fillStyle = chipBgColor;
@@ -114,7 +114,7 @@ const drawEnclaveChip = (
     ctx.beginPath();
     ctx.arc(pos.x, pos.y, currentRadius, 0, Math.PI * 2); // Use animated radius
     ctx.fill();
-    ctx.font = "700 14px 'Open Sans'"; ctx.fillStyle = forceTextColor;
+    ctx.font = `700 ${currentFontSize}px 'Open Sans'`; ctx.fillStyle = forceTextColor;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     
     ctx.fillText(String(currentDisplayedForces), pos.x, pos.y + 1); // Use animated forces
@@ -185,7 +185,8 @@ const drawEnclaveMarker = (
     selectedEnclaveId: number | null,
     animatedRadius: number,
     animatedColor: string,
-    animatedForces: number
+    animatedForces: number,
+    animatedFontSize: number
 ) => {
     const palette = getPaletteForOwner(enclave.owner, worldProfile);
     const forceTextColor = palette.light;
@@ -203,7 +204,7 @@ const drawEnclaveMarker = (
     ctx.arc(pos.x, pos.y, animatedRadius, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.font = "700 14px 'Open Sans'";
+    ctx.font = `700 ${animatedFontSize}px 'Open Sans'`;
     ctx.fillStyle = forceTextColor;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -243,7 +244,7 @@ export const drawAllEnclaves = (ctx: CanvasRenderingContext2D, props: DrawAllEnc
         const palette = getPaletteForOwner(enclave.owner, currentWorld);
         initEnclaveAnimation(enclave.id, enclave.forces, palette.base);
         animateEnclaveForces(enclave.id, enclave.forces, palette, requestRedraw);
-        const { currentRadius, currentColor, currentDisplayedForces } = getAnimatedEnclaveProperties(enclave.id);
+        const { currentRadius, currentColor, currentDisplayedForces, currentFontSize } = getAnimatedEnclaveProperties(enclave.id);
 
         const shouldDrawLabel = activeHighlight?.type === 'enclaves' && activeHighlight.owners.has(enclave.owner);
         const effectsOnMainCell = eventMarkersByCellId.get(enclave.mainCellId) || [];
@@ -261,7 +262,7 @@ export const drawAllEnclaves = (ctx: CanvasRenderingContext2D, props: DrawAllEnc
              const localHoveredEnclaveId = mapData[hoveredCellId]?.enclaveId ?? -1;
              const isHovered = enclave.id === localHoveredEnclaveId;
              const isCommandMode = selectedEnclaveId !== null;
-             drawEnclaveMarker(ctx, enclave, pos, isHovered, isCommandMode, currentWorld, routes, selectedEnclaveId, currentRadius, currentColor, currentDisplayedForces);
+             drawEnclaveMarker(ctx, enclave, pos, isHovered, isCommandMode, currentWorld, routes, selectedEnclaveId, currentRadius, currentColor, currentDisplayedForces, currentFontSize);
         }
     });
 };

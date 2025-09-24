@@ -5,6 +5,7 @@ interface EnclaveAnimationState {
     currentRadius: number;
     currentColor: string;
     currentDisplayedForces: number;
+    currentFontSize: number;
     gsapTimeline: gsap.core.Timeline | null;
     lastKnownForces: number;
 }
@@ -17,6 +18,7 @@ export const initEnclaveAnimation = (enclaveId: number, initialForces: number, i
             currentRadius: 14,
             currentColor: initialColor,
             currentDisplayedForces: initialForces,
+            currentFontSize: 14,
             gsapTimeline: null,
             lastKnownForces: initialForces,
         });
@@ -58,26 +60,28 @@ export const animateEnclaveForces = (
     // 1. Scale up and brighten color
     state.gsapTimeline.to(state, {
         currentRadius: 14 * 1.5,
+        currentFontSize: 14 * 1.5,
         currentColor: palette.hover, // Brighter color
-        duration: 0.25,
-        ease: "power1.out"
+        duration: 0.3,
+        ease: "back.inOut"
     });
 
     // 2. Count up/down the number
     state.gsapTimeline.to(state, {
         currentDisplayedForces: newForces,
         duration: 2,
-        ease: "power1.inOut",
+        ease: "power4.out",
         roundProps: "currentDisplayedForces", // Ensure integer display
     }, "<"); // Start simultaneously with the previous tween
 
     // 3. Scale back down and revert color
     state.gsapTimeline.to(state, {
         currentRadius: 14,
+        currentFontSize: 14,
         currentColor: palette.base, // Original color
-        duration: 0.25,
-        ease: "power1.in"
-    }, ">-0.25"); // Start 0.25s before the number counting finishes
+        duration: 0.3,
+        ease: "back.inOut"
+    }, ">-0.3"); // Start 0.25s before the number counting finishes
 
     // If the animation is very short (e.g., 0 to 1), ensure it still looks good
     if (Math.abs(newForces - oldForces) < 2) {
@@ -89,11 +93,12 @@ export const getAnimatedEnclaveProperties = (enclaveId: number) => {
     const state = enclaveAnimationStates.get(enclaveId);
     if (!state) {
         // Fallback if state not initialized (shouldn't happen if init is called)
-        return { currentRadius: 14, currentColor: '#737373', currentDisplayedForces: 0 };
+        return { currentRadius: 14, currentColor: '#737373', currentDisplayedForces: 0, currentFontSize: 14 };
     }
     return {
         currentRadius: state.currentRadius,
         currentColor: state.currentColor,
-        currentDisplayedForces: Math.round(state.currentDisplayedForces) // Always return rounded for display
+        currentDisplayedForces: Math.round(state.currentDisplayedForces), // Always return rounded for display
+        currentFontSize: state.currentFontSize
     };
 };
