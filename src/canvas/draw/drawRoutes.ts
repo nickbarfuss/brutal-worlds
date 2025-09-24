@@ -3,7 +3,7 @@ import * as THREE from 'three'; // eslint-disable-line @typescript-eslint/no-unu
 import { Route, PendingOrders, Enclave, WorldProfile, SemanticColorPalette } from '@/types/game';
 import { ICONS } from '@/data/icons';
 import { getPaletteForOwner } from '@/canvas/draw/drawUtils';
-import { PLAYER_THREE_COLORS } from '@/data/theme';
+import { THEME_THREE } from '@/data/theme';
 
 const drawRouteMarker = (ctx: CanvasRenderingContext2D, type: string, pos: {x: number, y: number}, clockTime: number, palette: SemanticColorPalette | null) => {
     ctx.save();
@@ -13,12 +13,12 @@ const drawRouteMarker = (ctx: CanvasRenderingContext2D, type: string, pos: {x: n
     if (type === 'contested-attack') {
         icon = 'warning';
         const pulseState = Math.floor(clockTime * 2.5) % 2;
-        bgColor = pulseState === 0 ? PLAYER_THREE_COLORS['player-1'].selected : PLAYER_THREE_COLORS['player-2'].selected;
-        iconColor = pulseState === 0 ? PLAYER_THREE_COLORS['player-1'].light : PLAYER_THREE_COLORS['player-2'].light;
+        bgColor = pulseState === 0 ? THEME_THREE['player-1'].selected : THEME_THREE['player-2'].selected;
+        iconColor = pulseState === 0 ? THEME_THREE['player-1'].light : THEME_THREE['player-2'].light;
     } else if (type === 'contested-assist') {
         icon = 'add_circle';
-        bgColor = palette ? palette.selected : PLAYER_THREE_COLORS['player-1'].selected;
-        iconColor = palette ? palette.light : PLAYER_THREE_COLORS['player-1'].light;
+        bgColor = palette ? palette.selected : THEME_THREE['player-1'].selected;
+        iconColor = palette ? palette.light : THEME_THREE['player-1'].light;
     } else if (type === 'disabled') {
         icon = ICONS.route.disabled;
         bgColor = '#27272a'; // neutral-800

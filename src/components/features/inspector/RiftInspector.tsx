@@ -1,6 +1,6 @@
 import React from 'react';
 import { Rift, ActiveEventMarker, Enclave } from '@/types/game';
-import { EVENT_PROFILES } from '@/data/events';
+import { EVENTS } from '@/data/events';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { ICONS } from '@/data/icons';
@@ -40,7 +40,7 @@ const RiftInspector: React.FC<RiftInspectorProps> = ({ entity, activeEventMarker
               </Card.Section>
               <Card.Section title="Events" hasContent={hasEvents}>
                  {activeMarker && (() => {
-                    const profile = EVENT_PROFILES[activeMarker.profileKey];
+                    const profile = EVENTS[activeMarker.profileKey];
                     if (!profile) return null;
                     // FIX: Find the first target enclave from metadata for briefing key
                     const firstTargetEnclaveId = activeMarker.metadata && activeMarker.metadata.targetEnclaveIds && activeMarker.metadata.targetEnclaveIds.length > 0 ? activeMarker.metadata.targetEnclaveIds[0] : null;
@@ -64,7 +64,7 @@ const RiftInspector: React.FC<RiftInspectorProps> = ({ entity, activeEventMarker
                  })()}
                  {uniqueAftermathKeys.map(key => {
                       const event = aftermathEvents.find(e => e.profileKey === key);
-                      const profile = EVENT_PROFILES[key];
+                      const profile = EVENTS[key];
                       if (!event || !profile || !profile.logic.aftermath) return null;
   
                       return (

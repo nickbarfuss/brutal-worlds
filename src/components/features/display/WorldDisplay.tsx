@@ -2,7 +2,7 @@
 import React from 'react';
 import { Owner } from '@/types/game';
 import { ICONS } from '@/data/icons';
-import { PLAYER_THREE_COLORS } from '@/data/theme';
+import { THEME_THREE } from '@/data/theme';
 
 interface WorldDisplayProps {
   planetName: string;
@@ -22,8 +22,8 @@ const WorldDisplay: React.FC<WorldDisplayProps> = ({
 }) => {
   
   const getHoverStyles = (owner: Owner) => {
-    if (owner === 'player-1') return { textColorHex: PLAYER_THREE_COLORS['player-1'].text, fontWeight: 'font-semibold' };
-    if (owner === 'player-2') return { textColorHex: PLAYER_THREE_COLORS['player-2'].text, fontWeight: 'font-semibold' };
+    if (owner === 'player-1') return { textColorHex: THEME_THREE['player-1'].text, fontWeight: 'font-semibold' };
+    if (owner === 'player-2') return { textColorHex: THEME_THREE['player-2'].text, fontWeight: 'font-semibold' };
     return { textColorHex: '#9ca3af', fontWeight: 'font-normal' }; // neutral-400
   };
 

@@ -7,16 +7,16 @@ import InspectorCard from '@/components/features/inspector/InspectorCard';
 import Snackbar from '@/components/ui/Snackbar';
 import BriefingCard from '@/components/features/briefing/BriefingCard';
 import GameOverDialog from '@/components/features/game-over/GameOverDialog';
-import { ORDER_PROFILES } from '@/data/orders';
+import { ORDERS } from '@/data/orders';
 import { ASSETS } from '@/data/assets';
-import { EVENT_PROFILES } from '@/data/events';
+import { EVENTS } from '@/data/events';
 import { ARCHETYPES } from '@/data/archetypes';
 import { BIRTHRIGHTS } from '@/data/birthrights';
 import { ICONS } from '@/data/icons';
 import { getDomainOwner } from '@/logic/domains';
 import TurnDisplay from '@/components/features/display/TurnDisplay';
 import WorldDisplay from '@/components/features/display/WorldDisplay';
-import { PLAYER_THREE_COLORS, THEME_CONFIG } from '@/data/theme';
+import { THEME_THREE, THEME } from '@/data/theme';
 import { useWorldHighlights } from '@/hooks/useWorldHighlights';
 import { BriefingContent, BriefingState, GameOverState, OrderType, Owner, WorldProfile, Enclave, Domain, IntroPhase, Vector3, EventQueueItem, PlayerIdentifier, InspectedMapEntity, BriefingType } from '@/types/game'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import Backdrop from '@/components/ui/Backdrop';
@@ -270,8 +270,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
     }, []);
 
     const getPaletteForOwner = (owner: Owner, worldProfile: WorldProfile | null) => {
-        if (owner === 'player-1') return PLAYER_THREE_COLORS['player-1'];
-        if (owner === 'player-2') return PLAYER_THREE_COLORS['player-2'];
+        if (owner === 'player-1') return THEME_THREE['player-1'];
+        if (owner === 'player-2') return THEME_THREE['player-2'];
         if (worldProfile) return worldProfile.neutralColorPalette;
         return {
             base: '#737373', hover: '#a3a3a3', target: '#d4d4d4', selected: '#d4d4d4',
@@ -299,7 +299,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 const toEnclave = engine.enclaveData[toId];
                 if (!toEnclave) return null;
     
-                const profile = ORDER_PROFILES[orderType];
+                const profile = ORDERS[orderType];
                 const content: BriefingContent = {
                     icon: profile.icon,
                     iconColorHex: palette.icon,
@@ -314,7 +314,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 
                 if (orderType === 'attack') {
                     const rules = fromEnclave.activeEvents.flatMap(event => {
-                        const profile = EVENT_PROFILES[event.profileKey];
+                        const profile = EVENTS[event.profileKey];
                         if (!profile) return [];
                         const phaseLogic = profile.logic[event.phase];
                         return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
@@ -370,7 +370,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 return content;
     
             } else if (orderType === 'hold') {
-                const profile = ORDER_PROFILES.hold;
+                const profile = ORDERS.hold;
                 const content: BriefingContent = {
                     icon: profile.icon,
                     iconColorHex: palette.icon,
@@ -385,7 +385,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
     
                 if (fromEnclave.owner) {
                     const rules = fromEnclave.activeEvents.flatMap(event => {
-                        const profile = EVENT_PROFILES[event.profileKey];
+                        const profile = EVENTS[event.profileKey];
                         if (!profile) return [];
                         const phaseLogic = profile.logic[event.phase];
                         return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
@@ -432,7 +432,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             const marker = engine.activeEventMarkers.find(m => m.id === eventOrMarkerId && m.metadata?.targetEnclaveIds?.includes(enclaveId));
     
             if (event) {
-                 const profile = EVENT_PROFILES[event.profileKey];
+                 const profile = EVENTS[event.profileKey];
                  if (!profile) return null;
                  
                  const phaseKey = event.phase;
@@ -450,7 +450,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                      imageUrl: profile.ui.assets.image ? getAssetUrl(profile.ui.assets.image) : undefined,
                  };
             } else if (marker) {
-                const profile = EVENT_PROFILES[marker.profileKey];
+                const profile = EVENTS[marker.profileKey];
                 if (!profile) return null;
                 const alertProfile = profile.logic.alert;
                 return {
@@ -471,7 +471,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             const marker = engine.activeEventMarkers.find(m => m.id === markerId);
             if (!marker) return null;
     
-            const profile = EVENT_PROFILES[marker.profileKey];
+            const profile = EVENTS[marker.profileKey];
             if (!profile) return null;
     
             const phaseKey = marker.currentPhase;
@@ -490,7 +490,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             };
         }
         if (type === 'eventProfile') {
-            const profile = EVENT_PROFILES[contentKey];
+            const profile = EVENTS[contentKey];
             if (!profile) return null;
         
             return {
@@ -541,7 +541,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             const isDestroyed = route.isDestroyed;
             const subtitle = isDestroyed ? 'Destroyed' : 'Disabled';
             const icon = ICONS.route[isDestroyed ? 'destroyed' : 'disabled'];
-            const iconColorClass = isDestroyed ? `text-${THEME_CONFIG.danger}-500` : `text-${THEME_CONFIG.warning}-400`;
+            const iconColorClass = isDestroyed ? `text-${THEME.danger}-500` : `text-${THEME.warning}-400`;
 
             return {
                 icon: icon,
@@ -913,8 +913,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                             playerPercentage={playerPercentage}
                             opponentPercentage={opponentPercentage}
                             neutralPercentage={neutralPercentage}
-                            playerColor={PLAYER_THREE_COLORS['player-1'].selected}
-                            opponentColor={PLAYER_THREE_COLORS['player-2'].selected}
+                            playerColor={THEME_THREE['player-1'].selected}
+                            opponentColor={THEME_THREE['player-2'].selected}
                             neutralColor={engine.currentWorld.neutralColorPalette.selected}
                             timerColor={engine.currentWorld.neutralColorPalette.selected}
                             currentTurn={engine.currentTurn}

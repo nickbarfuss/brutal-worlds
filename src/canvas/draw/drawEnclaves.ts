@@ -1,7 +1,7 @@
 import { Enclave, WorldProfile, ActiveHighlight, ActiveEventMarker } from '@/types/game';
 import { getPaletteForOwner } from '@/canvas/draw/drawUtils';
 import { ICONS } from '@/data/icons';
-import { EVENT_PROFILES } from '@/data/events';
+import { EVENTS } from '@/data/events';
 import { initEnclaveAnimation, animateEnclaveForces, getAnimatedEnclaveProperties } from '../enclaveAnimationManager';
 
 const canvasStyles = {
@@ -122,7 +122,7 @@ const drawEnclaveChip = (
     let currentXForRightChips = pos.x + enclaveMarkerStyle.radius + chipStyle.paddingInner;
 
     events.forEach(event => {
-        const profile = EVENT_PROFILES[event.profileKey];
+        const profile = EVENTS[event.profileKey];
         if (!profile) return;
         if (event.phase === 'alert') {
             const pulse = (Math.sin(clockTime * Math.PI * 4) + 1) / 2;
@@ -136,7 +136,7 @@ const drawEnclaveChip = (
     });
 
     effectsOnMainCell.forEach(marker => {
-        const profile = EVENT_PROFILES[marker.profileKey];
+        const profile = EVENTS[marker.profileKey];
         if (!profile) return;
         
         const isCrisis = marker.events.length > 1;

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Enclave, Domain, PendingOrders, WorldProfile, ActiveEventMarker, Route, Owner, Order } from '@/types/game';
-import { ORDER_PROFILES } from '@/data/orders';
-import { PLAYER_THREE_COLORS, THEME_CONFIG } from '@/data/theme';
-import { EVENT_PROFILES } from '@/data/events';
+import { ORDERS } from '@/data/orders';
+import { THEME_THREE, THEME } from '@/data/theme';
+import { EVENTS } from '@/data/events';
 import { BIRTHRIGHTS } from '@/data/birthrights';
 import { ARCHETYPES } from '@/data/archetypes';
 import Card from '@/components/ui/Card';
@@ -31,8 +31,8 @@ interface EnclaveInspectorProps {
 }
 
 const getPaletteForOwner = (owner: Owner, worldProfile: WorldProfile | null) => {
-    if (owner === 'player-1') return PLAYER_THREE_COLORS['player-1'];
-    if (owner === 'player-2') return PLAYER_THREE_COLORS['player-2'];
+    if (owner === 'player-1') return THEME_THREE['player-1'];
+    if (owner === 'player-2') return THEME_THREE['player-2'];
     if (worldProfile) return worldProfile.neutralColorPalette;
     // Fallback default
     return {
@@ -65,7 +65,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
 
     if (outgoingOrder) {
         const rules = enclave.activeEvents.flatMap(event => {
-            const profile = EVENT_PROFILES[event.profileKey];
+            const profile = EVENTS[event.profileKey];
             if (!profile) return [];
             const phaseLogic = profile.logic[event.phase];
             return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
@@ -82,7 +82,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
     } else { // Holding
         if (enclave.owner) {
             const rules = enclave.activeEvents.flatMap(event => {
-                const profile = EVENT_PROFILES[event.profileKey];
+                const profile = EVENTS[event.profileKey];
                 if (!profile) return [];
                 const phaseLogic = profile.logic[event.phase];
                 return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
@@ -121,7 +121,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
         const events: { id: string; category: string; component: React.ReactElement }[] = [];
         
         eventMarkers.forEach(marker => {
-            const profile = EVENT_PROFILES[marker.profileKey];
+            const profile = EVENTS[marker.profileKey];
             if (!profile) return;
             events.push({
                 id: marker.id, category: 'Disaster',
@@ -131,7 +131,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
         });
     
         enclave.activeEvents.forEach(event => {
-            const profile = EVENT_PROFILES[event.profileKey];
+            const profile = EVENTS[event.profileKey];
             if (!profile) return;
             const phaseName = event.phase === 'alert' ? profile.logic.alert.name : (event.phase === 'impact' ? profile.logic.impact.name : (event.phase === 'aftermath' ? profile.logic.aftermath.name : ''));
             events.push({
@@ -143,7 +143,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
     
         if (memeticResonanceSource) {
             const birthright = BIRTHRIGHTS['memeticResonance'];
-            const ownerTheme = memeticResonanceSource.owner === 'player-1' ? THEME_CONFIG.player1 : THEME_CONFIG.player2;
+            const ownerTheme = memeticResonanceSource.owner === 'player-1' ? THEME.player1 : THEME.player2;
             events.push({
                 id: 'memeticResonance', category: 'Birthright',
                 component: <ChipCard key="memeticResonance" icon={birthright.icon} iconColorClass={`text-${ownerTheme}-400`} title={birthright.name} subtitle="Forces being drained" briefingProps={{ type: 'birthright', key: `memeticResonance-${memeticResonanceSource.owner}` }} />
@@ -258,7 +258,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                     <Card.Section title="Orders" hasContent={true}>
                         {outgoingOrder ? (
                             <ChipCard
-                                icon={ORDER_PROFILES[outgoingOrder.type].icon}
+                                icon={ORDERS[outgoingOrder.type].icon}
                                 iconColorHex={palette.icon}
                                 baseValue={outgoingOrderValues.base}
                                 bonusValue={outgoingOrderValues.bonus}
@@ -271,7 +271,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                             />
                         ) : (
                             <ChipCard
-                                icon={ORDER_PROFILES.hold.icon}
+                                icon={ORDERS.hold.icon}
                                 iconColorHex={palette.icon}
                                 baseValue={outgoingOrderValues.base}
                                 bonusValue={outgoingOrderValues.bonus}
@@ -296,7 +296,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                       if (!currentFromEnclave) return null; // Use renamed variable
                       
                       const rules = currentFromEnclave.activeEvents.flatMap(event => {
-                        const profile = EVENT_PROFILES[event.profileKey];
+                        const profile = EVENTS[event.profileKey];
                         if (!profile) return [];
                         const phaseLogic = profile.logic[event.phase];
                         return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
@@ -317,7 +317,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                       return (
                          <ChipCard
                             key={fromId}
-                            icon={ORDER_PROFILES[order.type].icon}
+                            icon={ORDERS[order.type].icon}
                             baseValue={incomingValues.base}
                             bonusValue={incomingValues.bonus}
                             valueType="force"
@@ -358,7 +358,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
                         const subtitle = isDestroyed ? 'Destroyed' : 'Disabled';
                         const statusType = isDestroyed ? 'destroyed' : 'disabled';
                         
-                        const iconColorClass = isDestroyed ? `text-${THEME_CONFIG.danger}-500` : `text-${THEME_CONFIG.warning}-400`;
+                        const iconColorClass = isDestroyed ? `text-${THEME.danger}-500` : `text-${THEME.warning}-400`;
                         
                         return (
                             <ChipCard

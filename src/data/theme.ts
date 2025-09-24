@@ -4,7 +4,7 @@ import { SemanticColorPalette } from '@/types/game.ts';
 
 // The names of the Tailwind color families used for different roles.
 // This allows for easy theme changes by just changing these strings.
-export const THEME_CONFIG = {
+export const THEME = {
   player1: 'indigo',
   player2: 'pink',
   accent: 'indigo', // UI accent
@@ -17,7 +17,7 @@ export const THEME_CONFIG = {
 
 // A curated set of hex codes for use in Three.js and Canvas, where Tailwind classes are not available.
 // These are manually selected from the default Tailwind palette to match the names in THEME_CONFIG.
-export const PLAYER_THREE_COLORS: {
+export const THEME_THREE: {
   'player-1': SemanticColorPalette;
   'player-2': SemanticColorPalette;
 } = {

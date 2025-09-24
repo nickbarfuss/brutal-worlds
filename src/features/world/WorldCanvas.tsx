@@ -5,7 +5,7 @@ import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
-import { PLAYER_THREE_COLORS } from '@/data/theme';
+import { THEME_THREE } from '@/data/theme';
 import { useCommandZone } from '@/hooks/useCommandZone';
 import { useWorldGeometry } from '@/hooks/useWorldGeometry';
 import { useWorldRenderer } from '@/hooks/useWorldRenderer';
@@ -256,8 +256,8 @@ const WorldCanvas = React.memo(
     
     const { colorPalette, baseMaterials } = useMemo(() => {
         const currentWorld = props.currentWorld;
-        const p1Palette: SemanticColorPalette = PLAYER_THREE_COLORS['player-1'];
-        const p2Palette: SemanticColorPalette = PLAYER_THREE_COLORS['player-2'];
+        const p1Palette: SemanticColorPalette = THEME_THREE['player-1'];
+        const p2Palette: SemanticColorPalette = THEME_THREE['player-2'];
         const neutralPalette: SemanticColorPalette | undefined = currentWorld?.neutralColorPalette;
 
         const palette = {

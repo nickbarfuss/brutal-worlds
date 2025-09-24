@@ -10,7 +10,7 @@ import OfflineOverlay from '@/components/features/system/OfflineOverlay';
 import { AudioChannel } from '@/types/game';
 import { CONFIG } from '@/data/config';
 import { ARCHETYPES } from '@/data/archetypes';
-import { WORLD_LIBRARY } from '@/data/worlds';
+import { WORLD_LIBRARY, getWorldByKey } from '@/data/worlds';
 
 const App: React.FC = () => {
     const { isOnline } = useConnection();

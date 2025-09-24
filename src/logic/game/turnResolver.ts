@@ -7,7 +7,7 @@
 import { Enclave, PendingOrders, EventQueueItem, ActiveEventMarker, Route, MapCell, ActiveEvent, EventProfile, GameConfig, GameState, TurnEvent } from '@/types/game.ts';
 import { resolveHolding, resolveAssists, resolveAttacks } from '@/logic/orders';
 import * as THREE from 'three';
-import { EVENT_PROFILES } from '@/data/events';
+import { EVENTS } from '@/data/events';
 import { applyContinuousEffects } from '@/logic/events';
 import { cloneEnclave } from '@/logic/enclaves';
 import * as defaultHandler from '@/logic/disasters/defaultHandler';
@@ -88,7 +88,7 @@ export const processEventMarkers = (
 
         for (let i = modifiedEnclave.activeEvents.length - 1; i >= 0; i--) {
             const event = modifiedEnclave.activeEvents[i];
-            const profile = EVENT_PROFILES[event.profileKey];
+            const profile = EVENTS[event.profileKey];
             if (!profile) continue;
             
             const handler = eventHandlers[event.profileKey] || eventHandlers.default;
@@ -142,7 +142,7 @@ export const processEventMarkers = (
     currentMarkers.forEach(marker => {
         marker.durationInPhase--;
         if (marker.durationInPhase <= 0) {
-            const profile = EVENT_PROFILES[marker.profileKey];
+            const profile = EVENTS[marker.profileKey];
             if (!profile) return;
 
             let nextPhase: 'impact' | 'aftermath' | undefined;
@@ -184,7 +184,7 @@ export const processEventMarkers = (
             if (event.duration > 0) {
                 remainingEvents.push(event);
             } else {
-                const profile = EVENT_PROFILES[event.profileKey];
+                const profile = EVENTS[event.profileKey];
                 if (!profile) continue;
                 
                 const handler = eventHandlers[event.profileKey] || eventHandlers.default;

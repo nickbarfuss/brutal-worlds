@@ -2,7 +2,7 @@ import { Enclave, PendingOrders, GameState, Player, Rule, ActiveEventMarker, Rou
 import { getAppliedModifiers } from '@/logic/events';
 import { getAttackBonusForEnclave, getAssistMultiplierForEnclave, getHoldBonusForEnclave } from '@/logic/birthrights';
 import { DISASTERS } from '@/data/disasters';
-import { EVENT_PROFILES } from '@/data/events';
+import { EVENTS } from '@/data/events';
 
 export interface TurnPreview {
     status: 'conquered' | 'neutralized' | 'strengthened' | 'substantiallyStrengthened' | 'weakened' | 'substantiallyWeakened' | 'unchanged';
@@ -86,7 +86,7 @@ export const calculateEnclaveTurnPreview = (
     // Simulate holding reinforcements
     if (enclave.owner && !outgoingOrder) {
         const rules: Rule[] = enclave.activeEvents.flatMap(event => {
-            const profile = EVENT_PROFILES[event.profileKey];
+            const profile = EVENTS[event.profileKey];
             if (!profile) return [];
             const phaseLogic = profile.logic[event.phase];
             return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
@@ -120,7 +120,7 @@ export const calculateEnclaveTurnPreview = (
             const originEnclave = enclaveData[parseInt(fromIdStr, 10)];
             if (originEnclave) {
                 const rules: Rule[] = originEnclave.activeEvents.flatMap(event => {
-                    const profile = EVENT_PROFILES[event.profileKey];
+                    const profile = EVENTS[event.profileKey];
                     if (!profile) return [];
                     const phaseLogic = profile.logic[event.phase];
                     return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
@@ -190,7 +190,7 @@ export const calculateEnclaveTurnPreview = (
                     meleeSurvivors.forEach(survivor => {
                         const owner = survivor.attacker.owner as Player;
                         const rules: Rule[] = survivor.attacker.activeEvents.flatMap(event => {
-                            const profile = EVENT_PROFILES[event.profileKey];
+                            const profile = EVENTS[event.profileKey];
                             if (!profile) return [];
                             const phaseLogic = profile.logic[event.phase];
                             return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];

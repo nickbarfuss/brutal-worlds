@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { MapCell, Owner, ActiveHighlight, Enclave, Rift, WorldProfile, Expanse, Domain } from '@/types/game';
 import { useHighlightZone } from '@/hooks/useHighlightZone';
 import { convertLatLonToVector3 as convertLatLonToVector3Util } from '@/utils/geo';
-import { PLAYER_THREE_COLORS } from '@/data/theme';
+import { THEME_THREE } from '@/data/theme';
 import { getDomainOwner } from '@/logic/domains';
 
 interface UseWorldHighlightsProps {
@@ -111,8 +111,8 @@ export const useWorldHighlights = ({
         const map = new Map<string | number, THREE.Color>();
         if (!activeHighlight || !currentWorld || !groupByFn) return map;
         const getOwnerColor = (owner: Owner) => {
-            if (owner === 'player-1') return new THREE.Color(PLAYER_THREE_COLORS['player-1'].selected);
-            if (owner === 'player-2') return new THREE.Color(PLAYER_THREE_COLORS['player-2'].selected);
+            if (owner === 'player-1') return new THREE.Color(THEME_THREE['player-1'].selected);
+            if (owner === 'player-2') return new THREE.Color(THEME_THREE['player-2'].selected);
             return new THREE.Color(currentWorld.neutralColorPalette.selected);
         };
         const allGroupIds = [...new Set(Array.from(highlightedCellIds).map(id => mapData[id]).map(groupByFn).filter((id): id is string => id !== null))];
@@ -163,8 +163,8 @@ export const useWorldHighlights = ({
         if (!currentWorld || !enclaveData) return map;
     
         const neutralBorderColor = new THREE.Color(currentWorld.atmosphereColor);
-        const p1Color = new THREE.Color(PLAYER_THREE_COLORS['player-1'].selected);
-        const p2Color = new THREE.Color(PLAYER_THREE_COLORS['player-2'].selected);
+        const p1Color = new THREE.Color(THEME_THREE['player-1'].selected);
+        const p2Color = new THREE.Color(THEME_THREE['player-2'].selected);
 
         // FIX: Explicitly type `enclave` as Enclave to resolve incorrect type inference.
         Object.values(enclaveData).forEach((enclave: Enclave) => {

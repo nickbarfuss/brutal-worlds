@@ -1,6 +1,6 @@
 import { Enclave, PendingOrders, Route, OrderType, EventQueueItem } from '@/types/game.ts';
 import { getAssistMultiplierForEnclave } from '@/logic/birthrights';
-import { ORDER_PROFILES } from '@/data/orders.ts';
+import { ORDERS } from '@/data/orders.ts';
 import { v4 as uuidv4 } from 'uuid';
 
 interface ClickResult {
@@ -86,7 +86,7 @@ export const handleSingleClick = (
             const newOrders = { ...playerPendingOrders };
             if (newOrders[selectedEnclaveId]) {
                 delete newOrders[selectedEnclaveId];
-                const profile = ORDER_PROFILES.hold; // Use 'hold'
+                const profile = ORDERS.hold; // Use 'hold'
                 const vfxKey = `order-${profile.key}-vfx`;
                 const sfxKey = `order-${profile.key}-sfx`;
 
@@ -140,7 +140,7 @@ export const handleSingleClick = (
                 }
 
                 if (safeForces - forceToSend > 0) { // Valid order condition
-                    const profile = ORDER_PROFILES[orderType];
+                    const profile = ORDERS[orderType];
                     const vfxKey = `order-${profile.key}-vfx`;
                     const sfxKey = `order-${profile.key}-sfx`;
                     const updatedOrders = { ...playerPendingOrders, [selectedEnclaveId]: { to: clickedEnclaveId, type: orderType }};

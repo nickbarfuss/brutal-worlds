@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import { PLAYER_THREE_COLORS } from '@/data/theme';
+import { THEME_THREE } from '@/data/theme';
 import { useHighlightZone } from '@/hooks/useHighlightZone';
 import { Enclave, MapCell, Route, PendingOrders } from '@/types/game';
 
@@ -50,7 +50,7 @@ export const useCommandZone = ({ selectedEnclaveId, enclaveData, mapData, routes
 
     const borderColorMap = useMemo(() => {
         const map = new Map<string, THREE.Color>();
-        map.set('default', new THREE.Color(PLAYER_THREE_COLORS['player-1'].selected));
+        map.set('default', new THREE.Color(THEME_THREE['player-1'].selected));
         return map;
     }, []);
 

@@ -1,7 +1,7 @@
 import { GameState, Enclave, EventQueueItem } from '@/types/game';
 import { Action } from '@/logic';
 import { v4 as uuidv4 } from 'uuid';
-import { EVENT_PROFILES } from '@/data/events';
+import { EVENTS } from '@/data/events';
 import { triggerNewEvent as triggerEventLogic } from "@/logic/events";
 import { SfxManager, vfxManager, VfxManager } from '@/logic/effects';
 import { immediateEffects } from '@/features/effects/immediate/immediateEffects';
@@ -16,7 +16,7 @@ export const handleTurnLogic = (state: GameState, action: Action, _vfxManager?: 
             };
 
             if (disasterConfig?.enabled && disasterConfig.triggerOnTurn === 1) {
-                const disasterProfile = EVENT_PROFILES[disasterConfig.disasterKey];
+                const disasterProfile = EVENTS[disasterConfig.disasterKey];
                 if (!disasterProfile) {
                     console.error(`Disaster profile not found for key: ${disasterConfig.disasterKey}`);
                     return { ...state, ...updates };
@@ -62,7 +62,7 @@ export const handleTurnLogic = (state: GameState, action: Action, _vfxManager?: 
             Object.values(newEnclaveData).forEach((enclave: Enclave) => {
                 if (enclave.activeEvents) {
                     enclave.activeEvents.forEach(event => {
-                         const profile = EVENT_PROFILES[event.profileKey];
+                         const profile = EVENTS[event.profileKey];
                          if (profile) {
                             if (event.phase === 'impact' && profile.logic.impact) {
                                 event.rules = profile.logic.impact.rules;
@@ -121,7 +121,7 @@ export const handleTurnLogic = (state: GameState, action: Action, _vfxManager?: 
             if (!wasTestDisasterTurn && world && turnThatJustEnded > 0 && world.disasterChance > 0 && Math.random() < world.disasterChance) {
                 if (world.possibleEvents && world.possibleEvents.length > 0) {
                     const disasterKey = world.possibleEvents[Math.floor(Math.random() * world.possibleEvents.length)];
-                    const disasterProfile = EVENT_PROFILES[disasterKey];
+                    const disasterProfile = EVENTS[disasterKey];
                     if (!disasterProfile) {
                         console.error(`Disaster profile not found for key: ${disasterKey}`);
                     } else {

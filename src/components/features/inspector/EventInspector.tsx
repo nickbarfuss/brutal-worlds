@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActiveEventMarker } from '@/types/game';
-import { EVENT_PROFILES } from '@/data/events';
+import { EVENTS } from '@/data/events';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { ICONS } from '@/data/icons';
@@ -13,7 +13,7 @@ interface EventInspectorProps {
 
 const EventInspector: React.FC<EventInspectorProps> = ({ marker, onPointerMove, onPointerLeave }) => {
     // For overlapping events, we show info for the first one in the list.
-    const primaryProfile = EVENT_PROFILES[marker.profileKey];
+    const primaryProfile = EVENTS[marker.profileKey];
     if (!primaryProfile) return null;
 
     const phaseProfile = primaryProfile.logic[marker.currentPhase];
@@ -39,7 +39,7 @@ const EventInspector: React.FC<EventInspectorProps> = ({ marker, onPointerMove, 
               <Card.Section title={isCrisis ? "Active Events" : "Active Phase"}>
                  {isCrisis ? (
                     marker.events.map(key => {
-                        const profile = EVENT_PROFILES[key];
+                        const profile = EVENTS[key];
                         if (!profile) return null;
                         const currentPhase = profile.logic[marker.currentPhase];
                         return (

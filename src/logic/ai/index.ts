@@ -1,7 +1,7 @@
 import { Enclave, Route, PendingOrders, Order, GameState, Rule } from '@/types/game.ts';
 import { getAssistMultiplierForEnclave, getAttackBonusForEnclave } from '@/logic/birthrights';
 import { getAppliedModifiers } from '@/logic/events';
-import { EVENT_PROFILES } from '@/data/events.ts';
+import { EVENTS } from '@/data/events.ts';
 
 const findWeakestEnclave = (candidates: Enclave[]): Enclave | null => {
     if (candidates.length === 0) return null;
@@ -43,7 +43,7 @@ const findBestMoveForEnclave = (
 
     if (weakestAttackTarget && safeOriginForces > 2) {
         const rules: Rule[] = origin.activeEvents.flatMap(event => {
-            const profile = EVENT_PROFILES[event.profileKey];
+            const profile = EVENTS[event.profileKey];
             if (!profile) return [];
             const phaseLogic = profile.logic[event.phase];
             return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];

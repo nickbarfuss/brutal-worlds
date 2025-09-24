@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { THEME_CONFIG } from '@/data/theme';
-import { TAILWIND_COLORS } from '@/data/colors';
+import { THEME } from '@/data/theme';
+import { COLORS } from '@/data/colors';
 
 /**
  * This component reads the configured accent color from the theme and injects
@@ -10,8 +10,8 @@ import { TAILWIND_COLORS } from '@/data/colors';
  * making the UI themeable from a single configuration point.
  */
 const ThemeInjector: React.FC = () => {
-  const accentColorName = THEME_CONFIG.accent as keyof typeof TAILWIND_COLORS;
-  const accentPalette = TAILWIND_COLORS[accentColorName];
+  const accentColorName = THEME.accent as keyof typeof COLORS;
+  const accentPalette = COLORS[accentColorName];
 
   if (!accentPalette) {
     console.warn(`Accent color "${accentColorName}" not found in TAILWIND_COLORS palette.`);

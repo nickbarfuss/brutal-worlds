@@ -3,7 +3,7 @@ import React from 'react';
 import { Owner, Enclave, Domain, Rift, Expanse, HighlightType, ActiveHighlight, WorldProfile } from '@/types/game';
 import { ICONS } from '@/data/icons';
 import { getDomainOwner } from '@/logic/domains';
-import { PLAYER_THREE_COLORS } from '@/data/theme';
+import { THEME_THREE } from '@/data/theme';
 import ChipGroup from '@/components/ui/ChipGroup';
 
 interface LegendDisplayProps {
@@ -78,8 +78,8 @@ const LegendDisplay: React.FC<LegendDisplayProps> = ({
   if (!palette) return null;
   
   const ownerColors = {
-      'player-1': PLAYER_THREE_COLORS['player-1'].selected,
-      'player-2': PLAYER_THREE_COLORS['player-2'].selected,
+      'player-1': THEME_THREE['player-1'].selected,
+      'player-2': THEME_THREE['player-2'].selected,
       'null': palette.selected,
   };
 

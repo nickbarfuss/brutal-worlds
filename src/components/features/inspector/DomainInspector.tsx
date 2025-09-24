@@ -4,7 +4,7 @@ import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { ICONS } from '@/data/icons';
 import { getDomainOwner } from '@/logic/domains';
-import { PLAYER_THREE_COLORS } from '@/data/theme';
+import { THEME_THREE } from '@/data/theme';
 
 interface DomainInspectorProps {
     domain: Domain;
@@ -39,8 +39,8 @@ const DomainInspector: React.FC<DomainInspectorProps> = ({ domain, enclaveData, 
         });
     }
     
-    const palette = owner === 'player-1' ? PLAYER_THREE_COLORS['player-1'] 
-                  : owner === 'player-2' ? PLAYER_THREE_COLORS['player-2'] 
+    const palette = owner === 'player-1' ? THEME_THREE['player-1'] 
+                  : owner === 'player-2' ? THEME_THREE['player-2'] 
                   : world.neutralColorPalette;
 
     return (

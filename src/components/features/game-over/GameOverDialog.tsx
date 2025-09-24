@@ -2,7 +2,7 @@
 import React from 'react';
 import { GameOverState } from '@/types/game';
 import Button from '@/components/ui/Button';
-import { THEME_CONFIG } from '@/data/theme';
+import { THEME } from '@/data/theme';
 
 interface GameOverDialogProps {
   gameOverState: GameOverState;
@@ -20,7 +20,7 @@ const GameOverDialog: React.FC<GameOverDialogProps> = ({ gameOverState, onNewGam
     ? 'You have asserted dominance and crushed your opponent.'
     : 'Your final enclave has fallen. Your legacy ends here.';
   
-  const titleColorName = isVictory ? THEME_CONFIG.player1 : THEME_CONFIG.player2;
+  const titleColorName = isVictory ? THEME.player1 : THEME.player2;
   const titleColorClass = `text-${titleColorName}-400`;
 
   return (

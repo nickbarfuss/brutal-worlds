@@ -1,5 +1,5 @@
 import { ActiveEventMarker, Enclave } from '@/types/game';
-import { EVENT_PROFILES } from '@/data/events';
+import { EVENTS } from '@/data/events';
 import { ICONS } from '@/data/icons';
 
 const canvasStyles = {
@@ -15,7 +15,7 @@ const drawEventMarker = (ctx: CanvasRenderingContext2D, marker: ActiveEventMarke
     let icon = ICONS.disaster; // Default crisis icon
 
     if (!isCrisis) {
-        const profile = EVENT_PROFILES[marker.profileKey];
+        const profile = EVENTS[marker.profileKey];
         if (profile) {
             icon = profile.ui.icon;
         }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { WorldProfile, Domain, Enclave, Rift, Expanse, Vector3 } from '@/types/game';
-import { EVENT_PROFILES } from '@/data/events';
+import { EVENTS } from '@/data/events';
 import Card from '@/components/ui/Card';
 import ChipCard from '@/components/ui/ChipCard';
 import { ICONS } from '@/data/icons';
@@ -51,7 +51,7 @@ const WorldInspector: React.FC<WorldInspectorProps> = ({ world, domainData, encl
                     <Card.Section title="Possible Events">
                         <div className="space-y-2">
                             {world.possibleEvents.map(eventKey => {
-                                const event = EVENT_PROFILES[eventKey];
+                                const event = EVENTS[eventKey];
                                 if (!event) return null;
                                 return (
                                     <ChipCard 

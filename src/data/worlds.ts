@@ -3,19 +3,19 @@ import { generateColorScale } from '@/utils/color.ts';
 import { CONFIG } from '@/data/config.ts';
 import { ASSETS } from '@/data/assets.ts';
 
-const placeholderIllustration = 'https://storage.googleapis.com/brutal-worlds/backdrop/main.jpg';
-
 // Define a type for our raw data objects, allowing illustrationUrl to be optional
 type WorldDataObject = Omit<WorldProfile, 'worldColorTheme' | 'illustrationUrl' | 'neutralColorPalette'> & {
     illustrationUrl?: string;
 };
 
-const worldData: WorldDataObject[] = [
-    // --- Standard Worlds ---
-    { 
-        key: 'xylos-prime', name: 'Xylos Prime', icon: 'globe',
+const WORLDS: { [key: string]: WorldDataObject } = {
+    // Standard Worlds
+    xylosPrime: {
+        key: 'xylos-prime',
+        name: 'Xylos Prime',
+        icon: 'globe',
         description: "Lush forests and sprawling plains define this world, where strategic positioning on its balanced landmasses is key to victory.",
-        illustrationUrl: ASSETS.world.xylosPrime.image, 
+        illustrationUrl: ASSETS.world.xylosPrime.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 101 },
         disasterChance: 0.15,
         possibleDisasters: ['skyfall-shards', 'resonance-cascade'],
@@ -40,8 +40,10 @@ const worldData: WorldDataObject[] = [
             expanses: ["The Great Emerald Ocean", "Sea of Reeds", "Veridian Abyss", "The Tranquil Sea"]
         }
     },
-    { 
-        key: 'aetheria-tor', name: 'Aetheria-Tor', icon: 'globe',
+    aetheriaTor: {
+        key: 'aetheria-tor',
+        name: 'Aetheria-Tor',
+        icon: 'globe',
         description: "A world of empires, where vast kingdoms clash across sprawling, interconnected continents. Control of the central landmass means control of the world.",
         bloom: {
             threshold: 0.63,
@@ -73,8 +75,10 @@ const worldData: WorldDataObject[] = [
             expanses: ["The Northern Sea", "The Western Deep", "The Serpent's Teeth", "Whale Road"]
         }
     },
-    { 
-        key: 'magentron', name: 'Magentron', icon: 'globe',
+   magentron: {
+        key: 'magentron',
+        name: 'Magentron',
+        icon: 'globe',
         description: "A planet shattered into a vast archipelago. Naval superiority and control over the countless islands of Magentron are the only paths to global domination.",
         illustrationUrl: ASSETS.world.magentron.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 303, ISLAND_DOMAINS_MIN: 3, ISLAND_DOMAINS_MAX: 5 },
@@ -101,9 +105,11 @@ const worldData: WorldDataObject[] = [
         }
     },
 
-    // --- Large Worlds ---
-    { 
-        key: 'war-world', name: 'War-World', icon: 'globe',
+    // Large Worlds
+    warWorld: {
+        key: 'war-world',
+        name: 'War-World',
+        icon: 'globe',
         description: "There is only war. This massive super-continent is a brutal meat grinder where front lines shift constantly and only the most aggressive commander can claim victory.",
         illustrationUrl: ASSETS.world.warWorld.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 505, NUM_POINTS: 2200, LAND_COVERAGE_MIN: 0.5, LAND_COVERAGE_MAX: 0.6, ISLAND_DOMAINS_MIN: 0, ISLAND_DOMAINS_MAX: 1, ENCLAVE_SIZE_MIN: 12, ENCLAVE_SIZE_MAX: 20, DOMAIN_TOUCH_CHANCE: 0.8 },
@@ -129,8 +135,10 @@ const worldData: WorldDataObject[] = [
             expanses: ["The Crimson Void", "Sea of Scrap", "The Savage Abyss", "The Rust-Burn Deeps"]
         }
     },
-    { 
-        key: 'anvillar', name: 'Anvillar', icon: 'globe',
+    anvillar: {
+        key: 'anvillar',
+        name: 'Anvillar',
+        icon: 'globe',
         description: "Two titanic continents are locked in an eternal struggle. The narrow sea between them is the primary battleground for this world's fate.",
         illustrationUrl: ASSETS.world.anvillar.image,
         bloom: {
@@ -152,14 +160,16 @@ const worldData: WorldDataObject[] = [
         names: {
             domains: [
                 { name: "The Great Forge", strength: 15, enclaves: [{ name: "Prometheus Spire" }, { name: "The Anvil" }, { name: "Daedalus Works" }, { name: "The Foundry" }, { name: "The Hearth" }, { name: "The Kiln" }, { name: "The Bloomery" }, { name: "The Bellows" }, { name: "The Slag Pit" }, { name: "The Fire Mountain" }] },
-                { name: "The Colossus", strength: 15, enclaves: [{ name: "Hades Gate" }, { name: "The Chimera Pits" }, { name: "Argus Array" }, { name: "The Cyclopes' Yard" }, { name: "Styx Crossing" }, { name: "Tartarus Deep" }, { name: "The Labyrinth" }, { name: "The Hundred-Handed" }, { name: "The Titan's Grip" }, { name: "The Underworld" }] }
+                { name: "The Colossus", strength: 15, enclaves: [{ name: "Hades Gate" }, { name: "The Chimera Pits" }, { name: "Argus Array" }, { name: "The Cyclopes' Yard" }, { name: "Styx Crossing" }, { name: "Tartarus Deep" }, { name: "The Labyrinth" }, { name: "The Hundred-Handed" }, { name: "The Titan's Grip" }, { name: "The Underworld" }] },
             ],
             rifts: ["The Tartarus Rift", "The Acheron Gap", "The Lethe Fissure"],
             expanses: ["The Stygian Sea", "The Aegean Abyss", "Oceanus Prime"]
         }
     },
-    { 
-        key: 'skull-sands', name: 'Skull-Sands', icon: 'globe',
+    skullSands: {
+        key: 'skull-sands',
+        name: 'Skull-Sands',
+        icon: 'globe',
         description: "A vast desert world where life clings to a few sparse continents. Resources are scarce, and control of the few fertile areas is paramount.",
         illustrationUrl: ASSETS.world.skullSands.image,
         bloom: {
@@ -191,9 +201,11 @@ const worldData: WorldDataObject[] = [
         }
     },
 
-    // --- Small Worlds ---
-    { 
-        key: 'grave-star', name: 'Grave-Star', icon: 'globe',
+    // Small Worlds 
+    graveStar: {
+        key: 'grave-star',
+        name: 'Grave-Star',
+        icon: 'globe',
         description: "Lost in the silent void, Grave-Star is a collection of desolate islands. Conflict here is a quiet, lonely affair, fought over the last remnants of a forgotten world.",
         illustrationUrl: ASSETS.world.graveStar.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 909, NUM_POINTS: 800, LAND_COVERAGE_MIN: 0.15, LAND_COVERAGE_MAX: 0.25, ISLAND_DOMAINS_MIN: 4, ISLAND_DOMAINS_MAX: 6 },
@@ -219,8 +231,10 @@ const worldData: WorldDataObject[] = [
             expanses: ["The Sea of Silence", "The Endless Grey", "The Unbeating Ocean"]
         }
     },
-    { 
-        key: 'blades-edge', name: 'Blade\'s Edge', icon: 'globe',
+    bladesEdge: {
+        key: 'blades-edge',
+        name: 'Blade\'s Edge',
+        icon: 'globe',
         description: "Small and brutal, Blade's Edge offers no room for grand strategy. Conflicts are swift, bloody, and decisive on this compact battlefield.",
         illustrationUrl: ASSETS.world.bladesEdge.image,
         bloom: {
@@ -243,14 +257,16 @@ const worldData: WorldDataObject[] = [
             domains: [
                 { name: "The Final Frontier", strength: 8, enclaves: [{ name: "The Last Bastion" }, { name: "Point of No Return" }, { name: "The Gauntlet" }, { name: "The Last Stand" }, { name: "The Terminus" }] },
                 { name: "The Omega Continent", strength: 9, enclaves: [{ name: "The Final Redoubt" }, { name: "The Abyss Watch" }, { name: "The End-Line" }, { name: "The Last Hope" }] },
-                { name: "The Last Stand", strength: 10, enclaves: [{ name: "The Killing Ground" }, { name: "The Precipice" }, { name: "The Breaker's Yard" }, { name: "The Final Gate" }, { name: "The Brink" }] }
+                { name: "The Last Stand", strength: 10, enclaves: [{ name: "The Killing Ground" }, { name: "The Precipice" }, { name: "The Breaker's Yard" }, { name: "The Final Gate" }, { name: "The Brink" }] },
             ],
             rifts: ["The Final Crack", "The Oblivion Rift", "The Sundering"],
             expanses: ["The Sea of Endings", "The Final Void", "The Unmaking Deep"]
         }
     },
-    { 
-        key: 'cygnus-x1', name: 'Cygnus X-1', icon: 'globe',
+    cygnusX1: {
+        key: 'cygnus-x1',
+        name: 'Cygnus X-1',
+        icon: 'globe',
         description: "This dense cluster of islands is a tactician's dream, demanding mastery of naval routes and amphibious assaults to achieve victory.",
         illustrationUrl: ASSETS.world.cygnusX1.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1212, NUM_POINTS: 850, LAND_COVERAGE_MIN: 0.25, LAND_COVERAGE_MAX: 0.35, ISLAND_DOMAINS_MIN: 6, ISLAND_DOMAINS_MAX: 10 },
@@ -270,16 +286,18 @@ const worldData: WorldDataObject[] = [
                 { name: "The Ring Archipelago", strength: 5, enclaves: [{ name: "The Lagrange Point" }, { name: "The Clarke Orbit" }, { name: "The Shepherd Moon" }] },
                 { name: "The Event Horizon", strength: 6, enclaves: [{ name: "Zero-G Point" }, { name: "The Dyson Sphere Fragment" }, { name: "The Penrose Steps" }] },
                 { name: "The Starfall Islands", strength: 3, enclaves: [{ name: "The Star-Dock" }, { name: "The Roche Limit" }, { name: "The Impact Crater" }] },
-                { name: "The Kuiper Belt", strength: 5, enclaves: [{ name: "The Comet's Tail" }, { name: "The Oort Cloud Outpost" }, { name: "The Ice-Field" }] }
+                { name: "The Kuiper Belt", strength: 5, enclaves: [{ name: "The Comet's Tail" }, { name: "The Oort Cloud Outpost" }, { name: "The Ice-Field" }] },
             ],
             rifts: ["The Gravity Well", "The Dark Rift", "The Stellar Nursery"],
             expanses: ["The Interstellar Void", "The Dark Matter Sea", "The Cosmic Ocean"]
         }
     },
     
-    // --- Unique Worlds ---
-    { 
-        key: 'magma-tor', name: 'Magma-Tor', icon: 'globe',
+    // Unique Worlds
+    magmaTor: {
+        key: 'magma-tor',
+        name: 'Magma-Tor',
+        icon: 'globe',
         description: "A world of fire and water where chains of volcanic islands dot a boiling sea. Survival, let alone conquest, requires adapting to its extreme and volatile environment.",
         illustrationUrl: ASSETS.world.magmaTor.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1313, LAND_COVERAGE_MIN: 0.10, LAND_COVERAGE_MAX: 0.18, ISLAND_DOMAINS_MIN: 10, ISLAND_DOMAINS_MAX: 15 },
@@ -299,14 +317,16 @@ const worldData: WorldDataObject[] = [
                 { name: "The Magma Fields", strength: 9, enclaves: [{ name: "The Magma-Forge" }, { name: "The Lava-Flow" }, { name: "The Fire-Peak" }] },
                 { name: "The Obsidian Archipelago", strength: 6, enclaves: [{ name: "The Obsidian Spire" }, { name: "The Glass Beach" }, { name: "The Razor-Rock" }] },
                 { name: "The Soot-Stained Isles", strength: 5, enclaves: [{ name: "The Cinder Cone" }, { name: "The Fumarole" }, { name: "The Black-Sand" }] },
-                { name: "The Caldera Chain", strength: 8, enclaves: [{ name: "The Caldera Keep" }, { name: "The Pumice Beach" }, { name: "The Sulfur Vent" }] }
+                { name: "The Caldera Chain", strength: 8, enclaves: [{ name: "The Caldera Keep" }, { name: "The Pumice Beach" }, { name: "The Sulfur Vent" }]},
             ],
             rifts: ["The Lava Tube", "The Ash-Choked Chasm", "The Fissure of Flame"],
             expanses: ["The Boiling Sea", "The Sea of Ash", "The Molten Ocean"]
         }
     },
-    { 
-        key: 'shatter-spire', name: 'Shatter-Spire', icon: 'globe',
+    shatterSpire: {
+        key: 'shatter-spire',
+        name: 'Shatter-Spire',
+        icon: 'globe',
         description: "The fractured surface of Shatter-Spire is a chaotic mess of tiny, defensible enclaves. Warfare is a granular affair, won one shard at a time.",
         illustrationUrl: ASSETS.world.shatterSpire.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1414, NUM_POINTS: 1800, ENCLAVE_SIZE_MIN: 4, ENCLAVE_SIZE_MAX: 8 },
@@ -326,14 +346,16 @@ const worldData: WorldDataObject[] = [
                 { name: "The Shard-Lands", strength: 5, enclaves: [{ name: "The Shard-Fortress" }, { name: "The Crystalline Heart" }, { name: "The Glass-Plains" }] },
                 { name: "The Geode Isles", strength: 3, enclaves: [{ name: "The Geode City" }, { name: "The Hollow Rock" }, { name: "The Agate-Shore" }] },
                 { name: "The Prism Plains", strength: 6, enclaves: [{ name: "The Prism-Watch" }, { name: "The Diamond-Dust Mines" }, { name: "The Light-Bender" }] },
-                { name: "The Broken Core", strength: 5, enclaves: [{ name: "The Broken-Point" }, { name: "The Quartz Quarry" }, { name: "The Fracture" }] }
+                { name: "The Broken Core", strength: 5, enclaves: [{ name: "The Broken-Point" }, { name: "The Quartz Quarry" }, { name: "The Fracture" }]},
             ],
             rifts: ["The Shard-Rift", "The Crystal Chasm", "The Geode-Gap", "The Great Fracture"],
             expanses: ["The Sea of Shards", "The Crystal Sea", "The Prismatic Abyss"]
         }
     },
-    { 
-        key: 'steel-spine', name: 'Steel-Spine', icon: 'globe',
+    steelSpine: {
+        key: 'steel-spine',
+        name: 'Steel-Spine',
+        icon: 'globe',
         description: "Steel-Spine's serpentine continents create natural chokepoints and fortified borders. Victory is a matter of breaking through enemy lines and securing these vital passages.",
         illustrationUrl: ASSETS.world.steelSpine.image,
         config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 1616, NUM_POINTS: 1600, LAND_COVERAGE_MIN: 0.35, LAND_COVERAGE_MAX: 0.45, PENINSULA_CHANCE: 0.8, DOMAIN_TOUCH_CHANCE: 0.1 },
@@ -353,28 +375,31 @@ const worldData: WorldDataObject[] = [
                 { name: "The Steel Peninsula", strength: 7, enclaves: [{ name: "The Steelworks" }, { name: "The Ore-Works" }, { name: "The Bridgehead" }, { name: "The Choke-Point" }, { name: "The Isthmus" }] },
                 { name: "The Rust-Coasts", strength: 6, enclaves: [{ name: "The Rust-Port" }, { name: "The Chrome-Fang Ridge" }, { name: "The Oxidized Shore" }, { name: "The Salt-Stain" }] },
                 { name: "The Slag Heaps", strength: 5, enclaves: [{ name: "The Slag-Fort" }, { name: "The Spoil-Tip" }, { name: "The Scrap-Pile" }] },
-                { name: "The Titanium Chain", strength: 8, enclaves: [{ name: "The Titanium Mine" }, { name: "The Foundry" }, { name: "The Alloy-Works" }, { name: "The Adamant Spire" }] }
+                { name: "The Titanium Chain", strength: 8, enclaves: [{ name: "The Titanium Mine" }, { name: "The Foundry" }, { name: "The Alloy-Works" }, { name: "The Adamant Spire" }]},
             ],
             rifts: ["The Black-Iron Gap", "The Slag-Rift", "The Rust-Trench"],
             expanses: ["The Mercury Sea", "The Black-Iron Deep", "The Sea of Slag"]
         }
     },
-];
+};
 
-export const WORLD_LIBRARY: WorldProfile[] = worldData.map(world => {
+
+
+const kebabToCamelCase = (kebab: string) => kebab.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+
+Object.entries(WORLDS).forEach(([key, world]) => {
     const scale = generateColorScale(world.worldColor);
     
-    // we can create a more standard semantic mapping.
     const neutralPalette: SemanticColorPalette = {
-        base: scale[700],      // Darker base for default state
-        hover: scale[600],     // Brighter on hover
-        target: scale[500],    // Even brighter for targeting
-        selected: scale[500],  // Brightest for selection/accents (often the worldColor itself)
-        light: scale[100],     // Lightest text/highlight color
-        dark: scale[800],      // Darkest for backgrounds or void
-        disabled: scale[800],  // Muted color for disabled states
-        icon: scale[400],      // Bright and clear for icons
-        text: scale[400],      // Same as icon for readability
+        base: scale[700],
+        hover: scale[600],
+        target: scale[500],
+        selected: scale[500],
+        light: scale[100],
+        dark: scale[800],
+        disabled: scale[800],
+        icon: scale[400],
+        text: scale[400],
     };
     
     const theme: WorldColorTheme = {
@@ -382,10 +407,22 @@ export const WORLD_LIBRARY: WorldProfile[] = worldData.map(world => {
         three: neutralPalette
     };
 
-    return {
+    const processedWorld = {
         ...(world as Omit<WorldProfile, 'worldColorTheme' | 'neutralColorPalette'>),
-        illustrationUrl: world.illustrationUrl || placeholderIllustration,
+        illustrationUrl: world.illustrationUrl,
         worldColorTheme: theme,
         neutralColorPalette: neutralPalette,
     };
+
+    WORLDS[key] = processedWorld;
 });
+
+const PROCESSED_WORLDS = WORLDS as unknown as { [key: string]: WorldProfile };
+
+export const WORLD_LIBRARY: WorldProfile[] = Object.values(PROCESSED_WORLDS);
+
+export const getWorldByKey = (key: string): WorldProfile | undefined => {
+    if (!key) return undefined;
+    const camelKey = kebabToCamelCase(key);
+    return PROCESSED_WORLDS[camelKey];
+};

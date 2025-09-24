@@ -1,12 +1,12 @@
 import { GameState } from '@/types/game';
 import { Action } from '@/logic';
 import { triggerNewEvent as triggerEventLogic } from "@/logic/events/eventManager";
-import { EVENT_PROFILES } from '@/data/events';
+import { EVENTS } from '@/data/events';
 
 export const handleEvents = (state: GameState, action: Action): GameState => {
     switch (action.type) {
         case 'TRIGGER_EVENT': {
-            const profile = EVENT_PROFILES[action.payload as string];
+            const profile = EVENTS[action.payload as string];
             if (!profile) {
                 console.error(`Event profile not found for key: ${action.payload}`);
                 return state;

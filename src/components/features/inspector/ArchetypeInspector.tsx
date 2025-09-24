@@ -5,7 +5,7 @@ import { GAMBITS } from '@/data/gambits';
 import ChipCard from '@/components/ui/ChipCard';
 import Card from '@/components/ui/Card';
 import { PlayerIdentifier } from '@/types/game';
-import { THEME_CONFIG } from '@/data/theme';
+import { THEME } from '@/data/theme';
 import { getAssetUrl } from '@/utils/assetUtils';
 
 interface ArchetypeInspectorProps {
@@ -23,7 +23,7 @@ const ArchetypeInspector: React.FC<ArchetypeInspectorProps> = ({ owner, archetyp
   const legacy = archetype && legacyKey && archetype.legacies ? (archetype.legacies as any)[legacyKey] : null;
   const birthright = legacy ? BIRTHRIGHTS[legacy.birthrightKey] : null;
 
-  const playerTheme = isPlayer1 ? THEME_CONFIG.player1 : THEME_CONFIG.player2;
+  const playerTheme = isPlayer1 ? THEME.player1 : THEME.player2;
   const iconColorClass = `text-${playerTheme}-400`;
   const subtitleColorClass = `text-${playerTheme}-300`;
   const text = isPlayer1 ? 'Player 1' : 'Player 2';

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Owner, SemanticColorPalette, BriefingType } from '@/types/game';
-import { PLAYER_THREE_COLORS } from '@/data/theme';
+import { THEME_THREE } from '@/data/theme';
 import ValueDisplay from '@/components/ui/ValueDisplay';
 
 // Common props for ChipCard
@@ -64,8 +64,8 @@ const ChipCard = ({
   const interactiveClasses = isInteractive ? 'hover:bg-neutral-700/50 transition-colors duration-150' : '';
   
   const palette = useMemo(() => {
-    if (owner === 'player-1') return PLAYER_THREE_COLORS['player-1'];
-    if (owner === 'player-2') return PLAYER_THREE_COLORS['player-2'];
+    if (owner === 'player-1') return THEME_THREE['player-1'];
+    if (owner === 'player-2') return THEME_THREE['player-2'];
     if (worldPalette) return worldPalette;
     return null;
   }, [owner, worldPalette]);

@@ -1,7 +1,7 @@
 import { OrderProfile } from '@/types/game.ts';
 import { ASSETS } from '@/data/assets.ts';
 
-export const ORDER_PROFILES: { [key: string]: OrderProfile } = {
+export const ORDERS: { [key: string]: OrderProfile } = {
     attack: {
         key: 'attack',
         name: "Attack Order",

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Owner, SemanticColorPalette } from '@/types/game';
-import { PLAYER_THREE_COLORS } from '@/data/theme';
+import { THEME_THREE } from '@/data/theme';
 
 interface ValueDisplayProps {
   baseValue?: string | number;
@@ -14,8 +14,8 @@ interface ValueDisplayProps {
 
 const ValueDisplay: React.FC<ValueDisplayProps> = ({ baseValue, bonusValue, valueType = 'text', owner, worldPalette, size = 'small', ownerForces }) => {
   const getPaletteForOwner = React.useCallback((o: Owner) => {
-    if (o === 'player-1') return PLAYER_THREE_COLORS['player-1'];
-    if (o === 'player-2') return PLAYER_THREE_COLORS['player-2'];
+    if (o === 'player-1') return THEME_THREE['player-1'];
+    if (o === 'player-2') return THEME_THREE['player-2'];
     if (worldPalette) return worldPalette;
     return null;
   }, [worldPalette]);

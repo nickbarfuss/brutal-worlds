@@ -3,7 +3,7 @@ import { GameConfig } from '@/types/game.ts';
 import { getAppliedModifiers } from '@/logic/events';
 import { getHoldBonusForEnclave } from '@/logic/birthrights';
 import { cloneEnclave } from '@/logic/enclaves';
-import { EVENT_PROFILES } from '@/data/events.ts';
+import { EVENTS } from '@/data/events.ts';
 
 export const resolveHolding = (
     currentEnclavesMap: Map<number, Enclave>,
@@ -24,7 +24,7 @@ export const resolveHolding = (
             reinforcements += getHoldBonusForEnclave(enclave);
 
             const rules: Rule[] = enclave.activeEvents.flatMap(event => {
-                const profile = EVENT_PROFILES[event.profileKey];
+                const profile = EVENTS[event.profileKey];
                 if (!profile) return [];
                 const phaseLogic = profile.logic[event.phase];
                 return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];

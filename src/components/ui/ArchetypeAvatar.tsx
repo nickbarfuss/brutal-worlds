@@ -2,7 +2,7 @@ import React from 'react';
 import { ARCHETYPES } from '@/data/archetypes';
 import { ASSETS } from '@/data/assets';
 import { PlayerIdentifier } from '@/types/game';
-import { THEME_CONFIG } from '@/data/theme';
+import { THEME } from '@/data/theme';
 import { getAssetUrl, getNestedAsset } from '@/utils/assetUtils';
 import { toCamelCase } from '@/utils/stringUtils';
 
@@ -18,7 +18,7 @@ const ArchetypeAvatar: React.FC<ArchetypeAvatarProps> = ({ owner, archetypeKey, 
   const legacy = archetype && legacyKey ? archetype.legacies[legacyKey] : null;
 
   // Dynamic class names based on player
-  const playerTheme = isPlayer1 ? THEME_CONFIG.player1 : THEME_CONFIG.player2;
+  const playerTheme = isPlayer1 ? THEME.player1 : THEME.player2;
   const mainBgColorClass = `bg-${playerTheme}-800`;
   const mainBorderColorClass = `border-${playerTheme}-500`;
   const legacyBgColorClass = `bg-${playerTheme}-600`;
