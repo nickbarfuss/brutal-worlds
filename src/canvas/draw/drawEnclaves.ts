@@ -2,6 +2,7 @@ import { Enclave, WorldProfile, ActiveHighlight, ActiveEventMarker } from '@/typ
 import { getPaletteForOwner } from '@/canvas/draw/drawUtils';
 import { ICONS } from '@/data/icons';
 import { EVENT_PROFILES } from '@/data/events';
+import { initEnclaveAnimation, animateEnclaveForces, getAnimatedEnclaveProperties } from '../enclaveAnimationManager';
 
 const canvasStyles = {
     enclaveMarker: { radius: 14 },
@@ -84,10 +85,12 @@ const drawEnclaveChip = (
 
     const palette = getPaletteForOwner(enclave.owner, worldProfile);
     const chipBgColor = palette.dark;
-    const markerColor = palette.base;
     const forceTextColor = palette.light;
     const labelIconColor = palette.icon;
     const labelTextColor = palette.text;
+
+    // Get animated properties for the enclave marker within the chip
+    const { currentRadius, currentColor, currentDisplayedForces } = getAnimatedEnclaveProperties(enclave.id);
 
     ctx.save();
     ctx.fillStyle = chipBgColor;
@@ -107,15 +110,14 @@ const drawEnclaveChip = (
         ctx.fillText(enclave.name, currentX, pos.y);
     }
 
-    ctx.fillStyle = markerColor;
+    ctx.fillStyle = currentColor; // Use animated color
     ctx.beginPath();
-    ctx.arc(pos.x, pos.y, enclaveMarkerStyle.radius, 0, Math.PI * 2);
+    ctx.arc(pos.x, pos.y, currentRadius, 0, Math.PI * 2); // Use animated radius
     ctx.fill();
     ctx.font = "700 14px 'Open Sans'"; ctx.fillStyle = forceTextColor;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     
-    const safeForces = Number.isFinite(enclave.forces) ? Math.round(enclave.forces) : 0;
-    ctx.fillText(String(safeForces), pos.x, pos.y + 1);
+    ctx.fillText(String(currentDisplayedForces), pos.x, pos.y + 1); // Use animated forces
 
     let currentXForRightChips = pos.x + enclaveMarkerStyle.radius + chipStyle.paddingInner;
 
@@ -180,13 +182,15 @@ const drawEnclaveMarker = (
     isCommandMode: boolean,
     worldProfile: WorldProfile | null,
     routes: any[], // Simplified type
-    selectedEnclaveId: number | null
+    selectedEnclaveId: number | null,
+    animatedRadius: number,
+    animatedColor: string,
+    animatedForces: number
 ) => {
     const palette = getPaletteForOwner(enclave.owner, worldProfile);
-    const ownerColor = palette.base;
     const forceTextColor = palette.light;
 
-    let markerColor = ownerColor;
+    let markerColor = animatedColor;
     if (isCommandMode) {
         const isConnected = routes.some(r => (r.from === selectedEnclaveId && r.to === enclave.id) || (r.to === selectedEnclaveId && r.from === enclave.id));
         if (enclave.id !== selectedEnclaveId && !isConnected) { /* Do nothing */ }
@@ -196,7 +200,7 @@ const drawEnclaveMarker = (
 
     ctx.fillStyle = markerColor;
     ctx.beginPath();
-    ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2);
+    ctx.arc(pos.x, pos.y, animatedRadius, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.font = "700 14px 'Open Sans'";
@@ -204,10 +208,7 @@ const drawEnclaveMarker = (
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
-    // FIX: Sanitize the force count before drawing it to prevent a NaN value
-    // from being passed to `fillText`, which could crash the canvas renderer.
-    const safeForces = Number.isFinite(enclave.forces) ? Math.round(enclave.forces) : 0;
-    ctx.fillText(String(safeForces), pos.x, pos.y + 1);
+    ctx.fillText(String(animatedForces), pos.x, pos.y + 1);
 };
 
 interface DrawAllEnclavesProps {
@@ -221,10 +222,11 @@ interface DrawAllEnclavesProps {
     activeHighlight: ActiveHighlight | null;
     clockTime: number;
     activeEventMarkers: ActiveEventMarker[];
+    requestRedraw: () => void; // Add requestRedraw to props
 }
 
 export const drawAllEnclaves = (ctx: CanvasRenderingContext2D, props: DrawAllEnclavesProps) => {
-    const { enclaveData, enclaveScreenPositions, selectedEnclaveId, hoveredCellId, mapData, currentWorld, routes, activeHighlight, clockTime, activeEventMarkers } = props;
+    const { enclaveData, enclaveScreenPositions, selectedEnclaveId, hoveredCellId, mapData, currentWorld, routes, activeHighlight, clockTime, activeEventMarkers, requestRedraw } = props;
     
     const eventMarkersByCellId = new Map<number, ActiveEventMarker[]>();
     (activeEventMarkers || []).forEach(marker => {
@@ -238,17 +240,28 @@ export const drawAllEnclaves = (ctx: CanvasRenderingContext2D, props: DrawAllEnc
         const pos = enclaveScreenPositions[enclave.id];
         if (!pos || !pos.visible) return;
 
+        const palette = getPaletteForOwner(enclave.owner, currentWorld);
+        initEnclaveAnimation(enclave.id, enclave.forces, palette.base);
+        animateEnclaveForces(enclave.id, enclave.forces, palette, requestRedraw);
+        const { currentRadius, currentColor, currentDisplayedForces } = getAnimatedEnclaveProperties(enclave.id);
+
         const shouldDrawLabel = activeHighlight?.type === 'enclaves' && activeHighlight.owners.has(enclave.owner);
         const effectsOnMainCell = eventMarkersByCellId.get(enclave.mainCellId) || [];
         const hasEffectsOnMainCell = effectsOnMainCell.length > 0;
         
         if (enclave.activeEvents.length > 0 || shouldDrawLabel || hasEffectsOnMainCell) {
+            // For drawEnclaveChip, we need to decide if it should also use animated properties.
+            // For now, let's assume the chip itself doesn't animate, but the marker within it does.
+            // If drawEnclaveChip calls drawEnclaveMarker, we need to pass the animated properties down.
+            // Looking at the code, drawEnclaveChip *does not* call drawEnclaveMarker directly.
+            // It draws its own circle and text. So, we need to modify drawEnclaveChip as well.
+            // For now, I will only modify the standalone drawEnclaveMarker path.
             drawEnclaveChip(ctx, enclave, pos, clockTime, currentWorld, shouldDrawLabel, effectsOnMainCell);
         } else {
              const localHoveredEnclaveId = mapData[hoveredCellId]?.enclaveId ?? -1;
              const isHovered = enclave.id === localHoveredEnclaveId;
              const isCommandMode = selectedEnclaveId !== null;
-             drawEnclaveMarker(ctx, enclave, pos, isHovered, isCommandMode, currentWorld, routes, selectedEnclaveId);
+             drawEnclaveMarker(ctx, enclave, pos, isHovered, isCommandMode, currentWorld, routes, selectedEnclaveId, currentRadius, currentColor, currentDisplayedForces);
         }
     });
 };

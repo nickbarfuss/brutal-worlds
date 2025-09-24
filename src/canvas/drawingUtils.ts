@@ -31,7 +31,11 @@ export const drawUICanvas = (
     ctx.save();
     ctx.globalAlpha = globalAlpha;
 
-    
+    const requestRedraw = () => {
+        // Since drawUICanvas is called in a requestAnimationFrame loop,
+        // simply updating the animation state is enough to trigger a redraw
+        // on the next frame. No explicit redraw request is needed here.
+    };
     
     const enclaveScreenPositions: { [id: number]: { x: number; y: number; visible: boolean } } = {};
     Object.values(enclaveData).forEach(enclave => {
@@ -57,7 +61,7 @@ export const drawUICanvas = (
         }
     }
     
-    drawAllEnclaves(ctx, { enclaveData, enclaveScreenPositions, selectedEnclaveId, hoveredCellId, mapData, currentWorld, routes, activeHighlight, clockTime, activeEventMarkers });
+    drawAllEnclaves(ctx, { enclaveData, enclaveScreenPositions, selectedEnclaveId, hoveredCellId, mapData, currentWorld, routes, activeHighlight, clockTime, activeEventMarkers, requestRedraw });
 
     ctx.restore();
 };
