@@ -87,6 +87,8 @@ export const useGameEngine = () => {
             return;
         }
         
+        dispatch({ type: 'START_RESOLVING_TURN' });
+        
         const serializableState = serializeGameStateForWorker({
             enclaveData: latestState.enclaveData,
             playerPendingOrders: latestState.playerPendingOrders,
