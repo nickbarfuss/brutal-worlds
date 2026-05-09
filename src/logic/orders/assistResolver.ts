@@ -29,7 +29,7 @@ export const resolveAssists = (
 
         const assistMultiplier = getAssistMultiplierForEnclave(origin);
         const safeForces = Number.isFinite(origin.forces) ? origin.forces : 0;
-        const forceToSend = Math.ceil(safeForces * assistMultiplier);
+        const forceToSend = Math.floor(safeForces * assistMultiplier);
 
         if (forceToSend > 0 && safeForces >= forceToSend) {
             // Store the deltas instead of applying them immediately.

@@ -76,10 +76,10 @@ export const calculateEnclaveTurnPreview = (
     // Simulate forces leaving from this enclave
     if (outgoingOrder) {
         if (outgoingOrder.type === 'attack') {
-            predictedForces -= Math.ceil(originalForces * 0.35);
+            predictedForces -= Math.floor(originalForces * 0.35);
         } else if (outgoingOrder.type === 'assist') {
             const assistMultiplier = getAssistMultiplierForEnclave(enclave);
-            predictedForces -= Math.ceil(originalForces * assistMultiplier);
+            predictedForces -= Math.floor(originalForces * assistMultiplier);
         }
     }
     
@@ -127,7 +127,7 @@ export const calculateEnclaveTurnPreview = (
                 });
                 const { combatModifier } = getAppliedModifiers(originEnclave, rules, { enclaveData, routes } as Partial<GameState> as GameState);
                 const originForces = Number.isFinite(originEnclave.forces) ? originEnclave.forces : 0;
-                const baseUnitsSent = Math.ceil(originForces * 0.35);
+                const baseUnitsSent = Math.floor(originForces * 0.35);
                 const effectiveForce = Math.floor(baseUnitsSent * combatModifier);
                 const bonus = 1 + getAttackBonusForEnclave(originEnclave);
                 const power = effectiveForce + bonus;
@@ -146,22 +146,22 @@ export const calculateEnclaveTurnPreview = (
     if (totalAttackPower > 0) {
         if (totalAttackPower <= defenderStrength) { // Defender Wins
             finalForces = defenderStrength - totalAttackPower;
-            if (finalForces <= originalForces / 2) finalStatus = 'substantiallyWeakened';
-            else finalStatus = 'weakened';
+            if (finalForces === 0) {
+                finalStatus = 'neutralized';
+                neutralizedByAttack = true;
+                finalOwner = null;
+            } else if (finalForces <= originalForces / 2) {
+                finalStatus = 'substantiallyWeakened';
+            } else {
+                finalStatus = 'weakened';
+            }
         } else { // Attackers Win
             if (incomingAttackers.length === 1) { // Single Attacker
                 const survivingUnits = incomingAttackers[0].units - defenderStrength;
-                if (survivingUnits > 0) {
-                    finalStatus = 'conquered';
-                    finalForces = Math.max(1, survivingUnits);
-                    finalOwner = incomingAttackers[0].attacker.owner;
-                    conqueror = incomingAttackers[0].attacker;
-                } else {
-                    finalStatus = 'neutralized';
-                    neutralizedByAttack = true;
-                    finalForces = 0;
-                    finalOwner = null;
-                }
+                finalStatus = 'conquered';
+                finalForces = Math.max(1, survivingUnits);
+                finalOwner = incomingAttackers[0].attacker.owner;
+                conqueror = incomingAttackers[0].attacker;
             } else { // Multi-Attacker (Total War Melee Preview)
                 // Phase 1: Distribute Casualties
                 const totalRealUnitsSent = incomingAttackers.reduce((sum, a) => sum + a.units, 0);
@@ -221,14 +221,9 @@ export const calculateEnclaveTurnPreview = (
                             const victorData = victorEntry[1];
                             const totalLoserUnits = losers.reduce((sum, [, data]) => sum + data.units, 0);
                             const finalVictorUnits = victorData.units - totalLoserUnits;
-                            
-                            if (finalVictorUnits > 0) {
-                                finalStatus = 'conquered'; finalOwner = victorEntry[0];
-                                conqueror = victorData.detachments[0].attacker;
-                                finalForces = Math.max(1, finalVictorUnits);
-                            } else {
-                                finalStatus = 'neutralized'; neutralizedByAttack = true; finalForces = 0; finalOwner = null;
-                            }
+                            finalStatus = 'conquered'; finalOwner = victorEntry[0];
+                            conqueror = victorData.detachments[0].attacker;
+                            finalForces = Math.max(1, finalVictorUnits);
                         } else {
                             finalStatus = 'neutralized'; neutralizedByAttack = true; finalForces = 0; finalOwner = null;
                         }

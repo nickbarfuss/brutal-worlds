@@ -684,6 +684,9 @@ export const ASSETS = {
   // music
   music: {
     track: [
+      { src: `${CONFIG.CDN.music}/mbh-nullfield-beacon.mp3` },
+      { src: `${CONFIG.CDN.music}/mbh-forge-protocol.mp3` },
+      /*
       { src: `${CONFIG.CDN.music}/ambient-remote-research.mp3` },
       { src: `${CONFIG.CDN.music}/spaceship-workstation-ambience.mp3` },
       { src: `${CONFIG.CDN.music}/lost-signals.mp3` },
@@ -694,6 +697,7 @@ export const ASSETS = {
       { src: `${CONFIG.CDN.music}/distant-planet-ambience.mp3` },
       { src: `${CONFIG.CDN.music}/ambient-meditation-soundscape.mp3` },
       { src: `${CONFIG.CDN.music}/documentary-science.mp3` },
+       */
     ],
   },
 

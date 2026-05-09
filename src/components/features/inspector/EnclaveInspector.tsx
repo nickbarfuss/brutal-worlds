@@ -76,7 +76,7 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
         });
         const { combatModifier } = getAppliedModifiers(enclave, rules, gameState as any);
         if (outgoingOrder.type === 'attack') {
-            const baseForces = Math.ceil(safeCurrentForces * 0.35);
+            const baseForces = Math.floor(safeCurrentForces * 0.35);
             outgoingOrderValues.base = Math.floor(baseForces * combatModifier);
             outgoingOrderValues.bonus = 1 + getAttackBonusForEnclave(enclave);
         } else if (outgoingOrder.type === 'assist') {
@@ -310,12 +310,12 @@ const EnclaveInspector: React.FC<EnclaveInspectorProps> = ({
 
                       let incomingValues = { base: 0, bonus: 0 };
                       if (order.type === 'attack') {
-                          const baseForces = Math.ceil(safeForces * 0.35);
+                          const baseForces = Math.floor(safeForces * 0.35);
                           incomingValues.base = Math.floor(baseForces * combatModifier);
                           incomingValues.bonus = 1 + getAttackBonusForEnclave(currentFromEnclave); // Use renamed variable
                       } else if (order.type === 'assist') {
                           const assistMultiplier = getAssistMultiplierForEnclave(currentFromEnclave); // Use renamed variable
-                          incomingValues.base = Math.ceil(safeForces * assistMultiplier);
+                          incomingValues.base = Math.floor(safeForces * assistMultiplier);
                       }
     
                       return (

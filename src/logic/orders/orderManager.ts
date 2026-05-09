@@ -134,9 +134,9 @@ export const handleSingleClick = (
 
                 if (orderType === 'assist') {
                     const assistMultiplier = getAssistMultiplierForEnclave(originEnclave);
-                    forceToSend = Math.ceil(safeForces * assistMultiplier);
+                    forceToSend = Math.floor(safeForces * assistMultiplier);
                 } else { // Attack
-                    forceToSend = Math.ceil(safeForces * 0.35);
+                    forceToSend = Math.floor(safeForces * 0.35);
                 }
 
                 if (safeForces - forceToSend > 0) { // Valid order condition

@@ -38,6 +38,10 @@ export const resolveConquests = (
 
     if (totalAttackPower <= safeTargetForces) { // Defenders Win
         target.forces = safeTargetForces - totalAttackPower;
+        if (target.forces === 0) {
+            target.owner = null;
+            target.archetypeKey = undefined;
+        }
         newEnclavesMap.set(targetId, target);
         return { newEnclavesMap, events };
     }
@@ -45,15 +49,9 @@ export const resolveConquests = (
     if (attackers.length === 1) { // Single Attacker Conquest
         const attacker = attackers[0];
         const survivingUnits = attacker.units - safeTargetForces;
-        if (survivingUnits > 0) {
-            target.owner = attacker.owner;
-            target.archetypeKey = attacker.archetypeKey;
-            target.forces = Math.min(FORCE_SUPPLY_CAP, Math.max(1, survivingUnits));
-        } else {
-            target.owner = null;
-            target.archetypeKey = undefined;
-            target.forces = 0;
-        }
+        target.owner = attacker.owner;
+        target.archetypeKey = attacker.archetypeKey;
+        target.forces = Math.min(FORCE_SUPPLY_CAP, Math.max(1, survivingUnits));
     } else { // Multi-Attacker Conquest
         const totalRealUnitsSent = attackers.reduce((sum, a) => sum + a.units, 0);
         const attackerSurvivors = attackers.map(a => ({ attacker: a, units: a.units }));
@@ -117,14 +115,9 @@ export const resolveConquests = (
                     const victorData = victorEntry[1];
                     const totalLoserUnits = losers.reduce((sum, [, data]) => sum + data.units, 0);
                     const finalVictorUnits = victorData.units - totalLoserUnits;
-                    
-                    if (finalVictorUnits > 0) {
-                        target.owner = victor;
-                        target.archetypeKey = victorData.detachments[0].attacker.archetypeKey;
-                        target.forces = Math.min(FORCE_SUPPLY_CAP, Math.max(1, finalVictorUnits));
-                    } else {
-                        target.owner = null; target.archetypeKey = undefined; target.forces = 0;
-                    }
+                    target.owner = victor;
+                    target.archetypeKey = victorData.detachments[0].attacker.archetypeKey;
+                    target.forces = Math.min(FORCE_SUPPLY_CAP, Math.max(1, finalVictorUnits));
                 } else {
                     target.owner = null; target.archetypeKey = undefined; target.forces = 0;
                 }

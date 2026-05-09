@@ -320,7 +320,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                         return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
                     });
                     const { combatModifier } = getAppliedModifiers(fromEnclave, rules, engine);
-                    const baseForces = Math.ceil(safeForces * 0.35);
+                    const baseForces = Math.floor(safeForces * 0.35);
                     content.baseValue = Math.floor(baseForces * combatModifier);
                     content.bonusValue = 1 + getAttackBonusForEnclave(fromEnclave);
                     
@@ -344,7 +344,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     }
                 } else { // assist
                     const assistMultiplier = getAssistMultiplierForEnclave(fromEnclave);
-                    content.baseValue = Math.ceil(safeForces * assistMultiplier);
+                    content.baseValue = Math.floor(safeForces * assistMultiplier);
                     content.bonusValue = 0;
 
                     if (fromArchetype && fromEnclave.archetypeKey === 'labyrinthineGhost') {

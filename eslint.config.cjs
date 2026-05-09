@@ -4,7 +4,7 @@ const tseslint = require("typescript-eslint");
 const reactHooksPlugin = require("eslint-plugin-react-hooks");
 const reactRefreshPlugin = require("eslint-plugin-react-refresh");
 const reactPlugin = require("eslint-plugin-react");
-const importPlugin = require("eslint-plugin-import");
+const importPlugin = require("eslint-plugin-import-x");
 
 module.exports = tseslint.config(
   {
@@ -33,8 +33,18 @@ module.exports = tseslint.config(
       react: {
         version: "detect",
       },
+      "import-x/resolver": {
+        typescript: {
+          alwaysTryTypes: true,
+          project: __dirname,
+        },
+        node: true,
+      },
       "import/resolver": {
-        typescript: true,
+        typescript: {
+          alwaysTryTypes: true,
+          project: __dirname,
+        },
         node: true,
       },
     },

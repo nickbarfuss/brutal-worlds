@@ -49,7 +49,7 @@ const findBestMoveForEnclave = (
             return (phaseLogic && 'rules' in phaseLogic) ? phaseLogic.rules : [];
         });
         const { combatModifier } = getAppliedModifiers(origin, rules, { enclaveData, routes } as Partial<GameState> as GameState);
-        const forceToSend = Math.ceil(safeOriginForces * 0.35);
+        const forceToSend = Math.floor(safeOriginForces * 0.35);
         const effectiveForce = Math.floor(forceToSend * combatModifier);
         const totalDamage = effectiveForce + 1 + getAttackBonusForEnclave(origin);
         const safeTargetForces = Number.isFinite(weakestAttackTarget.forces) ? weakestAttackTarget.forces : Infinity;
@@ -65,7 +65,7 @@ const findBestMoveForEnclave = (
 
     if (weakestAlly && safeAllyForces < DANGER_THRESHOLD && safeOriginForces >= MIN_ASSIST_FORCE) {
         const assistMultiplier = getAssistMultiplierForEnclave(origin);
-        const forceToSend = Math.ceil(safeOriginForces * assistMultiplier);
+        const forceToSend = Math.floor(safeOriginForces * assistMultiplier);
         if (safeOriginForces - forceToSend > 2) {
             return { to: weakestAlly.id, type: 'assist' };
         }
