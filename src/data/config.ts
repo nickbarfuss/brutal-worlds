@@ -14,7 +14,7 @@ export const CONFIG = {
     
     //testing and debugging features
     QUICK_START: {
-        enabled: true,
+        enabled: false,
         player1Archetype: 'firstSword',
         player1Legacy: 'annihilationDoctrine',
         player2Archetype: 'pactWhisperer',
@@ -30,7 +30,7 @@ export const CONFIG = {
     // Audio settings and defaults
     AUDIO_DEFAULTS: {
         volumes: { fx: 0.7, ambient: 0.5, music: 0.6, ui: 0.6, dialog: 0.8 },
-        mutedChannels: { fx: false, ambient: true, music: true, ui: false, dialog: false },
+        mutedChannels: { fx: false, ambient: false, music: false, ui: false, dialog: false },
     },
     
     // Visual settings and post-processing defaults

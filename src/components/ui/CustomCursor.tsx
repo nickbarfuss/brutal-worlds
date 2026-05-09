@@ -26,7 +26,7 @@ const CustomCursor: React.FC = () => {
     >
       <div style={{ transform: 'translate(-50%, -50%)' }}>
         <img
-          src="https://storage.googleapis.com/brutal-worlds/cursor/spinner.png"
+          src="/cursor/spinner.png"
           alt="loading cursor"
           className="h-8 w-8 animate-rotate-continuously"
         />

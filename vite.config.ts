@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 4000, // Set the development server port
         hmr: {
+          host: 'localhost',
           overlay: true, // set to true to view the overlay debug in the browser
         },
       },

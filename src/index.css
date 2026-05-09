@@ -4,14 +4,14 @@
 
 @layer base {
     :root {
-      --cursor-default: url('https://storage.googleapis.com/brutal-worlds/cursor/default.png') 6 6, auto;
-      --cursor-pointer: url('https://storage.googleapis.com/brutal-worlds/cursor/pointer.png') 6 6, pointer;
-      --cursor-grab: url('https://storage.googleapis.com/brutal-worlds/cursor/pointer.png') 6 6, grab;
-      --cursor-grabbing: url('https://storage.googleapis.com/brutal-worlds/cursor/pointer.png') 6 6, grabbing;
-      --cursor-order-attack: url('https://storage.googleapis.com/brutal-worlds/cursor/attack.png') 16 16, crosshair;
-      --cursor-order-assist: url('https://storage.googleapis.com/brutal-worlds/cursor/assist.png') 16 16, crosshair;
-      --cursor-order-hold: url('https://storage.googleapis.com/brutal-worlds/cursor/hold.svg') 16 16, crosshair;
-      --cursor-order-invalid: url('https://storage.googleapis.com/brutal-worlds/cursor/invalid.png') 16 16, not-allowed;
+      --cursor-default: url('/cursor/default.png') 6 6, auto;
+      --cursor-pointer: url('/cursor/pointer.png') 6 6, pointer;
+      --cursor-grab: url('/cursor/pointer.png') 6 6, grab;
+      --cursor-grabbing: url('/cursor/pointer.png') 6 6, grabbing;
+      --cursor-order-attack: url('/cursor/attack.png') 16 16, crosshair;
+      --cursor-order-assist: url('/cursor/assist.png') 16 16, crosshair;
+      --cursor-order-hold: url('/cursor/hold.svg') 16 16, crosshair;
+      --cursor-order-invalid: url('/cursor/invalid.png') 16 16, not-allowed;
     }
 
     html {
