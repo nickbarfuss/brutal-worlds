@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import * as THREE from 'three';
 import { vfxManager, sfxManager } from '@/logic/effects';
 import { WorldCanvasHandle } from '@/features/world/WorldCanvas';
 import { turnBasedEffects, Effect } from '@/features/effects/turn-based/turnBasedEffects';
@@ -13,28 +14,48 @@ const TurnBasedEffectsPlayer: React.FC<TurnBasedEffectsPlayerProps> = ({ worldCa
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [activeEffects, setActiveEffects] = useState<ActiveEffect[]>([]);
     const activeEffectsRef = useRef<ActiveEffect[]>([]);
+    const queuedEffectsRef = useRef<Effect[]>([]);
 
     useEffect(() => {
         activeEffectsRef.current = activeEffects;
     }, [activeEffects]);
 
+    const playEffectImmediate = useCallback((effect: Effect) => {
+        if (effect.type === 'vfx') {
+            const newEffect = vfxManager.playEffect(effect.key, effect.position, () => {
+                setActiveEffects(prev => prev.filter(e => e.video !== newEffect?.video));
+            });
+            if (newEffect) {
+                setActiveEffects(prev => [...prev, newEffect]);
+            }
+        } else if (effect.type === 'sfx') {
+            sfxManager.playSound(effect.key, 'fx', effect.position);
+        }
+    }, []);
+
     useEffect(() => {
         const handlePlayEffect = (effect: Effect) => {
-            if (effect.type === 'vfx') {
-                const newEffect = vfxManager.playEffect(effect.key, effect.position, () => {
-                    setActiveEffects(prev => prev.filter(e => e.video !== newEffect?.video));
-                });
-                if (newEffect) {
-                    setActiveEffects(prev => [...prev, newEffect]);
-                }
-            } else if (effect.type === 'sfx') {
-                sfxManager.playSound(effect.key, 'fx', effect.position);
+            const mapContainer = worldCanvasHandle.current?.mapContainer;
+            const camera = worldCanvasHandle.current?.camera;
+            
+            let isVisible = false;
+            if (mapContainer && camera) {
+                const worldPos = effect.position.clone().applyMatrix4(mapContainer.matrixWorld);
+                const viewVector = new THREE.Vector3().subVectors(camera.position, worldPos);
+                const normal = worldPos.clone().normalize();
+                isVisible = viewVector.dot(normal) > 0;
+            }
+
+            if (isVisible) {
+                playEffectImmediate(effect);
+            } else {
+                queuedEffectsRef.current.push(effect);
             }
         };
 
         turnBasedEffects.addListener(handlePlayEffect);
         return () => turnBasedEffects.removeListener(handlePlayEffect);
-    }, []);
+    }, [worldCanvasHandle, playEffectImmediate]);
 
     useEffect(() => {
         const parentRefCurrent = parentRef.current;
@@ -54,7 +75,28 @@ const TurnBasedEffectsPlayer: React.FC<TurnBasedEffectsPlayerProps> = ({ worldCa
         let animationFrameId: number;
 
         const render = () => {
-            if (canvasRef.current && worldCanvasHandle.current?.camera && worldCanvasHandle.current?.mapContainer) {
+            const mapContainer = worldCanvasHandle.current?.mapContainer;
+            const camera = worldCanvasHandle.current?.camera;
+
+            // Check queued effects for visibility
+            if (mapContainer && camera && queuedEffectsRef.current.length > 0) {
+                const remainingQueue: Effect[] = [];
+                for (const effect of queuedEffectsRef.current) {
+                    const worldPos = effect.position.clone().applyMatrix4(mapContainer.matrixWorld);
+                    const viewVector = new THREE.Vector3().subVectors(camera.position, worldPos);
+                    const normal = worldPos.clone().normalize();
+                    const isVisible = viewVector.dot(normal) > 0;
+
+                    if (isVisible) {
+                        playEffectImmediate(effect);
+                    } else {
+                        remainingQueue.push(effect);
+                    }
+                }
+                queuedEffectsRef.current = remainingQueue;
+            }
+
+            if (canvasRef.current && camera && mapContainer) {
                 const ctx = canvasRef.current.getContext('2d');
                 if (ctx) {
                     const dpr = window.devicePixelRatio || 1;
@@ -64,7 +106,7 @@ const TurnBasedEffectsPlayer: React.FC<TurnBasedEffectsPlayerProps> = ({ worldCa
                     ctx.scale(dpr, dpr);
                     
                     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-                    vfxManager.updateAndDraw(ctx, worldCanvasHandle.current.mapContainer, worldCanvasHandle.current.camera, activeEffectsRef.current);
+                    vfxManager.updateAndDraw(ctx, mapContainer, camera, activeEffectsRef.current);
                 }
             }
             animationFrameId = requestAnimationFrame(render);
@@ -78,7 +120,7 @@ const TurnBasedEffectsPlayer: React.FC<TurnBasedEffectsPlayerProps> = ({ worldCa
                 parentRefCurrent.removeChild(canvasRef.current);
             }
         };
-    }, [worldCanvasHandle, parentRef]);
+    }, [worldCanvasHandle, parentRef, playEffectImmediate]);
 
     return null;
 };
