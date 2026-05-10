@@ -127,7 +127,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
             const videoEnter = videoEnterRef.current;
             const videoExit = videoExitRef.current;
 
-            if (!videoEnter || !videoExit || !isFinite(videoEnter.duration) || !isFinite(videoExit.duration) || !titleRef.current) {
+            const enterDuration = videoEnter && isFinite(videoEnter.duration) ? videoEnter.duration : 3;
+            const exitDuration = videoExit && isFinite(videoExit.duration) ? videoExit.duration : 3;
+
+            if (!titleRef.current) {
                 return;
             }
 
@@ -160,15 +163,14 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     setWarpPhase('idle');
                 }
             });
-
-            const enterDuration = videoEnter.duration;
-            const exitDuration = videoExit.duration;
         
             tl
                 .call(() => {
                     setIntroPhase('entry');
-                    videoEnter.currentTime = 0;
-                    videoEnter.play();
+                    if (videoEnter && isFinite(videoEnter.duration)) {
+                        videoEnter.currentTime = 0;
+                        videoEnter.play();
+                    }
                     sfxManager.playSound('cinematic-intro-sfx', 'fx');
                 })
                 .call(playWorldSounds, [], "+=1.0")
@@ -185,8 +187,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                 .to({}, { duration: 3.2 })
                 .call(() => {
                     setIntroPhase('exit');
-                    videoExit.currentTime = 0;
-                    videoExit.play();
+                    if (videoExit && isFinite(videoExit.duration)) {
+                        videoExit.currentTime = 0;
+                        videoExit.play();
+                    }
                     sfxManager.playSound('cinematic-arrival-sfx', 'fx');
                     setWarpPhase('ending');
                 })
@@ -217,8 +221,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         readyCheckInterval = window.setInterval(() => {
             if (
                 worldCanvasHandle.current?.camera && 
-                videoEnterRef.current?.readyState === 4 && 
-                videoExitRef.current?.readyState === 4 &&
                 titleRef.current
             ) {
                 clearInterval(readyCheckInterval);
@@ -250,7 +252,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
         return () => document.body.classList.remove('hide-cursor');
     }, [engine.isResolvingTurn]);
 
-    const { activeHighlight, convertLatLonToVector3, highlightBorderMeshes, highlightBorderMaterials, highlightBorderOpacity, permanentBorderMeshes } = useWorldHighlights({
+    const { activeHighlight, convertLatLonToVector3, highlightBorderMeshes, highlightBorderMaterials, highlightBorderOpacity, permanentBorderMeshes, permanentBorderMaterials } = useWorldHighlights({
         mapData: engine.mapData,
         enclaveData: engine.enclaveData,
         domainData: engine.domainData,
@@ -826,7 +828,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ engine }) => {
                     activeHighlight={activeHighlight}
                     highlightBorderOpacity={highlightBorderOpacity}
                     permanentBorderMeshes={permanentBorderMeshes}
-                    permanentBorderMaterials={highlightBorderMaterials}
+                    permanentBorderMaterials={permanentBorderMaterials}
                     gameSessionId={engine.gameSessionId}
                     mapData={engine.mapData}
                     domainData={engine.domainData}

@@ -147,7 +147,7 @@ const WORLDS: { [key: string]: WorldDataObject } = {
             strength: 1.40,
             radius: 1.0,
         },
-        config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 606, NUM_POINTS: 2000, LAND_COVERAGE_MIN: 0.45, LAND_COVERAGE_MAX: 0.55, ISLAND_DOMAINS_MIN: 0, ISLAND_DOMAINS_MAX: 0, ENCLAVE_SIZE_MIN: 15, ENCLAVE_SIZE_MAX: 25 },
+        config: { ...CONFIG.WORLD_STANDARD_CONFIG, seed: 606, NUM_POINTS: 1500, LAND_COVERAGE_MIN: 0.45, LAND_COVERAGE_MAX: 0.55, ISLAND_DOMAINS_MIN: 0, ISLAND_DOMAINS_MAX: 0, ENCLAVE_SIZE_MIN: 15, ENCLAVE_SIZE_MAX: 25 },
         disasterChance: 0.22,
         possibleDisasters: ['pyroclasm', 'resonance-cascade'],
         nebula: {

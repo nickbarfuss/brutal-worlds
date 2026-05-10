@@ -171,6 +171,7 @@ export const useWorldRenderer = (props: MapRendererProps) => {
       pointerDownTime: 0,
       pointerDownPosition: new THREE.Vector2(),
       isDragging: false,
+      lastRaycastTime: 0,
     },
     objectColorTransitions: new Map<number, any>(),
     lastTargetColors: new Map<number, THREE.Color>(),
@@ -621,12 +622,15 @@ export const useWorldRenderer = (props: MapRendererProps) => {
       nebulaGroup.children.forEach((plane, _i) => plane.lookAt(camera.position));
 
       if (!state.pointerInteraction.isDragging && isIntroComplete) {
-        const cellId = getCellIdFromEvent(pointer);
-        const currentHoverId = stateRef.current.props.hoveredCellId;
-        if (cellId !== null && cellId !== currentHoverId) {
-          stateRef.current.props.setHoveredCellId(cellId);
-        } else if (cellId === null && currentHoverId !== -1) {
-          stateRef.current.props.setHoveredCellId(-1);
+        if (time - state.pointerInteraction.lastRaycastTime > 100) {
+          state.pointerInteraction.lastRaycastTime = time;
+          const cellId = getCellIdFromEvent(pointer);
+          const currentHoverId = stateRef.current.props.hoveredCellId;
+          if (cellId !== null && cellId !== currentHoverId) {
+            stateRef.current.props.setHoveredCellId(cellId);
+          } else if (cellId === null && currentHoverId !== -1) {
+            stateRef.current.props.setHoveredCellId(-1);
+          }
         }
       }
 

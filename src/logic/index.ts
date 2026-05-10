@@ -99,7 +99,6 @@ export const reducer = (state: GameState, action: Action, vfxManager: VfxManager
         case 'HANDLE_DBL_CLICK':
         case 'FOCUS_ON_ENCLAVE':
         case 'FOCUS_ON_VECTOR':
-        case 'SET_ACTIVE_HIGHLIGHT':
             return handleMapInteraction(state, action);
 
         // Turn Logic
@@ -144,6 +143,7 @@ export const reducer = (state: GameState, action: Action, vfxManager: VfxManager
         case 'SET_INSPECTED_ARCHETYPE_OWNER':
         case 'SET_INSPECTED_MAP_ENTITY':
         case 'SET_WORLD_INSPECTOR_MANUALLY_CLOSED':
+        case 'SET_ACTIVE_HIGHLIGHT':
         case 'TOGGLE_SETTINGS_DRAWER':
         case 'TOGGLE_GLOBAL_MUTE':
         case 'SET_VOLUME':

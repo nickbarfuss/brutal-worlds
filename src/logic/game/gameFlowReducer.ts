@@ -40,68 +40,73 @@ export const handleGameFlow = (state: GameState, action: Action, baseInitialStat
             const worldProfile = WORLD_LIBRARY.find(w => w.key === worldKey);
             if (!worldProfile) return { ...state, error: `Selected world "${worldKey}" could not be loaded.` };
 
-            const archetypeKeys = Object.keys(ARCHETYPES);
-            const opponentArchetypeKey = specifiedOpponentKey && ARCHETYPES[specifiedOpponentKey]
-                ? specifiedOpponentKey
-                : archetypeKeys.filter(k => k !== playerArchetypeKey)[Math.floor(Math.random() * (archetypeKeys.length -1))];
-            
-            const opponentArchetype = ARCHETYPES[opponentArchetypeKey];
-            const opponentLegacyKey = (specifiedOpponentLegacyKey && opponentArchetype.legacies[specifiedOpponentLegacyKey])
-                ? specifiedOpponentLegacyKey
-                : Object.keys(opponentArchetype.legacies)[Math.floor(Math.random() * Object.keys(opponentArchetype.legacies).length)];
-
-            const { newMapData, newEnclaveData, newDomainData, newRiftData, newExpanseData, newRoutes, planetName } = generateNewWorld(worldProfile);
-            Object.values(newEnclaveData).forEach(enclave => {
-                if (enclave.owner === 'player-1') enclave.archetypeKey = playerArchetypeKey;
-                else if (enclave.owner === 'player-2') enclave.archetypeKey = opponentArchetypeKey;
-            });
-
-            const playerStartEnclave = Object.values(newEnclaveData).find(e => e.owner === 'player-1');
-
-            // Apply world-specific settings, but fall back to the player's CURRENT settings, not the initial defaults.
-            const bloomSettings = (state.isBloomEnabled && worldProfile.bloom)
-                ? worldProfile.bloom
-                : state.bloomSettings;
-            const tonemappingStrength = worldProfile.tonemappingStrength ?? state.tonemappingStrength;
-
-            return {
-                ...baseInitialState, // Reset game logic state
-                isInitialized: state.isInitialized, // Preserve initialization status
-                // FIX: Use an incrementing counter for the session ID to guarantee uniqueness
-                // and prevent a race condition with the web worker.
-                gameSessionId: state.gameSessionId + 1,
+            try {
+                const archetypeKeys = Object.keys(ARCHETYPES);
+                const opponentArchetypeKey = specifiedOpponentKey && ARCHETYPES[specifiedOpponentKey]
+                    ? specifiedOpponentKey
+                    : archetypeKeys.filter(k => k !== playerArchetypeKey)[Math.floor(Math.random() * (archetypeKeys.length -1))];
                 
-                // Carry over user settings.
-                volumes: state.volumes,
-                mutedChannels: state.mutedChannels,
-                materialSettings: state.materialSettings,
-                ambientLightIntensity: state.ambientLightIntensity,
+                const opponentArchetype = ARCHETYPES[opponentArchetypeKey];
+                const opponentLegacyKey = (specifiedOpponentLegacyKey && opponentArchetype.legacies[specifiedOpponentLegacyKey])
+                    ? specifiedOpponentLegacyKey
+                    : Object.keys(opponentArchetype.legacies)[Math.floor(Math.random() * Object.keys(opponentArchetype.legacies).length)];
 
-                // Apply new game's settings
-                isBloomEnabled: state.isBloomEnabled, // Respect user's on/off preference
-                bloomSettings: bloomSettings,
-                tonemappingStrength: tonemappingStrength,
+                const { newMapData, newEnclaveData, newDomainData, newRiftData, newExpanseData, newRoutes, planetName } = generateNewWorld(worldProfile);
+                Object.values(newEnclaveData).forEach(enclave => {
+                    if (enclave.owner === 'player-1') enclave.archetypeKey = playerArchetypeKey;
+                    else if (enclave.owner === 'player-2') enclave.archetypeKey = opponentArchetypeKey;
+                });
 
-                // New game state setup
-                gamePhase: 'playing', 
-                currentTurn: 0, // Start at "Turn 0"
-                playerArchetypeKey, 
-                playerLegacyKey,
-                opponentArchetypeKey, 
-                opponentLegacyKey,
-                currentWorld: worldProfile,
-                mapData: newMapData, enclaveData: newEnclaveData, domainData: newDomainData, riftData: newRiftData,
-                expanseData: newExpanseData, routes: newRoutes, planetName,
-                playerGambits: [], // Gambit system is disabled, ensure this is empty.
-                opponentGambits: [], // Gambit system is disabled, ensure this is empty.
-                playerPendingOrders: {},
-                aiPendingOrders: {},
-                isIntroComplete: false,
-                initialCameraTarget: playerStartEnclave ? playerStartEnclave.center.clone() : null,
-                activeHighlight: null,
-                inspectedMapEntity: { type: 'world' },
-                worldInspectorManuallyClosed: false,
-            };
+                const playerStartEnclave = Object.values(newEnclaveData).find(e => e.owner === 'player-1');
+
+                // Apply world-specific settings, but fall back to the player's CURRENT settings, not the initial defaults.
+                const bloomSettings = (state.isBloomEnabled && worldProfile.bloom)
+                    ? worldProfile.bloom
+                    : state.bloomSettings;
+                const tonemappingStrength = worldProfile.tonemappingStrength ?? state.tonemappingStrength;
+
+                return {
+                    ...baseInitialState, // Reset game logic state
+                    isInitialized: state.isInitialized, // Preserve initialization status
+                    // FIX: Use an incrementing counter for the session ID to guarantee uniqueness
+                    // and prevent a race condition with the web worker.
+                    gameSessionId: state.gameSessionId + 1,
+                    
+                    // Carry over user settings.
+                    volumes: state.volumes,
+                    mutedChannels: state.mutedChannels,
+                    materialSettings: state.materialSettings,
+                    ambientLightIntensity: state.ambientLightIntensity,
+
+                    // Apply new game's settings
+                    isBloomEnabled: state.isBloomEnabled, // Respect user's on/off preference
+                    bloomSettings: bloomSettings,
+                    tonemappingStrength: tonemappingStrength,
+
+                    // New game state setup
+                    gamePhase: 'playing', 
+                    currentTurn: 0, // Start at "Turn 0"
+                    playerArchetypeKey, 
+                    playerLegacyKey,
+                    opponentArchetypeKey, 
+                    opponentLegacyKey,
+                    currentWorld: worldProfile,
+                    mapData: newMapData, enclaveData: newEnclaveData, domainData: newDomainData, riftData: newRiftData,
+                    expanseData: newExpanseData, routes: newRoutes, planetName,
+                    playerGambits: [], // Gambit system is disabled, ensure this is empty.
+                    opponentGambits: [], // Gambit system is disabled, ensure this is empty.
+                    playerPendingOrders: {},
+                    aiPendingOrders: {},
+                    isIntroComplete: false,
+                    initialCameraTarget: playerStartEnclave ? playerStartEnclave.center.clone() : null,
+                    activeHighlight: null,
+                    inspectedMapEntity: { type: 'world' },
+                    worldInspectorManuallyClosed: false,
+                };
+            } catch (error) {
+                console.error('Error generating world:', error);
+                return { ...state, error: `Failed to generate world: ${error instanceof Error ? error.message : String(error)}` };
+            }
         }
 
         case 'RESET_GAME':
